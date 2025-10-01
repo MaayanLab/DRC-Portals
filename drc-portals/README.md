@@ -4,8 +4,9 @@
 ```bash
 # prepare .env file & review
 cp .env.example .env
-# start database
+# start database if not already running
 #  (NOTE: If you're running another postgres database on your system, you should turn it off as the ports will conflict)
+# This step is not needed if ingesting into the DB on the UCSD DB server as that DB is not in a container
 docker-compose up -d drc-portal-postgres
 # install node modules
 npm i
@@ -33,7 +34,7 @@ As the site evolves, changes may be made to the database. For the most part you 
 # Below, select the correct server/port/user or use dburl.py
 #psql -h [localhost|server] -U [drc|drcadmin] -d drc  -p [5432|5433|5434] -a -f drop_drc_tables_from_public_schema.sql; 
 #or, assuming ../database/C2M2 exists
-psql "$(python3 ../database/C2M2/dburl.py)" -a -f drop_drc_tables_from_public_schema.sql; 
+psql "$(python3 ../database/C2M2/dburl.py)" -a -f drop_drc_tables_from_public_schema.sql -L log_drop_drc_public_tables.log; 
 
 # get the latest changes
 git pull

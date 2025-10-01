@@ -29,7 +29,7 @@ function AccordionHeader(
     API: 'API Specifications',
     EntityPages: 'Entity Pages',
     PWBMetanodes: 'PWB Metanodes',
-    ChatbotSpecs: 'Chatbot Specifications',
+    Models: 'Models',
     AppsURL: 'Apps URLs'
   }
   const label = label_map[props.label as keyof typeof label_map]

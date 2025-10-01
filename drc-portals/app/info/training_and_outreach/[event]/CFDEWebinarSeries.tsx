@@ -10,7 +10,7 @@ import { Grid,
 	Divider
 } from "@mui/material";
 import prisma from "@/lib/prisma";
-import { OutreachWithDCC } from "@/components/misc/Outreach";
+import { OutreachWithDCCAndCenter } from "@/components/misc/Outreach";
 import Link from "@/utils/link";
 
 import Icon from '@mdi/react';
@@ -52,7 +52,7 @@ const Summary = ({section}: {section: AgendaType}) => (
 
 )
 
-const UpcomingWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
+const UpcomingWebinar = ({webinar}: {webinar: OutreachWithDCCAndCenter}) => {
 	const presenters: Array<AgendaType> = []
 	if (Array.isArray(webinar.agenda)) {
 		for (const item of webinar.agenda as Array<AgendaType>) {
@@ -101,7 +101,7 @@ const UpcomingWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
 	)
 }
 
-const PastWebinar = ({webinar}: {webinar: OutreachWithDCC}) => {
+const PastWebinar = ({webinar}: {webinar: OutreachWithDCCAndCenter}) => {
 	const presenters: Array<AgendaType> = []
 	if (Array.isArray(webinar.agenda)) {
 		for (const item of webinar.agenda as Array<AgendaType>) {
@@ -174,6 +174,11 @@ const CFDEWebinarSeries = async () => {
 				include: {
 					dcc: true
 				}
+			},
+			centers: {
+				include: {
+					center: true
+				}
 			}
 		},
 	})
@@ -189,6 +194,11 @@ const CFDEWebinarSeries = async () => {
 				include: {
 					dcc: true
 				}
+			},
+			centers: {
+				include: {
+					center: true
+				}
 			}
 		},
 		orderBy: {
@@ -196,15 +206,15 @@ const CFDEWebinarSeries = async () => {
 		}
 	})
 	return (
-		<Grid container spacing={1} justifyContent={"flex-start"} sx={{marginLeft:2}}>
+		<Grid container spacing={1} justifyContent={"flex-start"} sx={{marginLeft:2, mt: 2}}>
 			<Grid item xs={12}>
 				<Typography variant="h2" color="secondary">
 					CFDE Webinar Series
 				</Typography>
 			</Grid>
-			<Grid item xs={12}>
-				<Typography variant="body1">
-				Join us on the last Friday of each month from 1-2 PM Eastern Time to learn more about how the CFDE is harmonizing and discovering new knowledge by integrating datasets, tools and other resources from a collection of NIH Common Fund programs.
+			<Grid item xs={12} sx={{mb: 2}}>
+				<Typography variant="subtitle1">
+					Join us on the last Friday of each month from 1-2 PM Eastern Time to learn more about how the CFDE is harmonizing and discovering new knowledge by integrating datasets, tools and other resources from a collection of NIH Common Fund programs.
 				</Typography>
 			</Grid>
 			<Grid item xs={12}>

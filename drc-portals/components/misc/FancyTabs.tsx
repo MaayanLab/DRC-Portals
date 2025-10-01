@@ -65,16 +65,16 @@ export function FancyTabs(props: React.PropsWithChildren<{
     else if (!Object.values(ctx.tabs).some(tab => tab.loading)) return 'post'
     else return 'initializing'
   }, [ctx.tabs])
-  const tabs = React.useMemo(() => {
+  const {tabs, enabledTabs} = React.useMemo(() => {
     const tabs = Object.values(ctx.tabs).filter(tab => !tab.hidden)
     tabs.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0))
-    return tabs
+    return {tabs, enabledTabs: tabs.filter(tab => !tab.disabled)}
   }, [ctx.tabs])
   const currentTab = React.useMemo(() => [
     props.tab ? ctx.tabs[props.tab] : undefined,
     tab ? ctx.tabs[tab] : undefined,
     ...tabs,
-  ].filter(tab => tab && !tab.hidden && !tab.loading)[0]?.id, [props.tab, tab, tabs])
+  ].filter(tab => tab && !tab.disabled && !tab.hidden && !tab.loading)[0]?.id, [props.tab, tab, tabs])
   React.useEffect(() => {
     if (initializing_state !== 'pre' && props.tab === undefined && props.onChange && currentTab !== undefined) {
       props.onChange(undefined, currentTab)
@@ -123,7 +123,7 @@ export function FancyTabs(props: React.PropsWithChildren<{
         </Tabs>
       </Grid>
       <Grid item xs={10}>
-        {tabs.length > 0 ? null
+        {enabledTabs.length > 0 ? null
           : initializing_state === 'pre' ? props.preInitializationFallback
             : initializing_state === 'post' ? props.postInitializationFallback
               : null}

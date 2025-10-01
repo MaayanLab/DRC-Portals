@@ -15,10 +15,10 @@ fi
 
 host1=$1
 host2=$2
-port1=5432
-port2=5433
-user1=drcadmin
-user2=drc
+port1=5433
+port2=5432
+user1=drc
+user2=drcadmin
 
 #dbname=drc
 if [[ $# -lt 3 ]]; then
@@ -43,7 +43,9 @@ echo -e "logdir:${logdir}";
 # list of schemas for pg_dump: do not include 'public' since tables in there are init by prisma migration commands
 # and pg_dump doesn't work well on that.
 #schemas=('c2m2' 'slim' '_4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC');
-schemas=('_4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet');
+#schemas=('_4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet');
+# ERCC is now ExRNA
+schemas=('_4DN' 'ExRNA' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet');
 #schemas=('Metabolomics');
 
 if [[ $# -lt 5 ]]; then
@@ -80,7 +82,9 @@ for sch in "${schemas[@]}"; do
 	#pg_dump --clean --if-exists --no-owner --no-acl -v -h ${host1} -p ${port1} -U ${user1} -d ${dbname} -n ${sch} \
         #        -Fp | psql -b -v ON_ERROR_STOP=1 -h ${host2} -p ${port2} -U ${user2} -d ${dbname} -o ${logf}
         # For dropping tables but not schema, specify like -t schemaname.*
-	pg_dump --clean --if-exists --no-owner --no-acl -v -h ${host1} -p ${port1} -U ${user1} -d ${dbname} -t ${sch}.* \
+        # Use pg_dump for psql 16 instead of some other
+
+	/usr/pgsql-16/bin/pg_dump --clean --if-exists --no-owner --no-acl -v -h ${host1} -p ${port1} -U ${user1} -d ${dbname} -t ${sch}.* \
                 -Fp | psql -b -v ON_ERROR_STOP=1 -h ${host2} -p ${port2} -U ${user2} -d ${dbname} -o ${logf}
 	#pg_dump --clean --if-exists --no-owner --no-acl -v -h ${host1} -p ${port1} -U ${user1} -d ${dbname} -n ${sch} \
         #-t "${sch}.dcc" -t "${sch}.anatomy" -Fp -f pg_dump_${dbname}_from_cfdedb_${ymd}.sql

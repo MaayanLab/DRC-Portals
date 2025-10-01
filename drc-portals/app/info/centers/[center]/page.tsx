@@ -116,7 +116,7 @@ export default async function CenterDataPage({ params }: { params: { center: str
                     </Grid>
                     <Grid item xs={12} md={9}>
                         <Stack spacing={2}>
-                        <Typography variant="h3">{center.label}</Typography>
+                        <Typography variant="h2" color="secondary">{center.label}</Typography>
                         <Typography sx={{textAlign: "justify"}} variant="caption">{center.short_description}
                             {center.homepage && <>&nbsp;<Link color="secondary" variant="caption" href={center.homepage || ''} target="_blank" rel="noopener noreferrer">{center.homepage}</Link></>}                    
                         </Typography>
@@ -142,7 +142,7 @@ export default async function CenterDataPage({ params }: { params: { center: str
                                     p: PRenderer,
                                 }}
                                 className="prose max-w-none">
-                                    {center.description}
+                                    {center.description?.replace("<br/>", "&nbsp;\n\n")}
                             </ReactMarkdown>
                             {center.video_tutorial && <>
                                 <Typography variant="h4" sx={{marginBottom: 3}} color="secondary">Video Tutorial</Typography>

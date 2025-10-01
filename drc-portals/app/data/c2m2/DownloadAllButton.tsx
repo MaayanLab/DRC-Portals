@@ -10,7 +10,7 @@ interface DownloadAllButtonProps {
   filename?: string;
   name?: string;
   q?: string;
-  t?: { type: string; entity_type: string | null; }[] | undefined;
+  t?: { type: string; entity_type: string; }[] | undefined;
 }
 
 const DownloadAllButton: React.FC<DownloadAllButtonProps> = ({ apiEndpoint, filename = 'data.json', name = 'Download', q, t }) => {

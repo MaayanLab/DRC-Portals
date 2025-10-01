@@ -3,7 +3,7 @@ import React from "react";
 import NextLink from "next/link";
 import { sendGAEvent } from "@next/third-parties/google";
 
-export default function Link({ prefetch = false, onClick, ...props }: React.ComponentProps<typeof NextLink>) {
+const Link = React.forwardRef(({ prefetch = false, onClick, ...props }: React.ComponentProps<typeof NextLink>, ref: React.Ref<HTMLAnchorElement>) => {
   return <NextLink
     prefetch={prefetch}
     onClick={evt => {
@@ -11,5 +11,7 @@ export default function Link({ prefetch = false, onClick, ...props }: React.Comp
       if (onClick) onClick(evt)
     }}
     {...props}
+    ref={ref}
   />
-}
+})
+export default Link

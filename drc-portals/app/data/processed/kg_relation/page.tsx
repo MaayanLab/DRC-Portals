@@ -7,7 +7,7 @@ import { Metadata, ResolvingMetadata } from 'next'
 type PageProps = { searchParams: Record<string, string | string[] | undefined> }
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
-  const title = pluralize(type_to_string('kg_relation', null))
+  const title = pluralize(type_to_string('kg_relation', ''))
   const parentMetadata = await parent
   return {
     title: `${parentMetadata.title?.absolute} | ${title}`,
@@ -30,6 +30,7 @@ export default async function Page(props: PageProps) {
         id: true,
         node: {
           select: {
+            slug: true,
             type: true,
             label: true,
             description: true,
@@ -57,7 +58,7 @@ export default async function Page(props: PageProps) {
       count={count}
     >
       <SearchablePagedTable
-        label={`${type_to_string('kg_relation', null)} (Entity Type)`}
+        label={`${type_to_string('kg_relation', '')} (Entity Type)`}
         q={searchParams.q ?? ''}
         p={searchParams.p}
         r={searchParams.r}
@@ -67,7 +68,7 @@ export default async function Page(props: PageProps) {
           <>Description</>,
         ]}
         rows={items.map(item => [
-          <LinkedTypedNode type={item.node.type} id={item.id} label={human_readable(item.node.label)} search={searchParams.q ?? ''} />,
+          <LinkedTypedNode type={item.node.type} slug={item.node.slug} label={human_readable(item.node.label)} search={searchParams.q ?? ''} />,
           <Description description={item.node.description} search={searchParams.q ?? ''} />,
         ])}
       />

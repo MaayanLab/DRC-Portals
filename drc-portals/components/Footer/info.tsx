@@ -18,7 +18,7 @@ import SocialMedia from '../misc/Socials';
 const Consortium = () => (
   <Stack spacing={2}>
     <Typography variant="subtitle1"><b>Consortium</b></Typography>
-    <Link href="https://commonfund.nih.gov/dataecosystem" target="_blank" rel="noopener noreferrer"><Typography variant="footer">About the CFDE</Typography></Link>
+    <Link href="/info/about" target="_blank" rel="noopener noreferrer"><Typography variant="footer">About the CFDE</Typography></Link>
     <Link href="/info/dcc"><Typography variant="footer">CF Programs</Typography></Link>
     <Link href="/info/centers"><Typography variant="footer">CFDE Centers</Typography></Link>
     <Link href="/info/partnerships"><Typography variant="footer">Partnerships</Typography></Link>

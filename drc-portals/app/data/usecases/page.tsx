@@ -232,10 +232,10 @@ export default async function UseCasePage({ searchParams }: {
 				</ClientCarousel>
 			</Grid>
 			<Grid item xs={12} sx={{ marginTop: 2 }}>
-				<Typography sx={{ textAlign: "center" }} variant="h3" color="secondary">ALL USE CASES</Typography>
+				<Typography sx={{ textAlign: "center" }} variant="h2" color="secondary">All Use Cases</Typography>
 			</Grid>
 			<Grid item xs={12}>
-				<Typography sx={{ textAlign: "center" }} variant="body2">
+				<Typography sx={{ textAlign: "center" }} variant="subtitle1">
 					Explore different use cases that utilizes data from different CFDE participating programs
 				</Typography>
 			</Grid>

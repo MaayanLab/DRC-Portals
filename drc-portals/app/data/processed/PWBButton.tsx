@@ -5,7 +5,7 @@ import Image from "@/utils/image"
 import PWBIcon from '@/public/img/icons/playbook-workflow-builder.png'
 import CardButton from "./CardButton"
 
-export default function PWBButton(props: React.PropsWithChildren<{ title: React.ReactNode, description: React.ReactNode, body: any }>) {
+export default function PWBButton(props: React.PropsWithChildren<{ title: React.ReactNode, description: React.ReactNode, body: any, mode?: string }>) {
   return <CardButton
     icon={<Image src={PWBIcon} alt="Playbook Workflow Builder" height={64} />}
     title={props.title}
@@ -24,7 +24,7 @@ export default function PWBButton(props: React.PropsWithChildren<{ title: React.
           body: JSON.stringify(props.body),
         })
         const res = await req.json()
-        window.open(`https://playbook-workflow-builder.cloud/graph/${res}`, '_blank')
+        window.open(`https://playbook-workflow-builder.cloud/${props.mode ?? 'graph'}/${res}`, '_blank')
       }}
     >Submit</Button>
   </CardButton>

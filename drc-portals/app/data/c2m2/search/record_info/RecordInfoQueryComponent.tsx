@@ -1,26 +1,27 @@
 import prisma from "@/lib/prisma/c2m2";
-import { format_description, pluralize, type_to_string } from "@/app/data/processed/utils"
-import { MetadataItem, getDCCIcon, getdccCFlink, pruneAndRetrieveColumnNames, generateFilterQueryStringForRecordInfo, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, Category, addCategoryColumns, generateMD5Hash } from "@/app/data/c2m2/utils"
+import { format_description } from "@/app/data/processed/utils"
+import { MetadataItem, getDCCIcon, getdccCFlink, generateRecordInfoColnamesString, generateFilterQueryStringForRecordInfo } from "@/app/data/c2m2/utils"
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "@/utils/link";
-import ExpandableTable from "../../ExpandableTable";
-import { capitalizeFirstLetter, isURL, reorderStaticCols, useSanitizedSearchParams, get_partial_list_string, sanitizeFilename } from "@/app/data/c2m2/utils"
+import { capitalizeFirstLetter, isURL, generateHashedJSONFilename, useSanitizedSearchParams, groupByRecordInfoQueryString, orderByRecordInfoQueryString } from "@/app/data/c2m2/utils"
 import SQL from "@/lib/prisma/raw";
 import BiosamplesTableComponent from "./BiosamplesTableComponent";
+import BiosamplesSubjectTableComponent from "./BiosamplesSubjectsTableComponent";
 import SubjectsTableComponent from "./SubjectstableComponent";
 import CollectionsTableComponent from "./CollectionsTableComponent";
+import PTMTableComponent from "./PTMTableComponent";
 import FilesProjTableComponent from "./FileProjTableComponent";
 import FilesSubjectTableComponent from "./FilesSubjectTableComponent";
 import FilesBiosampleTableComponent from "./FileBiosamplesComponent";
 import FilesCollectionTableComponent from "./FilesCollectionComponent";
 import React from "react";
 
-const file_count_limit = 200000;
+const file_count_limit = 100000;
 const file_count_limit_proj = file_count_limit; // 500000;
 const file_count_limit_sub = file_count_limit; // 500000;
 const file_count_limit_bios = file_count_limit; // 500000;
 const file_count_limit_col = file_count_limit; // 500000;
-const maxTblCount = 200000;
+const maxTblCount = 100000;
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
 
@@ -44,19 +45,20 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
     // console.log("In function fetchRecordInfoQueryResuts");
 
-
-
-
     console.log("******");
     console.log("q = " + searchParams.q + " p = " + searchParams.p + " offset = " + offset + " limit = " + limit);
+    console.log("searchParams.t = ", searchParams.t);
     // Declare different offsets for all the tables and this is needed to fine grain pagination
     const bioSamplTbl_p = searchParams.bioSamplTbl_p !== undefined ? searchParams.bioSamplTbl_p : searchParams.p;
     const bioSamplTblOffset = (bioSamplTbl_p - 1) * limit;
     // console.log("bioSamplTbl_p = " + bioSamplTbl_p + " bioSamplTblOffset = " + bioSamplTblOffset);
+    const bioSamplSubTbl_p = searchParams.bioSamplSubTbl_p !== undefined ? searchParams.bioSamplSubTbl_p : searchParams.p;
+    const bioSamplSubTblOffset = (bioSamplSubTbl_p - 1) * limit;
+    // console.log("bioSamplSubTbl_p = " + bioSamplSubTbl_p + " bioSamplSubTblOffset = " + bioSamplSubTblOffset);
     const colTbl_p = searchParams.colTbl_p !== undefined ? searchParams.colTbl_p : 1;
     const colTblOffset = (colTbl_p - 1) * limit;
     // console.log("colTbl_p = " + colTbl_p + " colTblOffset = " + colTblOffset);
-    const subTbl_p = searchParams.colTbl_p !== undefined ? searchParams.subTbl_p : 1;
+    const subTbl_p = searchParams.subTbl_p !== undefined ? searchParams.subTbl_p : 1;
     const subTblOffset = (subTbl_p - 1) * limit;
     // console.log("subTbl_p = " + subTbl_p + " subTblOffset = " + subTblOffset);
     const fileProjTbl_p = searchParams.fileProjTbl_p !== undefined ? searchParams.fileProjTbl_p : 1;
@@ -71,7 +73,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     const fileColTbl_p = searchParams.fileColTbl_p !== undefined ? searchParams.fileColTbl_p : 1;
     const fileColTblOffset = (fileColTbl_p - 1) * limit;
     // console.log("fileColTbl_p = " + fileColTbl_p + " fileColTblOffset = " + fileColTblOffset);
-
+    const ptmTbl_p = searchParams.ptmTbl_p !== undefined ? searchParams.ptmTbl_p : 1;
+    const ptmTblOffset = (ptmTbl_p -1 ) * limit;
     // console.log("*********");
 
 
@@ -79,7 +82,10 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     // Generate the query clause for filters
 
     const filterClause = generateFilterQueryStringForRecordInfo(searchParams, "c2m2", "ffl_biosample_collection");
-
+    const selectCols = generateRecordInfoColnamesString();
+    const groupByString = groupByRecordInfoQueryString();
+    const orderByString = orderByRecordInfoQueryString();
+    console.log("generated FilterClause in RecordInfoQuery");
     // To measure time taken by different parts
     const t0: number = performance.now();
 
@@ -107,6 +113,14 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         data_type: string,
         assay_type_name: string,
         assay_type: string,
+        file_format_name: string,
+        file_format: string,
+        subject_ethnicity_name: string,
+        subject_ethnicity: string,
+        subject_sex_name: string,
+        subject_sex: string,
+        subject_race_name: string,
+        subject_race: string,
         project_name: string,
         project_persistent_id: string,
         project_local_id: string,
@@ -118,7 +132,15 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         protein_description: string,
         compound_description: string,
         taxonomy_description: string,
-
+        ptm_type_name: string, // PTM Type
+        ptm_type: string, // PTM Type
+        ptm_type_description: string, // PTM Type Description
+        ptm_subtype_name: string, // PTM SubType
+        ptm_subtype: string, // PTM SubType
+        ptm_subtype_description: string, // PTM SubType Description
+        ptm_site_type_name: string, // PTM Site Type
+        ptm_site_type: string, // PTM Site Type
+        ptm_site_type_description: string, // PTM Site Type
         count: number, // this is based on across all-columns of ffl_biosample 
       }[],
       sample_prep_method_name_filters: { sample_prep_method_name: string, count: number, }[],
@@ -133,42 +155,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
           ),
           allres AS (
             SELECT DISTINCT
-              allres_full.dcc_name AS dcc_name,
-              allres_full.dcc_abbreviation AS dcc_abbreviation,
-              SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label,
-              COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name,
-              SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id,
-              COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name,
-              REPLACE(allres_full.disease, ':', '_') AS disease,
-              COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name,
-              REPLACE(allres_full.anatomy, ':', '_') AS anatomy,
-              COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name,
-              REPLACE(allres_full.biofluid, ':', '_') AS biofluid,
-              COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name,
-              allres_full.gene AS gene,
-              COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name,
-              allres_full.protein AS protein,
-              COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name,
-              allres_full.substance_compound AS compound,
-              COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name,
-              REPLACE(allres_full.data_type_id, ':', '_') AS data_type,
-              /**** COALESCE(c2m2.project_data_type.assay_type_name, 'Unspecified') AS assay_type_name,
-              REPLACE(c2m2.project_data_type.assay_type_id, ':', '_') AS assay_type, ****/
-              COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name,
-              REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type,
-              /* allres_full.project_name AS project_name, */
-              COALESCE(allres_full.project_name, 
-                concat_ws('', 'Dummy: Biosample/Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name,
-              c2m2.project.persistent_id AS project_persistent_id,
-              allres_full.project_local_id AS project_local_id,
-              c2m2.project.description AS project_description,
-              c2m2.anatomy.description AS anatomy_description,
-              c2m2.biofluid.description AS biofluid_description,
-              c2m2.disease.description AS disease_description,
-              c2m2.gene.description AS gene_description,
-              c2m2.protein.description AS protein_description,
-              c2m2.compound.description AS compound_description,
-              c2m2.ncbi_taxonomy.description AS taxonomy_description,
+              ${SQL.raw(selectCols)}
               COUNT(*)::INT AS count
             FROM allres_full 
             LEFT JOIN c2m2.project ON (allres_full.project_id_namespace = c2m2.project.id_namespace AND 
@@ -180,14 +167,11 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
             LEFT JOIN c2m2.protein ON (allres_full.protein = c2m2.protein.id)
             LEFT JOIN c2m2.compound ON (allres_full.substance_compound = c2m2.compound.id)
             LEFT JOIN c2m2.ncbi_taxonomy ON (allres_full.subject_role_taxonomy_taxonomy_id = c2m2.ncbi_taxonomy.id)
-            GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
-              anatomy_name,  anatomy, biofluid_name,  biofluid, gene_name, gene, protein_name, protein, compound_name, compound, data_type_name, 
-              data_type, assay_type_name, assay_type, project_name, c2m2.project.persistent_id, /* project_persistent_id, Mano */
-              allres_full.project_local_id, project_description, anatomy_description, biofluid_description, disease_description, gene_description, 
-              protein_description, compound_description, taxonomy_description
-            /*GROUP BY dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, disease_name, anatomy_name, biofluid_name, project_name, project_description, rank*/
-            ORDER BY dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, 
-              protein_name, compound_name, data_type_name, assay_type_name /*rank DESC*/
+            LEFT JOIN c2m2.ptm_type ON (allres_full.ptm_type = c2m2.ptm_type.id)
+            LEFT JOIN c2m2.ptm_subtype ON (allres_full.ptm_subtype = c2m2.ptm_subtype.id)
+            LEFT JOIN c2m2.site_type ON (allres_full.ptm_site_type = c2m2.site_type.id)
+            GROUP BY ${SQL.raw(groupByString)}
+            ORDER BY ${SQL.raw(orderByString)}
           ) 
           SELECT
             (SELECT COALESCE(jsonb_agg(allres.*), '[]'::jsonb) AS records FROM allres)
@@ -196,22 +180,171 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
     const t1: number = performance.now();
 
-    console.log("Elapsed time for DB queries: ", t1 - t0, "milliseconds");
+    console.log("Elapsed time for RecordInfoQueryComponent DB queries: ", t1 - t0, "milliseconds");
 
 
 
-    // The following items are present in metadata
+
+    //const baseUrl = window.location.origin;
 
     const resultsRec = results?.records[0];
+
+    console.log("resultsRec = ", resultsRec);
     const projectLocalId = resultsRec?.project_local_id ?? 'NA';// Assuming it's the same for all rows
+    // The following items are present in metadata and downloadMetadata
+    const downloadMetadata = {
+      project: {
+        id: resultsRec?.project_local_id || "",
+        name: resultsRec?.project_name || "",
+        url: resultsRec?.project_persistent_id || null,
+        description: resultsRec?.project_description ?? ""
+      },
+      dcc: {
+        name: resultsRec?.dcc_name || "",
+        abbreviation: resultsRec?.dcc_abbreviation || "",
+        short_label: resultsRec?.dcc_short_label || "",
+        // url: resultsRec?.dcc_short_label ? `/info/dcc/${getdccCFlink(resultsRec?.dcc_short_label)}` : "",
+      },
+      taxonomy: resultsRec?.taxonomy_name && resultsRec.taxonomy_name !== "Unspecified"
+        ? {
+          id: resultsRec.taxonomy_id,
+          name: resultsRec.taxonomy_name,
+          url: `https://www.ncbi.nlm.nih.gov/taxonomy/?term=${resultsRec.taxonomy_id}`,
+          description: resultsRec.taxonomy_description || null,
+        }
+        : null,
+      sampleSource: resultsRec?.anatomy_name && resultsRec.anatomy_name !== "Unspecified"
+        ? {
+          id: resultsRec.anatomy,
+          name: resultsRec.anatomy_name,
+          url: `http://purl.obolibrary.org/obo/${resultsRec.anatomy}`,
+          description: resultsRec.anatomy_description || null,
+        }
+        : null,
+      biofluid: resultsRec?.biofluid_name && resultsRec.biofluid_name !== "Unspecified"
+        ? {
+          id: resultsRec.biofluid,
+          name: resultsRec.biofluid_name,
+          url: `http://purl.obolibrary.org/obo/${resultsRec.biofluid}`,
+          description: resultsRec.biofluid_description || null,
+        }
+        : null,
+      disease: resultsRec?.disease_name && resultsRec.disease_name !== "Unspecified"
+        ? {
+          id: resultsRec.disease,
+          name: resultsRec.disease_name,
+          url: `http://purl.obolibrary.org/obo/${resultsRec.disease}`,
+          description: resultsRec.disease_description || null,
+        }
+        : null,
+      gene: resultsRec?.gene_name && resultsRec.gene_name !== "Unspecified"
+        ? {
+          id: resultsRec.gene,
+          name: resultsRec.gene_name,
+          url: `http://www.ensembl.org/id/${resultsRec.gene}`,
+          description: resultsRec.gene_description ? capitalizeFirstLetter(resultsRec.gene_description) : null,
+        }
+        : null,
+      protein: resultsRec?.protein_name && resultsRec.protein_name !== "Unspecified"
+        ? {
+          id: resultsRec.protein,
+          name: resultsRec.protein_name,
+          url: `https://www.uniprot.org/uniprotkb/${resultsRec.protein}`,
+          description: resultsRec.protein_description ? capitalizeFirstLetter(resultsRec.protein_description) : null,
+        }
+        : null,
+      compound: resultsRec?.compound_name && resultsRec.compound_name !== "Unspecified"
+        ? {
+          id: resultsRec.compound,
+          name: resultsRec.compound_name,
+          url: `http://www.ensembl.org/id/${resultsRec.compound}`,
+          description: resultsRec.compound_description ? capitalizeFirstLetter(resultsRec.compound_description) : null,
+        }
+        : null,
+      data_type: resultsRec?.data_type_name && resultsRec.data_type_name !== "Unspecified"
+        ? {
+          id: resultsRec.data_type,
+          name: resultsRec.data_type_name,
+          url:
+            resultsRec.data_type?.includes("ILX_") || resultsRec.data_type?.includes("ilx_")
+              ? `http://uri.interlex.org/${resultsRec.data_type.toLowerCase()}`
+              : `http://edamontology.org/${resultsRec.data_type}`,
+        }
+        : null,
+      assay_type: resultsRec?.assay_type_name && resultsRec.assay_type_name !== "Unspecified"
+        ? {
+          id: resultsRec.assay_type,
+          name: resultsRec.assay_type_name,
+          url: `http://purl.obolibrary.org/obo/${resultsRec.assay_type}`,
+        }
+        : null,
+      file_format: resultsRec?.file_format_name && resultsRec.file_format_name !== "Unspecified"
+        ? {
+          id: resultsRec.file_format,
+          name: resultsRec.file_format_name
+        }
+        : null,
+      subject_ethnicity: resultsRec?.subject_ethnicity_name && resultsRec.subject_ethnicity_name != "Unspecified"
+        ? {
+          id: resultsRec.subject_ethnicity,
+          name: resultsRec.subject_ethnicity_name
+        }
+        : null,
+      subject_sex: resultsRec?.subject_sex_name && resultsRec.subject_sex_name != "Unspecified"
+        ? {
+          id: resultsRec.subject_sex,
+          name: resultsRec.subject_sex_name
+        }
+        : null,
+      subject_race: resultsRec?.subject_race_name && resultsRec.subject_race_name != "Unspecified"
+        ? {
+          id: resultsRec.subject_race,
+          name: resultsRec.subject_race_name
+        }
+        : null,
+      ptm_type: resultsRec?.ptm_type_name && resultsRec.ptm_type_name !== "Unspecified"
+        ? {
+          id: resultsRec.ptm_type,
+          name: resultsRec.ptm_type_name,
+          url: `https://amigo.geneontology.org/amigo/term/${resultsRec.ptm_type}`,
+          description: resultsRec.ptm_type_description ? capitalizeFirstLetter(resultsRec.ptm_type_description) : null
+        }
+        : null,
+      ptm_subtype: resultsRec?.ptm_subtype_name && resultsRec.ptm_subtype_name !== "Unspecified"
+        ? {
+          id: resultsRec.ptm_subtype,
+          name: resultsRec.ptm_subtype_name,
+          url: `https://amigo.geneontology.org/amigo/term/${resultsRec.ptm_subtype}`,
+          description: resultsRec.ptm_subtype_description ? capitalizeFirstLetter(resultsRec.ptm_subtype_description) : null
+        }
+        : null,
+      ptm_site_type: resultsRec?.ptm_site_type_name && resultsRec.ptm_site_type_name !== "Unspecified"
+        ? {
+          id: resultsRec.ptm_site_type,
+          name: resultsRec.ptm_site_type_name,
+          description: resultsRec.ptm_site_type_description ? capitalizeFirstLetter(resultsRec.ptm_site_type_description) : null
+        }
+        : null,
+    };
+
+    // Remove null values
+    const filteredMetadata = Object.fromEntries(
+      Object.entries(downloadMetadata).filter(([_, v]) => v !== null)
+    );
 
 
 
+
+    const downloadFilename = generateHashedJSONFilename("Metadata_", searchParams);
     const metadata: (MetadataItem | null)[] = [
       { label: 'Project ID', value: projectLocalId },
       resultsRec?.project_persistent_id && isURL(resultsRec?.project_persistent_id)
         ? { label: 'Project URL', value: <Link href={`${resultsRec?.project_persistent_id}`} className="underline cursor-pointer text-blue-600" target="_blank">{resultsRec?.project_name}</Link> }
         : resultsRec?.project_persistent_id ? { label: 'Project URL', value: resultsRec?.project_persistent_id } : null,
+      {
+        label: 'DCC',
+        value: resultsRec?.dcc_name
+      },
       {
         label: 'Taxonomy',
         value: resultsRec?.taxonomy_name && resultsRec?.taxonomy_name !== "Unspecified"
@@ -296,10 +429,61 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
           ? <Link href={`http://purl.obolibrary.org/obo/${resultsRec?.assay_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {capitalizeFirstLetter(resultsRec?.assay_type_name)}
           </Link>
-          : /* resultsRec?.data_type_name || */ ''
+          : ''
       },
-
+      {
+        label: 'File format',
+        value: resultsRec?.file_format_name && resultsRec?.file_format_name !== "Unspecified"
+          ? <Link href={`http://edamontology.org/${resultsRec?.file_format}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {capitalizeFirstLetter(resultsRec?.file_format_name)}
+          </Link>
+          : ''
+      },
+      {
+        label: 'Subject ethnicity',
+        value: resultsRec?.subject_ethnicity_name && resultsRec?.subject_ethnicity_name !== "Unspecified"
+          ? capitalizeFirstLetter(resultsRec?.subject_ethnicity_name)
+          : ''
+      },
+      {
+        label: 'Subject sex',
+        value: resultsRec?.subject_sex_name && resultsRec?.subject_sex_name !== "Unspecified"
+          ? capitalizeFirstLetter(resultsRec?.subject_sex_name)
+          : ''
+      },
+      {
+        label: 'Subject race',
+        value: resultsRec?.subject_race_name && resultsRec?.subject_race_name !== "Unspecified"
+          ? capitalizeFirstLetter(resultsRec?.subject_race_name)
+          : ''
+      },
+      {
+        label: 'PTM type',
+        value: resultsRec?.ptm_type_name && resultsRec?.ptm_type_name !== "Unspecified"
+          ? <Link href={`https://amigo.geneontology.org/amigo/term/${resultsRec?.ptm_type}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {capitalizeFirstLetter(resultsRec?.ptm_type_name)}
+          </Link>
+          : ''
+      },
+      resultsRec?.ptm_type_description ? { label: 'PTM Type Description', value: capitalizeFirstLetter(resultsRec?.ptm_type_description) } : null,
+      {
+        label: 'PTM SubType',
+        value: resultsRec?.ptm_subtype_name && resultsRec?.ptm_subtype_name !== "Unspecified"
+          ? <Link href={`https://amigo.geneontology.org/amigo/term/${resultsRec?.ptm_subtype}`} className="underline cursor-pointer text-blue-600" target="_blank">
+            {capitalizeFirstLetter(resultsRec?.ptm_subtype_name)}
+          </Link>
+          : ''
+      },
+      resultsRec?.ptm_subtype_description ? { label: 'PTM SubType Description', value: capitalizeFirstLetter(resultsRec?.ptm_subtype_description) } : null,
+      {
+        label: 'PTM SiteType',
+        value: resultsRec?.ptm_site_type_name && resultsRec?.ptm_site_type_name !== "Unspecified"
+          ? capitalizeFirstLetter(resultsRec?.ptm_site_type_name)
+          : ''
+      },
+      resultsRec?.ptm_site_type_description ? { label: 'PTM Site Type Description', value: capitalizeFirstLetter(resultsRec?.ptm_site_type_description) } : null,
     ];
+
 
 
     // const categories: Category[] = []; // dummy, remove it after making this a optional prop in Landing page
@@ -316,16 +500,22 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         subtitle={""}
         description={format_description(resultsRec?.project_description ?? "")}
         metadata={metadata}
+        downloadMetadata={filteredMetadata}
+        downloadFilename={downloadFilename}
       //categories={categories}
       >
-        <React.Suspense fallback={<>Loading..</>}>
+        {/* <React.Suspense fallback={<>Loading..</>}>
           <BiosamplesTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} bioSamplTblOffset={bioSamplTblOffset} />
-        </React.Suspense>
-
+        </React.Suspense> */}
 
         <React.Suspense fallback={<>Loading..</>}>
-          <SubjectsTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} subTblOffset={subTblOffset} />
+          <BiosamplesSubjectTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} bioSamplSubTblOffset={bioSamplSubTblOffset} />
         </React.Suspense>
+
+
+        {/* <React.Suspense fallback={<>Loading..</>}>
+          <SubjectsTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} subTblOffset={subTblOffset} />
+        </React.Suspense> */}
 
 
         <React.Suspense fallback={<>Loading..</>}>
@@ -349,7 +539,11 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
 
 
         <React.Suspense fallback={<>Loading..</>}>
-          <FilesCollectionTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileColTblOffset={fileBiosTblOffset} file_count_limit_col={file_count_limit_col} />
+          <FilesCollectionTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} fileColTblOffset={fileColTblOffset} file_count_limit_col={file_count_limit_col} />
+        </React.Suspense>
+
+        <React.Suspense fallback={<>Loading..</>}>
+          <PTMTableComponent searchParams={searchParams} filterClause={filterClause} limit={limit} ptmTblOffset={ptmTblOffset}  />
         </React.Suspense>
       </LandingPageLayout>
     )

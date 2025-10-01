@@ -8,10 +8,10 @@ type PageProps = { params: { search: string, type?: string | string[] }, searchP
 
 export default function Page(props: PageProps) {
   const params = z.union([
-    z.undefined().transform(() => ({ type: 'processed', entity_type: null })),
-    z.string().transform((type) => ({ type, entity_type: null })),
+    z.undefined().transform(() => ({ type: 'processed', entity_type: '' })),
+    z.string().transform((type) => ({ type, entity_type: '' })),
     z.string().array().length(2).transform(([type, entity_type]) => ({ type, entity_type })),
-    z.string().array().length(1).transform(([type]) => ({ type, entity_type: null })),
+    z.string().array().length(1).transform(([type]) => ({ type, entity_type: '' })),
   ]).safeParse(props.params.type)
   if (!params.success) notFound()
   if (params.data.type === 'c2m2') {
@@ -23,14 +23,14 @@ export default function Page(props: PageProps) {
     return <AllSearchPage
       search={decodeURIComponent(props.params.search)}
       type={decodeURIComponent(params.data.type)}
-      entity_type={params.data.entity_type ? decodeURIComponent(params.data.entity_type) : null}
+      entity_type={decodeURIComponent(params.data.entity_type)}
       searchParams={props.searchParams}
     />
   } else {
     return <SearchPage
       search={decodeURIComponent(props.params.search)}
       type={decodeURIComponent(params.data.type)}
-      entity_type={params.data.entity_type ? decodeURIComponent(params.data.entity_type) : null}
+      entity_type={decodeURIComponent(params.data.entity_type)}
       searchParams={props.searchParams}
     />
   }

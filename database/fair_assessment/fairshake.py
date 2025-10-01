@@ -12,19 +12,18 @@ from tqdm.auto import tqdm
 from datetime import datetime
 import re
 from urllib.parse import urlsplit
-from deriva_datapackage import create_offline_client
+from deriva_datapackage import create_sqlite_client, create_offline_client
 from c2m2_assessment.__main__ import assess
 import os
-import glob
 import math
 import h5py
+import yaml
 from bs4 import BeautifulSoup
 import json
 from urllib.parse import urlsplit
 from c2m2_assessment.util.fetch_cache import fetch_cache
 from c2m2_assessment.util.memo import memo
 from ontology.obo import OBOOntology
-from ingest_common import current_code_assets, current_dcc_assets
 import zipfile
 import traceback
 import subprocess
@@ -35,7 +34,7 @@ def deep_find(root, file):
   ''' Helper for finding a filename in a potentially deep directory
   * Credit to Daniel J. B. Clarke, Amanda Charbonneau - https://github.com/MaayanLab/appyter-catalog/blob/main/appyters/CFDE-C2M2-FAIR-Assessment/C2M2Assessment.ipynb
   '''
-  return set(glob.glob(os.path.join(root, '**', file), recursive=True))
+  return set(map(str, pathlib.Path(root).rglob(file)))
 
 def find_between_r( s, first, last ):
     try:
@@ -209,40 +208,99 @@ def etl_fair(link):
 def api_fair(row):
     """Run FAIR Assessment for a given API asset given its row from code assets table"""
     fairshake_openapi = 0
-    fairshake_license = 0
-    fairshake_contact = 0
+    fairshake_license = None
+    fairshake_contact = None
     fairshake_smartapi = 0
-    fairshake_persistent_url = 0 
-    if row['openAPISpec'] == True: 
-        fairshake_openapi = 1
-    if row['smartAPISpec'] == True: 
-        fairshake_smartapi = 1
+    fairshake_persistent_url = 0
+    fairshake_aiplugin_compatible = [0] * 6
+    fairshake_aiplugin_contact = None
+    fairshake_aiplugin_valid_openapi_link = None
+    fairshake_ogp = [0] * 4
+    openapi_metadata = None
+    aiplugin_link = None
+    if row['smartAPISpec'] == True:
         smartapi_link = row['link'].replace('/ui/', '/api/metadata/') if 'smart-api.info' in row['link'] else row['smartAPIURL'].replace('/ui/', '/api/metadata/')
         try:
-            api_response = requests.get(smartapi_link).json()
-            metadata = api_response['info']
-            if 'contact' in metadata:
-                fairshake_contact = 1 if metadata['contact'].get('url') or metadata['contact'].get('email') else 0
-            if 'license' in metadata and 'name' in metadata['license']:
-                fairshake_license = 1 if metadata['license']['name'] != '' else 0
-                return {"Documented with OpenAPI": fairshake_openapi,
-                "Usage License specified": fairshake_license,  
-                "Contact information available": fairshake_contact,
-                "Published in Smart API": fairshake_smartapi,
-                "Persistent URL": fairshake_persistent_url}
+            response = requests.get(smartapi_link)
+            response.raise_for_status()
+            openapi_metadata = response.json()
+            fairshake_openapi = 1
+            fairshake_smartapi = 1
         except KeyboardInterrupt: raise
-        except:
-            import traceback; traceback.print_exc()
-            return {"Documented with OpenAPI": fairshake_openapi,
-                    "Usage License specified": fairshake_license,  
-                    "Contact information available": fairshake_contact,
-                    "Published in Smart API": fairshake_smartapi,
-                    "Persistent URL": fairshake_persistent_url}
-    rubric = {"Documented with OpenAPI": fairshake_openapi,
-                "Usage License specified": fairshake_license,  
-                "Contact information available": fairshake_contact,
-                "Published in Smart API": fairshake_smartapi,
-                "Persistent URL": fairshake_persistent_url}
+        except: fairshake_smartapi = 0
+    elif row['openAPISpec'] == True:
+        try:
+            response = requests.get(row['link'])
+            response.raise_for_status()
+            openapi_metadata = yaml.safe_load(response.text())
+            fairshake_openapi = 1
+        except KeyboardInterrupt: raise
+        except: fairshake_openapi = 0
+    #
+    if openapi_metadata:
+        try: aiplugin_link = f"{openapi_metadata['servers'][0]['url']}/.well-known/ai-plugin.json"
+        except KeyboardInterrupt: raise
+        except: aiplugin_link = None
+        #
+        metadata = openapi_metadata['info']
+        if 'contact' in metadata:
+            fairshake_contact = 1 if metadata['contact'].get('url') or metadata['contact'].get('email') else 0
+        if 'license' in metadata and 'name' in metadata['license']:
+            fairshake_license = 1 if metadata['license']['name'] != '' else 0
+    else:
+        aiplugin_link = f"{row['link']}/.well-known/ai-plugin.json"
+    #
+    if aiplugin_link:
+        try:
+            response = requests.get(aiplugin_link)
+            response.raise_for_status()
+            chatbot_specs = response.json()
+            # check if ai-plugin compatible
+            required_plugin_fields = ['schema_version', 'name_for_human', 'name_for_model', 'description_for_model', 'description_for_human', 'api']
+            for index, field in enumerate(required_plugin_fields): 
+                if field in chatbot_specs: 
+                    fairshake_aiplugin_compatible[index] = 1
+            if 'api' in chatbot_specs and chatbot_specs['api']['type'] == 'openapi':
+                if chatbot_specs['api']['url'] == row['link'].rstrip('/'):
+                    fairshake_aiplugin_valid_openapi_link = 1
+                else:
+                    try:
+                        openapi_json_response = requests.get(chatbot_specs['api']['url'])
+                        openapi_json_response.raise_for_status()
+                    except KeyboardInterrupt: raise
+                    except: fairshake_aiplugin_valid_openapi_link = 0
+                    else: fairshake_aiplugin_valid_openapi_link = 1
+            fairshake_aiplugin_contact = 1 if 'contact_email' in chatbot_specs else 0
+        except KeyboardInterrupt: raise
+        except: traceback.print_exc(file=sys.stderr)
+        split_url = urlsplit(aiplugin_link)
+        try:
+            webpage_response = requests.get(split_url.scheme + '://' + split_url.netloc + split_url.path.partition('/.well-known/')[0])
+            webpage_response.raise_for_status()
+            html = webpage_response.text
+            soup = BeautifulSoup(html, features="html.parser")
+            ogp_title = soup.find('meta', property="og:title")
+            ogp_type = soup.find('meta', property="og:type")
+            ogp_image = soup.find('meta', property="og:image")
+            ogp_url = soup.find('meta', property="og:url")
+            ogp_req_metadata = [ogp_title, ogp_type, ogp_image, ogp_url ]
+            for index, ogp_req in enumerate(ogp_req_metadata): 
+                if ogp_req:
+                    fairshake_ogp[index] = 1
+        except KeyboardInterrupt: raise
+        except: traceback.print_exc(file=sys.stderr)
+
+    rubric = {
+        "Compatible with AI Plugins": mean(fairshake_aiplugin_compatible),
+        "Website has Open Graph protocol for ChatBot usage": mean(fairshake_ogp),
+        "Chatbot specs contain contact information": fairshake_aiplugin_contact,
+        "Chatbot Specs contain valid OpenAPI Specifications documentation": fairshake_aiplugin_valid_openapi_link, 
+        "Documented with OpenAPI": fairshake_openapi,
+        "Usage License specified": fairshake_license,  
+        "Contact information available": fairshake_contact,
+        "Published in Smart API": fairshake_smartapi,
+        "Persistent URL": fairshake_persistent_url,
+    }
     return rubric
 
 def apps_urls_fair(apps_url): 
@@ -274,56 +332,23 @@ def apps_urls_fair(apps_url):
     return rubric
 
 
-def chatbot_specs_fair(chatbot_specs_url):
-    """Run FAIR Assessment for a given chatbot specification asset given its URL""" 
-    fairshake_persistent_url = 0 
-    fairshake_aiplugin_compatible = [0] * 6
-    fairshake_valid_openapi_link = 0
-    fairshake_contact = 0
-    fairshake_ogp = [0] * 4
+def models_fair(row):
+    """Run FAIR Assessment for a given model asset given its URL""" 
+    fairshake_persistent_url = 0
+    fairshake_valid_link = None
+    split_url = urlsplit(row['link'])
+    fairshake_persistent_url = 1 if split_url.netloc in {'doi.org'} else 0
     try:
-        response = requests.get(chatbot_specs_url)
+        response = requests.get(row['link'])
         response.raise_for_status()
-        chatbot_specs = response.json()
-        # check if ai-plugin compatible
-        required_plugin_fields = ['schema_version', 'name_for_human', 'name_for_model', 'description_for_model', 'description_for_human', 'api']
-        for index, field in enumerate(required_plugin_fields): 
-            if field in chatbot_specs: 
-                fairshake_aiplugin_compatible[index] = 1
-        if 'api' in chatbot_specs and chatbot_specs['api']['type'] == 'openapi':
-            try:
-                openapi_json_response = requests.get(chatbot_specs['api']['url'])
-                openapi_json_response.raise_for_status()
-            except KeyboardInterrupt: raise
-            except: fairshake_valid_openapi_link = 0
-            else: fairshake_valid_openapi_link = 1
-        fairshake_contact = 1 if 'contact_email' in chatbot_specs else 0
     except KeyboardInterrupt: raise
-    except: traceback.print_exc(file=sys.stderr)
-    split_url = urlsplit(chatbot_specs_url)
-    try:
-        webpage_response = requests.get(split_url.scheme + '://' + split_url.netloc)
-        webpage_response.raise_for_status()
-        html = webpage_response.text
-        soup = BeautifulSoup(html, features="html.parser")
-        ogp_title = soup.find('meta', property="og:title")
-        ogp_type = soup.find('meta', property="og:type")
-        ogp_image = soup.find('meta', property="og:image")
-        ogp_url = soup.find('meta', property="og:url")
-        ogp_req_metadata = [ogp_title, ogp_type, ogp_image, ogp_url ]
-        for index, ogp_req in enumerate(ogp_req_metadata): 
-            if ogp_req:
-                fairshake_ogp[index] = 1
-    except KeyboardInterrupt: raise
-    except: traceback.print_exc(file=sys.stderr)
-    rubric = {"Compatible with AI Plugins": mean(fairshake_aiplugin_compatible),
-              "Chatbot Specs contain valid OpenAPI Specifications documentation": fairshake_valid_openapi_link, 
-              "Website has Open Graph protocol for ChatBot usage": mean(fairshake_ogp),
-            "Chatbot specs contain contact information": fairshake_contact,
-            "Persistent URL": fairshake_persistent_url}
+    except: fairshake_valid_link = 0
+    else: fairshake_valid_link = 1
+    rubric = {
+        "Link is valid": fairshake_valid_link,
+        "Persistent URL": fairshake_persistent_url,
+    }
     return rubric
-
-    
 
 def check_ontology_in_term(term):
     """Return boolean defining if a term contains an ontological reference eg RO:922340"""
@@ -372,66 +397,84 @@ def traverse_datasets(hdf_file):
 
 def c2m2_fair(directory):
     """Run FAIR Assessment for a C2M2 file asset given its filepath"""
+    rubric = {
+        'Machine readable metadata': 0.0,
+        'Persistent identifier': None,
+        'files with data type': None,
+        'files with file format': None,
+        'files with assay type': None,
+        'files with anatomy': None,
+        'files with biosample': None,
+        'files with subject': None,
+        'biosamples with species': None,
+        'biosamples with subject': None,
+        'biosamples with file': None,
+        'biosamples with anatomy': None,
+        'subjects with taxonomy': None,
+        'subjects with granularity': None,
+        'subjects with taxonomic role': None,
+        'subjects with biosample': None,
+        'subjects with file': None,
+        'files in collections': None,
+        'subjects in collections': None,
+        'biosamples in collections': None,
+        'projects with anatomy': None,
+        'projects with files': None,
+        'projects with data types': None,
+        'projects with subjects': None,
+        'biosamples with substance': None,
+        'collections with gene': None,
+        'collections with substance': None,
+        'subjects with substance': None,
+        'biosamples with gene': None,
+        'phenotypes with gene': None,
+        'proteins with gene': None,
+        'collections with protein': None,
+        'subjects with phenotype': None,
+        'genes with phenotype': None,
+        'diseases with phenotype': None,
+        'collections with phenotype': None,
+        'Accessible via DRS': 1.0
+    }
     try:
-        package, *more_packages = (
+        packages = (
             deep_find(directory, 'C2M2_datapackage.json')
             | deep_find(directory, 'datapackage.json')
         )
-        if more_packages:
+        if not packages:
+            raise RuntimeError(f"Couldn't locate C2M2_datapackage.json")
+        else:
+            package, *more_packages = packages
+        if len(packages) > 1:
             print(f"Assessing {package=}, but also found {more_packages=}")
-        subprocess.check_call([sys.executable, '-m', 'frictionless', 'validate', package], stdout=sys.stdout, stderr=sys.stderr)
-        CFDE = create_offline_client(package, cachedir=directory)
+        package_pathlib = pathlib.Path(package)
+        os.chdir(package_pathlib.parent)
+        # make sure we have the right name
+        if package_pathlib.name != 'C2M2_datapackage.json':
+            package_pathlib = package_pathlib.rename('C2M2_datapackage.json')
+        # run our validation script (which also indexes the database)
+        validate_proc = subprocess.run([sys.executable, '-m', 'cfde_c2m2', 'validate'], stdout=sys.stdout, stderr=sys.stderr)
+        if validate_proc.returncode == 0:
+            rubric['Machine readable metadata'] = 1
+        else:
+            print('ERROR: Validate failed! Trying to continue anyway...')
+        #
+        if pathlib.Path('C2M2_datapackage.sqlite').exists():
+            # re-use indexed database for fair assessment
+            CFDE = create_sqlite_client('sqlite:///C2M2_datapackage.sqlite')
+        else:
+            CFDE = create_offline_client('C2M2_datapackage.json')
+        #
         result = assess(CFDE, rubric='drc2024', full=False)
-        rubric = {}
         for index, row in result.iterrows():
             if math.isnan(row['value']):
                 rubric[row["name"]] = None
             else:
                 rubric[row["name"]] = row["value"]
-        rubric["Accessible via DRS"] = 1
-        rubric['Machine readable metadata'] = 1
-        return rubric
     except KeyboardInterrupt: raise
     except:
         import traceback; traceback.print_exc()
-        return {'Machine readable metadata': 0.0,
-                'Persistent identifier': None,
-                'files with data type': None,
-                'files with file format': None,
-                'files with assay type': None,
-                'files with anatomy': None,
-                'files with biosample': None,
-                'files with subject': None,
-                'biosamples with species': None,
-                'biosamples with subject': None,
-                'biosamples with file': None,
-                'biosamples with anatomy': None,
-                'subjects with taxonomy': None,
-                'subjects with granularity': None,
-                'subjects with taxonomic role': None,
-                'subjects with biosample': None,
-                'subjects with file': None,
-                'files in collections': None,
-                'subjects in collections': None,
-                'biosamples in collections': None,
-                'projects with anatomy': None,
-                'projects with files': None,
-                'projects with data types': None,
-                'projects with subjects': None,
-                'biosamples with substance': None,
-                'collections with gene': None,
-                'collections with substance': None,
-                'subjects with substance': None,
-                'biosamples with gene': None,
-                'phenotypes with gene': None,
-                'proteins with gene': None,
-                'collections with protein': None,
-                'subjects with phenotype': None,
-                'genes with phenotype': None,
-                'diseases with phenotype': None,
-                'collections with phenotype': None,
-                'Accessible via DRS': 1.0}
-    
+    return rubric
 
 def xmt_fair(xmt_path, row):
     """Run FAIR Assessment for a XMT file asset given its filepath and database row"""
@@ -550,33 +593,34 @@ def kg_assertions_fair(assertions_extract_path):
 
 def code_assets_fair_assessment():
     """Run FAIR Assessment for all current code assets"""
+    from ingest_common import current_code_assets
     current_code_asset_df = current_code_assets()
     fairshake_df_data = []
     for index, row in tqdm(current_code_asset_df.iterrows(), total=current_code_asset_df.shape[0], desc='Processing code assets..'):
         if row['type'] == 'ETL': 
             rubric= etl_fair(row['link'])
             fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
-        if row['type'] == 'Entity Page Template': 
+        elif row['type'] == 'Entity Page Template': 
             rubric = entity_page_fair(row['entityPageExample'], row['link'])
             fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
-        if row ['type'] == 'PWB Metanodes':
+        elif row ['type'] == 'PWB Metanodes':
             rubric = PWB_metanode_fair(row['name'], row['link'])
             fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
-        if row['type'] == 'API':
+        elif row['type'] == 'API':
             rubric = api_fair(row)
             fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
-        if row['type'] == 'Apps URL':
+        elif row['type'] == 'Apps URL':
             rubric = apps_urls_fair(row['link'])
             fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
-        if row['type'] == 'Chatbot Specifications':
-            rubric = chatbot_specs_fair(row['link'])
-            fairshake_df_data.append([row['dcc_id'], row['link'], row['type'], rubric, datetime.now()])
+        else:
+            raise NotImplementedError(f"Assessment for {row['type']} not implemented")
     fairshake_df = pd.DataFrame(fairshake_df_data, columns=['dcc_id', 'link', 'type', 'rubric', 'timestamp'])
     return fairshake_df
 
 def file_assets_fair_assessment():
     """Run FAIR Assessment for all current file assets"""
     ingest_path = __dir__.parent / 'ingest'
+    from ingest_common import current_dcc_assets
     current_file_asset_df = current_dcc_assets()
     fairshake_df_data = []
     for index, row in tqdm(current_file_asset_df.iterrows(), total=current_file_asset_df.shape[0], desc='Processing file assets..'):
@@ -591,7 +635,7 @@ def file_assets_fair_assessment():
                 urllib.request.urlretrieve(row['link'], xmt_path)
             rubric = xmt_fair(xmt_path, row)
             fairshake_df_data.append([row['dcc_id'], row['link'], asset_type, rubric, datetime.now()])
-        if asset_type == 'Attribute Table': 
+        elif asset_type == 'Attribute Table': 
             if '.h5' in row['link']:
                 attr_tables_path = ingest_path / 'attribute_tables'
                 attr_table_path = attr_tables_path/row['dcc_short_label']/row['filename']
@@ -601,7 +645,7 @@ def file_assets_fair_assessment():
                     urllib.request.urlretrieve(row['link'].replace(' ', '%20'), attr_table_path)
                 rubric = attribute_tables_fair(attr_table_path, row)
                 fairshake_df_data.append([row['dcc_id'], row['link'], asset_type, rubric, datetime.now()])
-        if asset_type == 'C2M2': 
+        elif asset_type == 'C2M2': 
             c2m2s_path = ingest_path / 'c2m2s'
             c2m2_path = c2m2s_path/row['dcc_short_label']/row['filename']
             c2m2_path.parent.mkdir(parents=True, exist_ok=True)
@@ -615,7 +659,7 @@ def file_assets_fair_assessment():
             # run fair assessment here: 
             rubric = c2m2_fair(str(c2m2_extract_path))
             fairshake_df_data.append([row['dcc_id'], row['link'], asset_type, rubric, datetime.now()])
-        if asset_type == 'KG Assertions': 
+        elif asset_type == 'KG Assertions': 
             assertions_path = ingest_path / 'assertions'
             # assemble the full file path for the DCC's asset
             file_path = assertions_path/row['dcc_short_label']/row['filename']
@@ -630,5 +674,7 @@ def file_assets_fair_assessment():
                     assertions_zip.extractall(assertions_extract_path)
             rubric = kg_assertions_fair(assertions_extract_path) 
             fairshake_df_data.append([row['dcc_id'], row['link'], asset_type, rubric, datetime.now()])
+        else:
+            raise NotImplementedError(f"Assessment for {asset_type} not implemented")
     fairshake_df = pd.DataFrame(fairshake_df_data, columns=['dcc_id', 'link', 'type', 'rubric', 'timestamp'])
     return fairshake_df

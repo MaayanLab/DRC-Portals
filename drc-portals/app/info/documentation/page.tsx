@@ -5,7 +5,7 @@ export default function Standards() {
   return (
     <Grid container direction="row">
       <Grid item xs={12} >
-        <Typography sx={{ml:3, mt:2, color: "secondary.dark"}} variant="h2">
+        <Typography sx={{ml:3, mt:2}} color="secondary" variant="h2">
           Documentation
         </Typography>
       </Grid>
@@ -32,7 +32,7 @@ export default function Standards() {
                 system accepts C2M2 metadata packages, entity matrix transpose (XMT) 
                 files, knowledge graph assertions, attribute tables, SmartAPI and 
                 OpenAPI specifications, extract-transform-load (ETL) scripts, 
-                entity pages, PWB metanodes, and chatbot specifications.
+                entity pages, PWB metanodes, and models.
                 <br /><br />
                 Learn more about submitting to the Data Resource Portal in the <Link 
                 href="/data/submit" rel="noopener" color="#3470e5">Contribution Guide</Link>.

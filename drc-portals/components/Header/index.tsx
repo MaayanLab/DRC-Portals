@@ -31,6 +31,9 @@ export const TopNav = async ({path, session}: {path: "/info"| "/data", session: 
 	  <Link href={"/data"}>
 		<Typography variant="nav"  sx={path === "/data"  ? {textDecoration: "underline", textDecorationThickness: 2}: {}}><b>Data Portal</b></Typography>
 	  </Link>
+	  <Link href={"/info/centers/KC"}>
+		<Typography variant="nav"><b>Knowledge Portal</b></Typography>
+	  </Link>
 	  <UserComponent session={session}/>
 	</>
   )}
@@ -58,13 +61,15 @@ const info_nav = [
   {title: "Training & Outreach", href: "/info/training_and_outreach"},
   {title: "Publications", href: "/info/publications"},
   {title: "Webinars", href: "/info/training_and_outreach/cfde-webinar-series"},
-  {title: "What's New?", href: "/info/news"},
-  // {title: "About", href: "/info/coming_soon"},
+//   {title: "What's New?", href: "/info/news"},
+  {title: "About", href: "/info/about"},
 ]
 
 const data_nav = [
 	{title: "Search", href: "/data"},
-	{title: "Chatbot", href: "/data/chat"},
+	{title: "Enrichment", href: "/data/enrichment"},
+	{title: "Cross", href: "/data/cross"},
+	{title: "Assistant", href: "/data/chat"},
 	{title: "Data Matrix", href: "/data/matrix"},
 	{title: "Use Cases", href: "/data/usecases"},
 	{title: "Tools & Workflows", href: "/data/tools_and_workflows"},
@@ -104,7 +109,7 @@ export default async function Header({path}: {path: "/info" | "/data"}) {
 	  <Box sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
 		<Stack spacing={1}>
 			<DRCDrawer path={path} nav={nav} session={session}/>
-			{path === "/data" && <SearchParamSearchField />}
+			{(path === "/data") && <SearchParamSearchField />}
 		</Stack>
 	  </Box>
     </Container>

@@ -19,6 +19,10 @@ DROP TABLE IF EXISTS c2m2.phenotype_association_type RESTRICT;
 CREATE TABLE c2m2.phenotype_association_type(id varchar NOT NULL, name varchar NOT NULL, description varchar NOT NULL, PRIMARY KEY(id));
 \COPY c2m2.phenotype_association_type FROM 'CV/phenotype_association_type.tsv' DELIMITER E'\t' CSV HEADER;
 
+DROP TABLE IF EXISTS c2m2.site_type RESTRICT;
+CREATE TABLE c2m2.site_type(id varchar NOT NULL, name varchar NOT NULL, description varchar NOT NULL, PRIMARY KEY(id));
+\COPY c2m2.site_type FROM 'CV/site_type.tsv' DELIMITER E'\t' CSV HEADER;
+
 DROP TABLE IF EXISTS c2m2.subject_ethnicity RESTRICT;
 CREATE TABLE c2m2.subject_ethnicity(id varchar NOT NULL, name varchar NOT NULL, description varchar NOT NULL, PRIMARY KEY(id));
 \COPY c2m2.subject_ethnicity FROM 'CV/subject_ethnicity.tsv' DELIMITER E'\t' CSV HEADER;

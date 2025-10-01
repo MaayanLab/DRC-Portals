@@ -3,10 +3,13 @@ import Icon from '@mdi/react';
 import { mdiHelpRhombusOutline } from '@mdi/js';
 
 import March2024F2F from "./March2024F2F";
+import March2025F2F from "./March2025F2F";
 import CFDEWebinarSeries from "./CFDEWebinarSeries";
 import FOG from './FOG.mdx'
 import Fall2024 from './Fall2024.mdx'
 import ASHG2024 from './ASHG2024.mdx'
+import { EventPage } from "./event_page";
+import { validate as isValidUUID } from 'uuid';
 export default async function OutreachEvent ({params}: {
 	params: {
 		event: string
@@ -14,6 +17,8 @@ export default async function OutreachEvent ({params}: {
 }) {
 	if (params.event === "2024-march-all-hands-meeting") {
 		return <March2024F2F />
+	} else if (params.event === "2025-march-all-hands-meeting") {
+		return <March2025F2F />
 	} else if (params.event === "cfde-webinar-series") {
 		return <CFDEWebinarSeries />
 	} else if (params.event === "festival-of-genomics") {
@@ -22,6 +27,8 @@ export default async function OutreachEvent ({params}: {
 		return <Fall2024 />
 	}else if (params.event === "ashg-2024") {
 		return <ASHG2024 />
+	} else if (isValidUUID(params.event)) {
+		return <EventPage id={params.event}/>
 	}
 	else {
 		return (

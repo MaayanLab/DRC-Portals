@@ -66,8 +66,10 @@ export default function Documentation() {
     return (
         <Grid container spacing={2} justifyContent={"center"}>
             <Grid item xs={12}>
-                <Typography variant="h3" color="#111827.dark" className='p-5'>HOW TO SUBMIT DATA AND METADATA TO THE PORTAL?</Typography>
-                <Typography variant="subtitle1" color="#374151" sx={{ mb: 3, ml: 2 }}>
+                <Typography variant="h2" color="secondary" className='p-5'>How to submit data and metadata to the portal?</Typography>
+            </Grid>
+            <Grid item xs={12}>
+                <Typography variant="subtitle1" sx={{ mb: 3, ml: 2 }}>
                     This page covers the submission system documentation of the Data Resource Portal.
                     We are collecting file and code assets from Common Fund programs to make them
                     Findable, Accessible, Interoperable, and Reusable (FAIR) within the Data Resource Portal.

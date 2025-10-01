@@ -1,6 +1,6 @@
 ### ETL
 
-Extract, transform, load (ETL) is the process of converting the DCC raw data into various processed data formats such as the C2M2, XMT, KG assertions, attribute tables, and database tables.The ETL URL should point to the DCC GitHub repo containing the scripts that process the data by the DCC to generate these processed datasets.
+Extract, transform, load (ETL) is the process of converting the DCC raw data into various processed data formats such as the C2M2, XMT, KG assertions, attribute tables, and database tables. The ETL URL should point to the DCC GitHub repo containing the scripts that process the data by the DCC to generate these processed datasets.
 
 
 
@@ -9,6 +9,8 @@ Extract, transform, load (ETL) is the process of converting the DCC raw data int
 It is expected that each DCC will have a URL to a page that documents how to access each DCC data and tools via APIs. Moreover, APIs should be documented in a standard format and the recommended standard is OpenAPI. In addition, it is recommended to deposit these API into the API repository SmartAPI.
 OpenAPI: The OpenAPI specification provides a formal standard for describing REST APIs. OpenAPI specifications are typically written in YAML or JSON.
 SmartAPI: This is a community-based repository for depositing APIs documented in the OpenAPI specification. It features additional metadata elements and value sets to promote the interoperability of RESTful APIs.
+Chatbot specifications: A manifest file located at the API's base url: `.well-known/ai-plugin.json` containing metadata and OpenAPI specifications which can be used to develop a chat plugin for large language models. These plugins allow the large language models to function as specialized chatbots that have access to the exposed API endpoints described in the manifest files and can call these APIs based on user input. See ChatGPT plugins documentation for more information on how to develop chatbot specifications. [ai-plugin specs template](https://github.com/openai/plugins-quickstart/blob/3096542ef96b77f93d6b13a0ea105641c3763284/.well-known/ai-plugin.json)
+
 Learn more about generating an OpenAPI or SmartAPI specification on the Documentation page.
 Example: [exRNA openAPI link](https://brl-bcm.stoplight.io/docs/exrna-atlas-json-api/ZG9jOjQ1Mg-overview)
 
@@ -31,11 +33,11 @@ The Entity Page Template and Example are links to:
     - Example live entity page from GTEx: [https://www.gtexportal.org/home/gene/MAPK3](https://www.gtexportal.org/home/gene/MAPK3)
 
 
-### Chatbot Specifications
+### Models
 
-Chatbot specifications URL is a link to a manifest file containing metadata and OpenAPI specifications which can be used to develop a chat plugin for large language models. These plugins allow the large language models to function as specialized chatbots that have access to the exposed API endpoints described in the manifest files and can call these APIs based on user input. See ChatGPT plugins documentation for more information on how to develop chatbot specifications.
-Example: [ai-plugin specs template](https://github.com/openai/plugins-quickstart/blob/3096542ef96b77f93d6b13a0ea105641c3763284/.well-known/ai-plugin.json)
-
+Models are resources that aren't quite apps but are being developed by DCCs and useful for a variety of tasks. These models range from mathematical models of biological systems to foundation models for biology.
+A link to the model should be provided, ideally the link is a DOI, and/or in a standardized public repository like HuggingFace for machine learning models.
+Example: [ABC Transport Model](https://models.physiomeproject.org/e/cba/BG_ABC.cellml/view)
 
 
 ### Apps URL

@@ -1,10 +1,10 @@
 'use client'
-import { Button, Grid } from "@mui/material"
+import { Button, Grid, IconButton, Tooltip } from "@mui/material"
 import { Outreach } from "@prisma/client";
 import fileDownload from 'js-file-download';
 import Icon from '@mdi/react';
 import { mdiCalendar } from "@mdi/js"
-
+import Link from "next/link";
 const pad = (n:number) => n < 10 ? `0${n}` : `${n}`
     
 const ExportCalendar = ({event}: {event: Outreach}) => {
@@ -69,11 +69,18 @@ END:VCALENDAR`
     }
     const now = new Date()
     const event_dates = [event.end_date, event.start_date, event.application_end, event.application_start].filter(i=>i!==null && i > now)
+    if (event.ical) {
+        return (
+            <Grid item>
+                <Tooltip title={"Add to Calendar"}><Link href={event.ical} target="_blank" rel="noopener noreferrer"><IconButton color="secondary"><Icon path={mdiCalendar} size={1} /></IconButton></Link></Tooltip>
+            </Grid>
+        )
+    }
     if (event_dates.length === 0)
         return null
     return (
         <Grid item>
-            <Button onClick={export_event} color="secondary" endIcon={<Icon path={mdiCalendar} size={1} />}>ADD TO CALENDAR</Button>
+            <Tooltip title={"Add to Calendar"}><IconButton onClick={export_event} color="secondary"><Icon path={mdiCalendar} size={1} /></IconButton></Tooltip>
         </Grid>
     )
 }

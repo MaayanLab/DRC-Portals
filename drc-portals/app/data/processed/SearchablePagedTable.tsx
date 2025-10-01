@@ -9,18 +9,18 @@ import { type_to_color, type_to_string } from "./utils"
 import { Highlight } from "@/components/misc/Highlight"
 
 export function LinkedTypedNode({
-  id,
+  slug,
   type,
   label,
   search,
-  entity_type = null,
+  entity_type = '',
   focus = false,
 }: {
-  id: string,
+  slug: string,
   type: NodeType,
   label: string,
   search?: string,
-  entity_type?: string | null,
+  entity_type?: string,
   focus?: boolean,
 }) {
   return (

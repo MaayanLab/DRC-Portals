@@ -308,13 +308,15 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
         </Grid>
         <Grid item>
           <Link href={"/data/chat"}>
-            <Fab sx={{
-              position: 'fixed',
-              bottom: 50,
-              right: 50,
-            }} aria-label={'chat'} color={'primary'}>
-              <Icon style={{ color: "#336699" }} path={mdiChatOutline} size={1} />
-            </Fab>
+          <Tooltip title={"CFDE WORKBENCH ASSISTANT"}>
+              <Fab sx={{
+                position: 'fixed',
+                bottom: 50,
+                right: 50,
+              }} variant="extended" aria-label={'chat'} color={'primary'}>
+                <Typography sx={{marginRight: 1, textTransform: "none"}} color="secondary">Ask CWAS</Typography> <Icon style={{ color: "#336699" }} path={mdiChatOutline} size={1} />
+              </Fab>
+            </Tooltip>
           </Link>
         </Grid>
       </Grid>

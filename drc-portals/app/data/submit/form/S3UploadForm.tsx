@@ -182,10 +182,6 @@ export function S3UploadForm(user: { name?: string | null, email?: string | null
           setProgress(newProgress);
         }
       },
-    }).catch(function (error) {
-      if (error.response) {
-        throw new Error(error.response.data)
-      }
     })
     return checksumHash
   }, [])
@@ -205,8 +201,8 @@ export function S3UploadForm(user: { name?: string | null, email?: string | null
       setAssets(new_assets.filter(asset=>asset.dcc?.short_label == dcc && asset.fileAsset?.filetype == filetype && asset.current && !asset.deleted))
     }
     catch (error) {
-      console.log({ error }); setStatus(({ error: { selected: true, message: 'Error Uploading File!' } }));
-      return
+      console.log({ error })
+      return setStatus(({ error: { selected: true, message: `Error Uploading File!` } }))
     }
     setStatus(() => ({ success: true }))
     setProgress(0)

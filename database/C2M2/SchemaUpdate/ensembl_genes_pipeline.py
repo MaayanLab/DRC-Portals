@@ -61,12 +61,15 @@ def extract_synonyms_ensembl(ensembl_id):
 
 # Paths to input TSV files
 ontologyPath = Path('/mnt/share/cfdeworkbench/C2M2/ontology')
-file1 = Path(ontologyPath/'external_CV_reference_files_updated_202412/ensembl_genes.tsv')
-file2 = Path(ontologyPath/'external-CV-reference-scripts/Ensembl_preprocessing/002_all/ensembl_genes.tsv')
-file3 = Path(ontologyPath/'C2M2_genes.tsv')
+file1 = Path(ontologyPath/'external_CV_reference_files_202412/ensembl_genes.2024-08-18.tsv'); # Last master ontology table used (also on OSF)
+ens_proc_rel_dir='external-CV-reference-scripts/Ensembl-Aug-2025'
+file2 = Path(ontologyPath/ens_proc_rel_dir/'002_all/ensembl_genes.tsv') # From latest GFF processed
+file3 = Path(ontologyPath/ens_proc_rel_dir/'C2M2_genes.tsv') # From DRC DB
 
 # Combine data from all input TSV files
 data = read_tsv(file1) + read_tsv(file2) + read_tsv(file3)
+
+print(f"Finished reading {file1}, {file2} and {file3}")
 
 # Group by (id, name) and retain the row with the most synonyms
 unique_rows = {}
@@ -77,6 +80,7 @@ for row in data:
     # Keep only the row with the highest synonym count for each (id, name) pair
     if key not in unique_rows or row['synonym_count'] > unique_rows[key]['synonym_count']:
         unique_rows[key] = row
+print(f"Grouped by (id, name) and retained the row with the most synonyms")
 
 # Identify IDs with conflicting names
 id_to_names = defaultdict(set)
@@ -87,15 +91,21 @@ conflicted_ids = {id_ for id_, names in id_to_names.items() if len(names) > 1}
 conflicted_rows = [row for row in unique_rows.values() if row['id'] in conflicted_ids]
 filtered_rows = [row for row in unique_rows.values() if row['id'] not in conflicted_ids]
 
+print(f"Identified IDs with conflicting names")
+
 # Update names in conflicted rows to match the official Ensembl name
 for row in conflicted_rows:
     official_name = get_ensembl_official_name(row['id'])
     if official_name and row['name'] != official_name:
         row['name'] = official_name
 
+print(f"Updated names in conflicted rows to match the official Ensembl name")
+
 # Combine filtered rows and resolved conflicted rows
 final_data = filtered_rows + conflicted_rows
 final_data.sort(key=lambda x: x['id'])
+
+print(f"Combined filtered rows and resolved conflicted rows")
 
 # Prepare API request URLs
 results = {}
@@ -124,16 +134,21 @@ for row in final_data:
             except Exception as e:
                 print(f"Failed to process {ensembl_id}: {e}")
 
+print(f"Updated and cleaned synonyms for each row")
+
 # Additional cleaning and fixes
 for row in final_data:
     if 'synonyms' in row:
         row['synonyms'] = re.sub(r'"{2,}', '"', row['synonyms'])  # Replace consecutive quotes
-        row['synonyms'] = re.sub(r'"', '', row['synonyms'])  # Remove single quotes before array
+        #row['synonyms'] = re.sub(r'"', '', row['synonyms'])  # Remove single quotes before array # Shiva
+        row['synonyms'] = re.sub(r'^"\[(.*)\]"$', r'[\1]', row['synonyms']) # Mano
     if 'description' in row and row['description'].lower() == "tec" and not row['name']:
         row['description'] = "To be experimentally confirmed"
 
+print(f"Additional cleaning and fixes done")
+
 # Write the final processed data to a TSV file
-output_file = Path(ontologyPath/'synonyms_resolved.tsv')
+output_file = Path(ontologyPath/ens_proc_rel_dir/'003_final/ensembl_gene_synonyms_resolved.tsv')
 
 with open(output_file, mode='w', newline='') as file:
     writer = csv.DictWriter(file, fieldnames=final_data[0].keys(), delimiter='\t')

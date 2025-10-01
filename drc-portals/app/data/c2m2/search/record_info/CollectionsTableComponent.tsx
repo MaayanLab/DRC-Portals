@@ -5,6 +5,7 @@ import Link from "@/utils/link";
 import { isURL, MetadataItem, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromCollectionTable, Category } from "@/app/data/c2m2/utils";
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
+import DownloadButton from "../../DownloadButton";
 
 interface CollectionTableResult {
     collections_table_full: {
@@ -66,7 +67,8 @@ export default async function CollectionsTableComponent({ searchParams, filterCl
                     c2m2.collection.description as description,
                     allres_full.collection_has_time_series_data as has_time_series_data
                 FROM allres_full
-                LEFT JOIN c2m2.collection ON (c2m2.collection.local_id = allres_full.collection_local_id)
+                LEFT JOIN c2m2.collection ON ((c2m2.collection.local_id = allres_full.collection_local_id) AND
+                                              (c2m2.collection.id_namespace = allres_full.collection_id_namespace))
             ),
             collections_table_limited AS (
                 SELECT * 
@@ -128,6 +130,12 @@ export default async function CollectionsTableComponent({ searchParams, filterCl
 
         addCategoryColumns(staticCollectionColumns, getNameFromCollectionTable, "Collections", categories);
         const category = categories[0];
+        const downloadData = category?.metadata
+            ? category.metadata
+                .filter(item => item && item.value !== null)  // Only include items with a non-null value
+                .map(item => ({ [item.label]: item.value }))  // Create an object with label as the key and value as the value
+            : []; // If category is not present, return an empty array
+
 
         return (
             <Grid container spacing={0} direction="column">
@@ -148,6 +156,15 @@ export default async function CollectionsTableComponent({ searchParams, filterCl
                                 ))}
                             </CardContent>
                         </Card>
+                    </Grid>
+                )}
+                {countCol === 1 && (
+                    <Grid item xs={12}>
+                        <DownloadButton
+                            data={downloadData}
+                            filename={downloadFilename}
+                            name="Download Metadata"
+                        />
                     </Grid>
                 )}
                 <Grid item xs={12}>
