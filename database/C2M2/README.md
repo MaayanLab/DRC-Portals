@@ -24,7 +24,7 @@
 # Can also process ../ingest/DccAssets.tsv (ingest/DccAssets.tsv in the parent folder named database)
 ./get_current_notdeleted_assets_list.sh ../ingest/DccAssets.tsv C2M2
 ./get_current_notdeleted_assets_list.sh ../ingest/DccAssets.tsv XMT
-./get_current_notdeleted_assets_list.sh ../ingest/DccAssets.tsv "KG Assetions"
+./get_current_notdeleted_assets_list.sh ../ingest/DccAssets.tsv "KG Assertions"
 # Check the resulting output files like validDcc_XMT.tsv inside ../ingest/
 # ingest]$ cat validDcc_XMT.tsv |grep "\.gmt"|cut -d$'\t' -f1|cut -d'/' -f4|sort|uniq
 # ingest]$ egrep -e "file_path.parent:ingest/assertions" ../log/log_ingest_kg.log
