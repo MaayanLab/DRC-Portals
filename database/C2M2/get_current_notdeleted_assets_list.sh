@@ -36,15 +36,15 @@ head -n 1 ${f1} > ${f2}
 if [[ "${asset_type}" == "C2M2" ]]; then
         # current, drcapproved, dccapproved, not deleted
         awk -F'\t' '$2 == "True" && $3 == "True" && $4 == "True" && $5 == "False"' ${f1} >> ${f2}
-        echo "List of DCCs with valid ${asset_type} (with respect to current, drcapproved, dccapproved and deleted):"
+        echo "List of DCCs with valid ${asset_type} (with respect to current, drcapproved, dccapproved and not deleted):"
 else
         # current, drcapproved, not deleted
         awk -F'\t' '$2 == "True" && $3 == "True" && $5 == "False"' ${f1} >> ${f2}
-        echo "List of DCCs with valid ${asset_type} (with respect to current, drcapproved and deleted):"
+        echo "List of DCCs with valid ${asset_type} (with respect to current, drcapproved and not deleted):"
 fi
 
 # To see which DCCs might have more than one current:
-cat ${f2} |cut -d$'\t' -f1|cut -d'/' -f4
+tail -n +2 ${f2} |cut -d$'\t' -f1|cut -d'/' -f4|sort
 echo "";
 if [[ "${asset_type}" == "C2M2" ]]; then
         echo -e "If there are DCCs with their names listed more than one, then check the file \n${f2}\n to see which ones for which submission they are marked current=True and deleted=False \nand in the original input file \n${fpath}\n set current to False and/or deleted to True for all but one row per DCC.";
