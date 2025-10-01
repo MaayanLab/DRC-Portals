@@ -125,11 +125,13 @@ def pdp_helper():
     connection,
     'pdp.entity_ingest',
     tqdm(entities.values(), desc='Ingesting entities...'),
+    setup='set statement_timeout = 0',
   )
   df2pg.copy_from_records(
     connection,
     'pdp.edge_ingest',
     tqdm(edges.values(), desc='Ingesting edges...'),
+    setup='set statement_timeout = 0',
   )
 
 #%%
