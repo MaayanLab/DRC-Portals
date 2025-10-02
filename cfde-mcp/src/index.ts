@@ -11,10 +11,24 @@ const server = new MCPServer({
     type: "http-stream",
     options: {
       port: 5000,
+      responseMode: "stream",
       cors: {
-        allowOrigin: "*"
+        allowOrigin: "*",
+        allowMethods: "GET, POST, DELETE, OPTIONS",
+        allowHeaders: "Content-Type, Accept, Authorization, x-api-key, Mcp-Session-Id, Last-Event-ID",
+        exposeHeaders: "Content-Type, Authorization, x-api-key, Mcp-Session-Id",
+        maxAge: "86400"
+      },
+      session: {
+        enabled: true,
+        headerName: "Mcp-Session-Id",
+        allowClientTermination: true
+      },
+      resumability: {
+        enabled: true,
+        historyDuration: 300000 // 5 minutes in milliseconds
       }
     }
   }});
 
-server.start();
+await server.start();

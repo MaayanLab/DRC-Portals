@@ -10,7 +10,7 @@ class GetRegElementInfoTool extends MCPTool<GetRegElementInfoInput> {
   description = "Find regulatory elements that regulate a given gene";
 
   schema = {
-    gene: {
+    gene_symbol: {
       type: z.string(),
       description: "Gene symbol",
       default: "ACE2"

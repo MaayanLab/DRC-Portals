@@ -1,6 +1,6 @@
 {
   "name": "cfde-mcp",
-  "version": "0.0.8",
+  "version": "0.0.10",
   "description": "cfde-mcp MCP server",
   "type": "module",
   "bin": {
@@ -17,7 +17,7 @@
   "dependencies": {
     "@prisma/client": "^6.16.2",
     "isomorphic-unfetch": "^4.0.2",
-    "mcp-framework": "^0.2.2",
+    "mcp-framework": "0.2.11",
     "prisma": "^6.16.2"
   },
   "devDependencies": {
