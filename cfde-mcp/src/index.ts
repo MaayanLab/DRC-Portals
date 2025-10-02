@@ -22,12 +22,12 @@ const server = new MCPServer({
       session: {
         enabled: true,
         headerName: "Mcp-Session-Id",
-        allowClientTermination: true
+        allowClientTermination: false
       },
       resumability: {
         enabled: true,
         historyDuration: 300000 // 5 minutes in milliseconds
-      }
+      },
     }
   }});
 
