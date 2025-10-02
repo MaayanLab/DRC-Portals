@@ -75,7 +75,7 @@ export default async function Page(props: { params: { slug: string } }) {
             item.dcc_asset.dcc_asset.fileAsset ? { label: 'Asset', value:  <Link href={`/data/matrix/${item.dcc.short_label}#${item.dcc_asset.dcc_asset.fileAsset.filetype}`} className="underline cursor-pointer text-blue-600">Asset Page</Link> } : null,
           ] : []),
           { label: 'Link', value: <Link href={item.dcc_asset.dcc_asset.link} className="underline cursor-pointer text-blue-600" target="_blank">{item.dcc_asset.dcc_asset.link}</Link> },
-          process.env.PUBLIC_URL ? { label: 'DRS', value: `${process.env.PUBLIC_URL.replace(/^https?/, 'drs')}/${item.id}` } : null,
+          process.env.PUBLIC_URL ? { label: 'DRS', value: <Link href={`/data/drs?q=${encodeURIComponent(`${process.env.PUBLIC_URL.replace(/^https?/, 'drs')}/${item.id}`)}`}>${process.env.PUBLIC_URL.replace(/^https?/, 'drs')}/${item.id}</Link> } : null,
           item.dcc_asset.dcc_asset.fileAsset ? { label: 'File Type', value: item.dcc_asset.dcc_asset.fileAsset.filetype } : null,
           item.dcc_asset.dcc_asset.fileAsset ? { label: 'Size in Bytes', value: item.dcc_asset.dcc_asset.fileAsset.size?.toLocaleString() ?? 'unknown' } : null,
           { label: 'Last Modified', value: item.dcc_asset.dcc_asset.lastmodified.toLocaleDateString() },

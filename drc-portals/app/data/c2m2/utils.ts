@@ -45,10 +45,13 @@ export function generateHashedJSONFilename(prefix: string, searchParams: any): s
   return hashedFileName;
 }
 export function isURL(str: string): boolean {
-  const http_pattern = /^http/i;
-  const drs_pattern = /^drs:\/\//i;
+  const http_pattern = /^https?:\/\//i;
   const doi_pattern = "doi.org";
-  return (!(str === null || str.trim() === '') && (http_pattern.test(str) || drs_pattern.test(str) || str.toLowerCase().includes(doi_pattern)));
+  return (!(str === null || str.trim() === '') && (http_pattern.test(str) || str.toLowerCase().includes(doi_pattern)));
+}
+export function isDRS(str: string): boolean {
+  const drs_pattern = /^drs:\/\//i;
+  return (!(str === null || str.trim() === '') && (drs_pattern.test(str)));
 }
 
 interface HashTable {
@@ -288,7 +291,11 @@ export const tableToName = [
   { table: 'subject_race', label: 'Subject - Race' },
   { table: 'subject_role_taxonomy', label: 'Subject Role Taxonomy' },
   { table: 'subject_substance', label: 'Subject - Substance' },
-  { table: 'substance', label: 'Substance' }
+  { table: 'substance', label: 'Substance' },
+  { table: 'file_format', label: 'File Format' },
+  { table: 'ptm_type', label: 'PTM Type' },
+  { table: 'ptm_subtype', label: 'PTM SubType' },
+  { table: 'ptm_site_type', label: 'PTM Site Type' }
 ];
 
 export function generateFilterQueryStringForRecordInfo(searchParams: any, schemaname: string, tablename: string) {
@@ -296,6 +303,7 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
 
   //const tablename = "allres";
   if (searchParams.t) {
+    console.log("generateFilterQueryStringForRecordInfo searchParams.t = ", searchParams.t);
     const typeFilters: { [key: string]: SQL[] } = {};
 
     searchParams.t.forEach((t: any) => {
@@ -310,7 +318,7 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
         // ${t.entity_type.replace(/'/g, "''")} is not needed: ${t.entity_type} is enough.
         const valid_colnames: string[] = ['dcc_name', 'project_local_id', 'disease_name',
           'ncbi_taxonomy_name', 'anatomy_name', 'biofluid_name', 'gene_name', 'protein_name', 'compound_name',
-          'data_type_name', 'assay_type_name', 'subject_ethnicity_name', 'subject_sex_name', 'subject_race_name'];
+          'data_type_name', 'assay_type_name', 'subject_ethnicity_name', 'subject_sex_name', 'subject_race_name', 'file_format_name', 'ptm_type_name', 'ptm_subtype_name', 'ptm_site_type_name'];
 
         if (t.entity_type !== "Unspecified") { // was using "null"
           // Change = to ILIKE to accomodate upper and lower cases
@@ -330,6 +338,7 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
   const filterConditionStr = filters.length ? SQL.join(' AND ', ...filters) : SQL.empty();
   // console.log("FILTERS LENGTH =");
   // console.log(filters.length)
+  console.log("RECORDINFOQUERY filterConditionStr = ", filterConditionStr);
   return filterConditionStr;
 }
 // Mano: Not sure if use of this function is sql-injection safe
@@ -347,15 +356,13 @@ export function generateFilterQueryString(searchParams: any, tablename: string):
       }
       if (t.entity_type) {
 
-        const valid_colnames_old: string[] = ['dcc', 'disease',
-          'taxonomy', 'anatomy', 'biofluid', 'gene', 'protein', 'compound',
-          'data_type'];
+
         // Note that here we use taxonomy and not ncbi_taxonomy as the column in allres is taxonomy_name
         //typeFilters[t.type].push(`"allres"."${t.type}_name" = '${t.entity_type}'`);
 
         const valid_colnames: string[] = ['dcc', 'disease',
           'taxonomy', 'ncbi_taxonomy', 'anatomy', 'biofluid', 'gene', 'protein', 'compound',
-          'data_type', 'assay_type', 'subject_ethnicity', 'subject_sex', 'subject_race'];
+          'data_type', 'assay_type', 'subject_ethnicity', 'subject_sex', 'subject_race', 'file_format', 'ptm_type', 'ptm_subtype', 'ptm_site_type'];
 
         if (t.entity_type !== "Unspecified") { // was using "null"
           // Change = to ILIKE to accomodate  upper case and lower case entity names
@@ -400,7 +407,7 @@ export function generateFilterClauseFromtParam(t: { type: string; entity_type: s
 
         const valid_colnames: string[] = ['dcc', 'disease',
           'taxonomy', 'ncbi_taxonomy', 'anatomy', 'biofluid', 'gene', 'protein', 'compound',
-          'data_type', 'assay_type', 'subject_ethnicity', 'subject_sex', 'subject_race'];
+          'data_type', 'assay_type', 'subject_ethnicity', 'subject_sex', 'subject_race', 'file_format', 'ptm_type', 'ptm_subtype', 'ptm_site_type'];
 
         if (item.entity_type !== "Unspecified") {
           typeFilters[item.type].push(SQL.template`"${SQL.raw(tablename)}"."${SQL.assert_in(item.type, valid_colnames)}_name" ILIKE ${item.entity_type}`);
@@ -441,7 +448,7 @@ export type SearchParamsType = z.infer<typeof searchParamsSchema>;
 
 const dccAbbrTable: { [key: string]: string } = {
   "4D NUCLEOME DATA COORDINATION AND INTEGRATION CENTER": "4DN",
-  "The Extracellular Communication Consortium Data Coordination Center": "ERCC",
+  "The Extracellular Communication Consortium Data Coordination Center": "ExRNA",
   "Genotype-Tissue Expression Project": "GTEx",
   "GlyGen": "GlyGen",
   "The Human Microbiome Project": "HMP",
@@ -483,6 +490,29 @@ export function getFilterVals(filtParams: FilterParam[] | undefined, textSearchS
   }
 }
 
+const biosamplesSubjectTable: { [key: string]: string } = {
+  "biosample_local_id": "Biosample ID",
+  "project_local_id": "Project ID",
+  "biosample_persistent_id": "Biosample Persistent ID",
+  "biosample_creation_time": "Creation time",
+  "sample_prep_method_name": "Sample prep method",
+  "disease_association_type_name": "Disease association (in all biosamples)",
+  "biosample_age_at_sampling": "Age at sampling (in years)",
+  "gene_name": "Gene",
+  "substance_name": "Substance",
+  "subject_local_id": "Subject ID",
+  "subject_race_name": "Race",
+  "subject_granularity_name": "Granularity",
+  "subject_sex_name": "Sex",
+  "subject_ethnicity_name": "Ethnicity",
+  "subject_role_name": "Role",
+  "subject_age_at_enrollment": "Age at enrollment"
+};
+
+export function getNameFromBiosampleSubjectTable(iconKey: string): string {
+  console.log("Icon key = " + iconKey);
+  return biosamplesSubjectTable[iconKey] || "";
+}
 
 const biosamplesTable: { [key: string]: string } = {
   "biosample_local_id": "Biosample ID",
@@ -523,9 +553,30 @@ const collectionsTable: { [key: string]: string } = {
   "description": "Description",
   "has_time_series_data": "Has time series data"
 }
+const ptmTable: { [key: string]: string } = {
+  "ptm_id": "PTM ID",
+  "collection_id_namespace": "Collection ID Namespace",
+  "collection_local_id": "Collection Local ID",
+  "protein": "Protein",
+  "protein_name": "Protein Name",
+  "site_one": "Site One",
+  "aa_site_one": "AA Site One",
+  "site_two": "Site Two",
+  "aa_site_two": "AA Site Two",
+  "ptm_site_type": "PTM Site Type",
+  "ptm_site_type_name": "PTM Site Type Name",
+  "ptm_type": "PTM Type",
+  "ptm_type_name": "PTM Type Name",
+  "ptm_subtype": "PTM Subtype",
+  "ptm_subtype_name": "PTM Subtype Name"
+}
 
 export function getNameFromCollectionTable(iconKey: string): string {
   return collectionsTable[iconKey] || "";
+}
+
+export function getNameFromPTMTable(iconKey: string): string {
+  return ptmTable[iconKey] || "";
 }
 const fileProjTable: { [key: string]: string } = {
   "local_id": "File ID",
@@ -593,6 +644,58 @@ export function addCategoryColumns(
 
 
 export function useSanitizedSearchParams(props: { searchParams: Record<string, string | string[] | undefined> }) {
+  // Helper to safely split only on the first colon
+  const splitTypeEntity = (t: string) => {
+    const idx = t.indexOf(":");
+    return {
+      type: idx >= 0 ? t.slice(0, idx) : t,
+      entity_type: idx >= 0 ? t.slice(idx + 1) : null
+    };
+  };
+
+  // Define the schema for known parameters
+  const schema = z.object({
+    q: z.union([
+      z.array(z.string()).transform(qs => qs.join(" ")),
+      z.string(),
+      z.undefined(),
+    ]),
+    s: z.union([
+      z.array(z.string()).transform(ss => ss[ss.length - 1]),
+      z.string(),
+      z.undefined(),
+    ]).transform(ss => {
+      if (!ss) return undefined;
+      return splitTypeEntity(ss);
+    }),
+    p: z.union([
+      z.array(z.string()).transform(ps => +ps[ps.length - 1]),
+      z.string().transform(p => +p),
+      z.undefined().transform(() => 1),
+    ]),
+    r: z.union([
+      z.array(z.string()).transform(ps => +ps[ps.length - 1]),
+      z.string().transform(p => +p),
+      z.undefined().transform(() => 10),
+    ]).transform(r => ({ 10: 10, 20: 20, 50: 50, 100: 100 }[r] ?? 10)),
+    t: z.union([
+      z.array(z.string()),
+      z.string().transform(ts => ts ? ts.split("|") : undefined),
+      z.undefined(),
+    ]).transform(ts => ts ? ts.map(splitTypeEntity) : undefined),
+    et: z.union([
+      z.array(z.string()),
+      z.string().transform(ts => ts ? ts.split("|") : undefined),
+      z.undefined(),
+    ]).transform(ts => ts ? ts.map(splitTypeEntity) : undefined),
+  }).passthrough();
+
+  // Parse and return the parameters
+  return schema.parse(props.searchParams);
+}
+
+
+/* export function useSanitizedSearchParams(props: { searchParams: Record<string, string | string[] | undefined> }) {
   // Define the schema for known parameters
   const schema = z.object({
     q: z.union([
@@ -639,7 +742,7 @@ export function useSanitizedSearchParams(props: { searchParams: Record<string, s
 
   // Parse and return the parameters
   return schema.parse(props.searchParams);
-}
+} */
 
 export function get_partial_list_string(all_count: number, count: number, all_count_limit: number): string {
   return (all_count ?? 0).toLocaleString() +
@@ -669,8 +772,8 @@ export function generateSelectColumnsStringPlain(tablename: string = '') {
     'project_local_id', 'taxonomy_name', 'taxonomy_id', 'disease_name', 'disease', 'anatomy_name',
     'anatomy', 'biofluid_name', 'biofluid', 'gene_name', 'gene', 'protein_name', 'protein',
     'compound_name', 'compound', 'data_type_name', 'data_type', 'assay_type_name', 'assay_type', 'subject_ethnicity_name',
-    'subject_ethnicity', 'subject_sex_name', 'subject_sex', 'subject_race_name', 'subject_race',
-    'project_name', 'project_persistent_id'];
+    'subject_ethnicity', 'subject_sex_name', 'subject_sex', 'subject_race_name', 'subject_race', 'file_format_name', 'file_format',
+    'project_name', 'project_persistent_id', 'ptm_type_name', 'ptm_type', 'ptm_subtype_name', 'ptm_subtype', 'ptm_site_type_name', 'ptm_site_type'];
 
   const colnamesStringArray = colnames.map(col => tablenameWithDot + col);
   return colnamesStringArray.join(", ");
@@ -682,10 +785,82 @@ export function generateSelectColumnsStringModified(tablename: string = '') {
 
   // decorate and sanitize using SQL.template and SQL.raw
   const colnamesString =
+    "allres_full.dcc_name AS dcc_name, " +
+    "allres_full.dcc_abbreviation AS dcc_abbreviation, " +
+    "SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label, " +
+    "COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id, " +
+    "COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name, " +
+    "SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id, " +
+    "COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name, " +
+    "REPLACE(allres_full.disease, ':', '_') AS disease, " +
+    "COALESCE(allres_full.anatomy_name, 'Unspecified') AS anatomy_name, " +
+    "REPLACE(allres_full.anatomy, ':', '_') AS anatomy, " +
+    "COALESCE(allres_full.biofluid_name, 'Unspecified') AS biofluid_name, " +
+    "REPLACE(allres_full.biofluid, ':', '_') AS biofluid, " +
+    "COALESCE(allres_full.gene_name, 'Unspecified') AS gene_name, " +
+    "allres_full.gene AS gene," +
+    "COALESCE(allres_full.protein_name, 'Unspecified') AS protein_name, " +
+    "allres_full.protein AS protein, " +
+    "COALESCE(allres_full.compound_name, 'Unspecified') AS compound_name," +
+    "allres_full.substance_compound AS compound, " +
+    "COALESCE(allres_full.data_type_name, 'Unspecified') AS data_type_name, " +
+    "REPLACE(allres_full.data_type_id, ':', '_') AS data_type, " +
+    "COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name, " +
+    "REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type, " +
+    "COALESCE(allres_full.subject_ethnicity_name, 'Unspecified') AS subject_ethnicity_name, " +
+    "allres_full.subject_ethnicity AS subject_ethnicity, " +
+    "COALESCE(allres_full.subject_sex_name, 'Unspecified') AS subject_sex_name, " +
+    "allres_full.subject_sex AS subject_sex," +
+    "COALESCE(allres_full.subject_race_name, 'Unspecified') AS subject_race_name, " +
+    "allres_full.subject_race AS subject_race, " +
+    "COALESCE(allres_full.file_format_name, 'Unspecified') AS file_format_name, " +
+    "REPLACE(allres_full.file_format_id, ':', '_') AS file_format, " +
+    "COALESCE(allres_full.project_name, concat_ws('', 'Dummy: Biosample/Collection(s) from ', " +
+    "    SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name, " +
+    "allres_full.project_persistent_id AS project_persistent_id, " +
+    "COALESCE(allres_full.ptm_type_name, 'Unspecified') AS ptm_type_name, " +
+    "allres_full.ptm_type AS ptm_type, " +
+    "COALESCE(allres_full.ptm_subtype_name, 'Unspecified') AS ptm_subtype_name, " +
+    "allres_full.ptm_subtype AS ptm_subtype, " +
+    "COALESCE(allres_full.ptm_site_type_name, 'Unspecified') AS ptm_site_type_name, " +
+    "allres_full.ptm_site_type AS ptm_site_type"
+    ;
+
+  return colnamesString;
+}
+// generate RecordInfoComponentQueryString
+export function groupByRecordInfoQueryString(tablename: string = '') {
+
+  /* dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, 
+                anatomy_name,  anatomy, biofluid_name,  biofluid, gene_name, gene, protein_name, protein, compound_name, compound, data_type_name, 
+                data_type, assay_type_name, assay_type, subject_ethnicity_name, subject_ethnicity, subject_sex_name, subject_sex, 
+                subject_race_name, subject_race, file_format_name, project_name, c2m2.project.persistent_id, 
+                allres_full.project_local_id, project_description, anatomy_description, biofluid_description, disease_description, gene_description, 
+                protein_description, compound_description, taxonomy_description */
+  const groupByString = "dcc_name, dcc_abbreviation, dcc_short_label, taxonomy_name, taxonomy_id, disease_name, disease, anatomy_name,  anatomy, " +
+    "biofluid_name,  biofluid, gene_name, gene, protein_name, protein, compound_name, compound, data_type_name, " +
+    "data_type, assay_type_name, assay_type, file_format_name, file_format, subject_ethnicity_name, subject_ethnicity, " +
+    "subject_sex_name, subject_sex, subject_race_name, subject_race, project_name, c2m2.project.persistent_id, " +
+    "allres_full.project_local_id, project_description, anatomy_description, biofluid_description, disease_description, gene_description, " +
+    "protein_description, compound_description, taxonomy_description, " +
+    "ptm_type_name, ptm_type, ptm_type_description, ptm_subtype_name, ptm_subtype, ptm_subtype_description, " +
+    "ptm_site_type_name, ptm_site_type, ptm_site_type_description";
+
+  return groupByString;
+}
+
+export function orderByRecordInfoQueryString() {
+  const orderByString = "dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, biofluid_name, gene_name, " +
+    "protein_name, compound_name, data_type_name, assay_type_name, file_format_name, subject_ethnicity_name, " +
+    "subject_sex_name, subject_race_name, ptm_type_name, ptm_subtype_name, ptm_site_type_name /*rank DESC*/";
+  return orderByString;
+}
+export function generateRecordInfoColnamesString(tablename: string = '') {
+
+  const colnamesString =
     "allres_full.dcc_name AS dcc_name," +
     "allres_full.dcc_abbreviation AS dcc_abbreviation," +
     "SPLIT_PART(allres_full.dcc_abbreviation, '_', 1) AS dcc_short_label," +
-    "COALESCE(allres_full.project_local_id, 'Unspecified') AS project_local_id," +
     "COALESCE(allres_full.ncbi_taxonomy_name, 'Unspecified') AS taxonomy_name," +
     "SPLIT_PART(allres_full.subject_role_taxonomy_taxonomy_id, ':', 2) as taxonomy_id," +
     "COALESCE(allres_full.disease_name, 'Unspecified') AS disease_name," +
@@ -704,19 +879,39 @@ export function generateSelectColumnsStringModified(tablename: string = '') {
     "REPLACE(allres_full.data_type_id, ':', '_') AS data_type," +
     "COALESCE(allres_full.assay_type_name, 'Unspecified') AS assay_type_name," +
     "REPLACE(allres_full.assay_type_id, ':', '_') AS assay_type," +
+    "COALESCE(allres_full.file_format_name, 'Unspecified') AS file_format_name," +
+    "REPLACE(allres_full.file_format_id, ':', '_') AS file_format," +
     "COALESCE(allres_full.subject_ethnicity_name, 'Unspecified') AS subject_ethnicity_name," +
     "allres_full.subject_ethnicity AS subject_ethnicity," +
     "COALESCE(allres_full.subject_sex_name, 'Unspecified') AS subject_sex_name," +
     "allres_full.subject_sex AS subject_sex," +
     "COALESCE(allres_full.subject_race_name, 'Unspecified') AS subject_race_name," +
     "allres_full.subject_race AS subject_race," +
-    "COALESCE(allres_full.project_name, concat_ws('', 'Dummy: Biosample/Collection(s) from ', " +
-    "    SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name," +
-    "allres_full.project_persistent_id AS project_persistent_id";
-
+    "COALESCE(allres_full.project_name, " +
+    "concat_ws('', 'Dummy: Biosample/Collection(s) from ', SPLIT_PART(allres_full.dcc_abbreviation, '_', 1))) AS project_name," +
+    "c2m2.project.persistent_id AS project_persistent_id," +
+    "allres_full.project_local_id AS project_local_id," +
+    "c2m2.project.description AS project_description," +
+    "c2m2.anatomy.description AS anatomy_description," +
+    "c2m2.biofluid.description AS biofluid_description," +
+    "c2m2.disease.description AS disease_description," +
+    "c2m2.gene.description AS gene_description," +
+    "c2m2.protein.description AS protein_description," +
+    "c2m2.compound.description AS compound_description," +
+    "c2m2.ncbi_taxonomy.description AS taxonomy_description," +
+    "COALESCE(allres_full.ptm_type_name, 'Unspecified') AS ptm_type_name," +
+    "allres_full.ptm_type AS ptm_type," +
+    "c2m2.ptm_type.description AS ptm_type_description," +
+    "COALESCE(allres_full.ptm_subtype_name, 'Unspecified') AS ptm_subtype_name," +
+    "allres_full.ptm_subtype AS ptm_subtype," +
+    "c2m2.ptm_subtype.description AS ptm_subtype_description," +
+    "COALESCE(allres_full.ptm_site_type_name, 'Unspecified') AS ptm_site_type_name," +
+    "allres_full.ptm_site_type AS ptm_site_type, " +
+    "c2m2.site_type.description AS ptm_site_type_description," +
+    " ";
   return colnamesString;
-}
 
+}
 // generate order by string
 export function generateOrderByString(rankColname: string = 'rank') {
   let orderByRankStr = ((rankColname) && (rankColname.length > 0)) ? rankColname + " DESC, " : '';
@@ -725,9 +920,10 @@ export function generateOrderByString(rankColname: string = 'rank') {
   const OrderByString: string = orderByRankStr +
     "dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, " +
     "biofluid_name, gene_name, protein_name, compound_name, data_type_name, assay_type_name, " +
-    "subject_ethnicity_name, subject_sex_name, subject_race_name";
+    "subject_ethnicity_name, subject_sex_name, subject_race_name, file_format_name, ptm_type_name, ptm_subtype_name, ptm_site_type_name";
   return OrderByString;
 }
+
 
 /* export function update_q_to_exclude_gender(q: string | undefined) {
   const newq: string = q + "-gender";
@@ -748,7 +944,11 @@ export function generateFilterStringsForURL(): string {
     `'|assay_type_name:', allres.assay_type_name, ` +
     `'|subject_ethnicity_name:', allres.subject_ethnicity_name, ` +
     `'|subject_sex_name:', allres.subject_sex_name, ` +
-    `'|subject_race_name:', allres.subject_race_name`
+    `'|subject_race_name:', allres.subject_race_name, ` +
+    `'|file_format_name:', allres.file_format_name, ` +
+    `'|ptm_type_name:', allres.ptm_type_name, ` +
+    `'|ptm_subtype_name:', allres.ptm_subtype_name, ` +
+    `'|ptm_site_type_name:', allres.ptm_site_type_name `
   );
 }
 
@@ -758,29 +958,40 @@ export function generateSelectColumnsForFileQuery(tablename: string = '') {
 
   // decorate and sanitize using SQL.template and SQL.raw
   const colnamesString =
-  tablenameWithDot + "dcc_name," +
-  tablenameWithDot + "dcc_abbreviation," +
-  tablenameWithDot + "project_local_id," +
-  tablenameWithDot + "project_id_namespace," +
-  tablenameWithDot + "ncbi_taxonomy_name as taxonomy_name," +
-  tablenameWithDot + "subject_role_taxonomy_taxonomy_id as taxonomy_id," +
-  tablenameWithDot + "disease_name," +
-  tablenameWithDot + "disease," +
-  tablenameWithDot + "anatomy_name," +
-  tablenameWithDot + "anatomy," +
-  tablenameWithDot + "biofluid_name," +
-  tablenameWithDot + "biofluid," +
-  tablenameWithDot + "gene," +
-  tablenameWithDot + "gene_name," +
-  tablenameWithDot + "protein," +
-  tablenameWithDot + "protein_name," +
-  tablenameWithDot + "substance_compound as compound," +
-  tablenameWithDot + "compound_name," +
-  tablenameWithDot + "data_type_id AS data_type," +
-  tablenameWithDot + "data_type_name," +
-  tablenameWithDot + "assay_type_id AS assay_type," +
-  tablenameWithDot + "assay_type_name" 
-;
+    tablenameWithDot + "dcc_name," +
+    tablenameWithDot + "dcc_abbreviation," +
+    tablenameWithDot + "project_local_id," +
+    tablenameWithDot + "project_id_namespace," +
+    tablenameWithDot + "ncbi_taxonomy_name as taxonomy_name," +
+    tablenameWithDot + "subject_role_taxonomy_taxonomy_id as taxonomy_id," +
+    tablenameWithDot + "disease_name," +
+    tablenameWithDot + "disease," +
+    tablenameWithDot + "anatomy_name," +
+    tablenameWithDot + "anatomy," +
+    tablenameWithDot + "biofluid_name," +
+    tablenameWithDot + "biofluid," +
+    tablenameWithDot + "gene," +
+    tablenameWithDot + "gene_name," +
+    tablenameWithDot + "protein," +
+    tablenameWithDot + "protein_name," +
+    tablenameWithDot + "substance_compound as compound," +
+    tablenameWithDot + "compound_name," +
+    tablenameWithDot + "data_type_id AS data_type," +
+    tablenameWithDot + "data_type_name," +
+    tablenameWithDot + "assay_type_id AS assay_type," +
+    tablenameWithDot + "assay_type_name, " +
+    // tablenameWithDot + "subject_sex_id AS subject_sex," +
+    tablenameWithDot + "subject_sex_name, " +
+    //tablenameWithDot + "subject_race_id AS subject_race," +
+    tablenameWithDot + "subject_race_name, " +
+    // tablenameWithDot + "subject_ethnicity_id AS subject_ethnicity," +
+    tablenameWithDot + "subject_ethnicity_name, " +
+    tablenameWithDot + "file_format_id AS file_format," +
+    tablenameWithDot + "file_format_name, " +
+    tablenameWithDot + "ptm_type_name, " +
+    tablenameWithDot + "ptm_subtype_name, " +
+    tablenameWithDot + "ptm_site_type_name"
+    ;
 
   return colnamesString;
 }

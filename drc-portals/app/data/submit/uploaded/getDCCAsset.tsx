@@ -149,7 +149,7 @@ export async function sendDCCApprovedEmails(asset: {
             const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
             // email uploader 
             if (uploader) {
-                const emailHtml = render(<Uploader_DCCApprovedEmail uploaderName={uploader.name}
+                const emailHtml = await render(<Uploader_DCCApprovedEmail uploaderName={uploader.name}
                     approverName={session.user.name ? session.user.name : 'Unknown'} asset={asset} />);
                 const transporter = nodemailer.createTransport(server)
                 if (uploader.email) {
@@ -163,8 +163,8 @@ export async function sendDCCApprovedEmails(asset: {
 
             }
             // email dcc approvers
-            DCCApprovers.forEach((approver => {
-                const emailHtml = render(<DCCApprover_DCCApprovedEmail approverName={approver.name ? approver.name : ''} asset={asset} />);
+            for (const approver of DCCApprovers) {
+                const emailHtml = await render(<DCCApprover_DCCApprovedEmail approverName={approver.name ? approver.name : ''} asset={asset} />);
                 const transporter = nodemailer.createTransport(server)
                 if (approver.email) {
                     transporter.sendMail({
@@ -175,10 +175,10 @@ export async function sendDCCApprovedEmails(asset: {
                     })
                 }
 
-            }))
+            }
             // email drc approvers
-            DRCApprovers.forEach((approver => {
-                const emailHtml = render(<DRCApprover_DCCApprovedEmail reviewerName={approver.name ? approver.name : 'Unknown'}
+            for (const approver of DRCApprovers) {
+                const emailHtml = await render(<DRCApprover_DCCApprovedEmail reviewerName={approver.name ? approver.name : 'Unknown'}
                     uploaderName={uploader ? uploader.name : 'Unknown'} approverName={session.user.name ? session.user.name : 'Unknown'}
                     dcc={asset.dcc ? asset.dcc?.short_label : 'Unknown'} />);
                 const transporter = nodemailer.createTransport(server)
@@ -190,7 +190,7 @@ export async function sendDCCApprovedEmails(asset: {
                         html: emailHtml,
                     })
                 }
-            }))
+            }
         }
     }
 }
@@ -236,7 +236,7 @@ export async function sendDRCApprovedEmails(asset: {
             const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
             // email uploader 
             if (uploader) {
-                const emailHtml = render(<Uploader_DRCApprovedEmail uploaderName={uploader.name}
+                const emailHtml = await render(<Uploader_DRCApprovedEmail uploaderName={uploader.name}
                     reviewerName={session.user.name ? session.user.name : ''} asset={asset} />);
                 const transporter = nodemailer.createTransport(server)
                 if (uploader.email) {
@@ -249,8 +249,8 @@ export async function sendDRCApprovedEmails(asset: {
                 }
             }
             // email dcc approvers
-            DCCApprovers.forEach((approver => {
-                const emailHtml = render(<DCCApprover_DRCApprovedEmail approverName={approver.name}
+            for (const approver of DCCApprovers) {
+                const emailHtml = await render(<DCCApprover_DRCApprovedEmail approverName={approver.name}
                     reviewerName={session.user.name ? session.user.name : ''} asset={asset} />);
                 const transporter = nodemailer.createTransport(server)
                 if (approver.email) {
@@ -261,11 +261,10 @@ export async function sendDRCApprovedEmails(asset: {
                         html: emailHtml,
                     })
                 }
-
-            }))
+            }
             // email drc approvers
-            DRCApprovers.forEach((approver => {
-                const emailHtml = render(<DRCApprover_DRCApprovedEmail reviewerName={session.user.name ? session.user.name : ''} asset={asset} />);
+            for (const approver of DRCApprovers) {
+                const emailHtml = await render(<DRCApprover_DRCApprovedEmail reviewerName={session.user.name ? session.user.name : ''} asset={asset} />);
                 const transporter = nodemailer.createTransport(server)
                 if (approver.email) {
                     transporter.sendMail({
@@ -275,7 +274,7 @@ export async function sendDRCApprovedEmails(asset: {
                         html: emailHtml,
                     })
                 }
-            }))
+            }
         }
     }
 }

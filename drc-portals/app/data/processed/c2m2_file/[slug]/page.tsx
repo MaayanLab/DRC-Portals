@@ -74,6 +74,14 @@ export default async function Page(props: PageProps) {
               <Link href={item.c2m2_file.persistent_id} className="underline cursor-pointer text-blue-600" target="_blank">{item.c2m2_file.persistent_id}</Link>
               : item.c2m2_file.persistent_id,
           } : null,
+          item.c2m2_file.access_url ? {
+            label: 'Access URL',
+            value: /^https?:\/\//.exec(item.c2m2_file.access_url) !== null ?
+                <Link href={item.c2m2_file.access_url} className="underline cursor-pointer text-blue-600" target="_blank">{item.c2m2_file.access_url}</Link>
+              : /^drs:\/\//.exec(item.c2m2_file.access_url) !== null ?
+                <Link href={`/data/drs?q=${encodeURIComponent(item.c2m2_file.access_url)}`} className="underline cursor-pointer text-blue-600" target="_blank">{item.c2m2_file.access_url}</Link>
+              : item.c2m2_file.access_url,
+          } : null,
           process.env.PUBLIC_URL && item.c2m2_file.access_url ? { label: 'DRS', value: `${process.env.PUBLIC_URL.replace(/^https?/, 'drs')}/${item.id}` } : null,
           item.c2m2_file.size_in_bytes ? {
             label: 'Size in Bytes',

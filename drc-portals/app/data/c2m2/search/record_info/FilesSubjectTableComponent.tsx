@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma/c2m2";
 import SQL from '@/lib/prisma/raw';
 import React from 'react';
 import Link from "@/utils/link";
-import { isURL, MetadataItem, reorderStaticCols, get_partial_list_string, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromFileProjTable, Category } from "@/app/data/c2m2/utils";
+import { isURL, isDRS, MetadataItem, reorderStaticCols, get_partial_list_string, pruneAndRetrieveColumnNames, generateHashedJSONFilename, addCategoryColumns, getNameFromFileProjTable, Category } from "@/app/data/c2m2/utils";
 import ExpandableTable from "@/app/data/c2m2/ExpandableTable";
 import { Grid, Typography, Card, CardContent } from "@mui/material";
 import DownloadButton from "../../DownloadButton";
@@ -73,12 +73,20 @@ interface FileSubTableResult {
 }
 
 const renderMetadataValue = (item: MetadataItem) => {
-    if (typeof item.value === 'string' && item.label === 'Persistent ID' && isURL(item.value)) {
-        return (
-            <Link href={item.value} className="underline cursor-pointer text-blue-600" target="_blank" rel="noopener noreferrer" key={item.value}>
-                {item.value}
-            </Link>
-        );
+    if (typeof item.value === 'string' && (item.label === 'Persistent ID' || item.label == 'Access URL')) {
+        if (isURL(item.value)) {
+            return (
+                <Link href={item.value} className="underline cursor-pointer text-blue-600" target="_blank" rel="noopener noreferrer" key={item.value}>
+                    {item.value}
+                </Link>
+            );
+        } else if (isDRS(item.value)) {
+            return (
+                <Link href={`/data/drs?q=${encodeURIComponent(item.value)}`} className="underline cursor-pointer text-blue-600" target="_blank" rel="noopener noreferrer" key={item.value}>
+                    {item.value}
+                </Link>
+            );
+        }
     }
     return item.value;
 };
@@ -114,7 +122,8 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
                 INNER JOIN unique_info AS ui ON (f.project_local_id = ui.project_local_id 
                                         AND f.project_id_namespace = ui.project_id_namespace
                                         AND ((f.data_type = ui.data_type) OR (f.data_type IS NULL AND ui.data_type IS NULL)) /****/ /* 2024/03/07 match data type */
-                                        AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL)) ) /****/
+                                        AND ((f.assay_type = ui.assay_type) OR (f.assay_type IS NULL AND ui.assay_type IS NULL))  /****/
+                                        AND ((f.file_format = ui.file_format) OR (f.file_format IS NULL AND ui.file_format IS NULL)) ) /****/
                 ),
                 file_sub_table_keycol AS (
                   SELECT DISTINCT fds.*,

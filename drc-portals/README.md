@@ -4,8 +4,9 @@
 ```bash
 # prepare .env file & review
 cp .env.example .env
-# start database
+# start database if not already running
 #  (NOTE: If you're running another postgres database on your system, you should turn it off as the ports will conflict)
+# This step is not needed if ingesting into the DB on the UCSD DB server as that DB is not in a container
 docker-compose up -d drc-portal-postgres
 # install node modules
 npm i

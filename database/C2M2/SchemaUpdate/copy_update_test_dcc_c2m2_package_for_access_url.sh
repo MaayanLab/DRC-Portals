@@ -110,15 +110,15 @@ cat "${vlogf}"
 if [ -f "${vlogf}" ] ; then
 	invalid_linecount=$(grep INVALID "${vlogf}" |wc -l|cut -d' ' -f1);
 	if [[ "$invalid_linecount" == "0" ]] ; then
-	echo "GREAT NEWS: All files in the C2M2 package are VALID";
-	# Do not copy back yet
-	# cp "${tdir}"/biosample.tsv "${sdir}/."
-	# cp "${tdir}"/*biofluid* "${sdir}/."
+		echo "GREAT NEWS: All files in the C2M2 package are VALID";
+		# Do not copy back yet
+		# cp "${tdir}"/biosample.tsv "${sdir}/."
+		# cp "${tdir}"/*biofluid* "${sdir}/."
 	else
-	echo "BAD NEWS: $invalid_linecount lines have the keyword INVALID";
+		echo "BAD NEWS: $invalid_linecount lines have the keyword INVALID";
 	fi
 else
-  echo "Error: Log file ${vlogf} does not exist";
+    echo "Error: Log file ${vlogf} does not exist";
 fi
 
 
