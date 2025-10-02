@@ -13,13 +13,6 @@ const server = new MCPServer({
       port: 5000,
       cors: {
         allowOrigin: "*"
-      },
-      auth: {
-        provider: authProvider,
-        endpoints: {
-          sse: true,    // Require auth for SSE connections
-          messages: true // Require auth for messages
-        }
       }
     }
   }});

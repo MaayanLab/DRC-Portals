@@ -8,6 +8,8 @@ RUN npm install
 
 ENV NODE_ENV=production
 
+RUN npm run build
+
 EXPOSE 5000
 
 CMD ["node", "dist/index.js"]
