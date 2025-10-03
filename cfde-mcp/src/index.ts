@@ -28,6 +28,13 @@ const server = new MCPServer({
         enabled: true,
         historyDuration: 300000 // 5 minutes in milliseconds
       },
+      auth: {
+        provider: authProvider,
+        endpoints: {
+          sse: true,
+          messages: true
+        }
+      }
     }
   }});
 
