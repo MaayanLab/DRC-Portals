@@ -8,7 +8,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import SearchablePagedTable, { Description } from './SearchablePagedTable';
 import DownloadButton from './DownloadButton';
 import DRSBundleButton from './DRSBundleButton';
-import { isURL, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, getNameFromBiosampleSubjectTable } from './utils';
+import { isURL, isDRS, getNameFromBiosampleTable, getNameFromSubjectTable, getNameFromCollectionTable, getNameFromFileProjTable, getNameFromBiosampleSubjectTable } from './utils';
 import Link from '@/utils/link';
 import { RowType, formatFileSize } from './utils';
 import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
@@ -138,6 +138,10 @@ const ExpandableTable: React.FC<ExpandableTableProps> = ({
                                     const cellValueString = cellValue !== null ? String(cellValue) : 'NA';
                                     renderedColumns[column] = isURL(cellValueString) ? (
                                         <Link href={cellValueString} className="underline text-blue-600" target="_blank" rel="noopener noreferrer">
+                                            {cellValueString}
+                                        </Link>
+                                    ) : isDRS(cellValueString) ? (
+                                        <Link href={`/data/drs?q=${encodeURIComponent(cellValueString)}`} className="underline text-blue-600" target="_blank" rel="noopener noreferrer">
                                             {cellValueString}
                                         </Link>
                                     ) : column.toLowerCase().includes('size_in_bytes') ? (

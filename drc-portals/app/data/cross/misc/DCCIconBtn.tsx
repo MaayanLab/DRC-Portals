@@ -131,7 +131,6 @@ export const DCCIcons = ({
     }
     if (setSelectedLibs) setSelectedLibs(newArr);
     if (setSelected) setSelected(newArrDCCs);
-    console.log(selected, selectedLibs);
   }
   return (
     <Box

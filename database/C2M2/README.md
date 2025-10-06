@@ -24,10 +24,17 @@
 # Can also process ../ingest/DccAssets.tsv (ingest/DccAssets.tsv in the parent folder named database)
 ./get_current_notdeleted_assets_list.sh ../ingest/DccAssets.tsv C2M2
 ./get_current_notdeleted_assets_list.sh ../ingest/DccAssets.tsv XMT
-./get_current_notdeleted_assets_list.sh ../ingest/DccAssets.tsv "KG Assetions"
+./get_current_notdeleted_assets_list.sh ../ingest/DccAssets.tsv "KG Assertions"
 # Check the resulting output files like validDcc_XMT.tsv inside ../ingest/
 # ingest]$ cat validDcc_XMT.tsv |grep "\.gmt"|cut -d$'\t' -f1|cut -d'/' -f4|sort|uniq
 # ingest]$ egrep -e "file_path.parent:ingest/assertions" ../log/log_ingest_kg.log
+
+# If a new DCC submitted metadata, the corresponding schema name (for DCC-specific schema) or  
+# dcc_short_label in the table c2m2.id_namespace_dcc_id must be included. One can do as below 
+# to find which files need to be updated for this
+egrep -ie "hubmap" *.sh
+egrep -ie "hubmap" *.sql # likely none
+egrep -ie "hubmap" *.py # likely none
 
 # If ingesting to the dedicated DB server DB, set server_label to dbserver_ (e.g.: server_label=dbserver_), else to null/empty
 server_label=
@@ -55,7 +62,15 @@ cp --preserve=mode,ownership,timestamps ingest/*.tsv ${scripts_ran_dir}/ingest/.
 ########################### clean up by key words
 # Run these after the zip files have been downloaded in the folders inside the ingest/c2m2s folder using the commands
 # scripts populateC2M2FromS3.py or call_populateC2M2FromS3_DCCnameASschema.sh
-# In the file populateC2M2FromS3.py, set actually_ingest_tables = 0 for this; later set it to 1 to actually ingest
+# No need to do this manually anymore: In the file populateC2M2FromS3.py, set actually_read_tables = 0 for this; later set it to 1 to actually read and ingest
+# Automatic: set_actually_read_tables.py is read inside populateC2M2FromS3.py
+mkdir -p ${logdir}
+echo -e "actually_read_tables = 0\n" > set_actually_read_tables.py
+python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_download_${ymd}.log; ${python_cmd} populateC2M2FromS3.py 2>&1 | tee ${logf} ; date_div >> ${logf}; 
+# Check for any warning or errors
+egrep -i -e "Warning" ${logf} > ${logdir}/warning_in_schemaC2M2_download_${ymd}.log; 
+egrep -i -e "Error" ${logf} > ${logdir}/error_in_schemaC2M2_download_${ymd}.log;
+
 #
 # To get the list of files and lines with specific keywords 
 ./extract_keyword_phrases.sh kwlog/lines_from_dcc_files_with_keywords.txt kwlog/lines_from_dcc_files_with_phrase_around_keywords.txt
@@ -85,6 +100,7 @@ date_div >> ${logf};
 # inside_C2M2_SchemaUpdate (in the file set_inside_C2M2_SchemaUpdate.py) is set 0 if in the C2M2 folder
 # and to 1 if in the SchemaUpdate folder.
 mkdir -p ${logdir}
+echo -e "actually_read_tables = 1\n" > set_actually_read_tables.py
 python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_ingestion_${ymd}.log; ${python_cmd} populateC2M2FromS3.py 2>&1 | tee ${logf} ; date_div >> ${logf}; 
 # Check for any warning or errors
 egrep -i -e "Warning" ${logf} > ${logdir}/warning_in_schemaC2M2_ingestion_${ymd}.log; 
@@ -131,6 +147,10 @@ logf=${logdir}/log_create_id_namespace_dcc_id.log
 date_div > ${logf};
 psql "$(python3 dburl.py)" -a -f create_id_namespace_dcc_id.sql -L ${logf}
 date_div >> ${logf};
+
+# * At this point, can do some basic queries re counts in the current DB and previous DB
+# * See some queries in c2m2_crosscheck_basic_queries.sql
+# Thought: semi-automate the comparison by fetching from the two DB then presenting as one table using shell scripting
 
 # To ingest controlled vocabulary files into c2m2 schema
 # on psql prompt while being in database folder: \i ingest_CV.sql

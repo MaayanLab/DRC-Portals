@@ -142,7 +142,7 @@ DECLARE
     table_name text;
     keyword_from_array text;
     /* Select one of the schema lines from below, keep others commented */
-    --- schemas text[] := ARRAY['_4dn', 'exrna', 'gtex', 'glygen', 'hmp', 'hubmap', 'idg', 'kidsfirst', 'lincs', 'metabolomics', 'motrpac', 'sparc', 'sennet'];  -- your schema names
+    --- schemas text[] := ARRAY['_4dn', 'exrna', 'gtex', 'glygen', 'hmp', 'hubmap', 'idg', 'kidsfirst', 'lincs', 'metabolomics', 'motrpac', 'sparc', 'sennet', 'scge'];  -- your schema names
     /* To manually/artificially parallelize, you can break this list into two, select one of them in one call.
         Then, select the other line here, and call in another terminal, change the name of the log file when calling.
     */
