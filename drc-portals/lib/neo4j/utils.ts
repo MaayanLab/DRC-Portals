@@ -78,17 +78,29 @@ export const createRelReprStr = (varName: string) => {
   }`;
 };
 
-const createPropReprStr = (props: { [key: string]: any }) => {
-  const propStrs: string[] = [];
+const createPropPredicates = (
+  varName: string,
+  props: { [key: string]: any }
+): string[] => {
+  if (Object.keys(props).length === 0) {
+    return [];
+  }
+
+  const predicates: string[] = [];
+
   Object.entries(props).forEach(([key, value]) => {
     if (!ALL_PROPERTY_NAMES.has(key)) {
       throw Error(
         `ValueError: property name ${key} is not a valid C2M2 Neo4j node filter.`
       );
     }
-    propStrs.push(`${key}: ${JSON.stringify(value)}`);
+    if (Array.isArray(value)) {
+      predicates.push(`${varName}.${key} IN ${JSON.stringify(value)}`);
+    } else {
+      predicates.push(`${varName}.${key} = ${JSON.stringify(value)}`);
+    }
   });
-  return `{${propStrs.join(", ")}}`;
+  return predicates;
 };
 
 export const isRelationshipResult = (
@@ -118,6 +130,7 @@ export const parsePathwayTree = (
   convertRelsToUniq = false
 ): TreeParseResult => {
   const patterns: string[] = [];
+  const wherePredicates: string[] = [];
   const nodeIds = new Set<string>();
   const relIds = new Set<string>();
   const outgoingCnxns = new Map<string, Map<string, string[]>>();
@@ -169,12 +182,13 @@ export const parsePathwayTree = (
       const escapedRelId = escapeCypherString(node.parentRelationship.id);
       relIds.add(node.parentRelationship.id);
 
-      currentPattern += `${relIsIncoming ? "<" : ""}-[${escapedRelId}:${type}${
-        node.parentRelationship.props !== undefined &&
-        Object.keys(node.parentRelationship.props).length > 0
-          ? " " + createPropReprStr(node.parentRelationship.props)
-          : ""
-      }]-${!relIsIncoming ? ">" : ""}`;
+      currentPattern += `${relIsIncoming ? "<" : ""}-[${escapedRelId}:${type}]-${!relIsIncoming ? ">" : ""}`;
+
+      if (node.parentRelationship.props !== undefined) {
+        wherePredicates.push(
+          ...createPropPredicates(escapedRelId, node.parentRelationship.props)
+        );
+      }
 
       if (!relIsIncoming) {
         updateCnxns(parent.id, getSafeLabel(node.label), type, outgoingCnxns);
@@ -186,11 +200,11 @@ export const parsePathwayTree = (
     }
 
     const escapedNodeId = escapeCypherString(node.id);
-    currentPattern += `(${escapedNodeId}:${getSafeLabel(node.label)}${
-      node.props !== undefined && Object.keys(node.props).length > 0
-        ? " " + createPropReprStr(node.props)
-        : ""
-    })`;
+    currentPattern += `(${escapedNodeId}:${getSafeLabel(node.label)})`;
+
+    if (node.props !== undefined) {
+      wherePredicates.push(...createPropPredicates(escapedNodeId, node.props));
+    }
 
     if (node.children.length === 0) {
       patterns.push(currentPattern);
@@ -212,6 +226,7 @@ export const parsePathwayTree = (
 
   return {
     patterns,
+    wherePredicates,
     nodeIds,
     relIds,
     nodes,
@@ -398,6 +413,9 @@ export const getSingleMatchConnectionQuery = (
     "MATCH",
     `${treeParseResult.patterns.join(",\n")}`,
     ...usingJoinStmts,
+    ...(treeParseResult.wherePredicates.length > 0
+      ? ["WHERE", treeParseResult.wherePredicates.join(" AND ")]
+      : []),
     `WITH collect(${escapeCypherString(node.id)}) AS ${targetCollectionAlias}`,
     `RETURN [`,
     [

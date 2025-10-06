@@ -162,6 +162,9 @@ export const getSingleMatchCountsQuery = (
     "MATCH",
     `${treeParseResult.patterns.join(",\n")}`,
     ...usingJoinStmts,
+    ...(treeParseResult.wherePredicates.length > 0
+      ? ["WHERE", treeParseResult.wherePredicates.join(" AND")]
+      : []),
     "RETURN",
     "{\n\t",
     Array.from(treeParseResult.nodeIds)
@@ -188,6 +191,9 @@ export const createPathwaySearchAllPathsCypher = (
     "MATCH",
     `\t${treeParseResult.patterns.join(",\n\t")}`,
     ...usingJoinStmts,
+    ...(treeParseResult.wherePredicates.length > 0
+      ? ["WHERE", treeParseResult.wherePredicates.join(" AND")]
+      : []),
     "WITH *",
     // Need to order/paginate before aliasing the results to the return values. In other words: "First order *all* the results by this node
     // and property, then paginate the results, then map that page into the final result." If we did the ordering/pagination *after* the
@@ -225,6 +231,9 @@ export const createUpperPageBoundCypher = (
     "MATCH",
     `\t${treeParseResult.patterns.join(",\n\t")}`,
     ...usingJoinStmts,
+    ...(treeParseResult.wherePredicates.length > 0
+      ? ["WHERE", treeParseResult.wherePredicates.join(" AND")]
+      : []),
     "WITH *",
     "SKIP $skip",
     "LIMIT ($maxSiblings - (($skip / $limit) - $lowerPageBound)) * $limit",
