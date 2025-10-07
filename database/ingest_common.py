@@ -9,7 +9,10 @@ import urllib.request
 from urllib.parse import urlparse, unquote
 from dotenv import load_dotenv
 from uuid import UUID, uuid5
+from datetime import datetime
 import json
+import elasticsearch, elasticsearch.helpers
+
 
 uuid0 = UUID('00000000-0000-0000-0000-000000000000')
 def quote(col): return f'"{col}"'
@@ -89,6 +92,71 @@ connection = psycopg2.connect(
     host = hostname,
     port = port
 )
+
+#%%
+es = elasticsearch.Elasticsearch(os.getenv('ELASTICSEARCH_URL', 'http://localhost:9200'))
+
+#%%
+class ExEncoder(json.JSONEncoder):
+  def default(self, o):
+    import decimal
+    if isinstance(o, decimal.Decimal):
+      return str(o)
+    elif isinstance(o, datetime):
+      return o.isoformat()
+    elif isinstance(o, UUID):
+      return str(o)
+    return super(ExEncoder, self).default(o)
+
+@contextlib.contextmanager
+def pdp_helper():
+  entities = {}
+  pagerank_update = {}
+  predicates = {}
+  # edges = {}
+  def upsert_entity(type, attributes, slug=None):
+    id = str(uuid5(uuid0, json.dumps({'@id': slug, '@type': type, **attributes} if slug else {'@type': type, **attributes}, sort_keys=True, cls=ExEncoder)))
+    entities[id] = dict(slug=slug or id, type=type, attributes=json.loads(json.dumps(attributes)))
+    return id
+  def upsert_edge(source_id, predicate, target_id):
+    pagerank_update[source_id] = pagerank_update.get(source_id, 0) + 1
+    pagerank_update[target_id] = pagerank_update.get(target_id, 0) + 1
+    if source_id not in predicates: predicates[source_id] = {}
+    if predicate not in predicates[source_id]: predicates[source_id][predicate] = set()
+    predicates[source_id][predicate].add(target_id)
+    # edges[''.join((source_id, predicate, target_id))] = dict(source_id=source_id, predicate=predicate, target_id=target_id)
+  yield type('pdp', tuple(), dict(upsert_edge=upsert_edge, upsert_entity=upsert_entity))
+  elasticsearch.helpers.bulk(es, [dict(_index='entity', _id=_id, _source=_source) for _id, _source in entities.items()], chunk_size=1_000)
+  # calculate pagerank
+  elasticsearch.helpers.bulk(es, [
+    dict(_op_type='update', _index='entity', _id=_id, script=dict(
+      source="""
+          if (ctx._source.pagerank == null) {
+              ctx._source.pagerank = params.inc;
+          } else {
+              ctx._source.pagerank += params.inc;
+          }
+      """,
+      lang='painless',
+      params=dict(inc=update)
+    ),
+    upsert=dict(pagerank=0)
+  ) for _id, update in pagerank_update.items()], chunk_size=1_000)
+  # add inline many-to-one or one-to-one relationships
+  elasticsearch.helpers.bulk(es, [
+    dict(_op_type='update', _index='entity', _id=_id, doc={
+      predicate: { '_id': _target }
+      for predicate, _targets in _id_predicates.items()
+      if len(_targets) == 1
+      for _target in _targets
+    })
+    for _id, _id_predicates in predicates.items()
+  ], chunk_size=1_000)
+  # TODO: one-to-many / many-to-many relationships?
+  # elasticsearch.helpers.bulk(es, [
+  #   dict(_index='edge', _id=_id, _source={ predicate: list(targets) for predicate, targets in _id_predicates.items() })
+  #   for _id, _id_predicates in predicates.items()
+  # ], chunk_size=1_000)
 
 #%%
 # Fetch assets to ingest

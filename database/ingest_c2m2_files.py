@@ -1,11 +1,15 @@
 #%%
-import re
-import csv
 import zipfile
-import pandas as pd
+import pathlib
 from tqdm.auto import tqdm
+from datapackage import Package
 
-from ingest_common import TableHelper, ingest_path, current_dcc_assets, uuid0, uuid5
+from ingest_common import ingest_path, current_dcc_assets, pdp_helper
+
+def predicate_from_fields(fields):
+  if len(fields) == 1: return fields[0]
+  elif len(fields) == 2 and fields[0].endswith('_id_namespace') and fields[1].endswith('_local_id'): return fields[0][:-len('_id_namespace')]
+  else: raise NotImplementedError(fields)
 
 #%%
 dcc_assets = current_dcc_assets()
@@ -16,98 +20,51 @@ dcc_assets = current_dcc_assets()
 c2m2s = dcc_assets[dcc_assets['filetype'] == 'C2M2']
 c2m2s_path = ingest_path / 'c2m2s'
 
-c2m2_datapackage_helper = TableHelper('c2m2_datapackage', ('id', 'dcc_asset_link',), pk_columns=('id',))
-c2m2_file_helper = TableHelper('c2m2_file_node', ('id', 'c2m2_datapackage_id', 'creation_time', 'persistent_id', 'access_url', 'size_in_bytes', 'file_format', 'data_type', 'assay_type', 'mime_type', 'md5', 'sha256'), pk_columns=('id',))
-node_helper = TableHelper('node', ('id', 'slug', 'type', 'entity_type', 'label', 'description', 'pagerank', 'dcc_id',), pk_columns=('id',), add_columns=('pagerank',))
-
 for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
-  with c2m2_file_helper.writer() as c2m2_file:
-    with node_helper.writer() as node:
-      with c2m2_datapackage_helper.writer() as c2m2_datapackage:
-        c2m2_path = c2m2s_path/c2m2['dcc_short_label']/c2m2['filename']
-        c2m2_path.parent.mkdir(parents=True, exist_ok=True)
-        print("c2m2['link'] object:"); print(c2m2['link']); ##
+  c2m2_path = c2m2s_path/c2m2['dcc_short_label']/c2m2['filename']
+  c2m2_path.parent.mkdir(parents=True, exist_ok=True)
+  print("c2m2['link'] object:"); print(c2m2['link']); ##
 
-        if not c2m2_path.exists():
-          import urllib.request
-          urllib.request.urlretrieve(c2m2['link'].replace(' ', '%20'), c2m2_path); # quote to handle space etc in the URL
-        c2m2_extract_path = c2m2_path.parent / c2m2_path.stem
-        if not c2m2_extract_path.exists():
-          with zipfile.ZipFile(c2m2_path, 'r') as c2m2_zip:
-            c2m2_zip.extractall(c2m2_extract_path)
-        # get ontology lookups
-        c2m2_extracted_file_format_tsv_path, = c2m2_extract_path.rglob('file_format.tsv')
-        c2m2_extracted_file_format = pd.read_csv(c2m2_extracted_file_format_tsv_path, sep='\t', index_col=0)
-        c2m2_extracted_data_type_tsv_path, = c2m2_extract_path.rglob('data_type.tsv')
-        c2m2_extracted_data_type = pd.read_csv(c2m2_extracted_data_type_tsv_path, sep='\t', index_col=0)
-        c2m2_extracted_assay_type_tsv_path, = c2m2_extract_path.rglob('assay_type.tsv')
-        c2m2_extracted_assay_type = pd.read_csv(c2m2_extracted_assay_type_tsv_path, sep='\t', index_col=0)
-        #
-        c2m2_datapackage_id = str(uuid5(uuid0, c2m2['link']))
-        c2m2_datapackage.writerow(dict(
-          id=c2m2_datapackage_id,
-          dcc_asset_link=c2m2['link'],
-        ))
-        # ingest files for this datapackage
-        c2m2_extracted_files_tsv_path, = c2m2_extract_path.rglob('file.tsv')
-        with open(c2m2_extracted_files_tsv_path, 'r') as fr:
-          c2m2_files_reader = csv.DictReader(fr, fieldnames=next(fr).strip().split('\t'), delimiter='\t')
-          for file in tqdm(c2m2_files_reader, desc=f"Processing {c2m2['dcc_short_label']}/{c2m2['filename']}..."):
-            c2m2_file_id = str(uuid5(uuid0, '\t'.join((c2m2_datapackage_id, file['id_namespace'], file['local_id']))))
-            # infer access_url from persistent_id
-            if (
-              file['persistent_id'] and (
-                # persistent_id is a drs-compatible protocol (except https which is still ambiguous)
-                re.match(r'^(s3|gs|ftp|gsiftp|globus|htsget|drs)://', file['persistent_id'])
-                # we'll assume if we've got a dot in the last part of the url, we've got a valid file
-                #  and not some kind of landing page
-                or re.match(r'^https?://([^/]+)/(.+?)\.([^\./]+)$', file['persistent_id'])
-              )
-            ):
-              access_url = file['persistent_id']
-            else:
-              access_url = None
-            # try to resolve ontologies labels
-            try:
-              file_format = f"{c2m2_extracted_file_format.at[file['file_format'], 'name']} (EDAM:{file['file_format']})"
-              description = f"A {c2m2_extracted_file_format.at[file['file_format'], 'name']} file"
-            except KeyError:
-              file_format = file['file_format']
-              description = f"A file"
-            try:
-              data_type = f"{c2m2_extracted_data_type.at[file['data_type'], 'name']} (EDAM:{file['data_type']})"
-              description += f" containing {c2m2_extracted_data_type.at[file['data_type'], 'name'].lower()} data"
-            except KeyError:
-              data_type = file['data_type']
-            try:
-              assay_type = f"{c2m2_extracted_assay_type.at[file['assay_type'], 'name']} ({file['assay_type']})"
-              description += f" produced with {c2m2_extracted_data_type.at[file['assay_type'], 'name'].lower()}"
-            except KeyError:
-              assay_type = file['assay_type']
-            #
-            description += f" from {c2m2['dcc_short_label']}"
-            #
-            c2m2_file.writerow(dict(
-              id=c2m2_file_id,
-              c2m2_datapackage_id=c2m2_datapackage_id,
-              creation_time=file['creation_time'],
-              persistent_id=file['persistent_id'],
-              size_in_bytes=file['size_in_bytes'],
-              file_format=file_format,
-              data_type=data_type,
-              assay_type=assay_type,
-              access_url=access_url,
-              mime_type=file['mime_type'],
-              md5=file['md5'],
-              sha256=file['sha256'],
-            ))
-            node.writerow(dict(
-              dcc_id=c2m2['dcc_id'],
-              id=c2m2_file_id,
-              slug=c2m2_file_id,
-              type='c2m2_file',
-              entity_type='',
-              label=file['filename'],
-              description=description,
-              pagerank=0,
-            ))
+  if not c2m2_path.exists():
+    import urllib.request
+    urllib.request.urlretrieve(c2m2['link'].replace(' ', '%20'), c2m2_path); # quote to handle space etc in the URL
+  #
+  c2m2_extract_path = c2m2_path.parent / c2m2_path.stem
+  if not c2m2_extract_path.exists():
+    with zipfile.ZipFile(c2m2_path, 'r') as c2m2_zip:
+      c2m2_zip.extractall(c2m2_extract_path)
+  #
+  c2m2_datapackage_json, *_ = (
+    set(pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.json'))
+    | set(pathlib.Path(c2m2_extract_path).rglob('datapackage.json'))
+  )
+  pkg = Package(str(c2m2_datapackage_json))
+  with pdp_helper() as helper:
+    dcc_id = helper.upsert_entity('dcc', dict(
+      short_label=c2m2['dcc_short_label']
+    ), slug=c2m2['dcc_short_label'])
+    dcc_asset_id = helper.upsert_entity('dcc_asset', dict(
+      link=c2m2['link'],
+      filename=c2m2['filename'],
+      filetype=c2m2['filetype'],
+    ))
+    helper.upsert_edge(dcc_asset_id, 'dcc', dcc_id)
+  for rc_name in ['file', 'subject', 'biosample']:
+    rc = pkg.get_resource(rc_name)
+    with pdp_helper() as helper:
+      in_mem_ids = {}
+      for fk in rc.schema.foreign_keys:
+        fk_rc = fk['reference']['resource']
+        in_mem_ids[fk_rc] = {}
+        for row in tqdm(pkg.get_resource(fk_rc).read(keyed=True), desc=f"Reading {fk_rc}..."):
+          key = tuple([row[k] for k in fk['reference']['fields']])
+          in_mem_ids[fk_rc][key] = helper.upsert_entity(fk_rc, row)
+      for row in tqdm(rc.read(keyed=True), desc=f"Reading {rc_name} records..."):
+        source_id = helper.upsert_entity(rc_name, row)
+        helper.upsert_edge(source_id, 'dcc_asset', dcc_asset_id)
+        helper.upsert_edge(source_id, 'dcc', dcc_id)
+        for fk in rc.schema.foreign_keys:
+          key = tuple([row[k] for k in fk['fields']])
+          if None in key: continue
+          target_id = in_mem_ids[fk['reference']['resource']][key]
+          helper.upsert_edge(source_id, predicate_from_fields(fk['fields']), target_id)
