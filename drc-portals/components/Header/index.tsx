@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 
 import { DataComponent } from './DataComponent';
-import SearchParamSearchField from '@/app/data/processed/SearchParamSearchField'
+import SearchParamSearchField from '@/app/data/search2/SearchParamSearchField'
 import { Logo } from '../styled/Logo'
 import { DRCDrawer } from './drawer';
 

@@ -6,7 +6,7 @@ import Image from "@/utils/image"
 export default function LandingPageLayout(props: React.PropsWithChildren<{
   title: React.ReactNode,
   subtitle: React.ReactNode,
-  description: React.ReactNode,
+  description?: React.ReactNode,
   metadata?: ({label: React.ReactNode, value: ReactNode} | null)[],
   icon?: { src: string, href: string, alt: string },
 }>) {
