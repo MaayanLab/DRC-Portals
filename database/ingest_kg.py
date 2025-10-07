@@ -72,7 +72,7 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
       link=file['link'],
       filetype=file['filetype'],
     ))
-    helper.upsert_o2m(dcc_asset_id, 'dcc', dcc_id)
+    helper.upsert_m2o(dcc_asset_id, 'dcc', dcc_id)
 
     # capture all the nodes
     assertion_nodes = {}
@@ -108,7 +108,7 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
               source_id = ensure_source_id()
               target_id = ensure_target_id()
               assertion_id = helper.upsert_entity('kg_assertion', dict(
-                label=f"{source_id} {assertion['relation']} {target_id}",
+                label=f"{assertion['source']} {assertion['relation']} {assertion['target']}",
                 SAB=assertion['SAB'],
                 evidence=assertion['evidence_class'],
               ))
