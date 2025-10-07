@@ -23,14 +23,14 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
       urllib.request.urlretrieve(gmt['link'].replace(' ', '%20'), gmt_path)
     #
     dcc_id = helper.upsert_entity('dcc', dict(
-      short_label=gmt['dcc_short_label']
+      label=gmt['dcc_short_label']
     ), slug=gmt['dcc_short_label'])
     dcc_asset_id = helper.upsert_entity('dcc_asset', dict(
+      label=gmt['filename'],
       link=gmt['link'],
-      filename=gmt['filename'],
       filetype=gmt['filetype'],
     ))
-    helper.upsert_edge(dcc_asset_id, 'dcc', dcc_id)
+    helper.upsert_m2o(dcc_asset_id, 'dcc', dcc_id)
     if gmt_path.suffix == '.gmt':
       xmt_library_type = 'gene_set_library'
       xmt_set_type = 'gene_set'
@@ -43,10 +43,10 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
       raise NotImplementedError(gmt_path.suffix)
 
     library_id = helper.upsert_entity(xmt_library_type, dict(
-      filename=gmt['filename'],
+      label=gmt['filename'],
     ))
-    helper.upsert_edge(library_id, 'dcc_asset', dcc_asset_id)
-    helper.upsert_edge(library_id, 'dcc', dcc_id)
+    helper.upsert_m2o(library_id, 'dcc_asset', dcc_asset_id)
+    helper.upsert_m2o(library_id, 'dcc', dcc_id)
 
     with gmt_path.open('r') as fr:
       for line in tqdm(fr, desc=f"Processing {gmt['dcc_short_label']}/{gmt['filename']}..."):
@@ -57,9 +57,9 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
           label=set_label,
           description=set_description,
         ))
-        helper.upsert_edge(set_id, xmt_library_type, library_id)
-        helper.upsert_edge(set_id, 'dcc_asset', dcc_asset_id)
-        helper.upsert_edge(set_id, 'dcc', dcc_id)
+        helper.upsert_m2o(set_id, xmt_library_type, library_id)
+        helper.upsert_m2o(set_id, 'dcc_asset', dcc_asset_id)
+        helper.upsert_m2o(set_id, 'dcc', dcc_id)
         if xmt_type == 'gene':
           set_entities = {gene_id for raw_gene in set_entities if raw_gene for gene_id in gene_lookup.get(raw_gene, [])}
           for gene in set_entities:
@@ -69,10 +69,10 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
               ensembl=gene,
               entrez=gene_entrez[gene],
             ), slug=gene)
-            helper.upsert_edge(entity_id, xmt_set_type, set_id)
+            helper.upsert_m2m(entity_id, xmt_set_type, set_id)
         else:
           for entity in set_entities:
             entity_id = helper.upsert_entity(xmt_type, dict(
               label=entity,
             ))
-            helper.upsert_edge(entity_id, xmt_set_type, set_id)
+            helper.upsert_m2m(entity_id, xmt_set_type, set_id)

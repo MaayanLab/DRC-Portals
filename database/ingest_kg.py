@@ -65,14 +65,14 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
       continue
 
     dcc_id = helper.upsert_entity('dcc', dict(
-      short_label=file['dcc_short_label']
+      label=file['dcc_short_label']
     ), slug=file['dcc_short_label'])
     dcc_asset_id = helper.upsert_entity('dcc_asset', dict(
+      label=file['filename'],
       link=file['link'],
-      filename=file['filename'],
       filetype=file['filetype'],
     ))
-    helper.upsert_edge(dcc_asset_id, 'dcc', dcc_id)
+    helper.upsert_o2m(dcc_asset_id, 'dcc', dcc_id)
 
     # capture all the nodes
     assertion_nodes = {}
@@ -108,11 +108,12 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
               source_id = ensure_source_id()
               target_id = ensure_target_id()
               assertion_id = helper.upsert_entity('kg_assertion', dict(
+                label=f"{source_id} {assertion['relation']} {target_id}",
                 SAB=assertion['SAB'],
                 evidence=assertion['evidence_class'],
               ))
-              helper.upsert_edge(source_id, 'source', assertion_id)
-              helper.upsert_edge(target_id, 'target', assertion_id)
-              helper.upsert_edge(relation_id, 'relation', assertion_id)
-              helper.upsert_edge(assertion_id, 'dcc_asset', dcc_asset_id)
-              helper.upsert_edge(assertion_id, 'dcc', dcc_id)
+              helper.upsert_m2m(source_id, 'source', assertion_id)
+              helper.upsert_m2m(target_id, 'target', assertion_id)
+              helper.upsert_m2m(relation_id, 'relation', assertion_id)
+              helper.upsert_m2o(assertion_id, 'dcc_asset', dcc_asset_id)
+              helper.upsert_m2o(assertion_id, 'dcc', dcc_id)

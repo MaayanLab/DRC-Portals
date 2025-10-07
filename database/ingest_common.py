@@ -108,55 +108,109 @@ class ExEncoder(json.JSONEncoder):
       return str(o)
     return super(ExEncoder, self).default(o)
 
+def maybe_json_dumps(v):
+  if type(v) == str: return v
+  else: return json.dumps(v, cls=ExEncoder)
+
 @contextlib.contextmanager
 def pdp_helper():
   entities = {}
   pagerank_update = {}
-  predicates = {}
-  # edges = {}
+  m2m = {}
+  o2m = {}
+  m2o = {}
   def upsert_entity(type, attributes, slug=None):
-    id = str(uuid5(uuid0, json.dumps({'@id': slug, '@type': type, **attributes} if slug else {'@type': type, **attributes}, sort_keys=True, cls=ExEncoder)))
-    entities[id] = dict(slug=slug or id, type=type, attributes=json.loads(json.dumps(attributes)))
+    entity_serialized = json.dumps({'type': type, 'slug': slug, 'attributes': attributes}, sort_keys=True, cls=ExEncoder)
+    id = str(uuid5(uuid0, entity_serialized))
+    if type not in entities: entities[type] = {}
+    entity = json.loads(entity_serialized)
+    entities[id] = { 'slug': slug or id, 'type': entity['type'], **{f"a_{k}": maybe_json_dumps(v) for k, v in attributes.items() if v is not None}, }
+    assert 'label' in entity['attributes'] and entity['attributes']['label']
     return id
-  def upsert_edge(source_id, predicate, target_id):
+  def upsert_o2m(source_id, predicate, target_id):
+    pagerank_update[source_id] = pagerank_update.get(source_id, 0) + 1
+    if source_id not in o2m: o2m[source_id] = {}
+    if predicate not in o2m[source_id]: o2m[source_id][predicate] = set()
+    o2m[source_id][predicate].add(target_id)
+    if predicate not in m2m: m2m[predicate] = set()
+    m2m[predicate].add((source_id, target_id))
+    if target_id not in m2o: m2o[target_id] = {}
+    assert predicate not in m2o[target_id] or m2o[target_id][predicate] == source_id
+    m2o[target_id][predicate] = source_id
+  def upsert_m2o(source_id, predicate, target_id):
+    upsert_o2m(target_id, predicate, source_id)
+  def upsert_m2m(source_id, predicate, target_id):
     pagerank_update[source_id] = pagerank_update.get(source_id, 0) + 1
     pagerank_update[target_id] = pagerank_update.get(target_id, 0) + 1
-    if source_id not in predicates: predicates[source_id] = {}
-    if predicate not in predicates[source_id]: predicates[source_id][predicate] = set()
-    predicates[source_id][predicate].add(target_id)
-    # edges[''.join((source_id, predicate, target_id))] = dict(source_id=source_id, predicate=predicate, target_id=target_id)
-  yield type('pdp', tuple(), dict(upsert_edge=upsert_edge, upsert_entity=upsert_entity))
-  elasticsearch.helpers.bulk(es, [dict(_index='entity', _id=_id, _source=_source) for _id, _source in entities.items()], chunk_size=1_000)
-  # calculate pagerank
+    if predicate not in m2m: m2m[predicate] = set()
+    m2m[predicate].add((source_id, target_id))
+    m2m[predicate].add((target_id, source_id))
+  yield type('pdp', tuple(), dict(upsert_o2m=upsert_o2m, upsert_m2o=upsert_m2o, upsert_m2m=upsert_m2m, upsert_entity=upsert_entity))
+  # upsert entity details & relationships
+  # TODO: is upsert deep? otherwise it should probably be relationship_{predicate}
   elasticsearch.helpers.bulk(es, [
-    dict(_op_type='update', _index='entity', _id=_id, script=dict(
-      source="""
-          if (ctx._source.pagerank == null) {
-              ctx._source.pagerank = params.inc;
-          } else {
-              ctx._source.pagerank += params.inc;
-          }
-      """,
-      lang='painless',
-      params=dict(inc=update)
-    ),
-    upsert=dict(pagerank=0)
-  ) for _id, update in pagerank_update.items()], chunk_size=1_000)
+    dict(
+      _op_type='update',
+      _index='entity',
+      _id=_id,
+      doc=dict(
+        _source,
+        **{
+          f"r_{pred}": rel_id
+          for pred, rel_id in m2o.get(_id, {}).items()
+        },
+      ),
+      doc_as_upsert=True,
+    )
+    for _id, _source in entities.items()
+  ], chunk_size=1_000)
+  # update entity pagerank
+  elasticsearch.helpers.bulk(es, [
+    dict(
+      _op_type='update',
+      _index='entity',
+      _id=_id,
+      script=dict(
+        source="""
+            if (ctx._source.pagerank == null) {
+                ctx._source.pagerank = params.inc;
+            } else {
+                ctx._source.pagerank += params.inc;
+            }
+        """,
+        lang='painless',
+        params=dict(inc=pagerank)
+      ),
+      upsert=dict(pagerank=0)
+    )
+    for _id, pagerank in pagerank_update.items()
+  ], chunk_size=1_000)
   # add inline many-to-one or one-to-one relationships
   elasticsearch.helpers.bulk(es, [
-    dict(_op_type='update', _index='entity', _id=_id, doc={
-      predicate: { '_id': _target }
-      for predicate, _targets in _id_predicates.items()
-      if len(_targets) == 1
-      for _target in _targets
-    })
-    for _id, _id_predicates in predicates.items()
+    dict(
+      _op_type='update',
+      _index='o2m',
+      _id=source,
+      doc={ predicate: list(targets) for predicate, targets in predicate_targets.items() },
+      doc_as_upsert=True,
+    )
+    for source, predicate_targets in o2m.items()
   ], chunk_size=1_000)
-  # TODO: one-to-many / many-to-many relationships?
-  # elasticsearch.helpers.bulk(es, [
-  #   dict(_index='edge', _id=_id, _source={ predicate: list(targets) for predicate, targets in _id_predicates.items() })
-  #   for _id, _id_predicates in predicates.items()
-  # ], chunk_size=1_000)
+  elasticsearch.helpers.bulk(es, [
+    dict(
+      _op_type='update',
+      _index='m2m',
+      _id=f"{source}:{target}",
+      doc={
+        'predicate': predicate,
+        'source': source,
+        'target': target,
+      },
+      doc_as_upsert=True,
+    )
+    for predicate, pairs in m2m.items()
+    for source, target in pairs
+  ], chunk_size=1_000)
 
 #%%
 # Fetch assets to ingest

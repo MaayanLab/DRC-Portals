@@ -41,14 +41,14 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
   pkg = Package(str(c2m2_datapackage_json))
   with pdp_helper() as helper:
     dcc_id = helper.upsert_entity('dcc', dict(
-      short_label=c2m2['dcc_short_label']
+      label=c2m2['dcc_short_label']
     ), slug=c2m2['dcc_short_label'])
     dcc_asset_id = helper.upsert_entity('dcc_asset', dict(
+      label=c2m2['filename'],
       link=c2m2['link'],
-      filename=c2m2['filename'],
       filetype=c2m2['filetype'],
     ))
-    helper.upsert_edge(dcc_asset_id, 'dcc', dcc_id)
+    helper.upsert_m2o(dcc_asset_id, 'dcc', dcc_id)
   for rc_name in ['file', 'subject', 'biosample']:
     rc = pkg.get_resource(rc_name)
     with pdp_helper() as helper:
@@ -57,14 +57,19 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
         fk_rc = fk['reference']['resource']
         in_mem_ids[fk_rc] = {}
         for row in tqdm(pkg.get_resource(fk_rc).read(keyed=True), desc=f"Reading {fk_rc}..."):
+          row['label'] = row.pop('name')
           key = tuple([row[k] for k in fk['reference']['fields']])
           in_mem_ids[fk_rc][key] = helper.upsert_entity(fk_rc, row)
       for row in tqdm(rc.read(keyed=True), desc=f"Reading {rc_name} records..."):
+        if 'name' in row: row['label'] = row.pop('name')
+        elif 'filename' in row: row['label'] = row['filename']
+        elif 'local_id' in row: row['label'] = f"{row['id_namespace']}:{row['local_id']}"
+        else: raise RuntimeError(f"{row=}")
         source_id = helper.upsert_entity(rc_name, row)
-        helper.upsert_edge(source_id, 'dcc_asset', dcc_asset_id)
-        helper.upsert_edge(source_id, 'dcc', dcc_id)
+        helper.upsert_m2o(source_id, 'dcc_asset', dcc_asset_id)
+        helper.upsert_m2o(source_id, 'dcc', dcc_id)
         for fk in rc.schema.foreign_keys:
           key = tuple([row[k] for k in fk['fields']])
           if None in key: continue
           target_id = in_mem_ids[fk['reference']['resource']][key]
-          helper.upsert_edge(source_id, predicate_from_fields(fk['fields']), target_id)
+          helper.upsert_m2m(source_id, predicate_from_fields(fk['fields']), target_id)
