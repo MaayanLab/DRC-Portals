@@ -42,7 +42,7 @@ services:
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:0.20.1
+    image: maayanlab/drc-portal-dev:0.20.2
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -247,7 +247,7 @@ services:
   drc-portal-mcp:
     build: ../cfde-mcp
     platform: linux/amd64
-    image: maayanlab/drc-portal-mcp:0.1.1
+    image: maayanlab/drc-portal-mcp:0.1.2
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
