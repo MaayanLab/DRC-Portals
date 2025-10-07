@@ -179,6 +179,25 @@ services:
     volumes:
       - drc-portal-postgres-2:/var/lib/postgresql/data
 
+  drc-portal-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    environment:
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - ES_JAVA_OPTS=-Xms2g -Xmx2g
+    ports:
+      - 9200:9200
+      - 9300:9300
+    volumes:
+      - drc-portal-elasticsearch:/usr/share/elasticsearch/data
+
   drc-portal-backup:
     build: ../database/backup
     platform: linux/amd64
@@ -268,6 +287,11 @@ volumes:
   drc-portal-postgres-2:
     x-kubernetes:
       size: 100Gi
+      class: gp2
+
+  drc-portal-elasticsearch:
+    x-kubernetes:
+      size: 50Gi
       class: gp2
 
 x-kubernetes:
