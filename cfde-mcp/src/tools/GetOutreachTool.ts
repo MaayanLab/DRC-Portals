@@ -1,4 +1,3 @@
-import { MCPTool } from "mcp-framework";
 import { z } from "zod";
 import prisma from "../lib/prisma/index.js";
 
@@ -7,160 +6,199 @@ interface GetOutreachInput {
   center?: string;
   tag?: string
 }
-
-class GetOutreachTool extends MCPTool<GetOutreachInput> {
-  name = "get_outreach";
-  description = "GetOutreach tool description";
-
-  schema = {
-    dcc: {
-      type: z.string().optional(),
-      description: "The name of a DCC",
-    },
-    center: {
-      type: z.string().optional(),
-      description: "The name of a Center",
-    },
-    tag: {
-      type: z.string().optional(),
-      description: "The kind of outreach or training activity they are looking for. It can be: fellowship, workshop, intership, course, training program, webinar, office hours, face to face meeting, competition, conference, use-a-thon, hackathon, or symposium.",
-    },
-  };
-
-  async execute(input: GetOutreachInput) {
-    const {dcc, center, tag} = input
-    const where_tags = tag ? {
-					tag: {
+const GetOutreachTool = [
+	"get_outreach",
+	{
+		title: "Get Outreach",
+		description: "Get current outreach and training activities. Enter a name of a dcc or center to filter by dcc or center.",
+		inputSchema: {
+			name: z.string().optional().describe("Name of a center or DCC. Can be left blank."),
+			tag: z.enum([
+				"fellowship",
+				"workshop",
+				"intership",
+				"course",
+				"training program",
+				"webinar",
+				"office hours",
+				"face to face meeting",
+				"competition",
+				"conference",
+				"use-a-thon",
+				"hackathon",
+				"symposium",
+				"social event"
+			]).optional().describe("Type of outreach activity"),
+		},
+		outputSchema: {
+			outreach: z.array(z.object({
+				title: z.string().describe("Title of the activity"),
+				description: z.string().describe("Description of the activity"),
+				link: z.string().describe("Link to the activity"),
+				tags: z.array(z.string()).nullable().describe("Tags of the activity"),
+				start_date: z.date().nullable().describe("Start date of the activity. If blank then the event is recurring"),
+				end_date: z.date().nullable().describe("End date of the activity. If blank then the event is recurring"),
+				application_start: z.date().nullable().describe("Start of the application period if the activity has an application period"),
+				application_end: z.date().nullable().describe("End of the application period if the activity has an application period"),
+			}))
+		}
+	},
+	async ({name, tag}: {name?: string, tag?: string}) => {
+		console.log(name, tag)
+		if (name) {
+			const where_tags = tag ? {
+				where: {
+				outreach: {
+					tags: {
 						path: [],
 						array_contains: tag
 					}
-				}: {}
-
-				const where_dcc = dcc ? {
-					where: {
-						dccs: {
-							OR: [
-								{label: dcc},
-								{short_label: dcc}
-							]
-						}
-					}
-				}: {}
-
-				const where_center = center ? {
-					where: {
-						centers: {
-							OR: [
-								{label: center},
-								{short_label: center}
-							]
-						}
-					}
-				}: {}
-				const now = new Date()
-				const current = await prisma.outreach.findMany({
-					// take: limit,
-					include: {
-						dcc_outreach: {
-							include: {
-								dccs: true
-							},
-							...where_dcc
-						},
-						center_outreach: {
-						include: {
-							centers: true
-						},
-						...where_center
-						}
-					},
-					where: {
-						active: true,
-						recurring: false,
-						...where_tags,
-						AND: [
-						// date filters
+				}}}: {}
+			const dcc_outreach = await prisma.dccs.findFirst({
+				where: {
+					OR: [
 						{
-							OR: [
+							label: {
+								equals: name,
+								mode: "insensitive"
+							}
+						},
+						{
+							short_label: {
+								equals: name,
+								mode: "insensitive"
+							}
+						}
+					]
+				},
+				include: {
+					dcc_outreach: {
+						select: {
+							outreach: true
+						},
+						...where_tags
+					}
+				}
+			})
+			if (dcc_outreach?.dcc_outreach) {
+				const outreach = dcc_outreach?.dcc_outreach.map(o=>({
+							title: o.outreach.title,
+							description: o.outreach.description,
+							link: o.outreach.link,
+							start_date: o.outreach.start_date,
+							end_date: o.outreach.end_date,
+							application_start: o.outreach.application_start,
+							application_end: o.outreach.application_end,
+							tags: o.outreach.tags,
+						}))
+				return {
+					content: [
+						{
+							type: "text",
+							text: JSON.stringify({outreach})
+						}
+					],
+					structuredContent: {outreach}
+				}
+			} else {
+				const center_outreach = await prisma.centers.findFirst({
+					where: {
+						OR: [
 							{
-								application_end: {
-								gte: now
+								label: {
+									equals: name,
+									mode: "insensitive"
 								}
 							},
 							{
-								application_start: {
-								gte: now
-								},
-								application_end: null
-							},
-							{
-								end_date: {
-								gte: now
-								},
-								application_end: null
-							},
-							{
-								end_date: null,
-								start_date: {
-								gte: now
+								short_label: {
+									equals: name,
+									mode: "insensitive"
 								}
 							}
-							]
-						},
-						],
-						
-					},
-					orderBy: [
-						{
-						start_date: { sort: 'asc', nulls: 'last' }
-						},
-						{
-						end_date: { sort: 'asc', nulls: 'last' }
-						},
-						{
-						application_end: { sort: 'asc', nulls: 'last' }
-						},
-					] 
-					})
-				const recurring = await prisma.outreach.findMany({
-					where: {
-					recurring: true,
-					active: true,
-					...where_tags
+						]
 					},
 					include: {
-						dcc_outreach: {
-							include: {
-								dccs: true
-							},
-							...where_dcc
-						},
 						center_outreach: {
-							include: {
-								centers: true
+							select: {
+								outreach: true
 							},
-							...where_center
+							...where_tags
 						}
-					},
+					}
 				})
-
-				const outreach_activites = [...current, ...recurring]
-				if (outreach_activites.length > 0) {
-					const formatted = outreach_activites.map(o=>({
-						title: o.title,
-						description: o.description,
-						link: o.link,
-						start_date: o.start_date,
-						end_date: o.end_date,
-						application_start: o.application_start,
-						application_end: o.application_end,
-						tags: o.tags,
-					}))
-					return formatted
+				if (center_outreach?.center_outreach) {
+					const outreach = center_outreach?.center_outreach.map(o=>({
+								title: o.outreach.title,
+								description: o.outreach.description,
+								link: o.outreach.link,
+								start_date: o.outreach.start_date,
+								end_date: o.outreach.end_date,
+								application_start: o.outreach.application_start,
+								application_end: o.outreach.application_end,
+								tags: o.outreach.tags,
+							}))
+					return {
+						content: [
+							{
+								type: "text",
+								text: JSON.stringify({outreach})
+							}
+						],
+						structuredContent: {outreach}
+					}
 				} else {
-					return "No activites found."
+					return {
+						content: [
+							{
+								type: "text",
+								text: `Failed to find outreach activity for ${name}`
+							}
+						]
+					}
 				}
+			}
+		} else {
+			const where = tag ? {
+				tags: {
+					path: [],
+					array_contains: tag
+				}
+			}: {}
+			const results = await prisma.outreach.findMany({where})
+			if (results.length) {
+				const outreach = results.map(o=>({
+					title: o.title,
+					description: o.description,
+					link: o.link,
+					start_date: o.start_date,
+					end_date: o.end_date,
+					application_start: o.application_start,
+					application_end: o.application_end,
+					tags: o.tags,
+				}))
+				return {
+					content: [
+						{
+							type: "text",
+							text: JSON.stringify({outreach})
+						}
+					],
+					structuredContent: {outreach}
+				}
+			} else {
+				return {
+						content: [
+							{
+								type: "text",
+								text: `No outreach activity found`
+							}
+						]
+					}
+			}
+		}
   }
-}
+]
+
 
 export default GetOutreachTool;

@@ -11,9 +11,9 @@ export default singleton('prisma', () => {
         },
       ],
     })
-    prisma.$on('query', async (e) => {
-        console.log(`${e.query} ${e.params}`)
-    })
+    // prisma.$on('query', async (e) => {
+    //     console.log(`${e.query} ${e.params}`)
+    // })
     return prisma
   }
   return new PrismaClient()

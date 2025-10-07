@@ -1,4 +1,3 @@
-import { MCPTool } from "mcp-framework";
 import { z } from "zod";
 
 interface ReverseL1000SearchInput {
@@ -28,32 +27,26 @@ const getL100Sigs = async (gene: string, dir: string, perturb: string) => {
     return data
 };
 
-class ReverseL1000SearchTool extends MCPTool<ReverseL1000SearchInput> {
-  name = "reverse_l1000_search";
-  description = "ReverseL1000Search tool description";
-
-  schema = {
-    gene_symbol: {
-      type: z.string(),
-      description: "gene_symbol",
-      default: "ACE2"
-    },
-    dir: {
-      type: z.string(),
-      description: "Direction of gene expression",
-      enum: ["up", "down", "both"]
-    },
-    perturb: {
-      type: z.string(),
-      description: "Type of perturbation",
-      enum: ["CRISPR", "drugs"]
-    }
-  };
-
-  async execute({gene_symbol="ACE2", dir, perturb}: ReverseL1000SearchInput) {
-    // const upres = await getL100Sigs(gene_symbol, "up", perturb)
-    //   const downres = await getL100Sigs(gene_symbol, "down", perturb)
-      const body = {
+const ReverseL1000SearchTool = [
+	'reverse_l1000_search',
+	{
+		title: "Reverse L1000 Search Tool",
+		description: "Find perturbations that up or downregulate a gene input",
+		inputSchema: {
+			gene_symbol: z.string().default("ACE2").describe("gene symbol"),
+      dir: z.enum(["up", "down", "both"]).default("both").describe("Direction of gene expression"),
+      perturb: z.enum(["CRISPR", "drugs"]).default("drugs").describe("Type of perturbation")
+		},
+		outputSchema: {
+			component: z.string().describe("Component to be used by the client to render structured data"),
+			data: z.record(z.string(), z.any()).describe("Phenotype data to be rendered"),
+      gene_symbol: z.string().default("ACE2").describe("gene symbol"),
+      dir: z.enum(["up", "down", "both"]).describe("Direction of gene expression"),
+      perturb: z.enum(["CRISPR", "drugs"]).describe("Type of perturbation")
+		}
+	},
+	async ({gene_symbol="ACE2", dir, perturb}: {gene_symbol: string, dir: "up"|"down"|"both", perturb: "CRISPR"|"drugs"}) => {
+		const body = {
         "data": {
           "12c02bd3-f2ec-c719-533f-b1bb3b0170b7": {
             "type": "Input[Gene]",
@@ -91,15 +84,28 @@ class ReverseL1000SearchTool extends MCPTool<ReverseL1000SearchInput> {
       // const r:any = dir === "up" ? upres: dir === "down"? downres: {}
       if (res.ok) {
         const data = await res.json();
-        return {component: "TableViewPlaybook", data, gene_symbol, dir, perturb};
+        return {
+					content: [
+						{
+							type: "text",
+							text: JSON.stringify({component: "TableViewPlaybook", data,  gene_symbol, dir, perturb})
+						}
+					],
+					structuredContent: {component: "TableViewPlaybook", data,  gene_symbol, dir, perturb}
+				}
       }
       else {
         return {
-              type: "text",
-              text: res.text || "Error retrieving data",
-            };
+					content: [
+						{
+							type: "text",
+							text: `Failed to find results for ${gene_symbol}`
+						}
+					],
+				}
       }
-  }
-}
+	}
+]
+
 
 export default ReverseL1000SearchTool;
