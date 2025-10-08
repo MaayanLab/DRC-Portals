@@ -72,4 +72,5 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
           key = tuple([row[k] for k in fk['fields']])
           if None in key: continue
           target_id = in_mem_ids[fk['reference']['resource']][key]
-          helper.upsert_m2m(source_id, predicate_from_fields(fk['fields']), target_id)
+          helper.upsert_m2o(source_id, predicate_from_fields(fk['fields']), target_id)
+        # TODO: how about the m2ms?
