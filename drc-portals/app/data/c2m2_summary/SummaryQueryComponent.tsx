@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import dynamic from "next/dynamic"; 
+import dynamic from "next/dynamic";
 import {
   Box, Grid, Typography, FormControl, InputLabel, Select, MenuItem,
   Button, CircularProgress, Alert, Switch, FormControlLabel,
-  IconButton, Badge
+  IconButton, Badge, Paper
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,6 +13,9 @@ import { useCart } from './CartContext';
 import { CartDrawer } from './CartDrawer';
 import C2M2BarChart from './C2M2BarChart';
 import PlotDescriptionEditor from './PlotDescriptionEditor';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
 // dynamically import Plotly heatmap (client only)
 const C2M2Heatmap = dynamic(() => import('./C2M2Heatmap'), { ssr: false });
 
@@ -172,19 +175,17 @@ const SummaryQueryComponent: React.FC = () => {
     let out = `Generate a concise description of a ${showHeatmap ? 'heatmap' : 'bar chart'} with the following parameters:
   - Y-axis: ${yAxis}
   - X-axis: ${xAxis}`;
-  
-    // Removed the groupBy line
+
     out += `
-  Describe what kind of data this chart shows and what insights it might reveal.`;
-  
+  Describe what kind of data this chart shows and interpret the data. If X axis is dcc use Data Coordinating Center from NIH Common Fund Data Ecosystem program as your interpret.`;
+
     if (showUnspecified) {
       out += `
   If there is an "Unspecified Only" sub-chart below, also describe any trends or patterns observed in that sub-chart.`;
     }
-  
+
     return out;
   };
-  
 
   // LLM handle
   const handleGenerateDescription = async () => {
@@ -261,7 +262,6 @@ const SummaryQueryComponent: React.FC = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      {/* <Typography variant="h5" gutterBottom>Summary Query Chart</Typography> */}
       <Typography variant="h5" gutterBottom>Summary: Counts of various Assets</Typography>
 
       <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -341,15 +341,14 @@ const SummaryQueryComponent: React.FC = () => {
           <C2M2BarChart
             data={cleanedChartData}
             xAxis={xAxis}
-            yAxis={yAxis}           // add this!
-            groupBy={groupBy}       // add this!
+            yAxis={yAxis}
+            groupBy={groupBy}
             groupValues={groupValues}
             colorMap={colorMap}
             showUnspecified={showUnspecified}
             minBarWidth={minBarWidth}
             minChartWidth={minChartWidth}
           />
-
       )}
 
       {loadingDescription && (
@@ -359,15 +358,42 @@ const SummaryQueryComponent: React.FC = () => {
         </Box>
       )}
 
-      {/* Show either the description or the editor */}
+      {/* --- Rendered Markdown Description --- */}
       {plotDescription && !isEditing && (
-        <Box sx={{ mt: 3, whiteSpace: 'pre-wrap', backgroundColor: '#f5f5f5', p: 2, borderRadius: 1 }}>
-          <Typography variant="subtitle1">Plot Description</Typography>
-          <Typography sx={{ mt: 1 }}>{plotDescription}</Typography>
-          <Button variant="outlined" onClick={() => setIsEditing(true)}>Edit</Button>
-        </Box>
+        <Paper elevation={1} sx={{ mt: 3, p: 2, borderRadius: 2, backgroundColor: '#fafafa' }}>
+          <Typography variant="subtitle1" gutterBottom>Plot Description</Typography>
+          <Box sx={{
+            '& p': { mb: 1.5, lineHeight: 1.6 },
+            '& ul': { pl: 3, mb: 1.5 },
+            '& ol': { pl: 3, mb: 1.5 },
+            '& code': {
+              backgroundColor: '#eee',
+              borderRadius: '4px',
+              px: 0.5,
+              fontFamily: 'monospace',
+            },
+            '& pre': {
+              backgroundColor: '#f0f0f0',
+              p: 1.5,
+              borderRadius: 1,
+              overflowX: 'auto',
+            },
+            '& a': {
+              color: '#1976d2',
+              textDecoration: 'underline',
+            },
+          }}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {plotDescription}
+            </ReactMarkdown>
+          </Box>
+          <Button variant="outlined" sx={{ mt: 1 }} onClick={() => setIsEditing(true)}>
+            Edit
+          </Button>
+        </Paper>
       )}
 
+      {/* --- Editor Mode --- */}
       {isEditing && (
         <PlotDescriptionEditor
           initialValue={plotDescription}
