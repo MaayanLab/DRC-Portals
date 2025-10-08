@@ -11,7 +11,7 @@ import PhenotypeSmallMolecules from "./PhenotypeSmallMoleculesTool.js"
 import RegElementSetInfo from "./RegElementSetInfoTool.js"
 import ReverseSearchL1000 from "./ReverseSearchL1000Tool.js"
 import sigComLincs from "./sigComLincsTool.js"
-import KidsFirstTumorExpr from "./KidsFirstTumorTool.js"
+import KidsFirstTumorExpr from "./KidsFirstTumorExpr.js"
 const tools:any[] = [
 	GetDccsOrCentersTool,
 	GetDccOrCenterTool,

@@ -3,7 +3,7 @@ import React from "react";
 import Message from "./message";
 import Communicator from "./Communicator";
 import ChatExample from "./chatExample";
-import ReactMarkdown from 'react-markdown'
+import { getFunctionInput, getFunctionText } from "./utils/constants";
 
 // input forms
 import GeneInput from "./Inputs/geneInput";
@@ -12,8 +12,6 @@ import GlycanInput from "./Inputs/glycanInput";
 import PhenotypeInput from "./Inputs/phenotypeInput";
 import { Input } from "@mui/material";
 import DccIcons from "./dccIcons";
-import remarkGfm from "remark-gfm"
-import {  PRenderer } from '@/components/misc/ReactMarkdownRenderers'
 
 type content = {
   text: {
@@ -22,22 +20,23 @@ type content = {
   };
 };
 
-// type message = {
-//   id: string;
-//   [key: string]: string;
-//   thread_id: string;
-//   role: string;
-//   content: content[];
-//   file_ids: string[];
-//   assistant_id: string | null;
-//   run_id: string | null;
-//   metadata: any;
-// };
+type message = {
+  id: string;
+  object: string;
+  thread_id: string;
+  role: string;
+  content: content[];
+  file_ids: string[];
+  assistant_id: string | null;
+  run_id: string | null;
+  metadata: any;
+};
 
 interface ResponseData {
-  id: string;
-  output: Array<{[key: string]: any}>;
-  output_text: string;
+  messages: message[] | null;
+  threadId: string | null;
+  functionCall: any | null;
+  error: string | null;
 }
 
 let processMapper: Record<string, any> = {
@@ -68,27 +67,27 @@ export default function Chat() {
     [chat]
   );
 
-  // const trigger = React.useCallback(
-  //   async (arg0: { body: { message: string } }) => {
-  //     const options = {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         query: arg0.body.message,
-  //         threadId: threadId,
-  //       }),
-  //     };
-  //     const res = await fetch(`/chat/assistant`, options);
-  //     const data: ResponseData = await res.json();
-  //     if (!threadId) {
-  //       setThreadId(data.threadId);
-  //     }
-  //     return data;
-  //   },
-  //   [threadId]
-  // );
+  const trigger = React.useCallback(
+    async (arg0: { body: { message: string } }) => {
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: arg0.body.message,
+          threadId: threadId,
+        }),
+      };
+      const res = await fetch(`/chat/assistant`, options);
+      const data: ResponseData = await res.json();
+      if (!threadId) {
+        setThreadId(data.threadId);
+      }
+      return data;
+    },
+    [threadId]
+  );
 
   const submit = React.useCallback(
     async (message: {
@@ -105,64 +104,75 @@ export default function Chat() {
       }));
       setQuery(() => "");
 
-      const options = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query: message.content,
-        }),
-      };
-      const res = await fetch(`/chat/response`, options);
-      const data: ResponseData = await res.json();
-      let newMessage: {
+      var results: any;
+
+      if (!threadId) {
+        results = await trigger({
+          body: {
+            message: message.content,
+          },
+        });
+      } else {
+        const options = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: message.content,
+            threadId: threadId,
+          }),
+        };
+        const res = await fetch(`/chat/assistant`, options);
+        const data: ResponseData = await res.json();
+        results = data;
+      }
+      var newMessage: {
         role: string;
         content: string;
         output: null | string;
         args: null | any;
       };
-      const results = data["output"];        
-      if (!data) {
+      if (results.functionCall) {
+        const toolName =
+          results.functionCall.submit_tool_outputs.tool_calls[0].function.name;
+        const toolArgs = JSON.parse(
+          results.functionCall.submit_tool_outputs.tool_calls[0].function
+            .arguments
+        );
+        const inputType = getFunctionInput(toolName);
+        const processText = getFunctionText(toolName);
+        newMessage = {
+          role: "bot",
+          content: processText,
+          output: inputType,
+          args: { process: toolName, ...toolArgs },
+        };
+      } else if (results.error) {
+        newMessage = {
+          role: "bot",
+          content: results.error,
+          output: null,
+          args: null,
+        };
+      } else if (!results) {
         newMessage = {
           role: "bot",
           content:
-            "CWAS is taking longer than usual to respond. We appologize for the inconvenience, please try again later.",
+            "The assistant is taking longer than usual to respond. We appologize for the inconvenience, please try again later.",
           output: null,
           args: null,
         };
       } else {
-        let mcp_val = results.filter(r=>r["type"]==="mcp_call")[0] || {}
-        const mcp_output = JSON.parse(mcp_val["output"] || '{}')
-        const output_text = data.output_text
-        if (mcp_output.function) {
-          const {function:toolName, inputType, output_text:outtxt, ...toolArgs} = mcp_output
-          // const toolName = function
-          const processText = output_text
-          newMessage = {
-            role: "bot",
-            content: processText,
-            output: inputType,
-            args: { process: toolName, ...toolArgs },
-          };
-        } else if (mcp_output.error) {
-          newMessage = {
-            role: "bot",
-            content: output_text,
-            output: null,
-            args: null,
-          };
-        } else {
-          newMessage = {
-            role: "bot",
-            content: output_text.replace(
-              /\【.*?\】/g,
-              ""
-            ),
-            output: null,
-            args: null,
-          };
-        }
+        newMessage = {
+          role: "bot",
+          content: results.messages[0].content[0].text.value.replace(
+            /\【.*?\】/g,
+            ""
+          ),
+          output: null,
+          args: null,
+        };
       }
 
       setChat((cc: any) => {
@@ -174,7 +184,7 @@ export default function Chat() {
           };
       });
     },
-    [chat, threadId]
+    [chat, threadId, trigger]
   );
 
   return (
@@ -193,16 +203,7 @@ export default function Chat() {
           return (
             <>
               <Message role={message.role} key={i.toString() + "message"}>
-                {/* <p style={{ whiteSpace: "pre-line" }}>{message.content}</p> */}
-                <ReactMarkdown 
-                    skipHtml
-                    remarkPlugins={[remarkGfm]}
-                    components={{ 
-                        p: PRenderer,
-                    }}
-                    className="[&_*]:text-white">
-                      {message.content}
-                </ReactMarkdown>
+                <p style={{ whiteSpace: "pre-line" }}>{message.content}</p>
               </Message>
 
               {message.output ? (

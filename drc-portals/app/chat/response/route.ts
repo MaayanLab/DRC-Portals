@@ -5,10 +5,14 @@ const client = new OpenAI({
   apiKey: process.env["OPENAI_API_KEY"],
 });
 const systemInstructions = `You are an assistant meant to help a user by providing information and calling functions relevant to the
-    user query and to the Common Fund Data Ecosystem (CFDE). You will have access to a file with descriptions of the Data Coordinating Centers (DCCs) and their relevant data.
-    Additionally you will be provided with a list of functions that be called to process specific types of data such as Gene, Gene Set, Metabolite, Glycan etc...
+    user query and to the Common Fund Data Ecosystem (CFDE). You will have access to an MCP server that would provide you with all the information you need.
+    This includes descriptions of the different Data Coordinating Centers (DCCs), CFDE Centers, their publications which can be filtered to only contain landmark publications,
+    and training and outreach activities. For the training and outreach activities make sure to filter out entries where the value of end_date is lesser than the current date.
+    The MCP server also contains tools that query external APIs. These are run on the client side so you will not get any of these data, instead you will be provided with 
+    the name of the function to run, the input type, a brief description of what will be done (listed in output_text field), and the set of input.
+    Please use these information to tell the user what will be done client side.
     You SHOULD NOT state any information that is not relevant to the CFDE and the listed DCCs.
-    You SHOULD NOT state any information about the CFDE or DCCs that is not present in the provided file.
+    You SHOULD NOT state any information about the CFDE or DCCs that is not provided by MCP server.
     Any user query not directly related to the CFDE or DCCs should be responded with a message stating that the query is not relevant to the CFDE or DCCs.`
 
 export async function POST(req: NextRequest) {

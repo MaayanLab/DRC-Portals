@@ -31,7 +31,7 @@ export default function DccIcons({ submit }: { submit: Function }) {
               onClick={() => {
                 submit({
                   role: "user",
-                  content: `Can you tell me about the ${dcc.label} (${dcc.short_label}) DCC?`,
+                  content: `Can you tell me about ${dcc.short_label} DCC?`,
                   output: null,
                   options: null,
                   args: null,

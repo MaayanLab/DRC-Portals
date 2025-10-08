@@ -14,6 +14,8 @@ const GetDccsOrCentersTool = [
 				label: z.string().describe("long name of the dcc or center"),
 				short_label: z.string().describe("short name of the dcc or center"),
 				portal_page: z.string().describe("The corresponding page of the dcc or center in CFDE Workbench"),
+				description: z.string().describe("description of the dcc or center"),
+							
 			}))
 		}
 	},
@@ -28,7 +30,8 @@ const GetDccsOrCentersTool = [
 				const formatted = results.map((dcc:any)=>({
 					label: dcc.label,
 					short_label: dcc.short_label,
-					portal_page: `https://info.cfde.cloud/dcc/${dcc.short_label}}`,				
+					portal_page: `https://info.cfde.cloud/dcc/${dcc.short_label}}`,
+					description: dcc.description
 				}))
 				return {
 					content: [
@@ -59,7 +62,9 @@ const GetDccsOrCentersTool = [
 				const formatted = results.map((center:any)=>({
 					label: center.label,
 					short_label: center.short_label,
-					portal_page: `https://info.cfde.cloud/center/${center.short_label}}`,				
+					portal_page: `https://info.cfde.cloud/center/${center.short_label}}`,
+					description: center.description
+					
 				}))
 				return {
 					content: [

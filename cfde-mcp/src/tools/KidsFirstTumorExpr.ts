@@ -1,10 +1,10 @@
 import { z } from "zod";
 
-const GtexGeneExpression = [
-  "GtexGeneExpression",
+const KidsFirstTumorExpr = [
+  "KidsFirstTumorExpr",
   {
-    title: "GtexGeneExpression",
-    description: "Runs a client side function that returns z-scored gene expression across tissues from GTEx. Takes a single gene as an input",
+    title: "KidsFirstTumorExpr",
+    description: "Runs a client side function that returns gene expression in tumors for a gene from Kids First Open Pediatric Cancer Atlas API",
     inputSchema: {
         "geneSymbol": z.string().optional().describe("Gene symbol")
     },
@@ -13,7 +13,6 @@ const GtexGeneExpression = [
         "inputType": z.string().describe("The type of input"),
         "output_text": z.string().describe("What will be done in the client side. Add this in the response."),
         "geneSymbol": z.string().optional().nullable().describe("Gene symbol")
-        
     }
   },
   async ({geneSymbol}: {geneSymbol: string}) => {
@@ -22,17 +21,17 @@ const GtexGeneExpression = [
       {
         type: "text",
         text: JSON.stringify({
-            function: "GtexGeneExpression",
+            function: "KidsFirstTumorExpr",
             inputType: "GeneInput",
-            output_text: "I can run a function that returns z-scored gene expression across tissues from GTEx.",
+            output_text: "I can run a function that returns gene expression in tumors for a gene from Kids First Open Pediatric Cancer Atlas API",
             geneSymbol
         })
       }
     ],
     structuredContent: {
-        function: "GtexGeneExpression",
+        function: "KidsFirstTumorExpr",
         inputType: "GeneInput",
-        output_text: "I can run a function that returns z-scored gene expression across tissues from GTEx.",
+        output_text: "I can run a function that returns gene expression in tumors for a gene from Kids First Open Pediatric Cancer Atlas API",
         geneSymbol
     }
   }
@@ -40,4 +39,4 @@ const GtexGeneExpression = [
 ]
 
 
-export default GtexGeneExpression;
+export default KidsFirstTumorExpr;
