@@ -1,0 +1,25 @@
+import { z } from "zod";
+
+const {class_name} = [
+  "{class_name}",
+  {
+    title: "{class_name}",
+    description: "{description}",
+    inputSchema: {inputSchema},
+    outputSchema: {outputSchema}
+  },
+  async ({{input}}: {{inputType}}) => {
+    return {
+    content: [
+      {
+        type: "text",
+        text: JSON.stringify({output})
+      }
+    ],
+    structuredContent: {output}
+  }
+  }
+]
+
+
+export default {class_name};

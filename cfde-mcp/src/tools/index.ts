@@ -2,17 +2,31 @@ import GetDccsOrCentersTool from "./GetDccsOrCentersTool.js"
 import GetDccOrCenterTool from "./GetDccOrCenterTool.js"
 import GetDccPublicationsTool from "./GetDccOrCenterPublicationsTool.js"
 import GetOutreachTool from "./GetOutreachTool.js"
-import FetchImpcPhenotypeTool from "./FetchImpcPhenotypeTool.js"
-import GetRegElementInfoTool from "./GetRegElementInfoTool.js"
-import ReverseL1000SearchTool from "./ReverseL1000SearchTool.js"
+import GetDocumentation from "./GetDocumentation.js"
+import ARCHS4GeneExpression from "./ARCHS4GeneExpressionTool.js"
+import GlyGenbyGlyTouCan from "./GlyGenbyGlyTouCanTool.js"
+import GtexGeneExpression from "./GtexGeneExpressionTool.js"
+import ImpcPhenotypes from "./ImpcPhenotypesTool.js"
+import PhenotypeSmallMolecules from "./PhenotypeSmallMoleculesTool.js"
+import RegElementSetInfo from "./RegElementSetInfoTool.js"
+import ReverseSearchL1000 from "./ReverseSearchL1000Tool.js"
+import sigComLincs from "./sigComLincsTool.js"
+import KidsFirstTumorExpr from "./KidsFirstTumorTool.js"
 const tools:any[] = [
 	GetDccsOrCentersTool,
 	GetDccOrCenterTool,
 	GetDccPublicationsTool,
 	GetOutreachTool,
-	FetchImpcPhenotypeTool,
-	GetRegElementInfoTool,
-	ReverseL1000SearchTool
+	GetDocumentation,
+	ARCHS4GeneExpression,
+	GlyGenbyGlyTouCan,
+	GtexGeneExpression,
+	ImpcPhenotypes,
+	KidsFirstTumorExpr,
+	PhenotypeSmallMolecules,
+	RegElementSetInfo,
+	ReverseSearchL1000,
+	sigComLincs
 ]
 export const initialize_tools = (server:any) => {
 	for (const tool of tools) {
