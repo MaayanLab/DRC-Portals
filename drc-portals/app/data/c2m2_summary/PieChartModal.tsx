@@ -25,7 +25,6 @@ interface PieChartModalProps {
   yAxis: string;
   xAxis: string;
   groupBy: string;
-  colorMap: Record<string, string>;
   title: string;
 }
 
@@ -41,7 +40,6 @@ const PieChartModal: React.FC<PieChartModalProps> = ({
   yAxis,
   xAxis,
   groupBy,
-  colorMap,
   title
 }) => {
   const [plotDescription, setPlotDescription] = useState<string>('');
@@ -62,13 +60,11 @@ const PieChartModal: React.FC<PieChartModalProps> = ({
 
   const getChartPrompt = () => {
     const dataSummary = data.map(d => `${d.name}: ${d.value}`).join(', ');
-  
-    let prompt = `For the pie chart titled "${title}", the slices represent "${groupBy}" `;
+    let prompt = `For the pie chart titled "${title}" (grouped by "${groupBy}"), the slices represent "${groupBy}" `;
     prompt += `and the size of each slice represents "${yAxis}".\n\n`;
     prompt += `Here is the data for the pie chart:\n${dataSummary}\n\n`;
-    prompt += `Summarize the chart in **no more than 5 sentences** by describing the distribution of "${groupBy}" categories, `;
+    prompt += `Summarize the chart in no more than 5 sentences by describing the distribution of "${groupBy}" categories, `;
     prompt += `any notable trends or differences based on the counts, and key insights from the data.`;
-    
     return prompt;
   };
 
@@ -142,7 +138,8 @@ const PieChartModal: React.FC<PieChartModalProps> = ({
         </IconButton>
       </DialogTitle>
       <DialogContent>
-        <C2M2PieChart data={data} colorMap={colorMap} />
+        {/* Pie Chart with automatically generated distinct colors */}
+        <C2M2PieChart data={data} title={title} />
 
         <Box sx={{ display: 'flex', alignItems: 'center', mt: 3, gap: 2 }}>
           <Button

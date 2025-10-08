@@ -1,16 +1,30 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { hcl } from 'd3-color';
 
 export interface C2M2PieChartProps {
   data: { name: string; value: number }[];
-  colorMap: Record<string, string>;
+  colorMap?: Record<string, string>; // optional, will generate if missing
   title?: string;
 }
 
 const maxPerCol = 8;
 
+const generateDistinctColors = (names: string[]) => {
+  const n = names.length;
+  return Object.fromEntries(
+    names.map((name, i) => {
+      const hue = (360 * i) / n;
+      return [name, hcl(hue, 60, 70).formatHex()];
+    })
+  );
+};
+
 const C2M2PieChart: React.FC<C2M2PieChartProps> = ({ data, colorMap, title }) => {
+  const names = data.map(d => d.name);
+  const effectiveColorMap = colorMap || generateDistinctColors(names);
+
   // Build legend items with counts
   type LegendItem = {
     display: string;
@@ -19,7 +33,7 @@ const C2M2PieChart: React.FC<C2M2PieChartProps> = ({ data, colorMap, title }) =>
   };
   const legendItems: LegendItem[] = data.map(d => ({
     display: `${d.name} [${d.value}]`,
-    color: colorMap[d.name] || '#8884d8',
+    color: effectiveColorMap[d.name],
     id: String(d.name),
   }));
 
@@ -51,7 +65,7 @@ const C2M2PieChart: React.FC<C2M2PieChartProps> = ({ data, colorMap, title }) =>
                 label={false} // no slice labels, legend handles counts
               >
                 {data.map(entry => (
-                  <Cell key={entry.name} fill={colorMap[entry.name] || '#8884d8'} />
+                  <Cell key={entry.name} fill={effectiveColorMap[entry.name]} />
                 ))}
               </Pie>
               <Tooltip formatter={(value: number, name: string) => [`${value}`, name]} />
