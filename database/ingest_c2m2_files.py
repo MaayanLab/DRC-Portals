@@ -21,7 +21,7 @@ c2m2s = dcc_assets[dcc_assets['filetype'] == 'C2M2']
 c2m2s_path = ingest_path / 'c2m2s'
 
 for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
-  c2m2_path = c2m2s_path/c2m2['dcc_short_label']/c2m2['filename']
+  c2m2_path = c2m2s_path/c2m2['short_label']/c2m2['filename']
   c2m2_path.parent.mkdir(parents=True, exist_ok=True)
   print("c2m2['link'] object:"); print(c2m2['link']); ##
 
@@ -41,8 +41,8 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
   pkg = Package(str(c2m2_datapackage_json))
   with pdp_helper() as helper:
     dcc_id = helper.upsert_entity('dcc', dict(
-      label=c2m2['dcc_short_label']
-    ), slug=c2m2['dcc_short_label'])
+      label=c2m2['short_label']
+    ), slug=c2m2['short_label'])
     dcc_asset_id = helper.upsert_entity('dcc_asset', dict(
       label=c2m2['filename'],
       link=c2m2['link'],

@@ -16,15 +16,15 @@ gmts_path = ingest_path / 'gmts'
 for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs...'):
   if 'l1000_cp' in gmt['filename']: continue
   with pdp_helper() as helper:
-    gmt_path = gmts_path/gmt['dcc_short_label']/gmt['filename']
+    gmt_path = gmts_path/gmt['short_label']/gmt['filename']
     gmt_path.parent.mkdir(parents=True, exist_ok=True)
     if not gmt_path.exists():
       import urllib.request
       urllib.request.urlretrieve(gmt['link'].replace(' ', '%20'), gmt_path)
     #
     dcc_id = helper.upsert_entity('dcc', dict(
-      label=gmt['dcc_short_label']
-    ), slug=gmt['dcc_short_label'])
+      label=gmt['short_label']
+    ), slug=gmt['short_label'])
     dcc_asset_id = helper.upsert_entity('dcc_asset', dict(
       label=gmt['filename'],
       link=gmt['link'],
@@ -49,7 +49,7 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
     helper.upsert_m2o(library_id, 'dcc', dcc_id)
 
     with gmt_path.open('r') as fr:
-      for line in tqdm(fr, desc=f"Processing {gmt['dcc_short_label']}/{gmt['filename']}..."):
+      for line in tqdm(fr, desc=f"Processing {gmt['short_label']}/{gmt['filename']}..."):
         line_split = list(map(str.strip, line.split('\t')))
         if len(line_split) < 3: continue
         set_label, set_description, *set_entities = line_split

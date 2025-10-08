@@ -15,6 +15,6 @@ with pdp_helper() as helper:
       filetype=file['filetype'],
     ))
     dcc_id = helper.upsert_entity('dcc', dict(
-      label=file['dcc_short_label']
-    ), slug=file['dcc_short_label'])
+      label=file['short_label']
+    ), slug=file['short_label'])
     helper.upsert_m2o(dcc_asset_id, 'dcc', dcc_id)

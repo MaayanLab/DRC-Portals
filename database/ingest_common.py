@@ -260,8 +260,7 @@ def current_dcc_assets():
     right=pd.read_csv(dcc_assets_path(), sep='\t'),
     right_on='link',
     how='inner',
-  )
-  dcc_assets['dcc_short_label'] = dcc_assets['link'].apply(lambda link: link.split('/')[3])
+  ).merge(pd.read_csv(dcc_path(), sep='\t'), left_on='dcc_id', right_on='id', suffixes=('asset_', 'dcc_'))
   #dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted']]
   dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted'] & dcc_assets['dccapproved'] & dcc_assets['drcapproved'] ]
   return dcc_assets
@@ -273,7 +272,7 @@ def current_code_assets():
     right=pd.read_csv(dcc_assets_path(), sep='\t'),
     right_on='link',
     how='inner',
-  )
+  ).merge(pd.read_csv(dcc_path(), sep='\t'), left_on='dcc_id', right_on='id', suffixes=('asset_', 'dcc_'))
   dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted'] & dcc_assets['dccapproved'] & dcc_assets['drcapproved'] ]
   return dcc_assets
 

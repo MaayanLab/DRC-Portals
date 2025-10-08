@@ -41,7 +41,7 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
           label=entity_label,
         ))
     # assemble the full file path for the DCC's asset
-    file_path = assertions_path/file['dcc_short_label']/file['filename']
+    file_path = assertions_path/file['short_label']/file['filename']
     if(debug >0):
       print(f"file_path:{file_path}");
     file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -65,8 +65,8 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
       continue
 
     dcc_id = helper.upsert_entity('dcc', dict(
-      label=file['dcc_short_label']
-    ), slug=file['dcc_short_label'])
+      label=file['short_label']
+    ), slug=file['short_label'])
     dcc_asset_id = helper.upsert_entity('dcc_asset', dict(
       label=file['filename'],
       link=file['link'],
