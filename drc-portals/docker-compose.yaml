@@ -180,7 +180,7 @@ services:
       - drc-portal-postgres-2:/var/lib/postgresql/data
 
   drc-portal-elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ulimits:
