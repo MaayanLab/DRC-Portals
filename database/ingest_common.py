@@ -128,15 +128,15 @@ def pdp_helper():
     assert 'label' in entity['attributes'] and entity['attributes']['label']
     return id
   def upsert_o2m(source_id, predicate, target_id):
-    pagerank_update[source_id] = pagerank_update.get(source_id, 0) + 1
     if source_id not in o2m: o2m[source_id] = {}
     if predicate not in o2m[source_id]: o2m[source_id][predicate] = set()
-    o2m[source_id][predicate].add(target_id)
     if predicate not in m2m: m2m[predicate] = set()
-    m2m[predicate].add((source_id, target_id))
     if target_id not in m2o: m2o[target_id] = {}
     assert predicate not in m2o[target_id] or m2o[target_id][predicate] == source_id
+    pagerank_update[source_id] = pagerank_update.get(source_id, 0) + 1
     m2o[target_id][predicate] = source_id
+    o2m[source_id][predicate].add(target_id)
+    m2m[predicate].add((source_id, target_id))
   def upsert_m2o(source_id, predicate, target_id):
     upsert_o2m(target_id, predicate, source_id)
   def upsert_m2m(source_id, predicate, target_id):
@@ -145,7 +145,7 @@ def pdp_helper():
     if predicate not in m2m: m2m[predicate] = set()
     m2m[predicate].add((source_id, target_id))
     m2m[predicate].add((target_id, source_id))
-  yield type('pdp', tuple(), dict(upsert_o2m=upsert_o2m, upsert_m2o=upsert_m2o, upsert_m2m=upsert_m2m, upsert_entity=upsert_entity))
+  yield type('pdp', tuple(), dict(entities=entities, upsert_o2m=upsert_o2m, upsert_m2o=upsert_m2o, upsert_m2m=upsert_m2m, upsert_entity=upsert_entity))
   # upsert entity details & relationships
   # TODO: is upsert deep? otherwise it should probably be relationship_{predicate}
   elasticsearch.helpers.bulk(es, [

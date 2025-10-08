@@ -60,13 +60,14 @@ export function categoryLabel(type: string) {
   if (type === 'dcc') return 'DCC'
   else if (type === 'id_namespace') return 'Identifier Namespace'
   else if (type === 'c2m2_file') return 'File'
+  else if (type === 'kg_assertion') return 'Knowledge Graph Assertion'
   else if (type === 'kg_relation') return 'Knowledge Graph Relation'
   else if (type === 'gene_set_library') return 'Gene Set Library'
   else if (type === 'gene_set') return 'Gene Set'
   else if (type === 'dcc_asset') return 'Processed File'
   else if (type === 'processed') return 'Processed Data'
   else if (type === 'c2m2') return 'Cross-Cut Metadata'
-  else return entity_type_map[type] ?? capitalize(type)
+  else return entity_type_map[type] ?? capitalize(type.replaceAll('_',' '))
 }
 
 export function itemLabel(item: any) {
@@ -86,13 +87,11 @@ export function itemDescription(item: any, lookup?: any) {
   if (item['type'] === 'biosample') return `A biosample${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
   if (item['type'] === 'subject') return `A subject${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
   if (item['type'] === 'dcc_asset') return `A contributed ${item.a_filetype}${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''}`
-  if (item['type'] === 'gene_set') return `A gene set${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''}`
-  if (item['type'] === 'gene_set_library') return `A gene set library${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''}`
   if (item['type'] === 'dcc') return `The ${item.a_label} data coordinating center`
   if (item.a_description) {
     if (item.a_description.length > 100) return `${item.a_description.slice(0, 100)}...`
     return `${item.a_description}`
   } else {
-    return JSON.stringify(item)
+    return `A ${categoryLabel(item.type)}${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''}`
   }
 }

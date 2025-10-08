@@ -18,7 +18,7 @@ import Icon from "@mdi/react"
 import { mdiArrowRight, mdiToolbox, mdiLaptop, mdiChatOutline } from '@mdi/js';
 
 import CFPrograms from "@/components/misc/CFPrograms"
-import { SearchForm, SearchField } from "./processed/SearchField";
+import { SearchForm, SearchField } from "./search2/SearchField";
 import { BlurBig } from "@/components/styled/Blur"
 import Stats, { StatsFallback } from "./processed/Stats"
 import { ResponsivePaper } from "../info/styled"
@@ -142,14 +142,14 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
                         <Typography variant="stats_sub" sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>
                           Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
                             {['STAT3', 'blood', 'dexamethasone'].map(example => (
-                              <Link key={example} href={`/data/search2/${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
+                              <Link key={example} href={`/data/search2?q=${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
                             ))}
                           </Stack>
                         </Typography>
                         <Typography variant="stats_sub_small" sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
                           Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
                             {['STAT3', 'blood', 'dexamethasone'].map(example => (
-                              <Link key={example} href={`/data/search2/${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
+                              <Link key={example} href={`/data/search2?q=${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
                             ))}
                           </Stack>
                         </Typography>

@@ -21,13 +21,13 @@ assertions_path = ingest_path / 'assertions'
 
 # for now, we'll map entity types to get less junk/duplication
 map_type = {
-  'Gene': 'gene',
 }
 
 for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Processing KGAssertion Files...'):
   with pdp_helper() as helper:
     def ensure_entity(entity_type, entity_label):
-      if entity_type == 'Gene':
+      entity_type = entity_type.lower()
+      if entity_type == 'gene':
         for gene in gene_lookup.get(entity_label, []):
           yield lambda gene=gene: helper.upsert_entity('gene', dict(
             label=gene_labels[gene],
@@ -108,12 +108,16 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
               source_id = ensure_source_id()
               target_id = ensure_target_id()
               assertion_id = helper.upsert_entity('kg_assertion', dict(
-                label=f"{assertion['source']} {assertion['relation']} {assertion['target']}",
+                label=f"{helper.entities[source_id]['a_label']} {helper.entities[relation_id]['a_label']} {helper.entities[target_id]['a_label']}",
                 SAB=assertion['SAB'],
                 evidence=assertion['evidence_class'],
               ))
-              helper.upsert_m2m(source_id, 'source', assertion_id)
-              helper.upsert_m2m(target_id, 'target', assertion_id)
-              helper.upsert_m2m(relation_id, 'relation', assertion_id)
+              try:
+                helper.upsert_o2m(source_id, 'source', assertion_id)
+                helper.upsert_o2m(target_id, 'target', assertion_id)
+                helper.upsert_o2m(relation_id, 'relation', assertion_id)
+              except KeyboardInterrupt: raise
+              except:
+                continue
               helper.upsert_m2o(assertion_id, 'dcc_asset', dcc_asset_id)
               helper.upsert_m2o(assertion_id, 'dcc', dcc_id)
