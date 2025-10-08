@@ -180,7 +180,7 @@ services:
       - drc-portal-postgres-2:/var/lib/postgresql/data
 
   drc-portal-elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.1.5
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ulimits:
@@ -188,10 +188,15 @@ services:
         soft: -1
         hard: -1
     environment:
-      - cluster.routing.allocation.disk.threshold_enabled=false
+      - cluster.name=elastic
+      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
       - discovery.type=single-node
+      - cluster.routing.allocation.disk.threshold_enabled=false
       - bootstrap.memory_lock=true
-      - ES_JAVA_OPTS=-Xms2g -Xmx2g
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - indices.id_field_data.enabled=true
+      - ES_JAVA_OPTS=-Xms6g -Xmx6g
     ports:
       - 9200:9200
       - 9300:9300

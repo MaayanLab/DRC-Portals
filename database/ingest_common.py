@@ -94,7 +94,7 @@ connection = psycopg2.connect(
 )
 
 #%%
-es = elasticsearch.Elasticsearch(os.getenv('ELASTICSEARCH_URL', 'http://localhost:9200'))
+es = elasticsearch.Elasticsearch(os.getenv('ELASTICSEARCH_URL'))
 
 #%%
 class ExEncoder(json.JSONEncoder):
@@ -163,7 +163,7 @@ def pdp_helper():
       doc_as_upsert=True,
     )
     for _id, _source in entities.items()
-  ], chunk_size=1_000)
+  ], chunk_size=100, timeout='30s')
   # update entity pagerank
   elasticsearch.helpers.bulk(es, [
     dict(
@@ -184,33 +184,33 @@ def pdp_helper():
       upsert=dict(pagerank=0)
     )
     for _id, pagerank in pagerank_update.items()
-  ], chunk_size=1_000)
+  ], chunk_size=100, timeout='30s')
   # add inline many-to-one or one-to-one relationships
-  elasticsearch.helpers.bulk(es, [
-    dict(
-      _op_type='update',
-      _index='o2m',
-      _id=source,
-      doc={ predicate: list(targets) for predicate, targets in predicate_targets.items() },
-      doc_as_upsert=True,
-    )
-    for source, predicate_targets in o2m.items()
-  ], chunk_size=1_000)
-  elasticsearch.helpers.bulk(es, [
-    dict(
-      _op_type='update',
-      _index='m2m',
-      _id=f"{source}:{target}",
-      doc={
-        'predicate': predicate,
-        'source': source,
-        'target': target,
-      },
-      doc_as_upsert=True,
-    )
-    for predicate, pairs in m2m.items()
-    for source, target in pairs
-  ], chunk_size=1_000)
+  # elasticsearch.helpers.bulk(es, [
+  #   dict(
+  #     _op_type='update',
+  #     _index='o2m',
+  #     _id=source,
+  #     doc={ predicate: list(targets) for predicate, targets in predicate_targets.items() },
+  #     doc_as_upsert=True,
+  #   )
+  #   for source, predicate_targets in o2m.items()
+  # ], chunk_size=100, timeout='30s')
+  # elasticsearch.helpers.bulk(es, [
+  #   dict(
+  #     _op_type='update',
+  #     _index='m2m',
+  #     _id=f"{source}:{target}",
+  #     doc={
+  #       'predicate': predicate,
+  #       'source': source,
+  #       'target': target,
+  #     },
+  #     doc_as_upsert=True,
+  #   )
+  #   for predicate, pairs in m2m.items()
+  #   for source, target in pairs
+  # ], chunk_size=100, timeout='30s')
 
 #%%
 # Fetch assets to ingest

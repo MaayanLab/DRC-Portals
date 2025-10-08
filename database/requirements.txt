@@ -6,4 +6,5 @@ psycopg2-binary
 python-dotenv
 requests
 tqdm
-elasticsearch<7.14
+elasticsearch>=9,<10
+datapackage

@@ -26,19 +26,18 @@ export default async function Page(props: { params: { type?: string, slug?: stri
   if (!q && !props.params.slug) {
     const res = await elasticsearch.search({
       index: 'entity',
-      body: {
-        size: 0,
-        aggs: {
-          keys: {
-            terms: {
-              field: "type.keyword", 
-              size: 1000,
-            },
+      size: 0,
+      aggs: {
+        keys: {
+          terms: {
+            field: "type.keyword", 
+            size: 1000,
           },
         },
-      }
+      },
     })
-    return <div className="flex flex-row gap-4 flex-wrap place-items-center justify-center">{res.body.aggregations.keys.buckets.map((result: any) => (
+    if (!res.aggregations) return null
+    return <div className="flex flex-row gap-4 flex-wrap place-items-center justify-center">{res.aggregations.keys.buckets.map((result: any) => (
       <Grid key={result.key} item xs={6} sm={4} md={3} lg={2}>
         <a href={`/data/search2/${result.key}`}>
           <div className="flex flex-col items-center">
@@ -53,7 +52,6 @@ export default async function Page(props: { params: { type?: string, slug?: stri
   if (props.params.type && props.params.slug) {
     const res0 = await elasticsearch.search({
       index: 'entity',
-      body: {
         query: {
           bool: {
             must: [
@@ -62,40 +60,37 @@ export default async function Page(props: { params: { type?: string, slug?: stri
             ]
           },
         },
-      },
     })
-    item = res0.body.hits.hits[0]
+    item = res0.hits.hits[0]
     if (!item) notFound()
     q = `${q ? `(${q}) ` : ''}+${item._id}`
   }
   const res = await elasticsearch.search({
     index: 'entity',
-    body: {
-      query: {
-        query_string: {
-          query: q,
-          default_operator: 'AND',
-        },
+    query: {
+      query_string: {
+        query: q,
+        default_operator: 'AND',
       },
-      aggs: {
-        types: props.params.type && !props.params.slug ? undefined : {
-          terms: {
-            field: 'type.keyword',
-            size: 1000,
-          },
-        },
-        dccs: {
-          terms: {
-            field: 'r_dcc.keyword',
-            size: 1000,
-          },
-        },
-      },
-      sort: [
-        {'pagerank': {'order': 'desc'}},
-        {'_id': {'order': 'asc'} },
-      ],
     },
+    aggs: {
+      types: props.params.type && !props.params.slug ? undefined as any : {
+        terms: {
+          field: 'type.keyword',
+          size: 1000,
+        },
+      },
+      dccs: {
+        terms: {
+          field: 'r_dcc.keyword',
+          size: 1000,
+        },
+      },
+    },
+    sort: [
+      {'pagerank': {'order': 'desc'}},
+      {'_id': {'order': 'asc'} },
+    ],
     size: 10,
     rest_total_hits_as_int: true,
   })
@@ -106,10 +101,10 @@ export default async function Page(props: { params: { type?: string, slug?: stri
         ids: {
           values: Array.from(new Set([
             // all dccs in the dcc filters
-            ...res.body.aggregations.dccs.buckets.map((filter: any) => filter.key),
+            ...res.aggregations?.dccs.buckets.map((filter: any) => filter.key),
             ...[
               // and items in the result set
-              ...res.body.hits.hits,
+              ...res.hits.hits,
               // the primary item
               ...(item ? [item] : []),
             ].flatMap((item: any) => Object.keys(item._source).filter(k => k.startsWith('r_')).map(k => item._source[k])),
@@ -121,8 +116,8 @@ export default async function Page(props: { params: { type?: string, slug?: stri
   })
   const entity_lookup = Object.fromEntries([
     ...(item ? [[item._id, item._source]] : []),
-    ...res.body.hits.hits.map((hit: any) => [hit._id, hit._source]),
-    ...res2.body.hits.hits.map((hit: any) => [hit._id, hit._source]),
+    ...res.hits.hits.map((hit: any) => [hit._id, hit._source]),
+    ...res2.hits.hits.map((hit: any) => [hit._id, hit._source]),
   ])
   return (
     <LandingPageLayout
@@ -149,19 +144,19 @@ export default async function Page(props: { params: { type?: string, slug?: stri
       ]}
     >
       <ListingPageLayout
-        count={res.body.hits.total}
+        count={res.hits.total}
         filters={
           <>
-            {res.body.aggregations.types && <>
+            {res.aggregations?.types && <>
               <div className="font-bold">Type</div>
-              {res.body.aggregations.types.buckets.map((filter: any) =>
+              {res.aggregations.types.buckets.map((filter: any) =>
                 <a key={filter.key} href={`?q=${encodeURIComponent(props.searchParams?.q ?? '')}&f=${encodeURIComponent(`+type:${filter.key}`)}`}>{categoryLabel(filter.key)} ({Number(filter.doc_count).toLocaleString()})</a>
               )}
               <br />
             </>}
-            {res.body.aggregations.dccs && <>
+            {res.aggregations?.dccs && <>
               <div className="font-bold">DCC</div>
-              {res.body.aggregations.dccs.buckets.map((filter: any) =>
+              {res.aggregations.dccs.buckets.map((filter: any) =>
                 <a key={filter.key} href={`?q=${encodeURIComponent(props.searchParams?.q ?? '')}&f=${encodeURIComponent(`+r_dcc:${filter.key}`)}`}>{filter.key in entity_lookup ? itemLabel(entity_lookup[filter.key]) : filter.key} ({Number(filter.doc_count).toLocaleString()})</a>
               )}
             </>}
@@ -181,13 +176,13 @@ export default async function Page(props: { params: { type?: string, slug?: stri
       >
         <SearchablePagedTable
           q={props.searchParams?.q ?? ''}
-          count={res.body.hits.total}
+          count={res.hits.total}
           columns={[
             <>&nbsp;</>,
             <>Label</>,
             <>Description</>,
           ]}
-          rows={res.body.hits.hits.map((item: any) => {
+          rows={res.hits.hits.map((item: any) => {
             const href = `/data/search2/${item._source['type']}/${item._source.slug}`
             return [
               <SearchablePagedTableCellIcon href={href} src={KGNode} alt={categoryLabel(item._source['type'])} />,

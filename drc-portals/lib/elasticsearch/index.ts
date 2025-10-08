@@ -1,5 +1,5 @@
 import singleton from '@/lib/singleton'
-import { Client } from 'es7'
+import { Client } from '@elastic/elasticsearch'
 
 export default singleton('elasticsearch', () => {
   const client = new Client({
