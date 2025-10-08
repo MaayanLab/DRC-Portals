@@ -95,7 +95,9 @@ const createPropPredicates = (
       );
     }
     if (Array.isArray(value)) {
-      predicates.push(`${varName}.${key} IN ${JSON.stringify(value)}`);
+      if (value.length > 0) {
+        predicates.push(`${varName}.${key} IN ${JSON.stringify(value)}`);
+      }
     } else {
       predicates.push(`${varName}.${key} = ${JSON.stringify(value)}`);
     }
@@ -130,7 +132,7 @@ export const parsePathwayTree = (
   convertRelsToUniq = false
 ): TreeParseResult => {
   const patterns: string[] = [];
-  const wherePredicates: string[] = [];
+  const filterMap = new Map<string, string[]>();
   const nodeIds = new Set<string>();
   const relIds = new Set<string>();
   const outgoingCnxns = new Map<string, Map<string, string[]>>();
@@ -185,8 +187,9 @@ export const parsePathwayTree = (
       currentPattern += `${relIsIncoming ? "<" : ""}-[${escapedRelId}:${type}]-${!relIsIncoming ? ">" : ""}`;
 
       if (node.parentRelationship.props !== undefined) {
-        wherePredicates.push(
-          ...createPropPredicates(escapedRelId, node.parentRelationship.props)
+        filterMap.set(
+          node.parentRelationship.id,
+          createPropPredicates(escapedRelId, node.parentRelationship.props)
         );
       }
 
@@ -203,7 +206,7 @@ export const parsePathwayTree = (
     currentPattern += `(${escapedNodeId}:${getSafeLabel(node.label)})`;
 
     if (node.props !== undefined) {
-      wherePredicates.push(...createPropPredicates(escapedNodeId, node.props));
+      filterMap.set(node.id, createPropPredicates(escapedNodeId, node.props));
     }
 
     if (node.children.length === 0) {
@@ -226,7 +229,7 @@ export const parsePathwayTree = (
 
   return {
     patterns,
-    wherePredicates,
+    filterMap,
     nodeIds,
     relIds,
     nodes,
@@ -300,23 +303,42 @@ export const getOptimizedMatches = (
 
   treeParseResult.patterns.forEach((pattern) => {
     let trimmedPattern = pattern;
+    const patternMatchFilters: string[] = [];
     pattern
       .match(UUID_REGEX)
       ?.filter((match) => !relevantIdCounts.has(match))
       .forEach((irrelevantId) => {
         trimmedPattern = trimmedPattern.replace(`\`${irrelevantId}\``, "");
+        patternMatchFilters.push(
+          ...(treeParseResult.filterMap.get(irrelevantId) || [])
+        );
       });
     const idMatches = trimmedPattern.match(UUID_REGEX) || [];
-    const countable = !trimmedPattern.includes("{"); // Can't use COUNT efficiently if the pattern uses filters
 
-    if (countable && idMatches.length === 1 && workingSet.size > 0) {
+    if (idMatches.length === 1 && workingSet.size > 0) {
       // If there is only one id in the pattern, we can filter rows by using the count store on the relationship to the other node,
       // rather than a standard match
       const countPattern = trimmedPattern.replace(/\(:[a-zA-Z]+\)/, "()");
       queryStmts.push(`WHERE COUNT {${countPattern}} > 0`);
     } else {
       // Otherwise we have to perform a standard match
-      queryStmts.push(`MATCH ${trimmedPattern}`);
+
+      // Make sure to add filters if they exist
+      idMatches.forEach((match) => {
+        // If we haven't already added the id to the working set, we need to apply its filters because we haven't seen it yet
+        if (!workingSet.has(match)) {
+          patternMatchFilters.push(
+            ...(treeParseResult.filterMap.get(match) || [])
+          );
+        }
+      });
+
+      queryStmts.push(
+        `MATCH ${trimmedPattern}`,
+        ...(patternMatchFilters.length > 0
+          ? ["WHERE", patternMatchFilters.join(" AND ")]
+          : [])
+      );
     }
 
     idMatches.forEach(decrementIdCount);
@@ -413,8 +435,8 @@ export const getSingleMatchConnectionQuery = (
     "MATCH",
     `${treeParseResult.patterns.join(",\n")}`,
     ...usingJoinStmts,
-    ...(treeParseResult.wherePredicates.length > 0
-      ? ["WHERE", treeParseResult.wherePredicates.join(" AND ")]
+    ...(treeParseResult.filterMap.size > 0
+      ? ["WHERE", Array.from(treeParseResult.filterMap.values()).join(" AND ")]
       : []),
     `WITH collect(${escapeCypherString(node.id)}) AS ${targetCollectionAlias}`,
     `RETURN [`,

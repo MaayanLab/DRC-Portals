@@ -162,8 +162,8 @@ export const getSingleMatchCountsQuery = (
     "MATCH",
     `${treeParseResult.patterns.join(",\n")}`,
     ...usingJoinStmts,
-    ...(treeParseResult.wherePredicates.length > 0
-      ? ["WHERE", treeParseResult.wherePredicates.join(" AND")]
+    ...(treeParseResult.filterMap.size > 0
+      ? ["WHERE", Array.from(treeParseResult.filterMap.values()).join(" AND ")]
       : []),
     "RETURN",
     "{\n\t",
@@ -191,8 +191,8 @@ export const createPathwaySearchAllPathsCypher = (
     "MATCH",
     `\t${treeParseResult.patterns.join(",\n\t")}`,
     ...usingJoinStmts,
-    ...(treeParseResult.wherePredicates.length > 0
-      ? ["WHERE", treeParseResult.wherePredicates.join(" AND")]
+    ...(treeParseResult.filterMap.size > 0
+      ? ["WHERE", Array.from(treeParseResult.filterMap.values()).join(" AND ")]
       : []),
     "WITH *",
     // Need to order/paginate before aliasing the results to the return values. In other words: "First order *all* the results by this node
@@ -231,8 +231,8 @@ export const createUpperPageBoundCypher = (
     "MATCH",
     `\t${treeParseResult.patterns.join(",\n\t")}`,
     ...usingJoinStmts,
-    ...(treeParseResult.wherePredicates.length > 0
-      ? ["WHERE", treeParseResult.wherePredicates.join(" AND")]
+    ...(treeParseResult.filterMap.size > 0
+      ? ["WHERE", Array.from(treeParseResult.filterMap.values()).join(" AND ")]
       : []),
     "WITH *",
     "SKIP $skip",
