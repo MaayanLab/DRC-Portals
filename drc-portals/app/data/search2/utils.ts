@@ -73,9 +73,22 @@ export function itemLabel(item: any) {
   return item.a_label
 }
 
+export function humanBytesSize(size: number) {
+  if (size < 1e3) return `${(size).toPrecision(3)} B`
+  if (size < 1e6) return `${(size/1e3).toPrecision(3)} KB`
+  if (size < 1e9) return `${(size/1e6).toPrecision(3)} MB`
+  if (size < 1e12) return `${(size/1e9).toPrecision(3)} GB`
+  return `${(size/1e12).toPrecision(3)} TB`
+}
+
 export function itemDescription(item: any, lookup?: any) {
-  if (item['type'] === 'file') return `A${item.a_mime_type ? ` ${item.a_mime_type}` : ''} file from ${item.a_project_local_id}`
+  if (item['type'] === 'file') return `A${item.a_size_in_bytes ? ` ${humanBytesSize(Number(item.a_size_in_bytes))}` : ''} file${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''}${item.a_assay_type ? ` produced from ${item.a_assay_type}` : ''} as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
+  if (item['type'] === 'biosample') return `A biosample${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
+  if (item['type'] === 'subject') return `A subject${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
   if (item['type'] === 'dcc_asset') return `A contributed ${item.a_filetype}${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''}`
+  if (item['type'] === 'gene_set') return `A gene set${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''}`
+  if (item['type'] === 'gene_set_library') return `A gene set library${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''}`
+  if (item['type'] === 'dcc') return `The ${item.a_label} data coordinating center`
   if (item.a_description) {
     if (item.a_description.length > 100) return `${item.a_description.slice(0, 100)}...`
     return `${item.a_description}`
