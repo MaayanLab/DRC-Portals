@@ -129,7 +129,7 @@ export default function Chat() {
         newMessage = {
           role: "bot",
           content:
-            "CWAS is taking longer than usual to respond. We appologize for the inconvenience, please try again later.",
+            "The CFDE Workbench AI Assistant is taking longer than usual to respond. We appologize for the inconvenience, please try again later.",
           output: null,
           args: null,
         };
@@ -186,7 +186,7 @@ export default function Chat() {
       <div className={"border border-neutral-700 rounded-xl pt-3 pb-2"}>
         <Message role="welcome" key={"welcome"}>
           <p>
-            I&apos;m CWAS, an AI-powered chat assistant interface designed to provide information about the CFDE and help you
+            I&apos;m the CFDE Workbench AI Assistant, an AI-powered chat assistant interface designed to provide information about the CFDE and help you
             access and execute tools created by CFDE DCCs. Please start by
             asking your CFDE or DCC related question of interest, and I&apos;ll try my best to help
             you answer it.
