@@ -6,9 +6,9 @@ const sigComLincs = [
     title: "sigComLincs",
     description: "Runs a client side function that returns the LINCS L1000 small molecules and genetic perturbations that likely up- or down-regulate the expression of the input gene set.",
     inputSchema: {
-        "geneset": z.string().optional().nullable().describe("Gene set to be analyzed."),
-        "up": z.string().optional().nullable().describe("Up-regulated genes."),
-        "down": z.string().optional().nullable().describe("Down-regulated genes.")
+        "geneset": z.string().optional().nullable().describe("Gene set to be analyzed. Format this input as newline separated string."),
+        "up": z.string().optional().nullable().describe("Up-regulated genes. Format this input as newline separated string."),
+        "down": z.string().optional().nullable().describe("Down-regulated genes. Format this input as newline separated string.")
     },
     outputSchema: {
         "function": z.string().describe("Function to run"),
