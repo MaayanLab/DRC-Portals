@@ -22,7 +22,19 @@ export const getTermsCypher = () => `
       LIMIT $limit
       MATCH (s)<-[:HAS_SYNONYM]-(cvTerm)
       RETURN s.name AS synonym, cvTerm AS cvTerm
+
       UNION ALL
+
+      CALL db.index.fulltext.queryNodes('synonymIdx', $substring)
+      YIELD node AS s, score
+      WITH s, score
+      ORDER BY score DESC
+      LIMIT $limit
+      MATCH (s)<-[:HAS_SYNONYM]-(cvTerm)
+      RETURN s.name AS synonym, cvTerm AS cvTerm
+
+      UNION ALL
+
       CALL db.index.fulltext.queryNodes('synonymIdx', $fuzzy)
       YIELD node AS s, score
       WITH s, score

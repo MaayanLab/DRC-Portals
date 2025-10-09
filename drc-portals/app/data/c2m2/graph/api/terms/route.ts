@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
   }
 
   const phrase = `"${query}"`;
+  const substring = `*${query}*`;
   const fuzzy = query
     .split(" ")
     .map((tok) => `${tok}~`)
@@ -43,6 +44,7 @@ export async function GET(request: NextRequest) {
       getTermsCypher(),
       {
         phrase,
+        substring,
         fuzzy,
         limit: 10,
       }
