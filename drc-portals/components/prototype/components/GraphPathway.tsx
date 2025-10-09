@@ -123,6 +123,10 @@ export default function GraphPathway() {
     router.push(pathname);
   };
 
+  const stopLoading = () => {
+    abortCountsRequest();
+  }
+
   const updateCounts = (
     candidateSearchElements: PathwaySearchElement[],
     loadingElements: string[],
@@ -572,6 +576,7 @@ export default function GraphPathway() {
             onSearchBtnClick={handleSearchBtnClick}
             onSelectedNodeChange={handleSelectedNodeChange}
             onReset={resetPathway}
+            onStopLoading={stopLoading}
           />
         </PathwaySearchContext.Provider>
       )}

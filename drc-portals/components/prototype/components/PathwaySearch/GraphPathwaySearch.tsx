@@ -8,6 +8,7 @@ import HelpIcon from '@mui/icons-material/Help';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import SearchIcon from "@mui/icons-material/Search";
+import StopIcon from '@mui/icons-material/Stop';
 import {
   Box,
   Button,
@@ -83,6 +84,7 @@ interface GraphPathwaySearchProps {
   onPruneConfirm: () => void;
   onPruneCancel: () => void;
   onReset: () => void;
+  onStopLoading: () => void;
   onDownload: () => void;
   onUpload: (files: ChangeEvent<HTMLInputElement>) => void;
   onCopyCypher: () => void;
@@ -102,6 +104,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     onPruneConfirm,
     onPruneCancel,
     onReset,
+    onStopLoading,
     onDownload,
     onUpload,
     onCopyCypher,
@@ -237,6 +240,10 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     onReset();
   }, [onSelectedNodeChange, onReset]);
 
+  const handleStopLoading = useCallback(() => {
+    onStopLoading();
+  }, [onStopLoading]);
+
   const handleFilterNodeSelected = (event: EventObjectNode) => {
     handleSelectedNodeChange(event.target.id(), event.cy);
     setShowFilters(true);
@@ -300,6 +307,24 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
                 : <Tooltip title="Start Over" arrow>
                   <IconButton aria-label="start-over" onClick={handleReset}>
                     <RestartAltIcon />
+                  </IconButton>
+                </Tooltip>
+            }
+
+          </Fragment>
+        );
+      },
+      () => {
+        return (
+          <Fragment key="pathway-search-chart-toolbar-stop-loading">
+            {
+              loadingNodes.length === 0
+                ? <IconButton aria-label="stop-loading" disabled onClick={handleStopLoading}>
+                  <StopIcon />
+                </IconButton>
+                : <Tooltip title="Stop Loading" arrow>
+                  <IconButton aria-label="stop-loading" onClick={handleStopLoading}>
+                    <StopIcon />
                   </IconButton>
                 </Tooltip>
             }
