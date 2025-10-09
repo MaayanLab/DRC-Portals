@@ -49,7 +49,7 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
       filetype=c2m2['filetype'],
     ))
     helper.upsert_m2o(dcc_asset_id, 'dcc', dcc_id)
-  for rc_name in ['file', 'subject', 'biosample']:
+  for rc_name in ['project', 'file', 'subject', 'biosample', 'collection']:
     rc = pkg.get_resource(rc_name)
     with pdp_helper() as helper:
       in_mem_ids = {}
