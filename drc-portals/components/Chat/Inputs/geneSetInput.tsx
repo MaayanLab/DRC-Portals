@@ -21,7 +21,6 @@ export default function InputForm(props: any) {
   const processName = props.process
   const hasUpDown = upDownMapper[props.process]
   const Component = processMapper[processName || '']
-  console.log(props)
   const [submitted, setSubmitted] = React.useState(false)
   const [upDown, setUpDown] = React.useState(hasUpDown)
   const [rawGenes, setRawGenes] = React.useState('')
@@ -54,12 +53,12 @@ export default function InputForm(props: any) {
   }, [handleFileRead2]);
 
   React.useEffect(()=>{
-    if (props.geneset.trim()) {
+    if (props.geneset) {
       setRawGenes(props.geneset.trim().split(/[;,\t\r\n\s]+/).filter((v:string) => v).join("\n"))
       setUpDown(false)
     } else {
-      setRawGenes(props.up.trim().split(/[;,\t\r\n\s]+/).filter((v:string) => v).join("\n"))
-      setRawGenes2(props.down.trim().split(/[;,\t\r\n\s]+/).filter((v:string) => v).join("\n"))
+      setRawGenes((props.up || "").trim().split(/[;,\t\r\n\s]+/).filter((v:string) => v).join("\n"))
+      setRawGenes2((props.down || "").trim().split(/[;,\t\r\n\s]+/).filter((v:string) => v).join("\n"))
       setUpDown(true)
     }
   }, [props.args])

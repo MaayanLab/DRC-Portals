@@ -1,3 +1,5 @@
+'use client'
+
 import useSWR from 'swr';
 
 // Construct a workflow Gene => ARCHS4 Tissue => Barplot with the input: ACE2
@@ -6,17 +8,20 @@ import PlaybookButton from '../playbookButton';
 
 const getPlaybookARCHS4PlotData = async (body: any) => {
 
-    const options: any = {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body)
 
-    }
-    const res = await fetch(`/chat/fetchPlaybook`, options)
-    const data = await res.json()
-    return data
+    const res = await fetch('https://playbook-workflow-builder.cloud/api/db/fpl', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+    })
+
+    const id = await res.json()
+    const resOutput = await fetch('https://playbook-workflow-builder.cloud/api/db/fpl/' + id + '/output')
+
+    const data = await resOutput.json()
+    return {id, data}
 };
 
 export default function ScoredARCHS4Tissue(props: any) {
@@ -29,18 +34,16 @@ export default function ScoredARCHS4Tissue(props: any) {
         { id: '3', type: 'BarplotFrom[Scored[Tissue]]', inputs: { terms: { id: '2' } } },
         ],
         metadata: {
-        title: 'GTEx Tissue Expression Barplot',
+        title: 'ARCHS4 Median Tissue Expression',
         },
     }
     const {data, isLoading, error} = useSWR([body], () => getPlaybookARCHS4PlotData(body));
-
     if (error) {
         return <>{error}</>
     } else if (isLoading) {
         return <>{isLoading}</>
     }
-
-    const plotData = data.data[2].process.output.value;
+    const plotData = (data || {}).data[2].process.output.value;
     plotData.layout.title = `${gene} ARCHS4 Gene Expression Z-Scores`
     plotData.layout.autosize = true
     plotData.layout.margin = {
@@ -55,6 +58,6 @@ export default function ScoredARCHS4Tissue(props: any) {
     return (
     <>
         <PlotlyPlot props={plotData}></PlotlyPlot>
-        <PlaybookButton id={data.id}></PlaybookButton>
+        <PlaybookButton id={(data || {}).id}></PlaybookButton>
     </>)
 }

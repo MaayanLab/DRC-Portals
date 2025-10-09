@@ -11,7 +11,7 @@ import RegElementSetInfo from "./RegElementSetInfoTool.js"
 import ReverseSearchL1000 from "./ReverseSearchL1000Tool.js"
 import sigComLincs from "./sigComLincsTool.js"
 import KidsFirstTumorExpr from "./KidsFirstTumorExpr.js"
-import sigComLincsNoInput from "./sigComLincsToolNoInput.js"
+// import sigComLincsNoInput from "./sigComLincsToolNoInput.js"
 
 const tools:any[] = [
 	GetDccsAndCentersTool,
@@ -27,7 +27,7 @@ const tools:any[] = [
 	RegElementSetInfo,
 	ReverseSearchL1000,
 	sigComLincs,
-	sigComLincsNoInput
+	// sigComLincsNoInput
 ]
 export const initialize_tools = (server:any) => {
 	for (const tool of tools) {

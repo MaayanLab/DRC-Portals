@@ -4,7 +4,7 @@ const sigComLincsNoInput = [
   "sigComLincsNoInput",
   {
     title: "sigComLincsNoInput",
-    description: "Runs a client side function that returns the LINCS L1000 small molecules and genetic perturbations that likely up- or down-regulate the expression of the input gene set.",
+    description: "Returns the LINCS L1000 small molecules and genetic perturbations that likely up- or down-regulate the expression of the input gene set. A no input version of the tool sigComLincs.",
     outputSchema: {
         "function": z.string().describe("Function to run"),
         "inputType": z.string().describe("The type of input"),

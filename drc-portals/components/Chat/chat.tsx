@@ -129,11 +129,19 @@ export default function Chat() {
         newMessage = {
           role: "bot",
           content:
-            "The CFDE Workbench AI Assistant is taking longer than usual to respond. We appologize for the inconvenience, please try again later.",
+            "The CFDE Workbench AI Assistant is taking longer than usual to respond. We apologize for the inconvenience, please try again later.",
           output: null,
           args: null,
         };
-      } else {
+      } else if (!results) {
+        newMessage = {
+          role: "bot",
+          content:
+            "The CFDE Workbench AI Assistant is having some issues. We apologize for the inconvenience, please try again later.",
+          output: null,
+          args: null,
+        };
+      }  else {
         
         let mcp_val = results.filter(r=>r["type"]==="mcp_call")[0] || {}
         const mcp_output = JSON.parse(mcp_val["output"] || '{}')
@@ -195,7 +203,7 @@ export default function Chat() {
         {chat.messages.flatMap((message, i) => {
           const Component = processMapper[message.output || ""];
           return (
-            <>
+            <React.Fragment key={i}>
               <Message role={message.role} key={i.toString() + "message"}>
                 {/* <p style={{ whiteSpace: "pre-line" }}>{message.content}</p> */}
                 <ReactMarkdown 
@@ -216,7 +224,7 @@ export default function Chat() {
               ) : (
                 <></>
               )}
-            </>
+            </React.Fragment>
           );
         })}
         {chat.waitingForReply ? (

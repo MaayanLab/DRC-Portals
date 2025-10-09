@@ -7,7 +7,7 @@ import { initialize_tools } from './tools/index.js';
 import authMiddleWare from './auth.js';
 const server = new McpServer({
     name: 'cfde-mcp-server',
-    version: '0.1.10'
+    version: '0.1.15'
 });
 
 initialize_tools(server)

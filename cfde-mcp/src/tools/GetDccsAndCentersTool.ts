@@ -22,20 +22,20 @@ const GetDccsAndCentersTool = [
 					label: z.string().describe("long name of the dcc or center"),
 					short_label: z.string().describe("short name of the dcc or center"),
 					portal_page: z.string().describe("The corresponding page of the dcc or center in CFDE Workbench"),
-					description: z.string().describe("description of the dcc or center"),
+					description: z.string().nullable().describe("description of the dcc or center"),
 					homepage: z.string().nullable().describe("homepage of the dcc or center"),
 				})).describe("List of Centers involved in CFDE"),
 		}
 	},
 	async () => {
-		const results: {[key:string]: Array<{[key: string]: string}>} = {}
+		const results: {[key:string]: Array<{[key: string]: string | null}>} = {}
 		const dccs = await prisma.dccs.findMany({
 				where: {
 					active: true
 				}
 			})
 		if (dccs.length > 0) {
-			results["dccs"] = dccs.map((dcc:any)=>({
+			results["dccs"] = dccs.map((dcc)=>({
 				label: dcc.label,
 				short_label: dcc.short_label,
 				portal_page: `https://info.cfde.cloud/dcc/${dcc.short_label}`,
@@ -44,9 +44,16 @@ const GetDccsAndCentersTool = [
 				cf_site: dcc.cf_site,
 			}))
 		}
-		const centers = await prisma.centers.findMany()
+		const centers = await prisma.centers.findMany({
+				where: {
+					active: true,
+					short_label: {
+						not: "centers"
+					}
+				}
+			})
 		if (centers.length > 0) {
-			results["centers"] = centers.map((center:any)=>({
+			results["centers"] = centers.map((center)=>({
 				label: center.label,
 				short_label: center.short_label,
 				portal_page: `https://info.cfde.cloud/center/${center.short_label}`,
