@@ -98,6 +98,7 @@
     "react-twitter-embed": "^4.0.4",
     "react-youtube": "^10.1.0",
     "recharts": "^3.1.0",
+    "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.0",
     "string-similarity-js": "^2.1.4",
     "swr": "^2.2.4",
@@ -108,6 +109,7 @@
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.10",
     "@types/crypto-js": "^4.2.2",
+    "@types/d3-scale-chromatic": "^3.1.0",
     "@types/file-saver": "^2.0.7",
     "@types/html2canvas": "^1.0.0",
     "@types/node": "^20",
