@@ -14,8 +14,8 @@ const GetDccsAndCentersTool = [
 					short_label: z.string().describe("short name of the dcc or center"),
 					portal_page: z.string().describe("The corresponding page of the dcc or center in CFDE Workbench"),
 					description: z.string().describe("description of the dcc or center"),
-					homepage: z.string().describe("homepage of the dcc or center"),
-					cf_site: z.string().optional().describe("Page of the dcc in the CommonFund (https://commonfund.nih.gov/)"),
+					homepage: z.string().nullable().describe("homepage of the dcc or center"),
+					cf_site: z.string().nullable().optional().describe("Page of the dcc in the CommonFund (https://commonfund.nih.gov/)"),
 				})).describe("List of Data Coordination Centers (DCCs)"),
 			centers: z.array(
 				z.object({
@@ -23,7 +23,7 @@ const GetDccsAndCentersTool = [
 					short_label: z.string().describe("short name of the dcc or center"),
 					portal_page: z.string().describe("The corresponding page of the dcc or center in CFDE Workbench"),
 					description: z.string().describe("description of the dcc or center"),
-					homepage: z.string().describe("homepage of the dcc or center"),
+					homepage: z.string().nullable().describe("homepage of the dcc or center"),
 				})).describe("List of Centers involved in CFDE"),
 		}
 	},
@@ -38,7 +38,7 @@ const GetDccsAndCentersTool = [
 			results["dccs"] = dccs.map((dcc:any)=>({
 				label: dcc.label,
 				short_label: dcc.short_label,
-				portal_page: `https://info.cfde.cloud/dcc/${dcc.short_label}}`,
+				portal_page: `https://info.cfde.cloud/dcc/${dcc.short_label}`,
 				description: dcc.description,
 				homepage: dcc.homepage,
 				cf_site: dcc.cf_site,
@@ -49,7 +49,7 @@ const GetDccsAndCentersTool = [
 			results["centers"] = centers.map((center:any)=>({
 				label: center.label,
 				short_label: center.short_label,
-				portal_page: `https://info.cfde.cloud/center/${center.short_label}}`,
+				portal_page: `https://info.cfde.cloud/center/${center.short_label}`,
 				description: center.description,
 				homepage: center.homepage,
 			}))
