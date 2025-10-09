@@ -588,7 +588,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         elements={elements}
         layout={layout}
         stylesheet={PATHWAY_SEARCH_STYLESHEET}
-        cxtMenuEnabled={true}
+        cxtMenuEnabled={loadingNodes.length === 0} // Turn off the cxt menu while the parent is loading results
         tooltipEnabled={false}
         hoverCxtMenuEnabled={false}
         toolbarPosition={{ top: 10, right: 10 }}
