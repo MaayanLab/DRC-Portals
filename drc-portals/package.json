@@ -98,6 +98,7 @@
     "react-twitter-embed": "^4.0.4",
     "react-youtube": "^10.1.0",
     "recharts": "^3.1.0",
+    "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.0",
     "string-similarity-js": "^2.1.4",
     "swr": "^2.2.4",

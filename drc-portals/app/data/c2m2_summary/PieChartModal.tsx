@@ -26,6 +26,7 @@ interface PieChartModalProps {
   xAxis: string;
   groupBy: string;
   title: string;
+  colorMap: Record<string, string>;  // Added colorMap here
 }
 
 interface DescriptionResponse {
@@ -40,7 +41,8 @@ const PieChartModal: React.FC<PieChartModalProps> = ({
   yAxis,
   xAxis,
   groupBy,
-  title
+  title,
+  colorMap  // Added colorMap in destructure
 }) => {
   const [plotDescription, setPlotDescription] = useState<string>('');
   const [loadingDescription, setLoadingDescription] = useState<boolean>(false);
@@ -139,7 +141,7 @@ const PieChartModal: React.FC<PieChartModalProps> = ({
       </DialogTitle>
       <DialogContent>
         {/* Pie Chart with automatically generated distinct colors */}
-        <C2M2PieChart data={data} title={title} />
+        <C2M2PieChart data={data} title={title} colorMap={colorMap} /> {/* Pass colorMap to your pie chart */}
 
         <Box sx={{ display: 'flex', alignItems: 'center', mt: 3, gap: 2 }}>
           <Button

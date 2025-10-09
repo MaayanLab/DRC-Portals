@@ -171,21 +171,27 @@ const SummaryQueryComponent: React.FC = () => {
   );
 
   // Prompt for LLM
-  const getChartPrompt = () => {
-    let out = `Generate a concise description of a ${showHeatmap ? 'heatmap' : 'bar chart'} with the following parameters:
+  // Prompt for LLM
+const getChartPrompt = () => {
+  let out = `Generate a concise description of a ${showHeatmap ? 'heatmap' : 'bar chart'} with the following parameters:
   - Y-axis: ${yAxis}
   - X-axis: ${xAxis}`;
 
-    out += `
+  if (groupBy) {
+    out += `\n  - Group By: ${groupBy}`;
+  }
+
+  out += `
   Describe what kind of data this chart shows and interpret the data. If X axis is dcc use Data Coordinating Center from NIH Common Fund Data Ecosystem program as your interpret.`;
 
-    if (showUnspecified) {
-      out += `
+  if (showUnspecified) {
+    out += `
   If there is an "Unspecified Only" sub-chart below, also describe any trends or patterns observed in that sub-chart.`;
-    }
+  }
 
-    return out;
-  };
+  return out;
+};
+
 
   // LLM handle
   const handleGenerateDescription = async () => {
