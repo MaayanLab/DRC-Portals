@@ -82,6 +82,12 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(cm
     reason: string
   ) => {
     abortCVTermRequest(); // Any time value changes, abort any pending request
+
+    // Setting these ensures the autocomplete shows "Loading" until `fetchOptions` completes. Otherwise the options will flicker as the
+    // input changes and the autocomplete auto-filters the options.
+    setLoading(true);
+    setOptions([]);
+
     fetchOptions(input);
   };
 
@@ -126,7 +132,6 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(cm
     () =>
       debounce(async (input: string | null) => {
         setError(null);
-        setLoading(true);
 
         const abortController = abortControllerRef.current;
         try {
@@ -185,6 +190,7 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(cm
       onInputChange={handleOnInputChange}
       renderInput={handleRenderInput}
       renderTags={handleRenderTags}
+      filterOptions={(x) => x} // Important! Ensures options not matching the text input are shown
     />
   );
 }
