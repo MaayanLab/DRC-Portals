@@ -1,5 +1,4 @@
-import GetDccsOrCentersTool from "./GetDccsOrCentersTool.js"
-import GetDccOrCenterTool from "./GetDccOrCenterTool.js"
+import GetDccsAndCentersTool from "./GetDccsAndCentersTool.js"
 import GetDccPublicationsTool from "./GetDccOrCenterPublicationsTool.js"
 import GetOutreachTool from "./GetOutreachTool.js"
 import GetDocumentation from "./GetDocumentation.js"
@@ -12,9 +11,10 @@ import RegElementSetInfo from "./RegElementSetInfoTool.js"
 import ReverseSearchL1000 from "./ReverseSearchL1000Tool.js"
 import sigComLincs from "./sigComLincsTool.js"
 import KidsFirstTumorExpr from "./KidsFirstTumorExpr.js"
+import sigComLincsNoInput from "./sigComLincsToolNoInput.js"
+
 const tools:any[] = [
-	GetDccsOrCentersTool,
-	GetDccOrCenterTool,
+	GetDccsAndCentersTool,
 	GetDccPublicationsTool,
 	GetOutreachTool,
 	GetDocumentation,
@@ -26,7 +26,8 @@ const tools:any[] = [
 	PhenotypeSmallMolecules,
 	RegElementSetInfo,
 	ReverseSearchL1000,
-	sigComLincs
+	sigComLincs,
+	sigComLincsNoInput
 ]
 export const initialize_tools = (server:any) => {
 	for (const tool of tools) {
