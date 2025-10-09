@@ -2,17 +2,24 @@ import {
   Autocomplete,
   AutocompleteChangeReason,
   AutocompleteOwnerState,
+  AutocompleteRenderGetTagProps,
   AutocompleteRenderInputParams,
   AutocompleteRenderOptionState,
   Box,
+  Chip,
   CircularProgress,
   debounce,
+  IconButton,
+  InputAdornment,
   Skeleton,
   TextField,
 } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 
 import {
+  MouseEvent,
   SyntheticEvent,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -20,22 +27,26 @@ import {
   useState,
 } from "react";
 
-import { fetchPathwayNodeOptions } from "@/lib/neo4j/api";
-
 import { SEARCH_PLACEHOLDER_OPTIONS } from "../../constants/shared";
 import { PathwaySearchContext } from "../../contexts/PathwaySearchContext";
 import { PathwaySearchNode } from "../../interfaces/pathway-search";
+import { StringPropertyConfigs } from "../../types/pathway-search";
 
-interface NodeTextSearchProps {
+interface NodeTextSearchProps<K extends keyof StringPropertyConfigs> {
   node: PathwaySearchNode;
-  onChange: (value: string) => void;
+  propName: K,
+  fetchFn: (
+    filter: string | null,
+    nodeId: string,
+    tree: string,
+    fetchProps?: RequestInit
+  ) => Promise<Response>,
+  onChange: (values: string[], propName: K) => void;
 }
 
-export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
-  const { node, onChange } = cmpProps;
-  const [value, setValue] = useState<string | null>(
-    node.data.displayLabel === node.data.dbLabel ? null : node.data.displayLabel
-  );
+export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(cmpProps: NodeTextSearchProps<K>) {
+  const { node, propName, fetchFn, onChange } = cmpProps;
+  const [value, setValue] = useState<string[]>(node.data.props === undefined ? [] : (node.data.props[propName] || []));
   const [options, setOptions] = useState<readonly string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,9 +62,9 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
     }
   };
 
-  const handleOnChange = (
+  const handleOnChange = useCallback((
     event: SyntheticEvent | MouseEvent,
-    value: string | null,
+    value: string[],
     reason: AutocompleteChangeReason | "clicked"
   ) => {
     setValue(value);
@@ -61,20 +72,22 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
     // Only emit to the parent when an option is selected from the dropdown, or the field is cleared
     if (
       reason === "selectOption" ||
-      reason === "clicked" || // This happens when the selected option's label is equal to the value in the text field
+      reason === "removeOption" ||
+      reason === "clicked" ||
       reason === "clear"
     ) {
       abortCVTermRequest();
-      onChange(value || "");
+      onChange(value, propName);
     }
-  };
+  }, [propName]);
 
   const handleOnInputChange = (
     event: SyntheticEvent,
-    option: string,
+    input: string,
     reason: string
   ) => {
-    setValue(option);
+    abortCVTermRequest(); // Any time value changes, abort any pending request
+    fetchOptions(input);
   };
 
   const handleRenderInput = (params: AutocompleteRenderInputParams) => (
@@ -83,16 +96,25 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
       label={label}
       helperText={error}
       error={error !== null}
+      multiline
       InputProps={{
         ...params.InputProps,
         sx: {
           backgroundColor: "#FFF",
         },
         endAdornment: (
-          <>
-            {loading ? <CircularProgress color="inherit" size={20} /> : null}
-            {params.InputProps.endAdornment}
-          </>
+          <InputAdornment position="end" sx={{ position: "absolute", right: "7px" }}>
+            {
+              loading
+                ? <CircularProgress color="inherit" size={20} />
+                : <>
+                  <IconButton size="small" title="Clear" onClick={(event) => handleOnChange(event, [], "clear")}>
+                    <CloseIcon fontSize="inherit" />
+                  </IconButton>
+                </>
+            }
+
+          </InputAdornment>
         ),
       }}
     />
@@ -102,7 +124,7 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
     props: any,
     option: string,
     state: AutocompleteRenderOptionState,
-    ownerState: AutocompleteOwnerState<string, false, false, true, "div">
+    ownerState: AutocompleteOwnerState<string, true, true, true, "div">
   ) => {
     const { key, ...optionProps } = props;
     return (
@@ -111,10 +133,6 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
         component="li"
         sx={{ display: "flex" }}
         {...optionProps}
-        onClick={(event: MouseEvent) => {
-          optionProps.onClick(event);
-          handleOnChange(event, option, "clicked");
-        }}
       >
         {loading ? (
           <Skeleton
@@ -128,6 +146,14 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
     );
   };
 
+  const handleRenderTags = (value: string[], getTagProps: AutocompleteRenderGetTagProps) =>
+    value.map((option: string, index: number) => {
+      const { key, ...itemProps } = getTagProps({ index });
+      return (
+        <Chip variant="filled" label={option} key={key} {...itemProps} />
+      );
+    })
+
   const fetchOptions = useMemo(
     () =>
       debounce(async (input: string | null) => {
@@ -139,7 +165,7 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
 
         const abortController = abortControllerRef.current;
         try {
-          const response = await fetchPathwayNodeOptions(
+          const response = await fetchFn(
             input,
             node.data.id,
             btoa(JSON.stringify(tree)),
@@ -147,6 +173,11 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
               signal: abortController.signal,
             }
           );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+
           const data: string[] = await response.json();
           setOptions(data);
         } catch (error) {
@@ -162,24 +193,33 @@ export default function NodeTextSearch(cmpProps: NodeTextSearchProps) {
           setLoading(false);
         }
       }, 400),
-    [abortControllerRef]
+    [abortControllerRef, tree, fetchFn]
   );
 
+  // Fetch an initial set of options when the component is first rendered
   useEffect(() => {
-    abortCVTermRequest(); // Any time value changes, abort any pending request
-    fetchOptions(value);
-  }, [fetchOptions, value]);
+    fetchOptions(null);
+
+    return () => {
+      // Make sure any open requests are canceled if the component is unmounted
+      abortCVTermRequest();
+    }
+  }, []);
 
   return (
     <Autocomplete
+      sx={{ width: "700px" }}
       size="small"
+      multiple
       freeSolo
+      disableClearable
       value={value}
       options={options}
       onChange={handleOnChange}
       onInputChange={handleOnInputChange}
       renderInput={handleRenderInput}
       renderOption={handleRenderOption}
+      renderTags={handleRenderTags}
       filterOptions={(x) => x}
     />
   );

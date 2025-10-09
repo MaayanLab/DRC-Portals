@@ -30,7 +30,6 @@ import {
 import {
   ChangeEvent,
   Fragment,
-  ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -38,7 +37,7 @@ import {
   useState,
 } from "react";
 
-import { ADMIN_LABELS, FILTER_LABELS, TERM_LABELS } from "@/lib/neo4j/constants";
+import { ADMIN_LABELS, FILTER_LABELS, NAME_FILTER_LABELS, TERM_LABELS } from "@/lib/neo4j/constants";
 import { NodeResult } from "@/lib/neo4j/types";
 
 import {
@@ -60,8 +59,8 @@ import {
   PathwaySearchNode,
 } from "../../interfaces/pathway-search";
 import { CustomToolbarFnFactory } from "../../types/cy";
-import { PathwaySearchElement } from "../../types/pathway-search";
-import { getRootFromElements, isPathwaySearchEdgeElement } from "../../utils/pathway-search";
+import { PathwaySearchElement, PropertyConfigs, PropertyValueType } from "../../types/pathway-search";
+import { getRootFromElements, isPathwaySearchEdgeElement, updatePathwayNodeProps } from "../../utils/pathway-search";
 
 import CytoscapeChart from "../CytoscapeChart/CytoscapeChart";
 import ChartCxtMenuItem from "../CytoscapeChart/ChartCxtMenuItem";
@@ -125,7 +124,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
             0,
             ...elements
               .filter(isPathwaySearchEdgeElement)
-              .map((edge) => edge.data.displayLabel.length)
+              .map((edge) => edge.data.type.length)
           ) + 40,
       },
     }),
@@ -216,18 +215,17 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
   );
 
   const handleNodeFilterChange = useCallback(
-    (value: string) => {
+    <K extends keyof PropertyConfigs>(value: PropertyValueType<PropertyConfigs[K]>, propName: K) => {
       if (selectedNode !== undefined) {
         const newSelectedNode: PathwaySearchNode = {
           classes: [...(selectedNode.classes || [])],
           data: {
             ...selectedNode.data,
-            displayLabel: value || selectedNode.data.dbLabel,
+            props: updatePathwayNodeProps(selectedNode.data.props, propName, value),
           },
         };
         setSelectedNode(newSelectedNode);
         onSelectedNodeChange(newSelectedNode, "update");
-        setShowFilters(false);
       }
     },
     [selectedNode, onSelectedNodeChange]

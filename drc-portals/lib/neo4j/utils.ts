@@ -187,10 +187,14 @@ export const parsePathwayTree = (
       currentPattern += `${relIsIncoming ? "<" : ""}-[${escapedRelId}:${type}]-${!relIsIncoming ? ">" : ""}`;
 
       if (node.parentRelationship.props !== undefined) {
-        filterMap.set(
-          node.parentRelationship.id,
-          createPropPredicates(escapedRelId, node.parentRelationship.props)
+        const filters = createPropPredicates(
+          escapedRelId,
+          node.parentRelationship.props
         );
+
+        if (filters.length > 0) {
+          filterMap.set(node.parentRelationship.id, filters);
+        }
       }
 
       if (!relIsIncoming) {
@@ -206,7 +210,11 @@ export const parsePathwayTree = (
     currentPattern += `(${escapedNodeId}:${getSafeLabel(node.label)})`;
 
     if (node.props !== undefined) {
-      filterMap.set(node.id, createPropPredicates(escapedNodeId, node.props));
+      const filters = createPropPredicates(escapedNodeId, node.props);
+
+      if (filters.length > 0) {
+        filterMap.set(node.id, filters);
+      }
     }
 
     if (node.children.length === 0) {
@@ -268,12 +276,13 @@ const getRelevantIdCounts = (
   });
   return new Map<string, number>([
     ...Array.from(idCounts.entries()).filter(
-      ([id, count]) => id === targetNodeId || count > 1
+      ([id, count]) =>
+        id === targetNodeId || treeParseResult.filterMap.has(id) || count > 1
     ),
   ]);
 };
 
-export const getOptimizedMatches = (
+export const getTermMatchBaseQuery = (
   treeParseResult: TreeParseResult,
   targetNodeId?: string
 ): string[] => {
@@ -309,24 +318,20 @@ export const getOptimizedMatches = (
       ?.filter((match) => !relevantIdCounts.has(match))
       .forEach((irrelevantId) => {
         trimmedPattern = trimmedPattern.replace(`\`${irrelevantId}\``, "");
-        patternMatchFilters.push(
-          ...(treeParseResult.filterMap.get(irrelevantId) || [])
-        );
       });
     const idMatches = trimmedPattern.match(UUID_REGEX) || [];
 
     if (idMatches.length === 1 && workingSet.size > 0) {
-      // If there is only one id in the pattern, we can filter rows by using the count store on the relationship to the other node,
-      // rather than a standard match
+      // If there is only one id in the pattern, we can filter rows by using the count store on the
+      // relationship to the other node, rather than a standard match
       const countPattern = trimmedPattern.replace(/\(:[a-zA-Z]+\)/, "()");
       queryStmts.push(`WHERE COUNT {${countPattern}} > 0`);
     } else {
-      // Otherwise we have to perform a standard match
-
-      // Make sure to add filters if they exist
+      // Make sure to add filters for the relevant ids if they exist
       idMatches.forEach((match) => {
-        // If we haven't already added the id to the working set, we need to apply its filters because we haven't seen it yet
-        if (!workingSet.has(match)) {
+        // If we haven't already added the id to the working set, we need to apply its filters because we haven't seen it yet.
+        // Also, *don't* apply filters to the target node, since we want to see all possible values given the rest of the pathway!
+        if (match !== targetNodeId && !workingSet.has(match)) {
           patternMatchFilters.push(
             ...(treeParseResult.filterMap.get(match) || [])
           );

@@ -97,13 +97,17 @@ export const NODE_LABELS: ReadonlySet<string> = new Set([
 ]);
 
 // Set of labels we currently filter values on
-export const FILTER_LABELS: ReadonlySet<string> = new Set([
+export const NAME_FILTER_LABELS: ReadonlySet<string> = new Set([
   ...FILE_RELATED_LABELS,
   ...SUBJECT_RELATED_LABELS,
   ...BIOSAMPLE_RELATED_LABELS,
   ...TERM_LABELS,
   ID_NAMESPACE_LABEL,
   DCC_LABEL,
+]);
+
+export const FILTER_LABELS: ReadonlySet<string> = new Set([
+  ...Array.from(NAME_FILTER_LABELS),
 ]);
 
 // Relationship types

@@ -2,13 +2,11 @@ import { z } from "zod";
 
 export const PathwaySearchNodeDataSchema = z.object({
   id: z.string(),
-  displayLabel: z.string(),
   dbLabel: z.string(),
 });
 
 export const PathwaySearchEdgeDataSchema = z.object({
   id: z.string(),
-  displayLabel: z.string(),
   source: z.string(),
   target: z.string(),
   type: z.string(),

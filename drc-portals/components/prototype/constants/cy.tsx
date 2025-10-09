@@ -390,11 +390,19 @@ export const PATHWAY_SEARCH_STYLESHEET: any[] = [
   {
     selector: "node",
     style: {
-      label: (element: NodeSingular) =>
-        `${element.data("displayLabel")}${element.data("count") === undefined
-          ? ""
-          : ` (${element.data("count")})`
-        }`,
+      label: (element: NodeSingular) => {
+        const count = element.data("count") === undefined ? "" : ` (${element.data("count")})`
+        const nameVals: string[] | undefined = element.data("props")?.name
+
+        if (nameVals === undefined || nameVals.length === 0) {
+          return `${element.data("dbLabel")}${count}`;
+        } else if (nameVals.length === 1) {
+          return `${nameVals[0]}`;
+        } else {
+          return `${nameVals[0]}, +${nameVals.length - 1} more`;
+        }
+
+      },
       opacity: TRANSPARENT_OPACITY,
     },
   },
@@ -409,7 +417,7 @@ export const PATHWAY_SEARCH_STYLESHEET: any[] = [
     selector: "edge",
     style: {
       label: (element: EdgeSingular) =>
-        `${element.data("displayLabel")}${element.data("count") === undefined
+        `${element.data("type")}${element.data("count") === undefined
           ? ""
           : ` (${element.data("count")})`
         }`,

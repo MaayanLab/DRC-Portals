@@ -1,12 +1,12 @@
 import { NextRequest } from "next/server";
 
-import { TERM_LABELS } from "@/lib/neo4j/constants";
+import { NAME_FILTER_LABELS } from "@/lib/neo4j/constants";
 import { filterTermBySynonyms } from "@/lib/neo4j/cypher";
 import { executeRead, getDriver } from "@/lib/neo4j/driver";
 import { PathwayNode, TreeParseResult } from "@/lib/neo4j/types";
 import {
   escapeCypherString,
-  getOptimizedMatches,
+  getTermMatchBaseQuery,
   isValidLucene,
   parsePathwayTree,
 } from "@/lib/neo4j/utils";
@@ -71,13 +71,13 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const queryStmts = getOptimizedMatches(treeParseResult, body.nodeId);
+    const queryStmts = getTermMatchBaseQuery(treeParseResult, body.nodeId);
     const escapedNodeId = escapeCypherString(body.nodeId);
     const query = [...queryStmts];
     const driver = getDriver();
     let result;
 
-    if (body.filter && TERM_LABELS.includes(nodeLabel)) {
+    if (body.filter && NAME_FILTER_LABELS.has(nodeLabel)) {
       const phrase = body.filter;
       const substring = `.*${body.filter}.*`;
 

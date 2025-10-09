@@ -220,6 +220,7 @@ export default function GraphPathway() {
   const handleSelectedNodeChange = useCallback(
     (node: PathwaySearchNode | undefined, reason: string) => {
       if (node !== undefined && reason === "update") {
+        abortCountsRequest(); // Abort an ongoing counts request if the selected node changed again
         updatePathNode(node);
       }
     },
@@ -247,11 +248,19 @@ export default function GraphPathway() {
       return;
     }
 
+    // TODO: Again, this is probably unnecessary, see the above comment
+    if (cvTerm.properties.name === undefined) {
+      console.warn("CV term search returned node with no name property! Aborting.");
+      return;
+    }
+
     const initialNode = createPathwaySearchNode(
       {
         id: cvTerm.uuid,
-        displayLabel: getNodeDisplayProperty(cvTerm.labels[0], cvTerm),
         dbLabel: cvTerm.labels[0],
+        props: {
+          name: [cvTerm.properties.name]
+        }
       },
       ["path-element"]
     );
@@ -354,7 +363,6 @@ export default function GraphPathway() {
         createPathwaySearchNode(
           {
             id: item.nodeId,
-            displayLabel: item.label,
             dbLabel: item.label,
           },
           ["path-element"]
@@ -368,7 +376,6 @@ export default function GraphPathway() {
               item.direction === Direction.OUTGOING ? item.source : item.target,
             target:
               item.direction === Direction.OUTGOING ? item.target : item.source,
-            displayLabel: item.type,
             type: item.type,
           },
           item.direction === Direction.INCOMING
