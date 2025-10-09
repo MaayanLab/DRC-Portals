@@ -1,17 +1,13 @@
 import {
   Autocomplete,
   AutocompleteChangeReason,
-  AutocompleteOwnerState,
   AutocompleteRenderGetTagProps,
   AutocompleteRenderInputParams,
-  AutocompleteRenderOptionState,
-  Box,
   Chip,
   CircularProgress,
   debounce,
   IconButton,
   InputAdornment,
-  Skeleton,
   TextField,
 } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
@@ -27,7 +23,6 @@ import {
   useState,
 } from "react";
 
-import { SEARCH_PLACEHOLDER_OPTIONS } from "../../constants/shared";
 import { PathwaySearchContext } from "../../contexts/PathwaySearchContext";
 import { PathwaySearchNode } from "../../interfaces/pathway-search";
 import { StringPropertyConfigs } from "../../types/pathway-search";
@@ -96,7 +91,6 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(cm
       label={label}
       helperText={error}
       error={error !== null}
-      multiline
       InputProps={{
         ...params.InputProps,
         sx: {
@@ -120,32 +114,6 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(cm
     />
   );
 
-  const handleRenderOption = (
-    props: any,
-    option: string,
-    state: AutocompleteRenderOptionState,
-    ownerState: AutocompleteOwnerState<string, true, true, true, "div">
-  ) => {
-    const { key, ...optionProps } = props;
-    return (
-      <Box
-        key={key}
-        component="li"
-        sx={{ display: "flex" }}
-        {...optionProps}
-      >
-        {loading ? (
-          <Skeleton
-            variant="text"
-            width={SEARCH_PLACEHOLDER_OPTIONS[state.index]}
-          />
-        ) : (
-          ownerState.getOptionLabel(option)
-        )}
-      </Box>
-    );
-  };
-
   const handleRenderTags = (value: string[], getTagProps: AutocompleteRenderGetTagProps) =>
     value.map((option: string, index: number) => {
       const { key, ...itemProps } = getTagProps({ index });
@@ -159,9 +127,6 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(cm
       debounce(async (input: string | null) => {
         setError(null);
         setLoading(true);
-        setOptions(
-          SEARCH_PLACEHOLDER_OPTIONS.map((option) => option.toString())
-        );
 
         const abortController = abortControllerRef.current;
         try {
@@ -193,7 +158,7 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(cm
           setLoading(false);
         }
       }, 400),
-    [abortControllerRef, tree, fetchFn]
+    [abortControllerRef, value, tree, fetchFn]
   );
 
   // Fetch an initial set of options when the component is first rendered
@@ -211,16 +176,15 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(cm
       sx={{ width: "700px" }}
       size="small"
       multiple
-      freeSolo
       disableClearable
+      filterSelectedOptions
       value={value}
       options={options}
+      loading={loading}
       onChange={handleOnChange}
       onInputChange={handleOnInputChange}
       renderInput={handleRenderInput}
-      renderOption={handleRenderOption}
       renderTags={handleRenderTags}
-      filterOptions={(x) => x}
     />
   );
 }
