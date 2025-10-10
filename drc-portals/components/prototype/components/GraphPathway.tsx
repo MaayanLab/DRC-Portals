@@ -256,7 +256,7 @@ export default function GraphPathway() {
 
     setTree(initialTree);
     setSearchElements([initialNode]);
-    router.push(pathname + "?q=" + encodeURI(btoa(JSON.stringify(cvTerm))))
+    router.push(pathname + "?q=" + encodeURIComponent(btoa(JSON.stringify(cvTerm))))
   };
 
   const handleExport = useCallback(() => {
@@ -504,13 +504,12 @@ export default function GraphPathway() {
   // On the initial load of the page, populate the pathway with an initial node if one exists in the query params
   useEffect(() => {
     const q = searchParams.get("q");
-
     if (q !== null) {
       // Using a closure here to use a return statement outside of the react effect context
       const handleParamsChange = () => {
         let initialNode: NodeResult;
         try {
-          initialNode = JSON.parse(atob(decodeURI(q)));
+          initialNode = JSON.parse(atob(decodeURIComponent(q)));
         } catch {
           updateSnackbar(true, "Could not read data from URL params!", "warning");
           return;

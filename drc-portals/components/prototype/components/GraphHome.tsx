@@ -77,7 +77,7 @@ export default function GraphHome() {
 
                   <Box>
                     <PathwaySearchBar onSubmit={
-                      (cvTerm) => router.push(`/data/graph/search?q=${encodeURI(btoa(JSON.stringify(cvTerm)))}`)} />
+                      (cvTerm) => router.push(`/data/graph/search?q=${encodeURIComponent(btoa(JSON.stringify(cvTerm)))}`)} />
                   </Box>
 
                   <div className="flex align-center space-x-10">
