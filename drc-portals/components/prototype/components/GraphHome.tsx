@@ -28,19 +28,19 @@ interface Tool {
 
 const GRAPH_QUERY_TOOLS: Tool[] = [
   {
-    label: "Step 1: Search",
+    label: "Search",
     image: "/img/graph/GQI_carousel_1.png",
     description:
       "Enter a keyword (e.g., human, blood, asthma) to discover entities.",
   },
   {
-    label: "Step 2: Explore",
+    label: "Explore",
     image: "/img/graph/GQI_carousel_2.png",
     description:
       "Use node menu options — Expand, Filter, Prune — to build your query one step at a time.",
   },
   {
-    label: "Step 3: View/Download",
+    label: "View/Download",
     image: "/img/graph/GQI_carousel_3.png",
     description:
       "See results in Tabular or Network View, and export them as JSON to share, revisit, or analyze further.",
@@ -66,101 +66,92 @@ export default function GraphHome() {
           className="flex"
         >
           <Container maxWidth="lg" className="m-auto">
-            <Grid container spacing={2} alignItems={"center"}>
-              <Grid item xs={12}>
-                <Stack
-                  spacing={2}
-                  justifyContent={"center"}
-                  alignItems={"center"}
-                >
-                  <Typography color="secondary" className="text-center" variant="h1">C2M2 GRAPH SEARCH</Typography>
+            <Box alignItems={"center"}>
+              <Stack
+                spacing={2}
+                justifyContent={"center"}
+                alignItems={"center"}
+              >
+                <Typography color="secondary" className="text-center" variant="h1">C2M2 GRAPH SEARCH</Typography>
 
-                  <Box>
-                    <PathwaySearchBar onSubmit={
-                      (cvTerm) => router.push(`/data/graph/search?q=${encodeURIComponent(btoa(JSON.stringify(cvTerm)))}`)} />
-                  </Box>
+                <Box>
+                  <PathwaySearchBar onSubmit={
+                    (cvTerm) => router.push(`/data/graph/search?q=${encodeURIComponent(btoa(JSON.stringify(cvTerm)))}`)} />
+                </Box>
 
-                  <div className="flex align-center space-x-10">
-                    <Link href="/data/graph/help">
-                      <Button
-                        sx={{ textTransform: "uppercase" }}
-                        color="secondary"
-                      >
-                        Quickstart Guide
-                      </Button>
-                    </Link>
+                <Box sx={{ width: "100%" }}>
+                  <Carousel
+                    autoPlay={false}
+                    cycleNavigation={false}
+                    indicators={true}
+                    navButtonsAlwaysVisible={true}
+                    sx={{
+                      minHeight: 300,
+                      minWidth: { xs: 350, sm: 600, md: 800, lg: 800, xl: 800 },
+                    }}
+                  >
+                    {GRAPH_QUERY_TOOLS.map((tool, i) => (
+                      <Container key={i} maxWidth="lg">
+                        <Typography variant="h3" color="secondary">
+                          Graph Query Tips
+                        </Typography>
+                        <Stack spacing={2}>
+                          <Typography variant="subtitle1">
+                            <strong>Step {i + 1}. </strong><em>{tool.label}: </em>{tool.description}
+                          </Typography>
+                        </Stack>
+                        <Box sx={{ display: "flex", justifyContent: "center", marginTop: 1 }}>
+                          <Box
+                            sx={{
+                              minHeight: { xs: 150, sm: 150, md: 250, lg: 250, xl: 250 },
+                              width: { xs: 300, sm: 300, md: 640, lg: 640, xl: 640 },
+                              textAlign: "center",
+                              border: 1,
+                              borderRadius: 5,
+                              borderColor: "rgba(81, 123, 154, 0.5)",
+                              padding: 2,
+                            }}
+                          >
+                            <Box
+                              className="flex flex-col"
+                              sx={{ minHeight: 250, boxShadow: "none", background: "#FFF" }}
+                            >
+                              <div className="flex grow items-center justify-center relative">
+                                <Image
+                                  src={tool.image || tool.icon || "/img/favicon.png"}
+                                  alt={tool.label}
+                                  fill={true}
+                                  style={{ objectFit: "contain" }}
+                                />
+                              </div>
+                            </Box>
+                          </Box>
+                        </Box>
+                      </Container>
+                    ))}
+                  </Carousel>
+                </Box>
 
-                    <Link href="/info/documentation/gqi">
-                      <Button
-                        sx={{ textTransform: "uppercase" }}
-                        color="secondary"
-                      >
-                        Detailed Documentation
-                      </Button>
-                    </Link>
-                  </div>
-
-                  <Box sx={{ width: "100%" }}>
-                    <Carousel
-                      autoPlay={false}
-                      cycleNavigation={false}
-                      indicators={true}
-                      navButtonsAlwaysVisible={true}
-                      sx={{
-                        minHeight: 350,
-                        minWidth: { xs: 350, sm: 600, md: 800, lg: 800, xl: 800 },
-                      }}
+                <Box sx={{ width: "100%", display: "flex", justifyContent: "space-evenly" }}>
+                  <Link href="/data/graph/help">
+                    <Button
+                      sx={{ textTransform: "uppercase" }}
+                      color="secondary"
                     >
-                      {GRAPH_QUERY_TOOLS.map((tool, i) => (
-                        <Container key={i} maxWidth="lg">
-                          <Grid container spacing={2}>
-                            <Grid item xs={12} sm={6} md={5}>
-                              <Stack spacing={2}>
-                                <Typography variant="h3" color="secondary.dark">
-                                  {tool.label}
-                                </Typography>
-                                <Typography variant="subtitle1">
-                                  {tool.description}
-                                </Typography>
-                              </Stack>
-                            </Grid>
-                            <Grid item xs={12} sm={6} md={7}>
-                              <Box sx={{ display: "flex", justifyContent: "center" }}>
-                                <Box
-                                  sx={{
-                                    minHeight: { xs: 150, sm: 150, md: 300, lg: 300, xl: 300 },
-                                    width: { xs: 300, sm: 300, md: 640, lg: 640, xl: 640 },
-                                    textAlign: "center",
-                                    border: 1,
-                                    borderRadius: 5,
-                                    borderColor: "rgba(81, 123, 154, 0.5)",
-                                    padding: 2,
-                                  }}
-                                >
-                                  <Box
-                                    className="flex flex-col"
-                                    sx={{ minHeight: 300, boxShadow: "none", background: "#FFF" }}
-                                  >
-                                    <div className="flex grow items-center justify-center relative">
-                                      <Image
-                                        src={tool.image || tool.icon || "/img/favicon.png"}
-                                        alt={tool.label}
-                                        fill={true}
-                                        style={{ objectFit: "contain" }}
-                                      />
-                                    </div>
-                                  </Box>
-                                </Box>
-                              </Box>
-                            </Grid>
-                          </Grid>
-                        </Container>
-                      ))}
-                    </Carousel>
-                  </Box>
-                </Stack>
-              </Grid>
-            </Grid>
+                      Quickstart Guide
+                    </Button>
+                  </Link>
+                  <Link href="/info/documentation/gqi">
+                    <Button
+                      sx={{ textTransform: "uppercase" }}
+                      color="secondary"
+                    >
+                      Documentation
+                    </Button>
+                  </Link>
+                </Box>
+              </Stack>
+            </Box>
           </Container>
         </Paper>
       </Grid>
