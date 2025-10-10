@@ -47,7 +47,7 @@ export default function ReverseSearchL1000(props: any) {
     const gene = props.geneSymbol
     const dir = props.dir
     const perturb = props.perturb
-
+    console.log(props)
     const dirup = "up"
     const dirdown = "down"
     const upres = useSWR([gene, dirup, perturb], () => getL100Sigs(gene, dirup, perturb));
