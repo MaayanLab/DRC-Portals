@@ -38,6 +38,7 @@ interface ResponseData {
   id: string;
   output: Array<{[key: string]: any}>;
   output_text: string;
+  error?: string
 }
 
 let processMapper: Record<string, any> = {
@@ -130,6 +131,14 @@ export default function Chat() {
           role: "bot",
           content:
             "The CFDE Workbench AI Assistant is taking longer than usual to respond. We apologize for the inconvenience, please try again later.",
+          output: null,
+          args: null,
+        };
+      } else if (data.error) {
+        newMessage = {
+          role: "bot",
+          content:
+            data.error,
           output: null,
           args: null,
         };

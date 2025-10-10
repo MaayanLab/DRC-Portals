@@ -79,7 +79,6 @@ export default function GeneInput(props: any) {
                     noOptionsMessage={noOptionsMessage}
                     placeholder={'Enter gene symbol...'}
                     onChange={(value: any, actions: any) => {
-                        console.log(value, actions)
                         if (actions.action == 'select-option') {
                             setGeneTerm(value.value)
                             setSubmitted(true)
