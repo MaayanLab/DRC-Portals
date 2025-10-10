@@ -77,23 +77,9 @@ export async function POST(request: NextRequest) {
     const driver = getDriver();
     let result;
 
-    if (body.filter !== null && TERM_LABELS.includes(nodeLabel)) {
-      const phrase = `"${body.filter}"`;
-      const fuzzy = body.filter
-        .split(" ")
-        .map((tok) => `${tok}~`)
-        .join(" ");
-
-      if (!isValidLucene(phrase) && !isValidLucene(fuzzy)) {
-        return Response.json(
-          {
-            error:
-              "Query string is not valid. Query must parse as valid Lucene.",
-            query,
-          },
-          { status: 400 }
-        );
-      }
+    if (body.filter && TERM_LABELS.includes(nodeLabel)) {
+      const phrase = body.filter;
+      const substring = `.*${body.filter}.*`;
 
       query.push(
         ...[
@@ -105,7 +91,7 @@ export async function POST(request: NextRequest) {
       );
       result = await executeRead<{ name: string }>(driver, query.join("\n"), {
         phrase,
-        fuzzy,
+        substring,
         limit: PATHWAY_TERMS_LIMIT,
       });
     } else {

@@ -31,23 +31,29 @@ export const getTermsCypher = () => `
     LIMIT $limit
   `;
 
-export const filterTermBySynonyms = (term: string) => `
+export const filterTermBySynonyms = (nodeId: string) => `
     CALL {
-      WITH ${term}
-      CALL db.index.fulltext.queryNodes('synonymIdx', $phrase)
-      YIELD node AS s
-      WITH s, ${term}
+      WITH ${nodeId}
+      MATCH (s)<-[:HAS_SYNONYM]-(${nodeId})
+      WHERE s.name = $phrase
+      RETURN ${nodeId} AS term
       LIMIT $limit
-      MATCH (s)<-[:HAS_SYNONYM]-(${term})
-      RETURN ${term} AS term
+
       UNION ALL
-      WITH ${term}
-      CALL db.index.fulltext.queryNodes('synonymIdx', $fuzzy)
-      YIELD node AS s
-      WITH s, ${term}
+
+      WITH ${nodeId}
+      MATCH (s)<-[:HAS_SYNONYM]-(${nodeId})
+      WHERE s.name =~ $substring
+      RETURN ${nodeId} AS term
       LIMIT $limit
-      MATCH (s)<-[:HAS_SYNONYM]-(${term})
-      RETURN ${term} AS term
+
+      UNION ALL
+
+      WITH ${nodeId}
+      MATCH (s)<-[:HAS_SYNONYM]-(${nodeId})
+      WHERE apoc.text.fuzzyMatch($phrase, s.name)
+      RETURN ${nodeId} AS term
+      LIMIT $limit
     }
   `;
 
