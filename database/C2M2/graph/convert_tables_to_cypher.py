@@ -360,6 +360,12 @@ def create_compound_cypher():
     return f'CREATE (:Compound {STANDARD_TERM_PROPS_WITH_SYNONYMS})'
 
 
+def create_term_indexes_cypher():
+    return ''.join(
+        [create_text_index(label, 'name') for label in TERM_NODES]
+    )
+
+
 def create_container_indexes_cypher():
     return ''.join(
         [create_text_index(label, 'local_id') for label in CONTAINER_NODES] +
@@ -718,12 +724,6 @@ def create_term_constraints_cypher():
     return term_id_constraints
 
 
-def create_term_name_indexes_cypher():
-    return '\n'.join([
-        f"CREATE TEXT INDEX node_text_index_{label}_name FOR (n:{label}) ON (n.name);" for label in TERM_NODES
-    ])
-
-
 def create_node_uuid_constraints_cypher():
     uuid_constraints = '\n'.join(
         [create_node_unique_constraint(label, '_uuid') for label in ALL_NODES])
@@ -788,8 +788,7 @@ def main():
             create_dcc_constraints_cypher),
         ('term_constraints.tsv', 'term_constraints.cypher',
          create_term_constraints_cypher),
-        ('term_name_indexes.tsv', 'term_name_indexes.cypher',
-         create_term_name_indexes_cypher),
+        ('term_indexes.tsv', 'term_indexes.cypher', create_term_indexes_cypher),
         ('core_indexes.tsv', 'core_indexes.cypher', create_core_indexes_cypher),
         ('admin_indexes.tsv', 'admin_indexes.cypher', create_admin_indexes_cypher),
         ('node_uuid_constraints.tsv', 'node_uuid_constraints.cypher',
@@ -877,7 +876,17 @@ def main():
     for data_filename, cypher_filename, query_builder_fn in dataf_cypherf_fn_threeple:
         with open(f'./import/cypher/{cypher_filename}', 'w') as cypher_fp:
             # Constraints/indexes are special load files, we don't need to load from a TSV for them
-            if cypher_filename in ['id_namespace_constraints.cypher', 'container_indexes.cypher', 'dcc_constraints.cypher', 'term_constraints.cypher', 'term_name_indexes.cypher', 'core_indexes.cypher', 'admin_indexes.cypher', 'node_uuid_constraints.cypher', 'relationship_uuid_constraints.cypher']:
+            if cypher_filename in [
+                'id_namespace_constraints.cypher',
+                'container_indexes.cypher',
+                'dcc_constraints.cypher',
+                'term_constraints.cypher',
+                'term_indexes.cypher',
+                'core_indexes.cypher',
+                'admin_indexes.cypher',
+                'node_uuid_constraints.cypher',
+                'relationship_uuid_constraints.cypher'
+            ]:
                 cypher_fp.write(query_builder_fn())
             else:
                 cypher_fp.write(create_load_query(
