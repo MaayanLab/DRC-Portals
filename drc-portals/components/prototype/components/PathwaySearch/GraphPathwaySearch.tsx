@@ -11,6 +11,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import {
   Box,
   Button,
+  CircularProgress,
   Divider,
   Fab,
   IconButton,
@@ -72,6 +73,7 @@ import PathwayNodeFilters from "./PathwayNodeFilters";
 interface GraphPathwaySearchProps {
   elements: PathwaySearchElement[];
   loadingNodes: string[];
+  loadingInitial: boolean;
   onSearchBarSubmit: (node: NodeResult) => void;
   onSearchBtnClick: () => void;
   onConnectionSelected: (
@@ -95,6 +97,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
   const {
     elements,
     loadingNodes,
+    loadingInitial,
     onConnectionSelected,
     onPruneSelected,
     onPruneConfirm,
@@ -538,7 +541,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
 
   return (
     <Box sx={{ position: "relative", height: "inherit" }}>
-      {elements.length === 0 ? (
+      {!loadingInitial && elements.length === 0 ? (
         <SearchBarContainer>
           <PathwaySearchBar onSubmit={onSearchBarSubmit}></PathwaySearchBar>
         </SearchBarContainer>
@@ -566,6 +569,22 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
           ></PathwayNodeFilters>
         </NodeFiltersContainer>
       ) : null}
+
+      {loadingInitial ? (
+        <Box sx={{
+          flexGrow: 1,
+          display: "flex",
+          position: "absolute",
+          top: "50%",
+          right: "50%",
+          zIndex: 1,
+        }}>
+          <Box sx={{ position: "relative" }}>
+            <CircularProgress color="secondary" size="60px" />
+          </Box>
+        </Box>
+      ) : null}
+
       <CytoscapeChart
         cyRef={cyRef}
         elements={elements}

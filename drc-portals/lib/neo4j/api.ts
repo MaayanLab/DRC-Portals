@@ -2,6 +2,19 @@ import { Order } from "@/components/prototype/types/pathway-search";
 
 const GRAPH_API_PREFIX = "/data/c2m2/graph/api";
 
+export const fetchNodeByIdAndLabels = (
+  id: string,
+  labels: string,
+  fetchProps?: RequestInit
+) =>
+  fetch(`${GRAPH_API_PREFIX}/${id}?labels=${labels}`, {
+    ...fetchProps,
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
 export const fetchCVTerms = (query: string, fetchProps?: RequestInit) =>
   fetch(`${GRAPH_API_PREFIX}/terms?q=${query}`, {
     ...fetchProps,

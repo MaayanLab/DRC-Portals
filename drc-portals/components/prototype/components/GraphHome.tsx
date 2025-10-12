@@ -13,8 +13,10 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import Carousel from "react-material-ui-carousel";
 
+import { NodeResult } from "@/lib/neo4j/types";
 import Image from "@/utils/image";
 import Link from "@/utils/link";
+
 import PathwaySearchBar from "./SearchBar/PathwaySearchBar";
 
 
@@ -50,6 +52,11 @@ const GRAPH_QUERY_TOOLS: Tool[] = [
 export default function GraphHome() {
   const router = useRouter();
 
+  const onSearchBarSubmit = (cvTerm: NodeResult) => {
+    const href = `/data/graph/search?id=${encodeURIComponent(cvTerm.uuid)}&labels=${encodeURIComponent(":" + cvTerm.labels.join(":"))}`
+    router.push(href)
+  }
+
   return (
     <Grid container alignItems={"flex-start"} justifyContent={"center"}>
       <Grid item xs={12}>
@@ -75,8 +82,7 @@ export default function GraphHome() {
                 <Typography color="secondary" className="text-center" variant="h1">C2M2 GRAPH SEARCH</Typography>
 
                 <Box>
-                  <PathwaySearchBar onSubmit={
-                    (cvTerm) => router.push(`/data/graph/search?q=${encodeURIComponent(btoa(JSON.stringify(cvTerm)))}`)} />
+                  <PathwaySearchBar onSubmit={onSearchBarSubmit} />
                 </Box>
 
                 <Box sx={{ width: "100%" }}>

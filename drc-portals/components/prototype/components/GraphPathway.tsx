@@ -14,7 +14,7 @@ import {
 } from "react";
 import { z } from "zod";
 
-import { fetchPathwaySearchCount } from "@/lib/neo4j/api";
+import { fetchNodeByIdAndLabels, fetchPathwaySearchCount } from "@/lib/neo4j/api";
 import { createPathwaySearchAllPathsCypher } from "@/lib/neo4j/cypher";
 import { Direction } from "@/lib/neo4j/enums";
 import { parsePathwayTree } from "@/lib/neo4j/utils";
@@ -59,6 +59,7 @@ export default function GraphPathway() {
   const [snackbarMsg, setSnackbarMsg] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
   const [loadingNodes, setLoadingNodes] = useState<string[]>([]);
+  const [loadingInitial, setLoadingInitial] = useState(true);
   const countsAbortControllerRef = useRef(new AbortController());
   const pathwayContextValue: PathwaySearchContextProps = useMemo(
     () => ({ tree }),
@@ -70,6 +71,20 @@ export default function GraphPathway() {
   const PATHWAY_DATA_PARSE_ERROR =
     "Failed to parse pathway data import. Please check the data format.";
   const PATHWAY_DATA_PARSE_SUCCESS = "Pathway data imported successfully.";
+
+  const getCvTerm = async (
+    id: string,
+    labels: string
+  ): Promise<{ data: NodeResult; status: number }> => {
+    const response = await fetchNodeByIdAndLabels(id, labels);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Request failed: ${errorText}`);
+    }
+
+    return { data: await response.json(), status: response.status };
+  };
 
   const getPathwaySearchCount = async (
     tree: PathwayNode
@@ -256,7 +271,7 @@ export default function GraphPathway() {
 
     setTree(initialTree);
     setSearchElements([initialNode]);
-    router.push(pathname + "?q=" + encodeURIComponent(btoa(JSON.stringify(cvTerm))))
+    router.push(pathname + `?id=${encodeURIComponent(cvTerm.uuid)}&labels=${encodeURIComponent(":" + cvTerm.labels.join(":"))}`)
   };
 
   const handleExport = useCallback(() => {
@@ -503,21 +518,26 @@ export default function GraphPathway() {
 
   // On the initial load of the page, populate the pathway with an initial node if one exists in the query params
   useEffect(() => {
-    const q = searchParams.get("q");
-    if (q !== null) {
-      // Using a closure here to use a return statement outside of the react effect context
-      const handleParamsChange = () => {
-        let initialNode: NodeResult;
-        try {
-          initialNode = JSON.parse(atob(decodeURIComponent(q)));
-        } catch {
-          updateSnackbar(true, "Could not read data from URL params!", "warning");
-          return;
-        }
-        handleSearchBarSubmit(initialNode);
-      }
+    const id = searchParams.get("id");
+    const labels = searchParams.get("labels");
 
-      handleParamsChange();
+    if (id !== null && labels !== null) {
+      setLoadingInitial(true);
+      getCvTerm(id, labels)
+        .then(({ data }) => {
+          handleSearchBarSubmit(data);
+        })
+        .catch((e) => {
+          console.error(e);
+          updateSnackbar(
+            true,
+            "An error occurred finding node specified in the URL params. Please search the node manually.",
+            "error"
+          );
+        })
+        .finally(() => setLoadingInitial(false));
+    } else {
+      setLoadingInitial(false);
     }
   }, []);
 
@@ -533,6 +553,7 @@ export default function GraphPathway() {
           <GraphPathwaySearch
             elements={searchElements}
             loadingNodes={loadingNodes}
+            loadingInitial={loadingInitial}
             onConnectionSelected={handleConnectionSelected}
             onPruneSelected={handlePruneSelected}
             onPruneConfirm={handlePruneConfirm}

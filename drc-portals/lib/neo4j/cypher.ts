@@ -7,6 +7,12 @@ import {
   escapeCypherString,
 } from "./utils";
 
+export const getNodeByIdAndLabelCypher = (labels: string) => `
+  MATCH (n${labels})
+  WHERE n._uuid = $id
+  RETURN ${createNodeReprStr("n")} AS node
+`;
+
 export const getTermsCypher = () => `
     CALL {
       CALL db.index.fulltext.queryNodes('synonymIdx', $phrase)
