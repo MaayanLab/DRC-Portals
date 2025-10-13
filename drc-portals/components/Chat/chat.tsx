@@ -49,7 +49,6 @@ let processMapper: Record<string, any> = {
 };
 
 export default function Chat() {
-  const [threadId, setThreadId] = React.useState<string | null>(null);
   const [query, setQuery] = React.useState("");
   const [prevResponseId, setPrevResponseId] = React.useState<string | null>(null)
   const [chat, setChat] = React.useState({
@@ -151,7 +150,6 @@ export default function Chat() {
           args: null,
         };
       }  else {
-        
         let mcp_val = results.filter(r=>r["type"]==="mcp_call")[0] || {}
         const mcp_output = JSON.parse(mcp_val["output"] || '{}')
         const output_text = data.output_text
@@ -183,7 +181,8 @@ export default function Chat() {
             args: null,
           };
         }
-        setPrevResponseId(data["id"])
+        if (newMessage.args) setPrevResponseId(null)
+        else setPrevResponseId(data["id"])
       }
 
       setChat((cc: any) => {
