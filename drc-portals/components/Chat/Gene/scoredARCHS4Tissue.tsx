@@ -45,9 +45,11 @@ export default function ScoredARCHS4Tissue(props: any) {
     }
     const plotData = (data || {}).data[2].process.output.value;
     const table_value = (data || {}).data[1].process.output.value
-    const sorted = table_value.sort((a:any,b:any)=>(b.zscore-a.zscore))
-    plotData.data[0].x = sorted.map((a:any)=>a.term)
+    const sorted = table_value.filter((a:any)=>a.zscore !== null).sort((a:any,b:any)=>(b.zscore-a.zscore))
+    plotData.data[0].x = sorted.map((a:any)=>a.term)   
     plotData.data[0].y = sorted.map((a:any)=>a.zscore)
+    // plotData.data[0].x.push(plotData.data[0].x[sorted.length - 1])
+    // plotData.data[0].y.push(plotData.data[0].y[sorted.length - 1])
     plotData.layout.title = `${gene} ARCHS4 Gene Expression Z-Scores`
     plotData.layout.autosize = true
     plotData.layout.margin = {
@@ -58,6 +60,10 @@ export default function ScoredARCHS4Tissue(props: any) {
     plotData.layout.font = {
       color: "white"
     }
+    plotData.layout.xaxis["dtick"] = 1
+    plotData.layout.xaxis["tickfont"] = {size: 8}
+    // plotData.layout.xaxis["automargin"] = true
+    // plotData.layout.xaxis['range']= [0, sorted.length ]
     return (
     <>
         <PlotlyPlot props={plotData}></PlotlyPlot>
