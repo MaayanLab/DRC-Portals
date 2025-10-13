@@ -1,0 +1,1 @@
+CREATE CONSTRAINT constraint_IDNamespace_id IF NOT EXISTS FOR (n:IDNamespace) REQUIRE n.id IS UNIQUE;
