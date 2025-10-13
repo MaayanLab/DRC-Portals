@@ -46,7 +46,6 @@ export default function ReverseSearchL1000(props: any) {
     const gene = props.geneSymbol
     const dir = props.dir
     const perturb = props.perturb
-
     const dirup = "up"
     const dirdown = "down"
     const upres = useSWR([gene, dirup, perturb], () => getL100Sigs(gene, dirup, perturb));
@@ -79,7 +78,6 @@ export default function ReverseSearchL1000(props: any) {
         ]
     }
     const {data, isLoading, error} = useSWR([body], () => getPlaybookL1000(body));
-
 
     if (!gene && !dir) {
         return <>No data provided</>
@@ -159,7 +157,7 @@ export default function ReverseSearchL1000(props: any) {
                     />
                 </div>
                 <TableView rowData={rowData} />
-                {data.id ? <PlaybookButton id={data.id}></PlaybookButton> : <></>}
+                {(data && data.id) ? <PlaybookButton id={data.id}></PlaybookButton> : <></>}
             </div>
         )
 

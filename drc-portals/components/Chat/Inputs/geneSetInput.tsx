@@ -52,6 +52,17 @@ export default function InputForm(props: any) {
     fileReader2.current.readAsText(file!);
   }, [handleFileRead2]);
 
+  React.useEffect(()=>{
+    if (props.geneset) {
+      setRawGenes(props.geneset.trim().split(/[;,\t\r\n\s]+/).filter((v:string) => v).join("\n"))
+      setUpDown(false)
+    } else {
+      setRawGenes((props.up || "").trim().split(/[;,\t\r\n\s]+/).filter((v:string) => v).join("\n"))
+      setRawGenes2((props.down || "").trim().split(/[;,\t\r\n\s]+/).filter((v:string) => v).join("\n"))
+      setUpDown(true)
+    }
+  }, [props.args])
+
   return (
     <div className='flex flex-col'>
       <div className='flex flex-row'>
