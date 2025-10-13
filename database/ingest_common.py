@@ -95,6 +95,9 @@ connection = psycopg2.connect(
 
 # TODO: I think the dcc label should be preserved instead of a uuid in this tsv..
 
+# require dccapproved or not: True or False
+require_dccapproved=False
+
 ingest_path = pathlib.Path('ingest')
 
 if not ingest_path.exists():
@@ -141,7 +144,11 @@ def current_dcc_assets():
   )
   dcc_assets['dcc_short_label'] = dcc_assets['link'].apply(lambda link: link.split('/')[3])
   #dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted']]
-  dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted'] & dcc_assets['dccapproved'] & dcc_assets['drcapproved'] ]
+  if require_dccapproved:
+    dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted'] & dcc_assets['dccapproved'] & dcc_assets['drcapproved'] ]
+  else:
+    # Without DCC approval
+    dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted'] & dcc_assets['drcapproved'] ]
   return dcc_assets
 
 def current_code_assets():
@@ -152,7 +159,12 @@ def current_code_assets():
     right_on='link',
     how='inner',
   )
-  dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted'] & dcc_assets['dccapproved'] & dcc_assets['drcapproved'] ]
+  if require_dccapproved:
+    dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted'] & dcc_assets['dccapproved'] & dcc_assets['drcapproved'] ]
+  else:
+    # Without DCC approval
+    dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted'] & dcc_assets['drcapproved'] ]
+  print(dcc_assets)
   return dcc_assets
 
 #%%

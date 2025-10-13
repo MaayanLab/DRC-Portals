@@ -294,7 +294,7 @@ PRIMARY KEY(phenotype, disease)
 CREATE TABLE c2m2.subject_race (
 subject_id_namespace VARCHAR NOT NULL, 
 subject_local_id VARCHAR NOT NULL, 
-race VARCHAR DEFAULT '',
+race VARCHAR NOT NULL,
 PRIMARY KEY(subject_id_namespace, subject_local_id, race)
 );
 
@@ -733,7 +733,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_file_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'file' 
 	AND indexname = 'c2m2_file_idx_searchable') THEN
-		CREATE INDEX c2m2_file_idx_searchable ON c2m2.file USING gin(searchable);
+		CREATE INDEX c2m2_file_idx_searchable ON c2m2.file USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -746,7 +746,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_biosample_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'biosample' 
 	AND indexname = 'c2m2_biosample_idx_searchable') THEN
-		CREATE INDEX c2m2_biosample_idx_searchable ON c2m2.biosample USING gin(searchable);
+		CREATE INDEX c2m2_biosample_idx_searchable ON c2m2.biosample USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -759,7 +759,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_subject_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'subject' 
 	AND indexname = 'c2m2_subject_idx_searchable') THEN
-		CREATE INDEX c2m2_subject_idx_searchable ON c2m2.subject USING gin(searchable);
+		CREATE INDEX c2m2_subject_idx_searchable ON c2m2.subject USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -772,7 +772,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_dcc_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'dcc' 
 	AND indexname = 'c2m2_dcc_idx_searchable') THEN
-		CREATE INDEX c2m2_dcc_idx_searchable ON c2m2.dcc USING gin(searchable);
+		CREATE INDEX c2m2_dcc_idx_searchable ON c2m2.dcc USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -785,7 +785,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_project_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'project' 
 	AND indexname = 'c2m2_project_idx_searchable') THEN
-		CREATE INDEX c2m2_project_idx_searchable ON c2m2.project USING gin(searchable);
+		CREATE INDEX c2m2_project_idx_searchable ON c2m2.project USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -798,7 +798,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_project_in_project_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'project_in_project' 
 	AND indexname = 'c2m2_project_in_project_idx_searchable') THEN
-		CREATE INDEX c2m2_project_in_project_idx_searchable ON c2m2.project_in_project USING gin(searchable);
+		CREATE INDEX c2m2_project_in_project_idx_searchable ON c2m2.project_in_project USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -811,7 +811,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_collection_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'collection' 
 	AND indexname = 'c2m2_collection_idx_searchable') THEN
-		CREATE INDEX c2m2_collection_idx_searchable ON c2m2.collection USING gin(searchable);
+		CREATE INDEX c2m2_collection_idx_searchable ON c2m2.collection USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -824,7 +824,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_collection_in_collection_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'collection_in_collection' 
 	AND indexname = 'c2m2_collection_in_collection_idx_searchable') THEN
-		CREATE INDEX c2m2_collection_in_collection_idx_searchable ON c2m2.collection_in_collection USING gin(searchable);
+		CREATE INDEX c2m2_collection_in_collection_idx_searchable ON c2m2.collection_in_collection USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -837,7 +837,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_file_describes_collection_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'file_describes_collection' 
 	AND indexname = 'c2m2_file_describes_collection_idx_searchable') THEN
-		CREATE INDEX c2m2_file_describes_collection_idx_searchable ON c2m2.file_describes_collection USING gin(searchable);
+		CREATE INDEX c2m2_file_describes_collection_idx_searchable ON c2m2.file_describes_collection USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -850,7 +850,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_collection_defined_by_project_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'collection_defined_by_project' 
 	AND indexname = 'c2m2_collection_defined_by_project_idx_searchable') THEN
-		CREATE INDEX c2m2_collection_defined_by_project_idx_searchable ON c2m2.collection_defined_by_project USING gin(searchable);
+		CREATE INDEX c2m2_collection_defined_by_project_idx_searchable ON c2m2.collection_defined_by_project USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -863,7 +863,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_file_in_collection_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'file_in_collection' 
 	AND indexname = 'c2m2_file_in_collection_idx_searchable') THEN
-		CREATE INDEX c2m2_file_in_collection_idx_searchable ON c2m2.file_in_collection USING gin(searchable);
+		CREATE INDEX c2m2_file_in_collection_idx_searchable ON c2m2.file_in_collection USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -876,7 +876,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_biosample_in_collection_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'biosample_in_collection' 
 	AND indexname = 'c2m2_biosample_in_collection_idx_searchable') THEN
-		CREATE INDEX c2m2_biosample_in_collection_idx_searchable ON c2m2.biosample_in_collection USING gin(searchable);
+		CREATE INDEX c2m2_biosample_in_collection_idx_searchable ON c2m2.biosample_in_collection USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -889,7 +889,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_subject_in_collection_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'subject_in_collection' 
 	AND indexname = 'c2m2_subject_in_collection_idx_searchable') THEN
-		CREATE INDEX c2m2_subject_in_collection_idx_searchable ON c2m2.subject_in_collection USING gin(searchable);
+		CREATE INDEX c2m2_subject_in_collection_idx_searchable ON c2m2.subject_in_collection USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -902,7 +902,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_file_describes_biosample_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'file_describes_biosample' 
 	AND indexname = 'c2m2_file_describes_biosample_idx_searchable') THEN
-		CREATE INDEX c2m2_file_describes_biosample_idx_searchable ON c2m2.file_describes_biosample USING gin(searchable);
+		CREATE INDEX c2m2_file_describes_biosample_idx_searchable ON c2m2.file_describes_biosample USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -915,7 +915,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_file_describes_subject_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'file_describes_subject' 
 	AND indexname = 'c2m2_file_describes_subject_idx_searchable') THEN
-		CREATE INDEX c2m2_file_describes_subject_idx_searchable ON c2m2.file_describes_subject USING gin(searchable);
+		CREATE INDEX c2m2_file_describes_subject_idx_searchable ON c2m2.file_describes_subject USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -928,7 +928,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_biosample_from_subject_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'biosample_from_subject' 
 	AND indexname = 'c2m2_biosample_from_subject_idx_searchable') THEN
-		CREATE INDEX c2m2_biosample_from_subject_idx_searchable ON c2m2.biosample_from_subject USING gin(searchable);
+		CREATE INDEX c2m2_biosample_from_subject_idx_searchable ON c2m2.biosample_from_subject USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -941,7 +941,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_biosample_disease_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'biosample_disease' 
 	AND indexname = 'c2m2_biosample_disease_idx_searchable') THEN
-		CREATE INDEX c2m2_biosample_disease_idx_searchable ON c2m2.biosample_disease USING gin(searchable);
+		CREATE INDEX c2m2_biosample_disease_idx_searchable ON c2m2.biosample_disease USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -954,7 +954,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_subject_disease_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'subject_disease' 
 	AND indexname = 'c2m2_subject_disease_idx_searchable') THEN
-		CREATE INDEX c2m2_subject_disease_idx_searchable ON c2m2.subject_disease USING gin(searchable);
+		CREATE INDEX c2m2_subject_disease_idx_searchable ON c2m2.subject_disease USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -967,7 +967,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_collection_disease_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'collection_disease' 
 	AND indexname = 'c2m2_collection_disease_idx_searchable') THEN
-		CREATE INDEX c2m2_collection_disease_idx_searchable ON c2m2.collection_disease USING gin(searchable);
+		CREATE INDEX c2m2_collection_disease_idx_searchable ON c2m2.collection_disease USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -980,7 +980,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_collection_phenotype_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'collection_phenotype' 
 	AND indexname = 'c2m2_collection_phenotype_idx_searchable') THEN
-		CREATE INDEX c2m2_collection_phenotype_idx_searchable ON c2m2.collection_phenotype USING gin(searchable);
+		CREATE INDEX c2m2_collection_phenotype_idx_searchable ON c2m2.collection_phenotype USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -993,7 +993,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_collection_gene_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'collection_gene' 
 	AND indexname = 'c2m2_collection_gene_idx_searchable') THEN
-		CREATE INDEX c2m2_collection_gene_idx_searchable ON c2m2.collection_gene USING gin(searchable);
+		CREATE INDEX c2m2_collection_gene_idx_searchable ON c2m2.collection_gene USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1006,7 +1006,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_collection_compound_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'collection_compound' 
 	AND indexname = 'c2m2_collection_compound_idx_searchable') THEN
-		CREATE INDEX c2m2_collection_compound_idx_searchable ON c2m2.collection_compound USING gin(searchable);
+		CREATE INDEX c2m2_collection_compound_idx_searchable ON c2m2.collection_compound USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1019,7 +1019,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_collection_substance_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'collection_substance' 
 	AND indexname = 'c2m2_collection_substance_idx_searchable') THEN
-		CREATE INDEX c2m2_collection_substance_idx_searchable ON c2m2.collection_substance USING gin(searchable);
+		CREATE INDEX c2m2_collection_substance_idx_searchable ON c2m2.collection_substance USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1032,7 +1032,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_collection_taxonomy_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'collection_taxonomy' 
 	AND indexname = 'c2m2_collection_taxonomy_idx_searchable') THEN
-		CREATE INDEX c2m2_collection_taxonomy_idx_searchable ON c2m2.collection_taxonomy USING gin(searchable);
+		CREATE INDEX c2m2_collection_taxonomy_idx_searchable ON c2m2.collection_taxonomy USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1045,7 +1045,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_collection_anatomy_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'collection_anatomy' 
 	AND indexname = 'c2m2_collection_anatomy_idx_searchable') THEN
-		CREATE INDEX c2m2_collection_anatomy_idx_searchable ON c2m2.collection_anatomy USING gin(searchable);
+		CREATE INDEX c2m2_collection_anatomy_idx_searchable ON c2m2.collection_anatomy USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1058,7 +1058,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_collection_biofluid_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'collection_biofluid' 
 	AND indexname = 'c2m2_collection_biofluid_idx_searchable') THEN
-		CREATE INDEX c2m2_collection_biofluid_idx_searchable ON c2m2.collection_biofluid USING gin(searchable);
+		CREATE INDEX c2m2_collection_biofluid_idx_searchable ON c2m2.collection_biofluid USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1071,7 +1071,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_collection_protein_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'collection_protein' 
 	AND indexname = 'c2m2_collection_protein_idx_searchable') THEN
-		CREATE INDEX c2m2_collection_protein_idx_searchable ON c2m2.collection_protein USING gin(searchable);
+		CREATE INDEX c2m2_collection_protein_idx_searchable ON c2m2.collection_protein USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1084,7 +1084,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_subject_phenotype_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'subject_phenotype' 
 	AND indexname = 'c2m2_subject_phenotype_idx_searchable') THEN
-		CREATE INDEX c2m2_subject_phenotype_idx_searchable ON c2m2.subject_phenotype USING gin(searchable);
+		CREATE INDEX c2m2_subject_phenotype_idx_searchable ON c2m2.subject_phenotype USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1097,7 +1097,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_biosample_substance_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'biosample_substance' 
 	AND indexname = 'c2m2_biosample_substance_idx_searchable') THEN
-		CREATE INDEX c2m2_biosample_substance_idx_searchable ON c2m2.biosample_substance USING gin(searchable);
+		CREATE INDEX c2m2_biosample_substance_idx_searchable ON c2m2.biosample_substance USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1110,7 +1110,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_subject_substance_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'subject_substance' 
 	AND indexname = 'c2m2_subject_substance_idx_searchable') THEN
-		CREATE INDEX c2m2_subject_substance_idx_searchable ON c2m2.subject_substance USING gin(searchable);
+		CREATE INDEX c2m2_subject_substance_idx_searchable ON c2m2.subject_substance USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1123,7 +1123,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_biosample_gene_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'biosample_gene' 
 	AND indexname = 'c2m2_biosample_gene_idx_searchable') THEN
-		CREATE INDEX c2m2_biosample_gene_idx_searchable ON c2m2.biosample_gene USING gin(searchable);
+		CREATE INDEX c2m2_biosample_gene_idx_searchable ON c2m2.biosample_gene USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1136,7 +1136,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_phenotype_gene_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'phenotype_gene' 
 	AND indexname = 'c2m2_phenotype_gene_idx_searchable') THEN
-		CREATE INDEX c2m2_phenotype_gene_idx_searchable ON c2m2.phenotype_gene USING gin(searchable);
+		CREATE INDEX c2m2_phenotype_gene_idx_searchable ON c2m2.phenotype_gene USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1149,7 +1149,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_phenotype_disease_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'phenotype_disease' 
 	AND indexname = 'c2m2_phenotype_disease_idx_searchable') THEN
-		CREATE INDEX c2m2_phenotype_disease_idx_searchable ON c2m2.phenotype_disease USING gin(searchable);
+		CREATE INDEX c2m2_phenotype_disease_idx_searchable ON c2m2.phenotype_disease USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1162,7 +1162,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_subject_race_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'subject_race' 
 	AND indexname = 'c2m2_subject_race_idx_searchable') THEN
-		CREATE INDEX c2m2_subject_race_idx_searchable ON c2m2.subject_race USING gin(searchable);
+		CREATE INDEX c2m2_subject_race_idx_searchable ON c2m2.subject_race USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1175,7 +1175,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_subject_role_taxonomy_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'subject_role_taxonomy' 
 	AND indexname = 'c2m2_subject_role_taxonomy_idx_searchable') THEN
-		CREATE INDEX c2m2_subject_role_taxonomy_idx_searchable ON c2m2.subject_role_taxonomy USING gin(searchable);
+		CREATE INDEX c2m2_subject_role_taxonomy_idx_searchable ON c2m2.subject_role_taxonomy USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1188,7 +1188,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_assay_type_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'assay_type' 
 	AND indexname = 'c2m2_assay_type_idx_searchable') THEN
-		CREATE INDEX c2m2_assay_type_idx_searchable ON c2m2.assay_type USING gin(searchable);
+		CREATE INDEX c2m2_assay_type_idx_searchable ON c2m2.assay_type USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1201,7 +1201,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_analysis_type_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'analysis_type' 
 	AND indexname = 'c2m2_analysis_type_idx_searchable') THEN
-		CREATE INDEX c2m2_analysis_type_idx_searchable ON c2m2.analysis_type USING gin(searchable);
+		CREATE INDEX c2m2_analysis_type_idx_searchable ON c2m2.analysis_type USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1214,7 +1214,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_ncbi_taxonomy_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ncbi_taxonomy' 
 	AND indexname = 'c2m2_ncbi_taxonomy_idx_searchable') THEN
-		CREATE INDEX c2m2_ncbi_taxonomy_idx_searchable ON c2m2.ncbi_taxonomy USING gin(searchable);
+		CREATE INDEX c2m2_ncbi_taxonomy_idx_searchable ON c2m2.ncbi_taxonomy USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1227,7 +1227,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_anatomy_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'anatomy' 
 	AND indexname = 'c2m2_anatomy_idx_searchable') THEN
-		CREATE INDEX c2m2_anatomy_idx_searchable ON c2m2.anatomy USING gin(searchable);
+		CREATE INDEX c2m2_anatomy_idx_searchable ON c2m2.anatomy USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1240,7 +1240,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_biofluid_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'biofluid' 
 	AND indexname = 'c2m2_biofluid_idx_searchable') THEN
-		CREATE INDEX c2m2_biofluid_idx_searchable ON c2m2.biofluid USING gin(searchable);
+		CREATE INDEX c2m2_biofluid_idx_searchable ON c2m2.biofluid USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1253,7 +1253,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_file_format_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'file_format' 
 	AND indexname = 'c2m2_file_format_idx_searchable') THEN
-		CREATE INDEX c2m2_file_format_idx_searchable ON c2m2.file_format USING gin(searchable);
+		CREATE INDEX c2m2_file_format_idx_searchable ON c2m2.file_format USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1266,7 +1266,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_data_type_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'data_type' 
 	AND indexname = 'c2m2_data_type_idx_searchable') THEN
-		CREATE INDEX c2m2_data_type_idx_searchable ON c2m2.data_type USING gin(searchable);
+		CREATE INDEX c2m2_data_type_idx_searchable ON c2m2.data_type USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1279,7 +1279,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_disease_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'disease' 
 	AND indexname = 'c2m2_disease_idx_searchable') THEN
-		CREATE INDEX c2m2_disease_idx_searchable ON c2m2.disease USING gin(searchable);
+		CREATE INDEX c2m2_disease_idx_searchable ON c2m2.disease USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1292,7 +1292,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_phenotype_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'phenotype' 
 	AND indexname = 'c2m2_phenotype_idx_searchable') THEN
-		CREATE INDEX c2m2_phenotype_idx_searchable ON c2m2.phenotype USING gin(searchable);
+		CREATE INDEX c2m2_phenotype_idx_searchable ON c2m2.phenotype USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1305,7 +1305,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_compound_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'compound' 
 	AND indexname = 'c2m2_compound_idx_searchable') THEN
-		CREATE INDEX c2m2_compound_idx_searchable ON c2m2.compound USING gin(searchable);
+		CREATE INDEX c2m2_compound_idx_searchable ON c2m2.compound USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1318,7 +1318,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_substance_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'substance' 
 	AND indexname = 'c2m2_substance_idx_searchable') THEN
-		CREATE INDEX c2m2_substance_idx_searchable ON c2m2.substance USING gin(searchable);
+		CREATE INDEX c2m2_substance_idx_searchable ON c2m2.substance USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1331,7 +1331,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_gene_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'gene' 
 	AND indexname = 'c2m2_gene_idx_searchable') THEN
-		CREATE INDEX c2m2_gene_idx_searchable ON c2m2.gene USING gin(searchable);
+		CREATE INDEX c2m2_gene_idx_searchable ON c2m2.gene USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1344,7 +1344,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_protein_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'protein' 
 	AND indexname = 'c2m2_protein_idx_searchable') THEN
-		CREATE INDEX c2m2_protein_idx_searchable ON c2m2.protein USING gin(searchable);
+		CREATE INDEX c2m2_protein_idx_searchable ON c2m2.protein USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1357,7 +1357,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_protein_gene_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'protein_gene' 
 	AND indexname = 'c2m2_protein_gene_idx_searchable') THEN
-		CREATE INDEX c2m2_protein_gene_idx_searchable ON c2m2.protein_gene USING gin(searchable);
+		CREATE INDEX c2m2_protein_gene_idx_searchable ON c2m2.protein_gene USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1370,7 +1370,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_sample_prep_method_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'sample_prep_method' 
 	AND indexname = 'c2m2_sample_prep_method_idx_searchable') THEN
-		CREATE INDEX c2m2_sample_prep_method_idx_searchable ON c2m2.sample_prep_method USING gin(searchable);
+		CREATE INDEX c2m2_sample_prep_method_idx_searchable ON c2m2.sample_prep_method USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1383,7 +1383,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_id_namespace_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'id_namespace' 
 	AND indexname = 'c2m2_id_namespace_idx_searchable') THEN
-		CREATE INDEX c2m2_id_namespace_idx_searchable ON c2m2.id_namespace USING gin(searchable);
+		CREATE INDEX c2m2_id_namespace_idx_searchable ON c2m2.id_namespace USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1396,7 +1396,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_collection_ptm_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'collection_ptm' 
 	AND indexname = 'c2m2_collection_ptm_idx_searchable') THEN
-		CREATE INDEX c2m2_collection_ptm_idx_searchable ON c2m2.collection_ptm USING gin(searchable);
+		CREATE INDEX c2m2_collection_ptm_idx_searchable ON c2m2.collection_ptm USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1409,7 +1409,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_biosample_ptm_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'biosample_ptm' 
 	AND indexname = 'c2m2_biosample_ptm_idx_searchable') THEN
-		CREATE INDEX c2m2_biosample_ptm_idx_searchable ON c2m2.biosample_ptm USING gin(searchable);
+		CREATE INDEX c2m2_biosample_ptm_idx_searchable ON c2m2.biosample_ptm USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1422,7 +1422,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_ptm_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ptm' 
 	AND indexname = 'c2m2_ptm_idx_searchable') THEN
-		CREATE INDEX c2m2_ptm_idx_searchable ON c2m2.ptm USING gin(searchable);
+		CREATE INDEX c2m2_ptm_idx_searchable ON c2m2.ptm USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1435,7 +1435,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_ptm_type_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ptm_type' 
 	AND indexname = 'c2m2_ptm_type_idx_searchable') THEN
-		CREATE INDEX c2m2_ptm_type_idx_searchable ON c2m2.ptm_type USING gin(searchable);
+		CREATE INDEX c2m2_ptm_type_idx_searchable ON c2m2.ptm_type USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1448,7 +1448,7 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_ptm_subtype_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'ptm_subtype' 
 	AND indexname = 'c2m2_ptm_subtype_idx_searchable') THEN
-		CREATE INDEX c2m2_ptm_subtype_idx_searchable ON c2m2.ptm_subtype USING gin(searchable);
+		CREATE INDEX c2m2_ptm_subtype_idx_searchable ON c2m2.ptm_subtype USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 
@@ -1461,6 +1461,6 @@ BEGIN
 	DROP INDEX IF EXISTS c2m2_domain_location_idx_searchable;
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'domain_location' 
 	AND indexname = 'c2m2_domain_location_idx_searchable') THEN
-		CREATE INDEX c2m2_domain_location_idx_searchable ON c2m2.domain_location USING gin(searchable);
+		CREATE INDEX c2m2_domain_location_idx_searchable ON c2m2.domain_location USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;

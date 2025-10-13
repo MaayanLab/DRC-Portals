@@ -44,7 +44,8 @@ VALUES
  ('SPARC.subject:', 'cfde_registry_dcc:sparc', 'SPARC'),
  ('SPARC:', 'cfde_registry_dcc:sparc', 'SPARC'),
 --- ('tag:sennetconsortium.org,2024:', 'cfde_registry_dcc:sennet', 'SenNet')
- ('tag:sennetconsortium.org,2025:', 'cfde_registry_dcc:sennet', 'SenNet')
+ ('tag:sennetconsortium.org,2025:', 'cfde_registry_dcc:sennet', 'SenNet'),
+ ('scge.mcw.edu', 'cfde_registry_dcc:scge', 'SCGE')
 ;
 
 /* add the constraint */

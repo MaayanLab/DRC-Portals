@@ -12,7 +12,7 @@ const axisInfo: Record<string, {
   join?: string; 
 }> = {
   dcc: {
-    id: 'p.id_namespace',
+    id: 'i.id_namespace',
     name: 'i.dcc_short_label',
     join: 'LEFT JOIN c2m2.id_namespace_dcc_id i ON i.id_namespace_id = p.id_namespace',
   },
@@ -36,7 +36,7 @@ export async function GET(req: Request) {
     }
 
     let selectFields = [`${axisInfo[x_axis].name} AS ${x_axis}`];
-    let groupFields = [axisInfo[x_axis].id, axisInfo[x_axis].name];
+    let groupFields = [axisInfo[x_axis].name]; // [axisInfo[x_axis].id, axisInfo[x_axis].name];
     let joins: string[] = [];
     let from = 'FROM c2m2.project p';
     let countField = 'COUNT(DISTINCT p.local_id)::int AS count';
