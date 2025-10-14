@@ -10,13 +10,17 @@ You must first start and migrate the database (see [DRC Portal Dev Guide](../drc
 
 # Be in the folder database
 
+# must run at the beginning
 python3 ingestion.py
 
-# much slower, for production or when developing with those features, can be omitted until necessary
+# can run in parallel
 python3 ingest_dcc_assets.py
 python3 ingest_gmts.py
-#python3 ingest_c2m2_files.py
+python3 ingest_c2m2_files.py
 python3 ingest_kg.py
+
+# run at the very end
+python3 expand_m2m.py
 ```
 
 ## Ingesting new changes

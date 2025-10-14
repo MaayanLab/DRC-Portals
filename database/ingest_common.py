@@ -117,7 +117,6 @@ def pdp_helper():
   entities = {}
   pagerank_update = {}
   m2m = {}
-  o2m = {}
   m2o = {}
   def upsert_entity(type, attributes, slug=None):
     entity_serialized = json.dumps({'type': type, 'slug': slug, 'attributes': attributes}, sort_keys=True, cls=ExEncoder)
@@ -128,26 +127,23 @@ def pdp_helper():
     assert 'label' in entity['attributes'] and entity['attributes']['label']
     return id
   def upsert_o2m(source_id, predicate, target_id):
-    if source_id not in o2m: o2m[source_id] = {}
-    if predicate not in o2m[source_id]: o2m[source_id][predicate] = set()
     if predicate not in m2m: m2m[predicate] = set()
     if target_id not in m2o: m2o[target_id] = {}
     assert predicate not in m2o[target_id] or m2o[target_id][predicate] == source_id
     pagerank_update[source_id] = pagerank_update.get(source_id, 0) + 1
     m2o[target_id][predicate] = source_id
-    o2m[source_id][predicate].add(target_id)
     m2m[predicate].add((source_id, target_id))
   def upsert_m2o(source_id, predicate, target_id):
     upsert_o2m(target_id, predicate, source_id)
   def upsert_m2m(source_id, predicate, target_id):
+    if predicate not in m2m: m2m[predicate] = set()
+    if f"^{predicate}" not in m2m: m2m[f"^{predicate}"] = set()
     pagerank_update[source_id] = pagerank_update.get(source_id, 0) + 1
     pagerank_update[target_id] = pagerank_update.get(target_id, 0) + 1
-    if predicate not in m2m: m2m[predicate] = set()
     m2m[predicate].add((source_id, target_id))
-    m2m[predicate].add((target_id, source_id))
+    m2m[f"^{predicate}"].add((target_id, source_id))
   yield type('pdp', tuple(), dict(entities=entities, upsert_o2m=upsert_o2m, upsert_m2o=upsert_m2o, upsert_m2m=upsert_m2m, upsert_entity=upsert_entity))
   # upsert entity details & relationships
-  # TODO: is upsert deep? otherwise it should probably be relationship_{predicate}
   elasticsearch.helpers.bulk(es, [
     dict(
       _op_type='update',
@@ -164,7 +160,7 @@ def pdp_helper():
     )
     for _id, _source in entities.items()
   ], chunk_size=100, timeout='30s')
-  # update entity pagerank
+  # update entity pagerank (TODO -- do we want to do this in the expand_m2m step?)
   elasticsearch.helpers.bulk(es, [
     dict(
       _op_type='update',
@@ -185,32 +181,19 @@ def pdp_helper():
     )
     for _id, pagerank in pagerank_update.items()
   ], chunk_size=100, timeout='30s')
-  # add inline many-to-one or one-to-one relationships
-  # elasticsearch.helpers.bulk(es, [
-  #   dict(
-  #     _op_type='update',
-  #     _index='o2m',
-  #     _id=source,
-  #     doc={ predicate: list(targets) for predicate, targets in predicate_targets.items() },
-  #     doc_as_upsert=True,
-  #   )
-  #   for source, predicate_targets in o2m.items()
-  # ], chunk_size=100, timeout='30s')
-  # elasticsearch.helpers.bulk(es, [
-  #   dict(
-  #     _op_type='update',
-  #     _index='m2m',
-  #     _id=f"{source}:{target}",
-  #     doc={
-  #       'predicate': predicate,
-  #       'source': source,
-  #       'target': target,
-  #     },
-  #     doc_as_upsert=True,
-  #   )
-  #   for predicate, pairs in m2m.items()
-  #   for source, target in pairs
-  # ], chunk_size=100, timeout='30s')
+  elasticsearch.helpers.bulk(es, [
+    dict(
+      _index='m2m',
+      _id=f"{source}:{predicate}:{target}",
+      _source={
+        'source_id': source,
+        'predicate': predicate,
+        'target_id': target,
+      },
+    )
+    for predicate, pairs in m2m.items()
+    for source, target in pairs
+  ], chunk_size=100, timeout='30s')
 
 #%%
 # Fetch assets to ingest
