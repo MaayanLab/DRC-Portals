@@ -20,7 +20,7 @@ import { mdiArrowRight, mdiToolbox, mdiLaptop, mdiChatOutline } from '@mdi/js';
 import CFPrograms from "@/components/misc/CFPrograms"
 import { SearchForm, SearchField } from "./search2/SearchField";
 import { BlurBig } from "@/components/styled/Blur"
-import Stats, { StatsFallback } from "./processed/Stats"
+import Summary from "@/app/data/search2/summary/page"
 import { ResponsivePaper } from "../info/styled"
 import Tooltip from '@mui/material/Tooltip';
 
@@ -178,11 +178,7 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
                         }}
                   className="flex"
             >
-              <Container maxWidth="lg" className="m-auto">
-                <Grid container spacing={6} justifyContent={"center"} alignItems={"flex-start"}>
-                  <React.Suspense fallback={<StatsFallback />}><Stats /></React.Suspense>
-                </Grid>
-              </Container>
+              <Summary include={['file', 'kg_assertion', 'gene', 'gene_set', 'compound']} />
             </Paper>
         </Grid>
         <Grid item xs={12} md={5} >
