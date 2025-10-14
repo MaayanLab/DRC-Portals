@@ -64,6 +64,7 @@ export default function RegElementSetInfo(props: any) {
     }
 
     const tableData = data.data[2].process.output.value;
+    console.log(tableData)
     const formattedTableData:  {
         ID: string[];
         chromosome: string[];
@@ -75,10 +76,10 @@ export default function RegElementSetInfo(props: any) {
 
 
     tableData.forEach((elt: any) => {
-        formattedTableData.ID.push(elt.ldhId)
-        formattedTableData.chromosome.push(elt.entContent.coordinates.chromosome)
-        formattedTableData.start.push(elt.entContent.coordinates.start)
-        formattedTableData.end.push(elt.entContent.coordinates.end)
+        formattedTableData.ID.push(elt.entId)
+        formattedTableData.chromosome.push(elt.coordinates.chromosome)
+        formattedTableData.start.push(elt.coordinates.start)
+        formattedTableData.end.push(elt.coordinates.end)
     });
     return (
         <>

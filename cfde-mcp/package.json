@@ -1,0 +1,35 @@
+{
+  "name": "cfde-mcp",
+  "version": "0.1.20",
+  "description": "cfde-mcp MCP server",
+  "type": "module",
+  "bin": {
+    "cfde-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js",
+    "generate": "npx prisma generate --schema=src/prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.19.1",
+    "@prisma/client": "^6.16.2",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "glob": "^11.0.3",
+    "isomorphic-unfetch": "^4.0.2",
+    "json-schema-to-zod": "^2.6.1",
+    "prisma": "^6.16.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.19.0"
+  }
+}

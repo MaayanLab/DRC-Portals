@@ -314,7 +314,7 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
                 bottom: 50,
                 right: 50,
               }} variant="extended" aria-label={'chat'} color={'primary'}>
-                <Typography sx={{marginRight: 1, textTransform: "none"}} color="secondary">Ask CWAS</Typography> <Icon style={{ color: "#336699" }} path={mdiChatOutline} size={1} />
+                <Typography sx={{marginRight: 1, textTransform: "none"}} color="secondary">Ask the AI Assistant</Typography> <Icon style={{ color: "#336699" }} path={mdiChatOutline} size={1} />
               </Fab>
             </Tooltip>
           </Link>

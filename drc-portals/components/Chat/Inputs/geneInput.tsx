@@ -50,11 +50,10 @@ export default function GeneInput(props: any) {
             setGeneTerm(inputText)
         }
     }
-
     return (
         <>
             {submitted ? 
-            <>{React.createElement(Component, { ...props, genesymbol: geneTerm })}</> : 
+            <>{React.createElement(Component, { ...props, geneSymbol: geneTerm })}</> : 
             <div className=' w-1/2' style={{ width: '200px' }}>
                 <Select
                     theme={(theme) => ({
@@ -74,7 +73,7 @@ export default function GeneInput(props: any) {
                     className='w-auto'
                     options={items}
                     defaultValue={{ value: genesymbol, label: genesymbol }}
-                    onInputChange={handleInputChange}
+                    // onInputChange={handleInputChange}
                     isLoading={isLoading}
                     filterOption={null}
                     noOptionsMessage={noOptionsMessage}

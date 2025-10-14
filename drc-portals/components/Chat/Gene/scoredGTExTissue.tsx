@@ -1,3 +1,4 @@
+'use client'
 import useSWR from 'swr';
 
 // Construct a workflow Gene => GTEx Tissue => Barplot with the input: ACE2
@@ -41,6 +42,11 @@ export default function ScoredGTExTissue(props: any) {
     }
 
     const plotData = data.data[2].process.output.value;
+    const table_value = (data || {}).data[1].process.output.value
+    const sorted = table_value.sort((a:any,b:any)=>(b.zscore-a.zscore))
+    plotData.data[0].x = sorted.map((a:any)=>a.term)
+    plotData.data[0].y = sorted.map((a:any)=>a.zscore)
+    
     plotData.layout.title = `${gene} GTEx Gene Expression Z-Scores`
     plotData.layout.autosize = true
     plotData.layout.margin = {
