@@ -315,6 +315,7 @@ Ensure you have the following installed before proceeding:
 ## Steps
 
 ### 1. Pull the Schema from the Database
+This step is necessary if DB/table schema has been changed.
 To fetch the current database schema and update your Prisma schema, use the following command:
 
 ```bash
@@ -326,7 +327,8 @@ This command will:
 
 Make sure to replace the connection string with your own credentials if necessary.
 
-2. Generate Prisma Client
+### 2. Generate Prisma Client
+This step is a must.
 
 After pulling the schema, you need to generate the Prisma client to interact with your database. Run the following command:
 ```bash
