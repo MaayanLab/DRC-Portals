@@ -11,7 +11,7 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
   icon?: { src: string, href: string, alt: string },
 }>) {
   return (
-    <Grid container sx={{paddingTop: 5, paddingBottom: 5}} rowGap={2}>
+    <Grid container rowGap={2}>
       <Grid item xs={8}>
         <Typography variant="h1" color="secondary" sx={{ wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
           {props.title}
@@ -27,8 +27,8 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
       </Grid>
       <Grid item xs={12}>
         <Stack>
-          {props.metadata?.map((item, i) => item && item.value ? <Typography key={i} variant="body2">{item.label}: {item.value}</Typography> : null)}
-          {props.description ? <Typography variant="body2">Description: {props.description}</Typography> : null}
+          {props.metadata?.map((item, i) => item && item.value ? <div key={i} className="prose max-w-none"><strong>{item.label}</strong>: {item.value}</div> : null)}
+          {props.description ? <div className="prose max-w-none"><strong>Description</strong>: {props.description}</div> : null}
         </Stack>
       </Grid>
       {props.children}
