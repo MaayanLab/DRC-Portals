@@ -54,12 +54,38 @@ const selectColumns = generateSelectColumnsStringModified("allres_full");
 const selectColumnsPlain = generateSelectColumnsStringPlain();
 const orderByClause = generateOrderByString();
 
+// Helper function to print Postgres connection info
+function logDatabaseConnectionInfo() {
+  const dbUrl = process.env.C2M2_DATABASE_URL;
+
+  console.log("<-------------------------- DEBIGGING DB CONNECTION ---------------------------->");
+  if (!dbUrl) {
+    console.warn("C2M2_DATABASE_URL is not defined in environment variables.");
+    return;
+  }
+
+  try {
+    const parsed = new URL(dbUrl);
+    console.log("Connecting to PostgreSQL database:");
+    console.log(`  Host: ${parsed.hostname}`);
+    console.log(`  Port: ${parsed.port || "5432"}`);
+    console.log(`  Database: ${parsed.pathname.replace("/", "")}`);
+    console.log(`  User: ${parsed.username}`);
+    console.log(`  Schema: ${parsed.searchParams.get("schema") || "(default)"}`);
+  } catch (err) {
+    console.warn("Could not parse C2M2_DATABASE_URL:", err);
+  }
+  console.log("<------------------------------------------------------------------------------>");
+}
 
 // Adding a specialized query for count purpose only.
 
 const doQueryCount = React.cache(async (props: PageProps) => {
   const searchParams = useSanitizedSearchParams({ searchParams: { ...props.searchParams, q: props.search } });
   if (!searchParams.q) return null;
+
+  //To debug DB connection, always keep commented except when debugging
+  //logDatabaseConnectionInfo();
 
   // Prepare the filter clause, similar to the original doQuery function
   const filterClause = generateFilterQueryString(searchParams, "allres_full");
