@@ -144,7 +144,7 @@ def pdp_helper():
     m2m[f"^{predicate}"].add((target_id, source_id))
   yield type('pdp', tuple(), dict(entities=entities, upsert_o2m=upsert_o2m, upsert_m2o=upsert_m2o, upsert_m2m=upsert_m2m, upsert_entity=upsert_entity))
   # upsert entity details & relationships
-  elasticsearch.helpers.bulk(es, [
+  elasticsearch.helpers.bulk(es, (
     dict(
       _op_type='update',
       _index='entity',
@@ -159,9 +159,9 @@ def pdp_helper():
       doc_as_upsert=True,
     )
     for _id, _source in entities.items()
-  ], chunk_size=100, timeout='30s')
+  ), chunk_size=100, timeout='30s')
   # update entity pagerank (TODO -- do we want to do this in the expand_m2m step?)
-  elasticsearch.helpers.bulk(es, [
+  elasticsearch.helpers.bulk(es, (
     dict(
       _op_type='update',
       _index='entity',
@@ -180,8 +180,8 @@ def pdp_helper():
       upsert=dict(pagerank=0)
     )
     for _id, pagerank in pagerank_update.items()
-  ], chunk_size=100, timeout='30s')
-  elasticsearch.helpers.bulk(es, [
+  ), chunk_size=100, timeout='30s')
+  elasticsearch.helpers.bulk(es, (
     dict(
       _index='m2m',
       _id=f"{source}:{predicate}:{target}",
@@ -193,7 +193,7 @@ def pdp_helper():
     )
     for predicate, pairs in m2m.items()
     for source, target in pairs
-  ], chunk_size=100, timeout='30s')
+  ), chunk_size=100, timeout='30s')
 
 #%%
 # Fetch assets to ingest

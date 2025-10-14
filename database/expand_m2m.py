@@ -16,7 +16,7 @@ def entity_lookup(id):
   res = es.get(index='entity', id=id)
   return res.body['_source']
 
-elasticsearch.helpers.bulk(es, [
+elasticsearch.helpers.bulk(es, (
   dict(
     _index='m2m_expanded',
     _id=hit.meta['id'],
@@ -26,4 +26,4 @@ elasticsearch.helpers.bulk(es, [
     }
   )
   for hit in tqdm(Search(using=es, index='m2m').sort('target_id.keyword').iterate())
-], chunk_size=100, timeout='30s')
+), chunk_size=100, timeout='30s')
