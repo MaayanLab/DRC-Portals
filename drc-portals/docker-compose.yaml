@@ -285,7 +285,7 @@ services:
   drc-portal-mcp:
     build: ../cfde-mcp
     platform: linux/amd64
-    image: maayanlab/drc-portal-mcp:0.1.19
+    image: maayanlab/drc-portal-mcp:0.1.20
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:

@@ -14,7 +14,7 @@ const ReverseSearchL1000 = [
     outputSchema: {
         "function": z.string().describe("Function to run"),
         "inputType": z.string().describe("The type of input"),
-        "methods": z.record(z.string(), z.any()).describe("Methods describing the workflow"),
+        "methods": z.array(z.string()).describe("Methods describing the workflow"),
         "geneSymbol": z.string().optional().nullable().describe("Gene symbol"),
         "dir": z.enum(["up", "down", "both"]).optional().nullable().describe("Please pick a direction."),
         "perturb": z.enum(['drug', 'CRISPR']).optional().nullable().describe("Please pick a the type of signatures you are interested in.")
@@ -55,7 +55,7 @@ const ReverseSearchL1000 = [
           text: JSON.stringify({
               function: "ReverseSearchL1000",
               inputType: "GeneInput",
-              methods,
+              methods: methods.usability_domain || [],
               geneSymbol,
               dir,
               perturb
@@ -65,7 +65,7 @@ const ReverseSearchL1000 = [
       structuredContent: {
           function: "ReverseSearchL1000",
           inputType: "GeneInput",
-          methods,
+          methods: methods.usability_domain || [],
           geneSymbol,
           dir,
           perturb

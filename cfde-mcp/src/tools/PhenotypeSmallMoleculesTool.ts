@@ -12,7 +12,7 @@ const PhenotypeSmallMolecules = [
     outputSchema: {
         "function": z.string().describe("Function to run"),
         "inputType": z.string().describe("The type of input"),
-        "methods": z.record(z.string(), z.any()).describe("Methods describing the workflow"),
+        "methods": z.array(z.string()).describe("Methods describing the workflow"),
         "phenotype": z.string().optional().nullable().describe("Phenotype to be analyzed.")
     }
   },
@@ -217,7 +217,7 @@ const PhenotypeSmallMolecules = [
           text: JSON.stringify({
               function: "PhenotypeSmallMolecules",
               inputType: "PhenotypeInput",
-              methods,
+              methods: methods.usability_domain || [],
               phenotype
           })
         }
@@ -225,7 +225,7 @@ const PhenotypeSmallMolecules = [
       structuredContent: {
           function: "PhenotypeSmallMolecules",
           inputType: "PhenotypeInput",
-          methods,
+          methods: methods.usability_domain || [],
           phenotype
       }
     }

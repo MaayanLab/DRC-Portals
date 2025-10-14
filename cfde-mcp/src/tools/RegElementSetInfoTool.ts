@@ -12,7 +12,7 @@ const RegElementSetInfo = [
     outputSchema: {
         "function": z.string().describe("Function to run"),
         "inputType": z.string().describe("The type of input"),
-        "methods": z.record(z.string(), z.any()).describe("Methods describing the workflow"),
+        "methods": z.array(z.string()).describe("Methods describing the workflow"),
         "geneSymbol": z.string().optional().nullable().describe("Gene symbol")
     }
   },
@@ -60,7 +60,7 @@ const RegElementSetInfo = [
           text: JSON.stringify({
               function: "RegElementSetInfo",
               inputType: "GeneInput",
-              methods,
+              methods: methods.usability_domain || [],
               geneSymbol
           })
         }
@@ -68,7 +68,7 @@ const RegElementSetInfo = [
       structuredContent: {
           function: "RegElementSetInfo",
           inputType: "GeneInput",
-          methods,
+          methods: methods.usability_domain || [],
           geneSymbol
       }
     }

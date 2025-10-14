@@ -13,7 +13,7 @@ const ARCHS4GeneExpression = [
         "function": z.string().describe("Function to run"),
         "inputType": z.string().describe("The type of input"),
         "geneSymbol": z.string().optional().nullable().describe("Gene symbol"),
-        "methods": z.record(z.string(), z.any()).describe("Methods describing the workflow")
+        "methods": z.array(z.string()).describe("Methods describing the workflow")
     }
   },
   async ({geneSymbol}: {geneSymbol: string}) => {
@@ -36,7 +36,7 @@ const ARCHS4GeneExpression = [
           text: JSON.stringify({
               function: "ARCHS4GeneExpression",
               inputType: "GeneInput",
-              methods,
+              methods: methods.usability_domain || [],
               geneSymbol
           })
         }
@@ -44,7 +44,7 @@ const ARCHS4GeneExpression = [
       structuredContent: {
           function: "ARCHS4GeneExpression",
           inputType: "GeneInput",
-          methods,
+          methods: methods.usability_domain || [],
           geneSymbol
       }
     }
