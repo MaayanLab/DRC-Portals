@@ -25,5 +25,5 @@ elasticsearch.helpers.bulk(es, [
       **{f"target_{k}": v for k, v in entity_lookup(hit['target_id']).items()}
     }
   )
-  for hit in tqdm(Search(using=es, index='m2m').sort('target_id'))
+  for hit in tqdm(Search(using=es, index='m2m').sort('target_id.keyword').iterate())
 ], chunk_size=100, timeout='30s')
