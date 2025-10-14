@@ -58,7 +58,7 @@ export default async function Page(props: { params: { type: string, slug: string
       },
     },
     sort: [
-      // {'target_pagerank': {'order': 'desc'}},
+      {'target_pagerank': {'order': 'desc'}},
       {'_id': {'order': 'asc'} },
     ],
     size: 10,
