@@ -24,7 +24,6 @@ const tools:any[] = [
 	RegElementSetInfo,
 	ReverseSearchL1000,
 	sigComLincs,
-	// sigComLincsNoInput
 ]
 export const initialize_tools = (server:any) => {
 	for (const tool of tools) {

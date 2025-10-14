@@ -1,6 +1,6 @@
 {
   "name": "cfde-mcp",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "cfde-mcp MCP server",
   "type": "module",
   "bin": {

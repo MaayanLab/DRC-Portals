@@ -9,32 +9,32 @@ const ImpcPhenotypes = [
         "geneSymbol": z.string().optional().describe("Gene symbol")
     },
     outputSchema: {
-    "function": z.string().describe("Function to run"),
+        "function": z.string().describe("Function to run"),
         "geneSymbol": z.string().optional().nullable().describe("Gene symbol"),
         "inputType": z.string().describe("The type of input"),
-        "output_text": z.string().describe("What will be done in the client side. Add this in the response."),
+        "methods": z.string().describe("Methods describing the workflow"),
     }
   },
   async ({geneSymbol}: {geneSymbol: string}) => {
     return {
-    content: [
-      {
-        type: "text",
-        text: JSON.stringify({
-            function: "ImpcPhenotypes",
-            inputType: "GeneInput",
-            output_text: "I can run a function that returns mouse phenotypes significantly associated with a gene",
-            geneSymbol
-        })
+      content: [
+        {
+          type: "text",
+          text: JSON.stringify({
+              function: "ImpcPhenotypes",
+              inputType: "GeneInput",
+              methods: "Query IMPC for phenotypes associated with a mouse gene.",
+              geneSymbol
+          })
+        }
+      ],
+      structuredContent: {
+          function: "ImpcPhenotypes",
+          inputType: "GeneInput",
+          methods: "Query IMPC for phenotypes associated with a mouse gene.",
+          geneSymbol
       }
-    ],
-    structuredContent: {
-        function: "ImpcPhenotypes",
-        inputType: "GeneInput",
-        output_text: "I can run a function that returns mouse phenotypes significantly associated with a gene",
-        geneSymbol
     }
-  }
   }
 ]
 

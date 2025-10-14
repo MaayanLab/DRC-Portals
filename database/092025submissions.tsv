@@ -1,0 +1,44 @@
+DCC	Asset Type	dccapproved	drcapproved	created	deleted	current
+4DN	C2M2	True	True	2025-09-24 15:34:00.544	False	True
+SPARC	C2M2	True	True	2025-09-23 01:28:36.267	False	True
+Metabolomics	C2M2	True	True	2025-09-22 22:22:56.083	False	True
+Metabolomics	C2M2	True	False	2025-09-22 21:40:17.661	True	False
+SCGE	C2M2	False	True	2025-09-19 19:03:15.199	False	True
+LINCS	XMT	False	False	2025-09-19 17:51:06.962	True	True
+LINCS	XMT	False	False	2025-09-19 17:50:30.652	True	True
+SCGE	C2M2	False	False	2025-09-19 15:43:41.522	True	True
+ExRNA	C2M2	True	False	2025-09-18 20:17:04.038	False	True
+SPARC	C2M2	True	False	2025-09-18 02:18:10.378	False	False
+4DN	C2M2	True	False	2025-09-17 15:43:49.576	False	False
+Metabolomics	C2M2	True	False	2025-09-16 22:21:59.654	True	True
+SenNet	C2M2	True	True	2025-09-16 21:17:11.848	False	True
+ExRNA	ETL	True	True	2025-09-15 20:01:35.775	False	True
+ExRNA	ETL	True	True	2025-09-15 19:57:48.168	False	True
+ExRNA	ETL	False	False	2025-09-15 19:53:00.065	True	True
+ExRNA	ETL	True	True	2025-09-15 19:46:12.014	False	True
+ExRNA	ETL	False	False	2025-09-15 19:34:57.797	True	True
+Kids First	C2M2	False	True	2025-09-15 19:23:03.402	False	True
+HuBMAP	C2M2	True	True	2025-09-15 17:48:21.199	False	True
+GlyGen	C2M2	True	True	2025-09-04 03:08:59.757	False	True
+SCGE	C2M2	False	False	2025-07-17 19:30:31.306	True	True
+SCGE	C2M2	False	False	2025-07-17 19:21:32.870	True	True
+SCGE	C2M2	False	False	2025-07-17 19:17:05.001	True	True
+SCGE	C2M2	False	False	2025-07-17 18:51:03.977	True	True
+SCGE	C2M2	False	False	2025-07-17 18:32:50.099	True	True
+SCGE	C2M2	False	False	2025-07-17 17:28:20.453	True	True
+SCGE	C2M2	False	False	2025-07-17 16:06:23.454	True	True
+IDG	ETL	True	True	2025-07-14 11:16:39.059	False	True
+SCGE	C2M2	False	False	2025-07-11 20:23:08.042	True	True
+GlyGen	C2M2	True	True	2025-07-11 15:25:27.429	False	False
+GlyGen	C2M2	True	False	2025-07-09 14:17:43.500	False	False
+SCGE	C2M2	False	False	2025-07-08 18:16:13.675	True	True
+SCGE	C2M2	False	False	2025-07-08 17:37:47.114	True	True
+Kids First	C2M2	True	True	2025-06-27 00:53:08.574	False	False
+LINCS	Attribute Table	True	True	2025-06-25 15:51:34.737	False	True
+LINCS	XMT	True	True	2025-06-25 15:51:15.841	False	True
+LINCS	Attribute Table	True	True	2025-06-25 15:48:21.079	False	True
+LINCS	XMT	True	True	2025-06-25 14:48:42.660	False	True
+LINCS	ETL	True	True	2025-06-25 14:46:17.746	False	True
+ExRNA	C2M2	True	True	2025-06-17 19:20:06.965	False	False
+ExRNA	C2M2	False	False	2025-06-17 19:19:40.559	True	False
+4DN	C2M2	True	True	2025-06-16 20:38:02.343	False	False
