@@ -2,6 +2,7 @@ import os
 import elasticsearch
 import functools
 import itertools
+from collections import deque
 from elasticsearch.dsl import Search
 
 from dotenv import load_dotenv
@@ -44,7 +45,7 @@ def generate_m2m_target_expanded():
     target = {f"target_{k}": v for k, v in target.items()}
     for hit in hits:
       yield dict(
-        _index='m2m_expanded',
+        _index='m2m_target_expanded',
         _id=hit.meta['id'],
         _source={
           **hit,
@@ -88,4 +89,9 @@ def generate_m2m_source_expanded():
         }
       )
 
-elasticsearch.helpers.bulk(es, generate_m2m_source_expanded(), chunk_size=100, timeout='30s')
+es.indices.refresh(index='entity')
+es.indices.refresh(index='m2m')
+deque(elasticsearch.helpers.parallel_bulk(es, generate_m2m_target_expanded(), chunk_size=100, timeout='30s'), maxlen=0)
+es.indices.refresh(index='m2m_target_expanded')
+deque(elasticsearch.helpers.parallel_bulk(es, generate_m2m_source_expanded(), chunk_size=100, timeout='30s'), maxlen=0)
+es.indices.refresh(index='m2m_source_expanded')

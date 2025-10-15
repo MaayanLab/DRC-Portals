@@ -9,18 +9,10 @@ You must first start and migrate the database (see [DRC Portal Dev Guide](../drc
 # May have to get updated file/folders for migrations if files on S3 have a different set of columns (see ingest_common.py)
 
 # Be in the folder database
-
-# must run at the beginning
 python3 ingestion.py
 
-# can run in parallel
-python3 ingest_dcc_assets.py
-python3 ingest_gmts.py
-python3 ingest_c2m2_files.py
-python3 ingest_kg.py
-
-# run at the very end
-python3 expand_m2m.py
+# ingest all processed data files into elasticsearch for the processed data search
+sh ingest_es.sh
 ```
 
 ## Ingesting new changes

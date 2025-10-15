@@ -24,6 +24,30 @@ map_type = {
 }
 
 for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Processing KGAssertion Files...'):
+  # assemble the full file path for the DCC's asset
+  file_path = assertions_path/file['short_label']/file['filename']
+  if(debug >0):
+    print(f"file_path:{file_path}");
+  file_path.parent.mkdir(parents=True, exist_ok=True)
+  if not file_path.exists():
+    import urllib.request
+    if(debug > 0):
+      print("file link:"); print(file['link']);
+    urllib.request.urlretrieve(file['link'].replace(' ', '%20'), file_path)
+  # extract the KG Assertion bundle
+  if(debug > 0):
+    print(f'file_path.parent:{file_path.parent}, stem:{file_path.stem}, suffix:{file_path.suffix}');
+
+  # Process on zip files
+  if(file_path.suffix == '.zip'):
+    assertions_extract_path = file_path.parent / file_path.stem
+    if not assertions_extract_path.exists():
+      with zipfile.ZipFile(file_path, 'r') as assertions_zip:
+        assertions_zip.extractall(assertions_extract_path)
+  else:
+    print("  Warning: not a zip file, will skip!");
+    continue
+
   with pdp_helper() as helper:
     def ensure_entity(entity_type, entity_label):
       entity_type = entity_type.lower()
@@ -40,30 +64,7 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
         yield lambda entity_type=entity_type, entity_label=entity_label: helper.upsert_entity(entity_type, dict(
           label=entity_label,
         ))
-    # assemble the full file path for the DCC's asset
-    file_path = assertions_path/file['short_label']/file['filename']
-    if(debug >0):
-      print(f"file_path:{file_path}");
-    file_path.parent.mkdir(parents=True, exist_ok=True)
-    if not file_path.exists():
-      import urllib.request
-      if(debug > 0):
-        print("file link:"); print(file['link']);
-      urllib.request.urlretrieve(file['link'].replace(' ', '%20'), file_path)
-    # extract the KG Assertion bundle
-    if(debug > 0):
-      print(f'file_path.parent:{file_path.parent}, stem:{file_path.stem}, suffix:{file_path.suffix}');
-
-    # Process on zip files
-    if(file_path.suffix == '.zip'):
-      assertions_extract_path = file_path.parent / file_path.stem
-      if not assertions_extract_path.exists():
-        with zipfile.ZipFile(file_path, 'r') as assertions_zip:
-          assertions_zip.extractall(assertions_extract_path)
-    else:
-      print("  Warning: not a zip file, will skip!");
-      continue
-
+    #
     dcc_id = helper.upsert_entity('dcc', dict(
       label=file['short_label']
     ), slug=file['short_label'])
@@ -85,6 +86,7 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
         for assertion_node in tqdm(assertion_node_reader, desc=f"  Processing {assertion_node_file.name}..."):
           # TODO: capture other metdata
           assertion_nodes[assertion_node['id']] = list(ensure_entity(assertion_node['type'], assertion_node['label'] or assertion_node['id']))
+    #
     # register all of the edges
     for assertion_edge_file in assertions_extract_path.glob('*.edges.csv'):
       with assertion_edge_file.open('r') as fr:

@@ -30,7 +30,7 @@ export default async function Page(props: { params: { type: string, slug: string
   if (props.searchParams?.f) q = `${q ? `${q} ` : ''}${decodeURIComponent(props.searchParams.f)}`
   q = `${q ? `${q} ` : ''}+source_id:${item._id}`
   const searchRes = await elasticsearch.search({
-    index: 'm2m_expanded',
+    index: 'm2m_target_expanded',
     query: {
       query_string: {
         query: q,

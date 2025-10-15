@@ -74,3 +74,4 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
           target_id = in_mem_ids[fk['reference']['resource']][key]
           helper.upsert_m2o(source_id, predicate_from_fields(fk['fields']), target_id)
         # TODO: how about the m2ms?
+      del in_mem_ids

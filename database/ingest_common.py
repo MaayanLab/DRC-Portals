@@ -10,6 +10,8 @@ from urllib.parse import urlparse, unquote
 from dotenv import load_dotenv
 from uuid import UUID, uuid5
 from datetime import datetime
+from collections import deque
+from tqdm.auto import tqdm
 import json
 import elasticsearch, elasticsearch.helpers
 
@@ -138,13 +140,11 @@ def pdp_helper():
     if f"inv_{predicate}" not in m2m: m2m[f"inv_{predicate}"] = set()
     m2m[predicate].add((source_id, target_id))
     m2m[f"inv_{predicate}"].add((target_id, source_id))
-
+  #
   yield type('pdp', tuple(), dict(entities=entities, upsert_o2m=upsert_o2m, upsert_m2o=upsert_m2o, upsert_m2m=upsert_m2m, upsert_entity=upsert_entity))
-
-  chunk_size = 100
-  timeout = '30s'
+  #
   # upsert entity details & relationships
-  elasticsearch.helpers.bulk(es, (
+  deque(elasticsearch.helpers.parallel_bulk(es, tqdm((
     dict(
       _index='entity',
       _id=_id,
@@ -157,8 +157,8 @@ def pdp_helper():
       ),
     )
     for _id, _source in entities.items()
-  ), chunk_size=chunk_size, timeout=timeout)
-  elasticsearch.helpers.bulk(es, (
+  ), desc='Ingesting entities...', total=len(entities))), maxlen=0)
+  deque(elasticsearch.helpers.parallel_bulk(es, tqdm((
     dict(
       _index='m2m',
       _id=f"{source}:{predicate}:{target}",
@@ -170,7 +170,7 @@ def pdp_helper():
     )
     for predicate, pairs in m2m.items()
     for source, target in pairs
-  ), chunk_size=chunk_size, timeout=timeout)
+  ), desc='Ingesting m2m...', total=sum(map(len, m2m.values())))), maxlen=0)
 
 #%%
 # Fetch assets to ingest
