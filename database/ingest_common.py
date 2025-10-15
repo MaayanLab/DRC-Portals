@@ -115,7 +115,6 @@ def maybe_json_dumps(v):
 @contextlib.contextmanager
 def pdp_helper():
   entities = {}
-  pagerank_update = {}
   m2m = {}
   m2o = {}
   def upsert_entity(type, attributes, slug=None):
@@ -130,57 +129,35 @@ def pdp_helper():
     if predicate not in m2m: m2m[predicate] = set()
     if target_id not in m2o: m2o[target_id] = {}
     assert predicate not in m2o[target_id] or m2o[target_id][predicate] == source_id
-    pagerank_update[source_id] = pagerank_update.get(source_id, 0) + 1
     m2o[target_id][predicate] = source_id
     m2m[predicate].add((source_id, target_id))
   def upsert_m2o(source_id, predicate, target_id):
     upsert_o2m(target_id, predicate, source_id)
   def upsert_m2m(source_id, predicate, target_id):
     if predicate not in m2m: m2m[predicate] = set()
-    if f"^{predicate}" not in m2m: m2m[f"^{predicate}"] = set()
-    pagerank_update[source_id] = pagerank_update.get(source_id, 0) + 1
-    pagerank_update[target_id] = pagerank_update.get(target_id, 0) + 1
+    if f"inv_{predicate}" not in m2m: m2m[f"inv_{predicate}"] = set()
     m2m[predicate].add((source_id, target_id))
-    m2m[f"^{predicate}"].add((target_id, source_id))
+    m2m[f"inv_{predicate}"].add((target_id, source_id))
+
   yield type('pdp', tuple(), dict(entities=entities, upsert_o2m=upsert_o2m, upsert_m2o=upsert_m2o, upsert_m2m=upsert_m2m, upsert_entity=upsert_entity))
+
+  chunk_size = 100
+  timeout = '30s'
   # upsert entity details & relationships
   elasticsearch.helpers.bulk(es, (
     dict(
-      _op_type='update',
       _index='entity',
       _id=_id,
-      doc=dict(
+      _source=dict(
         _source,
         **{
           f"r_{pred}": rel_id
           for pred, rel_id in m2o.get(_id, {}).items()
         },
       ),
-      doc_as_upsert=True,
     )
     for _id, _source in entities.items()
-  ), chunk_size=100, timeout='30s')
-  # update entity pagerank (TODO -- do we want to do this in the expand_m2m step?)
-  elasticsearch.helpers.bulk(es, (
-    dict(
-      _op_type='update',
-      _index='entity',
-      _id=_id,
-      script=dict(
-        source="""
-            if (ctx._source.pagerank == null) {
-                ctx._source.pagerank = params.inc;
-            } else {
-                ctx._source.pagerank += params.inc;
-            }
-        """,
-        lang='painless',
-        params=dict(inc=pagerank)
-      ),
-      upsert=dict(pagerank=0)
-    )
-    for _id, pagerank in pagerank_update.items()
-  ), chunk_size=100, timeout='30s')
+  ), chunk_size=chunk_size, timeout=timeout)
   elasticsearch.helpers.bulk(es, (
     dict(
       _index='m2m',
@@ -193,7 +170,7 @@ def pdp_helper():
     )
     for predicate, pairs in m2m.items()
     for source, target in pairs
-  ), chunk_size=100, timeout='30s')
+  ), chunk_size=chunk_size, timeout=timeout)
 
 #%%
 # Fetch assets to ingest

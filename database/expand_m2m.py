@@ -1,6 +1,7 @@
 import os
 import elasticsearch
 import functools
+import itertools
 from elasticsearch.dsl import Search
 
 from dotenv import load_dotenv
@@ -8,7 +9,6 @@ from tqdm.auto import tqdm
 load_dotenv('../drc-portals/.env')
 load_dotenv()
 
-print(os.getenv('ELASTICSEARCH_URL'))
 es = elasticsearch.Elasticsearch(os.getenv('ELASTICSEARCH_URL'))
 
 @functools.lru_cache(maxsize=1)
@@ -16,14 +16,76 @@ def entity_lookup(id):
   res = es.get(index='entity', id=id)
   return res.body['_source']
 
-elasticsearch.helpers.bulk(es, (
-  dict(
-    _index='m2m_expanded',
-    _id=hit.meta['id'],
-    _source={
-      **hit,
-      **{f"target_{k}": v for k, v in entity_lookup(hit['target_id']).items()}
+def generate_m2m_target_expanded():
+  total_target_ids = es.search(index='m2m', size=0, aggs=dict(targets=dict(cardinality=dict(field='target_id.keyword')))).body['aggregations']['targets']['value']
+  for target_id, hits in tqdm(itertools.groupby(Search(using=es, index='m2m').sort('target_id.keyword').iterate(), key=lambda hit: hit['target_id']), total=total_target_ids):
+    # get the target node entity
+    res = es.get(index='entity', id=target_id)
+    target = res.body['_source']
+    hits = list(hits)
+    # pagerank is just the number of links to this node
+    pagerank = len(hits)
+    # r_{} will be added to the entity iff only one link exists
+    rel = {
+      f"r_inv_{predicate}" if predicate.startswith('^') else f"r_{predicate}": first_source
+      for predicate, predicate_hits in itertools.groupby(hits, key=lambda hit: hit['predicate'])
+      for first_source, *other_sources in ({hit['source_id'] for hit in predicate_hits},)
+      if not other_sources
     }
-  )
-  for hit in tqdm(Search(using=es, index='m2m').sort('target_id.keyword').iterate())
-), chunk_size=100, timeout='30s')
+    # update the entity locally and in the db
+    target.update(pagerank=pagerank, **rel)
+    yield dict(
+      _op_type='update',
+      _index='entity',
+      _id=target_id,
+      doc=dict(pagerank=pagerank, **rel),
+    )
+    # add target_ to all keys and add it to the m2m object
+    target = {f"target_{k}": v for k, v in target.items()}
+    for hit in hits:
+      yield dict(
+        _index='m2m_expanded',
+        _id=hit.meta['id'],
+        _source={
+          **hit,
+          **target,
+        }
+      )
+
+def generate_m2m_source_expanded():
+  total_source_ids = es.search(index='m2m', size=0, aggs=dict(sources=dict(cardinality=dict(field='source_id.keyword')))).body['aggregations']['sources']['value']
+  for source_id, hits in tqdm(itertools.groupby(Search(using=es, index='m2m').sort('source_id.keyword').iterate(), key=lambda hit: hit['source_id']), total=total_source_ids):
+    # get the target node entity
+    res = es.get(index='entity', id=source_id)
+    source = res.body['_source']
+    hits = list(hits)
+    # pagerank is just the number of links to this node
+    pagerank = len(hits)
+    # r_{} will be added to the entity iff only one link exists
+    rel = {
+      f"r_inv_{predicate}" if predicate.startswith('^') else f"r_{predicate}": first_target
+      for predicate, predicate_hits in itertools.groupby(hits, key=lambda hit: hit['predicate'])
+      for first_target, *other_targets in ({hit['target_id'] for hit in predicate_hits},)
+      if not other_targets
+    }
+    # update the entity locally and in the db
+    source.update(pagerank=pagerank, **rel)
+    yield dict(
+      _op_type='update',
+      _index='entity',
+      _id=source_id,
+      doc=dict(pagerank=pagerank, **rel),
+    )
+    # add target_ to all keys and add it to the m2m object
+    source = {f"source_{k}": v for k, v in source.items()}
+    for hit in hits:
+      yield dict(
+        _index='m2m_source_expanded',
+        _id=hit.meta['id'],
+        _source={
+          **hit,
+          **source,
+        }
+      )
+
+elasticsearch.helpers.bulk(es, generate_m2m_source_expanded(), chunk_size=100, timeout='30s')
