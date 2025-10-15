@@ -19,7 +19,7 @@ def entity_lookup(id):
 
 def generate_m2m_target_expanded():
   total_target_ids = es.search(index='m2m', size=0, aggs=dict(targets=dict(cardinality=dict(field='target_id.keyword')))).body['aggregations']['targets']['value']
-  for target_id, hits in tqdm(itertools.groupby(Search(using=es, index='m2m').sort('target_id.keyword').iterate(), key=lambda hit: hit['target_id']), total=total_target_ids):
+  for target_id, hits in tqdm(itertools.groupby(Search(using=es, index='m2m').sort('target_id.keyword').iterate(), key=lambda hit: hit['target_id']), desc='Assembling m2m_targer_expanded...', total=total_target_ids):
     # get the target node entity
     res = es.get(index='entity', id=target_id)
     target = res.body['_source']
@@ -55,7 +55,7 @@ def generate_m2m_target_expanded():
 
 def generate_m2m_source_expanded():
   total_source_ids = es.search(index='m2m', size=0, aggs=dict(sources=dict(cardinality=dict(field='source_id.keyword')))).body['aggregations']['sources']['value']
-  for source_id, hits in tqdm(itertools.groupby(Search(using=es, index='m2m').sort('source_id.keyword').iterate(), key=lambda hit: hit['source_id']), total=total_source_ids):
+  for source_id, hits in tqdm(itertools.groupby(Search(using=es, index='m2m').sort('source_id.keyword').iterate(), key=lambda hit: hit['source_id']), desc='Assembling m2m_source_expanded...', total=total_source_ids):
     # get the target node entity
     res = es.get(index='entity', id=source_id)
     source = res.body['_source']
