@@ -108,5 +108,5 @@ export function linkify(value: any) {
   const m = /^(https?|drs):\/\/(.+)/.exec(value)
   if (m === null) return <>{value}</>
   if (m[1] === 'drs') return <a className="text-blue-600 cursor:pointer underline" href={`/data/drs?q=${encodeURIComponent(value)}`} target="_blank">{value}</a>
-  else return <a className="text-blue-600 cursor:pointer underline" href={`https://www.ensembl.org/id/${value}`} target="_blank">{value}</a>
+  else return <a className="text-blue-600 cursor:pointer underline" href={value} target="_blank">{value}</a>
 }
