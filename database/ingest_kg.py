@@ -21,6 +21,16 @@ assertions_path = ingest_path / 'assertions'
 
 # for now, we'll map entity types to get less junk/duplication
 map_type = {
+  'hsclo': None,
+  'gp_id2pro': None,
+  'glygen_src': None,
+  'motrpac': None,
+  'glygen_location': None,
+  'gylcoprotein_citation': None,
+  'gylcoprotein_evidence': None,
+  '4dn_qval_bin': None,
+  '4dn_file': None,
+  '4dn_dataset': None,
 }
 
 for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Processing KGAssertion Files...'):
@@ -61,9 +71,10 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
           ), slug=gene)
       elif entity_type:
         entity_type = map_type.get(entity_type, entity_type)
-        yield lambda entity_type=entity_type, entity_label=entity_label: helper.upsert_entity(entity_type, dict(
-          label=entity_label,
-        ))
+        if entity_type:
+          yield lambda entity_type=entity_type, entity_label=entity_label: helper.upsert_entity(entity_type, dict(
+            label=entity_label,
+          ))
     #
     dcc_id = helper.upsert_entity('dcc', dict(
       label=file['short_label']
