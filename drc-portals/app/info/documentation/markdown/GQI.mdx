@@ -1,0 +1,134 @@
+import Button from "@mui/material/Button";
+import { mdiArrowLeft } from "@mdi/js";
+import Icon from "@mdi/react";
+import Link from "@/utils/link";
+
+# C2M2 Graph Query Interface
+
+## Table of Contents
+  - [Introduction](#introduction)
+  - [Architecture](#architecture)
+  - [Interface](#interface)
+  - [Use Cases](#use-cases)
+
+## Introduction
+
+### Background
+
+The NIH Common Fund (CF) program is a cross-cutting initiative across the National Institutes of Health (NIH) to accelerate biomedical scientific discoveries. Various CF programs were established at different times, resulting in valuable datasets of unique data types. Since these programs developed independently, each one created its data model, data elements, and ontology encodings to represent their datasets, leading to fragmented data silos. One of the missions of the CF Data Ecosystem (CFDE) is to harmonize and integrate these multimodal datasets to facilitate biomedical discovery. The Cross-Cut Metadata Model (C2M2) is a flexible F.A.I.R. framework for representing and sharing CF datasets. It standardizes experimental resources and products while promoting the harmonization and integration of these isolated data repositories. This framework enables federated querying, data aggregation, and the integration of diverse datasets using harmonized metadata.
+
+<div class="prose my-2" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+  <div><img src="/img/C2M2_Neo4j_Schema_2025.png" alt="Graphical schematic of C2M2"/></div>
+  <div>*__Figure 1.__ C2M2 schema showing the entities and their relationships. Core entities include Subject, Biosample and File; Container entities include Collection and Project; Administrative entities include DCC and ID_Namespace. Ontologies/Controlled vocabularies associated with entities and their relationships are also shown.*</div>
+</div>
+
+### Graph Query System for C2M2
+
+CFDE is a dynamic entity that continuously inducts new CF programs. To meet the needs of this growing community, the C2M2 must be flexible enough to accommodate new metadata, data types, and their encodings. Given its dynamic nature, NoSQL databases are ideally suited for these requirements, as they are schemaless and can evolve with the changing demands of CFDE with minimal disruption. Among the NoSQL databases, we have chosen Neo4j as our graph database because it supports a labeled property graph model, which accurately represents the complex data of C2M2. Neo4j stores data in a graph structure, making it a flexible and agile database that is easy to maintain and grow alongside the evolving needs of C2M2. Additionally, it allows for native graph processing, which enhances performance through index-free adjacency, enabling constant-time lookups regardless of data size and facilitating complex queries on highly interconnected C2M2 data.
+
+## Architecture
+
+We created a minimalistic user interface (UI) by leveraging the hierarchical structure of C2M2 entities and their relationships, along with the ontologies and controlled vocabularies (CVs) that define the metadata for these entities. We used the CVs as the gateway for data search and discovery. Utilizing these ontologies and CVs enables searches based on synonyms, acronyms, toponyms, variants, and more.
+
+<div class="prose my-2" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+  <div><img src="/img/graph/GQI_docs_schema_overview.png" alt="High Level Schema Overview"/></div>
+  <div>*__Figure 2.__ Simplified and hierarchical structure of C2M2 entities and their relationships. Core entities are at the base, container entities are in the middle, and admin entities are at the apex of the hierarchy. Ontologies/CVs that encode metadata and their associated entities are shown in green.*</div>
+</div>
+
+## Interface
+
+### Query Building
+
+Once we access an entity, we can navigate the underlying relations to retrieve other entities or filter them based on their attributes, one node at a time. This process relies on the database's schema and the available data, eliminating the risk of running into 'path not found' or 'data not found' issues. It also removes the need for users to understand the C2M2 schema to search for data.
+
+<div class="prose my-2" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+  <div><img src="/img/graph/GQI_docs_query_building.png" alt="Query Building"/></div>
+  <div>*__Figure 3.__ Query building, one node at a time. Once an entity is found, one could find other entities via 'Provenance_Relationships' or 'Container_Relationships', (Red and Blue relationships, respectively, in Fig. 2) or filter an entity by its attributes using Ontologies/CVs.*</div>
+</div>
+
+### Streamlined User Interface
+
+We provide standard 'Menu' options ("Expand", "Filter", "Prune") for every node by default. Again, this is driven by the context and available data.
+
+<div class="prose my-2" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+  <div><img src="/img/graph/GQI_docs_streamlined.png" alt="Streamlined Options"/></div>
+  <div>*__Figure 4.__ Standard Menu options for a node.*</div>
+</div>
+
+### User Interface
+
+The UI is a clean, intuitive, interactive canvas with minimal control tools. The initial interaction point is the text input field on the top left. On the right, a collapsible toolbar with 'Start Over', 'Download/Upload Pathway' and Zoom controls ('Zoom In', 'Zoom Out' and 'Fit Graph').
+
+<div class="prose my-2" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+  <div><img src="/img/graph/GQI_docs_labeled_interface.png" alt="Labeled Interface"/></div>
+  <div>*__Figure 5.__ Clean, intuitive, minimalistic graph query user interface. The canvas shows 1. Input field, a collapsible toolbar, including 2. Start over, 3. Export Cypher 4. Download Pathway, 5. Upload Pathway, 6. Help, 7. Zoom In, 8. Zoom Out and 9. Fit Graph.*</div>
+</div>
+
+The 'Expand' option will cue the user to explore the possible relationships based on the underlying schema and data availability for the entity/search path. With the 'Filter' option, one can subset the data by instantiating a specific value to a class object (ex, asthma for the 'Disease' class). With the 'Prune' option, one can edit the search path by removing a node(s) and their relationship(s).
+
+### Search Results
+
+Search Results: A pathway search will present the results in Tabular View and Network View. In the Table view, each row (Record) corresponds to the ‘Search Path’, and each column corresponds to an entity/attribute in the pathway. The values in the cell provide the ‘drs link’ to a ‘File’ or the ‘Persistent_Id’ for a Subject/Biosample/Project/Collection and URI for the Ontology/CV term. The results are paginated with easy access to any page at random. The number of records per page can also be controlled (10/25/50 records per page). The results can be downloaded (either selected rows, the current page, or all results) as a nested JSON object for further processing in a cloud workspace or a local computer.
+
+<div class="prose my-2" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+  <div><img src="/img/graph/GQI_docs_pathway_builder.png" alt="Pathway Search"/></div>
+  <div><img src="/img/graph/GQI_docs_tabular_view.png" alt="Tabular View"/></div>
+  <div>*__Figure 6.__ Search query and Tabular results. Top: An example query that searches for all human subjects' data derived from 16s ribosomal gene sequencing assay and their Biosamples. Bottom: Tabular view of the search results. The ‘File’ column has the ‘drs://drs.links’, while ‘Subject’ and ‘Biosample’ have ‘Persistent_Ids,’ and ‘Taxonomy’ and ‘AssayType’ have ontology entity URIs.*</div>
+</div>
+
+The network view provides a graph network of the current page results, which can also be downloaded as a set of nodes and relationships. The network view is also interactive, and one can view details of a node, segment the graph by node label, find first-degree neighbors, hide nodes, etc.
+
+<div class="prose my-2" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+  <div><img src="/img/graph/GQI_docs_network_view.png" alt="Network View"/></div>
+  <div>*__Figure 7.__ The network view of the search query as shown in Figure 6.*</div>
+</div>
+
+## Use Cases
+
+### *__Use Case 1:__ Federated Query across CF programs. Find all human subjects' data derived from the 16s ribosomal gene sequencing assay from all tissue sources.*
+
+Approach: Multiple ways exist to reach all the ribosomal gene sequencing datasets and their tissue sources from human subjects. One such approach is given below:
+
+<div class="prose my-2" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+  <div><img src="/img/graph/GQI_docs_uc1_1.png" alt="Use Case 1.1"/></div>
+  <div><img src="/img/graph/GQI_docs_uc1_2.png" alt="Use Case 1.2"/></div>
+  <div><img src="/img/graph/GQI_docs_uc1_3.png" alt="Use Case 1.3"/></div>
+  <div><img src="/img/graph/GQI_docs_uc1_4.png" alt="Use Case 1.4"/></div>
+  <div>*__Figure 8.__ <u>First Row</u>: Schema of the Search pathway. <u>Second Row</u>: Composed search pathway. <u>Third Row</u>: Tabular view of the search result. <u>Last Row</u>: Graph network view of the search results page.*</div>
+</div>
+
+<br/>
+
+### *__Use Case 2:__ Subset the above query to include datasets from stool samples and associated diseases.*
+
+<div class="prose my-2" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+  <div><img src="/img/graph/GQI_docs_uc2_1.png" alt="Use Case 2.1"/></div>
+  <div><img src="/img/graph/GQI_docs_uc2_2.png" alt="Use Case 2.2"/></div>
+  <div><img src="/img/graph/GQI_docs_uc2_3.png" alt="Use Case 2.3"/></div>
+  <div><img src="/img/graph/GQI_docs_uc2_4.png" alt="Use Case 2.4"/></div>
+  <div>*__Figure 9.__ <u>First Row</u>: Schema of the Search pathway (Subset a federated query). <u>Second Row</u>: Composed search pathway. <u>Third Row</u>: Tabular view of the search result. <u>Last Row</u>: Graph network view of the search results.*</div>
+</div>
+
+<br/>
+
+### *__Use Case 3:__ Cohort Creation. Find all DNA sequence variants datasets from Male Latino Down syndrome subjects in the Kids First DCC.*
+
+<div class="prose my-2" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+  <div><img src="/img/graph/GQI_docs_uc3_1.png" alt="Use Case 3.1"/></div>
+  <div><img src="/img/graph/GQI_docs_uc3_2.png" alt="Use Case 3.2"/></div>
+  <div><img src="/img/graph/GQI_docs_uc3_3.png" alt="Use Case 3.3"/></div>
+  <div><img src="/img/graph/GQI_docs_uc3_4.png" alt="Use Case 3.4"/></div>
+  <div>*__Figure 10.__ <u>First Row</u>: Schema of the Search pathway (Cohort creation). <u>Second Row</u>: Composed search pathway. <u>Third Row</u>: Tabular view of the search result. <u>Last Row</u>: Graph network view of the search results page.*</div>
+</div>
+
+<Link href="/info/documentation">
+  <Button
+    sx={{textTransform: "uppercase"}}
+    color="primary"
+    variant="contained"
+    startIcon={<Icon path={mdiArrowLeft} size={1} />}>
+      BACK TO DOCUMENTATION
+  </Button>
+</Link>
+
+<br/>

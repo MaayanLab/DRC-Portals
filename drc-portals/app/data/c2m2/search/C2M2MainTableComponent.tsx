@@ -130,7 +130,7 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
         const records = result?.records ?? [];
 
         // For debug:
-        console.log("records: ", records);
+        console.log("records[0]: ", records[0] ?? []);
 
         if (records.length === 0) {
             return <div><Typography>No results found</Typography></div>;

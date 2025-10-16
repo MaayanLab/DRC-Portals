@@ -21,9 +21,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ open, onClose }) => {
   const handleGenerateReport = () => {
     const id = uuidv4();
     saveReport(id, cart);
-    clearCart();
     onClose();
-    router.push(`/data/c2m2_report/${id}`);
+    window.open(`/data/c2m2_report/${id}`, '_blank');  // open report in new tab
+    // clearCart();  // removed to keep cart intact
   };
 
   return (
