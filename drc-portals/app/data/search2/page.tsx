@@ -1,6 +1,6 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, itemDescription, itemLabel } from "./utils"
+import { categoryLabel, EntityType, itemDescription, itemLabel, TermAggType } from "./utils"
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "./SearchablePagedTable";
 import Link from "@/utils/link";
@@ -16,7 +16,7 @@ export default async function Page(props: { params: { type?: string }, searchPar
   if (props.searchParams?.f) q = `${q ? `${q} ` : ''}${decodeURIComponent(props.searchParams.f)}`
   if (props.params.type) q = `${q ? `(${q}) ` : ''}+type:${decodeURIComponent(props.params.type)}`
   if (!q) redirect('/data')
-  const searchRes = await elasticsearch.search({
+  const searchRes = await elasticsearch.search<EntityType, TermAggType<'types' | 'dccs'>>({
     index: 'entity',
     query: {
       query_string: {
@@ -45,22 +45,26 @@ export default async function Page(props: { params: { type?: string }, searchPar
     size: 10,
     rest_total_hits_as_int: true,
   })
-  const entityLookupRes = await elasticsearch.search({
+  const entityLookupRes = await elasticsearch.search<EntityType>({
     index: 'entity',
     query: {
       ids: {
         values: Array.from(new Set([
           // all dccs in the dcc filters
-          ...searchRes.aggregations?.dccs.buckets.map((filter: any) => filter.key),
-          ...searchRes.hits.hits.flatMap((item: any) => Object.keys(item._source).filter(k => k.startsWith('r_')).map(k => item._source[k])),
+          ...searchRes.aggregations ? searchRes.aggregations.dccs.buckets.map(filter => filter.key) : [],
+          ...searchRes.hits.hits.flatMap((item) => {
+            const item_source = item._source
+            if (!item_source) return []
+            return Object.keys(item_source).filter(k => k.startsWith('r_')).map(k => item_source[k])
+          })
         ]))
       }
     },
     size: 100,
   })
   const entityLookup = Object.fromEntries([
-    ...searchRes.hits.hits.map((hit: any) => [hit._id, hit._source]),
-    ...entityLookupRes.hits.hits.map((hit: any) => [hit._id, hit._source]),
+    ...searchRes.hits.hits.map((hit) => [hit._id, hit._source]),
+    ...entityLookupRes.hits.hits.map((hit) => [hit._id, hit._source]),
   ])
   return (
     <ListingPageLayout
@@ -69,14 +73,14 @@ export default async function Page(props: { params: { type?: string }, searchPar
         <>
           {searchRes.aggregations?.types && <>
             <div className="font-bold">Type</div>
-            {searchRes.aggregations.types.buckets.map((filter: any) =>
+            {searchRes.aggregations.types.buckets.map((filter) =>
               <SearchFilter key={filter.key} f={`+type:${filter.key}`}>{categoryLabel(filter.key)} ({Number(filter.doc_count).toLocaleString()})</SearchFilter>
             )}
             <br />
           </>}
           {searchRes.aggregations?.dccs && <>
             <div className="font-bold">DCC</div>
-            {searchRes.aggregations.dccs.buckets.map((filter: any) =>
+            {searchRes.aggregations.dccs.buckets.map((filter) =>
               <SearchFilter key={filter.key} f={`+r_dcc:${filter.key}`}>{filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : filter.key} ({Number(filter.doc_count).toLocaleString()})</SearchFilter>
             )}
           </>}
@@ -105,7 +109,8 @@ export default async function Page(props: { params: { type?: string }, searchPar
           <>Label</>,
           <>Description</>,
         ]}
-        rows={searchRes.hits.hits.map((hit: any) => {
+        rows={searchRes.hits.hits.map((hit) => {
+          if (!hit._source) return []
           const href = `/data/search2/${hit._source.type}/${hit._source.slug}`
           return [
             <SearchablePagedTableCellIcon href={href} src={KGNode} alt={categoryLabel(hit._source.type)} />,

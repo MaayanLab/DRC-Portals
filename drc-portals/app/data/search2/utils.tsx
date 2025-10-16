@@ -1,5 +1,37 @@
 import React from 'react'
 
+export type EntityType = {
+  type: string,
+  slug: string,
+  pagerank: string,
+  a_label: string,
+  a_description: string,
+} & Record<string, string>
+
+export type M2MTargetType = {
+  source_id: string,
+  predicate: string,
+  target_id: string,
+  target_slug: string,
+  target_pagerank: string,
+  target_a_label: string,
+  target_a_description: string,
+} & Record<string, string>
+
+export type M2MSourceType = {
+  target_id: string,
+  predicate: string,
+  source_id: string,
+  source_slug: string,
+  source_pagerank: string,
+  source_a_label: string,
+  source_a_description: string,
+} & Record<string, string>
+
+export type TermAggType<K extends string> = Record<K, {
+  buckets: { key: string, doc_count: number }[]
+}>
+
 const entity_type_map: Record<string, string> = {
   'CLINGEN ALLELE REGISTRY': 'ClinGen Allele',
   'Congenital Abnormality': 'Congenital Abnormality',
@@ -78,7 +110,7 @@ export function categoryLabel(type: string) {
   else return entity_type_map[type] ?? capitalize(type.replaceAll('_',' '))
 }
 
-export function itemLabel(item: any) {
+export function itemLabel(item: EntityType) {
   return item.a_label
 }
 
@@ -90,7 +122,7 @@ export function humanBytesSize(size: number) {
   return `${(size/1e12).toPrecision(3)} TB`
 }
 
-export function itemDescription(item: any, lookup?: any) {
+export function itemDescription(item: EntityType, lookup?: Record<string, EntityType>) {
   if (item['type'] === 'file') return `A${item.a_size_in_bytes ? ` ${humanBytesSize(Number(item.a_size_in_bytes))}` : ''} file${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''}${item.a_assay_type ? ` produced from ${item.a_assay_type}` : ''} as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
   if (item['type'] === 'biosample') return `A biosample${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
   if (item['type'] === 'subject') return `A subject${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
@@ -104,7 +136,7 @@ export function itemDescription(item: any, lookup?: any) {
   }
 }
 
-export function linkify(value: any) {
+export function linkify(value: string) {
   const m = /^(https?|drs):\/\/(.+)/.exec(value)
   if (m === null) return <>{value}</>
   if (m[1] === 'drs') return <a className="text-blue-600 cursor:pointer underline" href={`/data/drs?q=${encodeURIComponent(value)}`} target="_blank">{value}</a>

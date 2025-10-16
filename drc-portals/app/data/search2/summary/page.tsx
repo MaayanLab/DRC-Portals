@@ -1,14 +1,14 @@
 import React from 'react'
 import { Container, Grid, Typography } from "@mui/material"
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, pluralize } from "@/app/data/search2/utils"
+import { categoryLabel, EntityType, pluralize, TermAggType } from "@/app/data/search2/utils"
 
 export default async function Page({ include }: { include?: string[] }) {
-  const summaryRes = await elasticsearch.search({
+  const summaryRes = await elasticsearch.search<EntityType, TermAggType<'types'>>({
     index: 'entity',
     size: 0,
     aggs: {
-      keys: {
+      types: {
         terms: {
           field: "type.keyword", 
           size: 1000,
@@ -19,7 +19,7 @@ export default async function Page({ include }: { include?: string[] }) {
   })
   return <Container maxWidth="lg" className="m-auto">
       <Grid container spacing={6} justifyContent={"center"} alignItems={"flex-start"}>
-        {summaryRes.aggregations?.keys.buckets.map((result: any) => (
+        {summaryRes.aggregations?.types.buckets.map((result) => (
         <Grid key={result.key} item xs={6} sm={4} md={3} lg={2}>
           <a href={`/data/search2/${result.key}`}>
             <div className="flex flex-col items-center">

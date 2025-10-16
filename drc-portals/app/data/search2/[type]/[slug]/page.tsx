@@ -1,6 +1,6 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { capitalize, categoryLabel, itemDescription, itemLabel, linkify, predicateLabel } from "@/app/data/search2/utils"
+import { capitalize, categoryLabel, EntityType, itemDescription, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType } from "@/app/data/search2/utils"
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/search2/SearchablePagedTable";
 import Link from "@/utils/link";
@@ -13,7 +13,7 @@ import LandingPageLayout from '@/app/data/processed/LandingPageLayout';
 import SearchFilter from '@/app/data/search2/SearchFilter';
 
 export default async function Page(props: { params: { type: string, slug: string }, searchParams?: { [key: string]: string | undefined } }) {
-  const itemRes = await elasticsearch.search({
+  const itemRes = await elasticsearch.search<EntityType>({
     index: 'entity',
       query: {
         bool: {
@@ -25,11 +25,12 @@ export default async function Page(props: { params: { type: string, slug: string
       },
   })
   const item = itemRes.hits.hits[0]
-  if (!item) notFound()
+  if (!item._source) notFound()
+  const item_source = item._source
   let q = decodeURIComponent(props.searchParams?.q ?? '')
   if (props.searchParams?.f) q = `${q ? `${q} ` : ''}${decodeURIComponent(props.searchParams.f)}`
   q = `${q ? `${q} ` : ''}+source_id:${item._id}`
-  const searchRes = await elasticsearch.search({
+  const searchRes = await elasticsearch.search<M2MTargetType, TermAggType<'predicates' | 'types' | 'dccs'>>({
     index: 'm2m_target_expanded',
     query: {
       query_string: {
@@ -64,44 +65,51 @@ export default async function Page(props: { params: { type: string, slug: string
     size: 10,
     rest_total_hits_as_int: true,
   })
-  const entityLookupRes = await elasticsearch.search({
+  const entityLookupRes = await elasticsearch.search<EntityType>({
     index: 'entity',
     query: {
       ids: {
         values: Array.from(new Set([
           // all dccs in the dcc filters
-          ...searchRes.aggregations?.dccs.buckets.map((filter: any) => filter.key),
-          ...searchRes.hits.hits.flatMap((hit: any) => Object.keys(hit._source).filter(k => k.startsWith('target_r_')).map(k => hit._source[k])),
-          ...Object.keys(item._source).filter(k => k.startsWith('r_')).map(k => item._source[k]),
+          ...searchRes.aggregations ? searchRes.aggregations.dccs.buckets.map((filter) => filter.key) : [],
+          ...searchRes.hits.hits.flatMap((hit) => {
+            const hit_source = hit._source
+            if (!hit_source) return []
+            return Object.keys(hit_source).filter(k => k.startsWith('target_r_')).map(k => hit_source[k])
+          }),
+          ...Object.keys(item_source).filter(k => k.startsWith('r_')).map(k => item_source[k]),
         ]))
       }
     },
     size: 100,
   })
-  const entityLookup = Object.fromEntries([
-    [item._id, item._source],
-    ...searchRes.hits.hits.map((hit: any) => [hit._source.target_id, Object.fromEntries(Object.entries(hit._source).flatMap(([k,v]) => k.startsWith('target_') ? [[k.substring('target_'.length), v]] : []))]),
-    ...entityLookupRes.hits.hits.map((hit: any) => [hit._id, hit._source]),
+  const entityLookup: Record<string, EntityType> = Object.fromEntries([
+    [item._id, item_source],
+    ...searchRes.hits.hits.flatMap((hit) => {
+      const hit_source = hit._source
+      if (!hit_source) return []
+      return [[hit_source.target_id, Object.fromEntries(Object.entries(hit_source).flatMap(([k,v]) => k.startsWith('target_') ? [[k.substring('target_'.length), v]] : []))]]
+    }),
+    ...entityLookupRes.hits.hits.filter((hit): hit is typeof hit & {_source: EntityType} => !!hit._source).map((hit) => [hit._id, hit._source]),
   ])
-
   return (
     <LandingPageLayout
-      title={itemLabel(item._source)}
-      subtitle={categoryLabel(item._source.type)}
+      title={itemLabel(item_source)}
+      subtitle={categoryLabel(item_source.type)}
       metadata={[
-        ...Object.keys(item._source).toReversed().flatMap(predicate => {
-          if (item._source[predicate] === 'null') return []
+        ...Object.keys(item_source).toReversed().flatMap(predicate => {
+          if (item_source[predicate] === 'null') return []
           const m = /^(a|r)_(.+)$/.exec(predicate)
           if (m === null) return []
           if (m[1] == 'a') {
             return [{
               label: capitalize(m[2].replaceAll('_', ' ')),
-              value: linkify(item._source[predicate])
+              value: linkify(item_source[predicate])
             }]
           } else if (m[1] === 'r') {
             return [{
               label: capitalize(m[2].replaceAll('_', ' ')),
-              value: <div className="m-2">{item._source[predicate] in entityLookup ? <LinkedTypedNode type={entityLookup[item._source[predicate]].type} id={entityLookup[item._source[predicate]].slug} label={itemLabel(entityLookup[item._source[predicate]])} search={props.searchParams?.q ?? ''} /> : <>{item._source[predicate]}</>}</div>,
+              value: <div className="m-2">{item_source[predicate] in entityLookup ? <LinkedTypedNode type={entityLookup[item_source[predicate]].type} id={entityLookup[item_source[predicate]].slug} label={itemLabel(entityLookup[item_source[predicate]])} search={props.searchParams?.q ?? ''} /> : <>{item_source[predicate]}</>}</div>,
             }]
           }
           return []
@@ -114,22 +122,22 @@ export default async function Page(props: { params: { type: string, slug: string
           <>
             {searchRes.aggregations?.predicates && <>
               <div className="font-bold">Predicate</div>
-              {searchRes.aggregations.predicates.buckets.map((filter: any) =>
-                <SearchFilter key={filter.key} f={`+predicate:${filter.key}`}>{predicateLabel(filter.key)} ({Number(filter.doc_count).toLocaleString()})</SearchFilter>
+              {searchRes.aggregations.predicates.buckets.map((filter) =>
+                <SearchFilter key={filter.key} f={`+predicate:${filter.key}`}>{predicateLabel(filter.key)} ({filter.doc_count.toLocaleString()})</SearchFilter>
               )}
               <br />
             </>}
             {searchRes.aggregations?.types && <>
               <div className="font-bold">Type</div>
-              {searchRes.aggregations.types.buckets.map((filter: any) =>
-                <SearchFilter key={filter.key} f={`+target_type:${filter.key}`}>{categoryLabel(filter.key)} ({Number(filter.doc_count).toLocaleString()})</SearchFilter>
+              {searchRes.aggregations.types.buckets.map((filter) =>
+                <SearchFilter key={filter.key} f={`+target_type:${filter.key}`}>{categoryLabel(filter.key)} ({filter.doc_count.toLocaleString()})</SearchFilter>
               )}
               <br />
             </>}
             {searchRes.aggregations?.dccs && <>
               <div className="font-bold">DCC</div>
-              {searchRes.aggregations.dccs.buckets.map((filter: any) =>
-                <SearchFilter key={filter.key} f={`+target_r_dcc:${filter.key}`}>{filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : filter.key} ({Number(filter.doc_count).toLocaleString()})</SearchFilter>
+              {searchRes.aggregations.dccs.buckets.map((filter) =>
+                <SearchFilter key={filter.key} f={`+target_r_dcc:${filter.key}`}>{filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : filter.key} ({filter.doc_count.toLocaleString()})</SearchFilter>
               )}
             </>}
           </>
@@ -157,12 +165,14 @@ export default async function Page(props: { params: { type: string, slug: string
             <>Label</>,
             <>Description</>,
           ]}
-          rows={searchRes.hits.hits.map((hit: any) => {
-            const href = `/data/search2/${hit._source.target_type}/${hit._source.target_slug}`
+          rows={searchRes.hits.hits.map((hit) => {
+            const hit_source = hit._source
+            if (!hit_source) return []
+            const href = `/data/search2/${hit_source.target_type}/${hit_source.target_slug}`
             return [
-              <SearchablePagedTableCellIcon href={href} src={KGNode} alt={categoryLabel(hit._source.target_type)} />,
-              <LinkedTypedNode type={hit._source.target_type} id={hit._source.target_slug} label={itemLabel(entityLookup[hit._source.target_id])} search={props.searchParams?.q ?? ''} />,
-              <Description description={itemDescription(entityLookup[hit._source.target_id], entityLookup)} search={props.searchParams?.q ?? ''} />,
+              <SearchablePagedTableCellIcon href={href} src={KGNode} alt={categoryLabel(hit_source.target_type)} />,
+              <LinkedTypedNode type={hit_source.target_type} id={hit_source.target_slug} label={itemLabel(entityLookup[hit_source.target_id])} search={props.searchParams?.q ?? ''} />,
+              <Description description={itemDescription(entityLookup[hit_source.target_id], entityLookup)} search={props.searchParams?.q ?? ''} />,
             ]
           })}
         />
