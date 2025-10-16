@@ -1,5 +1,5 @@
 // SearchQueryComponent.tsx
-import { generateFilterQueryString } from '@/app/data/c2m2/utils';
+import { generateFilterQueryString, logDatabaseConnectionInfo } from '@/app/data/c2m2/utils';
 import prisma from '@/lib/prisma/c2m2';
 import { useSanitizedSearchParams, generateSelectColumnsStringModified, generateSelectColumnsStringPlain, generateOrderByString } from "@/app/data/c2m2/utils";
 
@@ -54,12 +54,14 @@ const selectColumns = generateSelectColumnsStringModified("allres_full");
 const selectColumnsPlain = generateSelectColumnsStringPlain();
 const orderByClause = generateOrderByString();
 
-
 // Adding a specialized query for count purpose only.
 
 const doQueryCount = React.cache(async (props: PageProps) => {
   const searchParams = useSanitizedSearchParams({ searchParams: { ...props.searchParams, q: props.search } });
   if (!searchParams.q) return null;
+
+  //To debug DB connection, always keep commented except when debugging
+  //logDatabaseConnectionInfo();
 
   // Prepare the filter clause, similar to the original doQuery function
   const filterClause = generateFilterQueryString(searchParams, "allres_full");

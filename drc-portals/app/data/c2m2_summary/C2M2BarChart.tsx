@@ -90,8 +90,6 @@ const C2M2BarChart: React.FC<C2M2BarChartProps> = ({
   const [pieData, setPieData] = useState<{ name: string; value: number }[]>([]);
   const [pieTitle, setPieTitle] = useState('');
 
-  //console.log('*** In C2M2BarChart.tsx: Y-axis: ', yAxis, 'X-axis: ', xAxis, 'Group by: ', groupBy);
-
   // Aggregate total counts and sort descending
   const barChartData = data
     .map(row => {
@@ -143,11 +141,17 @@ const C2M2BarChart: React.FC<C2M2BarChartProps> = ({
 
   // Use log scale if ratio > 20 and minCount > 0
   const useLogScale = (maxCount / minCount) > 20 && minCount > 0;
-  //const yTitle = useLogScale ? `log(${yAxisTitle ?? 'Count'})` : (yAxisTitle ?? 'Count');
+  
+  // Adjust Y-axis domain to ensure smallest bar is visible
+  const yDomain: [number, string | number] = useLogScale
+    ? [Math.max(1, Math.floor(minCount * 0.8)), 'auto'] // pad down for log scale
+    : [0, 'auto'];
+
+  // Y-axis title
   const yTitleBase = `${assetType ?? ''} ${yAxisTitle ?? 'count'}`.trim();
   const yTitle = useLogScale ? `log(${yTitleBase})` : yTitleBase;
 
-  // Figure caption without groupBy, as you requested
+  // Figure caption
   const captionText = figureCaption ?? `Figure: Bar chart of ${yTitleBase} by ${xTitle}`;
 
   return (
@@ -185,7 +189,7 @@ const C2M2BarChart: React.FC<C2M2BarChartProps> = ({
               />
               <YAxis
                 scale={useLogScale ? 'log' : 'linear'}
-                domain={useLogScale ? [minCount, 'auto'] : [0, 'auto']}
+                domain={yDomain}
                 allowDataOverflow
               >
                 <Label
@@ -205,6 +209,7 @@ const C2M2BarChart: React.FC<C2M2BarChartProps> = ({
               <Bar
                 dataKey="totalCount"
                 fill="#8884d8"
+                minPointSize={3} // ensures tiny counts still render visibly
                 style={{ cursor: 'pointer' }}
                 onClick={(_, index) => handleViewPie(barChartData[index]._originalRow)}
               />

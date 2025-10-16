@@ -248,11 +248,15 @@ psql "$(python3 dburl.py)" -a -f drop_intermediate_ffl_cmp_tables.sql
 # This is now done through sql scripts
 
 ############################################
-# Had to remove one more record manually
+# Had to remove one more record manually, now added to a script (review the script before running)
 #drc=# select count(*) from c2m2.ffl_biosample_collection where searchable @@ websearch_to_tsquery('english', 'sex incongru');
 #drc=# delete from c2m2.ffl_biosample_collection where searchable @@ websearch_to_tsquery('english', 'sex incongru');     
 #DELETE 1
-#drc=# delete from c2m2.ffl_biosample_collection_cmp where searchable @@ websearch_to_tsquery('english', 'sex incongru');             
+#drc=# delete from c2m2.ffl_biosample_collection_cmp where searchable @@ websearch_to_tsquery('english', 'sex incongru');
+logf=${logdir}/log_sanitize_C2M2_ffl_tables_for_keywords.log
+psql "$(python3 dburl.py)" -a -f sanitize_C2M2_ffl_tables_for_keywords.sql -L ${logf};
+date_div >> ${logf};
+
 ############################################
 
 # Ingest slim (and associated ontology) tables into a schema called 'slim', because c2m2 also has tables like anatomy, disease etc., which is likely to be a much smaller subset of the corresponding tables in the slim schema.
@@ -282,15 +286,15 @@ date_div >> ${logf};
 # *ONLY* to copy the updated tables (e.g. after new ingest) to another server
 # As of now, user1 and user2 on the two hosts, respectively are hard-coded as drcadmin and drc or drcadmin and drcadmin, so only intended for use by Mano. Others can run after altering these values suitably.
 # Also, these will work only if ~/.pgpass has suitable lines for psql auth added.
-# It is better to do direct ingent into the public schema, but others such as _4dn, metabolomics, etc. (DCC-name specific schema which have metadata only from that DCC) and c2m2 (which has metadata from all the DCCs) can be copied over to the other DB.
+# It is better to do direct ingest into the public schema, but others such as _4dn, metabolomics, etc. (DCC-name specific schema which have metadata only from that DCC) and c2m2 (which has metadata from all the DCCs) can be copied over to the other DB.
 #host1=sc-cfdedb.sdsc.edu; host2=localhost; dbname=drc; sch=Metabolomics;
 #host1=localhost; host2=sc-cfdedb.sdsc.edu; dbname=drc; sch=c2m2;
-host1=localhost; host2=sc-cfdedbdev.sdsc.edu; dbname=drc; sch=c2m2;
+host1=localhost; host2=sc-cfdedb.sdsc.edu; port1 = 5434; port2 = 5432; dbname=drc; sch=c2m2;
 # Example of 
 ymd=$(date +%y%m%d);
 logf=${logdir}/main_pg_dump_log_${ymd}.log
 #date_div > ${logf};
-./pg_dump_host1_to_host2.sh ${host1} ${host2} ${dbname} ${logdir} ${sch} > \
+./pg_dump_host1_to_host2.sh ${host1} ${host2} ${port1} ${port2} ${dbname} ${logdir} ${sch} > \
 ${logdir}/main_pg_dump_log_${ymd}.log 2>&1
 date_div >> ${logf};
 
@@ -311,6 +315,7 @@ Ensure you have the following installed before proceeding:
 ## Steps
 
 ### 1. Pull the Schema from the Database
+This step is necessary if DB/table schema has been changed.
 To fetch the current database schema and update your Prisma schema, use the following command:
 
 ```bash
@@ -322,7 +327,8 @@ This command will:
 
 Make sure to replace the connection string with your own credentials if necessary.
 
-2. Generate Prisma Client
+### 2. Generate Prisma Client
+This step is a must.
 
 After pulling the schema, you need to generate the Prisma client to interact with your database. Run the following command:
 ```bash

@@ -10,9 +10,10 @@ To sanitize the C2M2 tables by deleting records with matching keywords
 OR, directly specify the sql file name in psql command:
 psql -h localhost -U drc -d drc -p [5432|5433] -a -f sanitize_C2M2_tables_for_keywords.sql
 OR,
+date_div() { echo "============= $(date) =============";}
 logf=${logdir}/log_sanitize_C2M2_tables_for_keywords.log
 psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql -L ${logf};
-echo ${date_div} >> ${logf};
+date_div >> ${logf};
 */
 
 /*
@@ -263,22 +264,22 @@ See also the script sanitize_tables_for_keywords.sql in the parent folder (datab
 */
 
 
-/*
+---/*
 DO $$
 DECLARE
-    drop_specific_rows_from_c2M2_tables INT := 0;
+    drop_specific_rows_from_c2M2_tables INT := 1;
 BEGIN
     IF drop_specific_rows_from_c2M2_tables > 0 THEN
-        BEGIN;
+        --- BEGIN; --- Use only if running directly on psql prompt
         DELETE FROM c2m2.subject_sex where id = 'cfde_subject_sex:3';
-        DELETE FROM c2m2.disease where id = 'DOID:1234'; --- gender incongruence
-        DELETE FROM c2m2.disease where id = 'DOID:10919'; --- gender dysphoria
+        DELETE FROM c2m2.disease where id = 'DOID:1234'; --- gender/sex incongruence
+        DELETE FROM c2m2.disease where id = 'DOID:10919'; --- gender/sex dysphoria
 
         --- ROLLBACK;
-        COMMIT;
+        --- COMMIT; --- Use only if running directly on psql prompt
     END IF;
 END $$;
-*/
+---*/
 --- #############################################################################
 
 ---*/

@@ -549,7 +549,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
     )
   } catch (error) {
     console.error('Error fetching record info query results:', error);
-    return <div>Error fetching record info query results</div>;
+    return <div>Error fetching record info query results. Please try reloading again after a few seconds.</div>;
   }
 }
 
