@@ -1,38 +1,54 @@
 # This script is generally to be run by Mano only after understanding its contents.
 # Use pg_dump and psql to directly copy all schema and tables from host1/db to host2/db
 # assuming suitable write acsess is already granted.
-# Run syntax: ymd=$(date +%y%m%d); ./pg_dump_host1_to_host2.sh <host1> <host2> <dbname> <logdir> schema1 schema2 ... >> main_pg_dump_log_${ymd}.log 2>&1
-# Examples: ymd=$(date +%y%m%d); ./pg_dump_host1_to_host2.sh sc-cfdedb.sdsc.edu localhost drc log_dbserver Metabolomics >> main_pg_dump_log_${ymd}.log 2>&1
-# Examples: ymd=$(date +%y%m%d); ./pg_dump_host1_to_host2.sh sc-cfdedb.sdsc.edu sc-cfdedbdev.sdsc.edu drc log_dbserver Metabolomics >> main_pg_dump_log_${ymd}.log 2>&1
+# Run syntax: ymd=$(date +%y%m%d); ./pg_dump_host1_to_host2.sh <host1> <host2> <port1> <port2> <dbname> <logdir> schema1 schema2 ... >> main_pg_dump_log_${ymd}.log 2>&1
+# Examples: ymd=$(date +%y%m%d); ./pg_dump_host1_to_host2.sh sc-cfdedb.sdsc.edu localhost 5432 5434 drc log_dbserver Metabolomics >> main_pg_dump_log_${ymd}.log 2>&1
+# Examples: ymd=$(date +%y%m%d); ./pg_dump_host1_to_host2.sh sc-cfdedb.sdsc.edu sc-cfdedbdev.sdsc.edu  5432 5432 drc log_dbserver Metabolomics >> main_pg_dump_log_${ymd}.log 2>&1
 
 echo -e "----------- $0 script started: Current date and time: $(date)";
 
 if [[ $# -lt 2 ]]; then
-        echo -e "Usage: $0 <host1> <host2> <dbname> <logdir> schema1 schema2 ...";
-	echo -e "If more than three arguments, then the 3rd arg should be dbname and 4th should be logdir.";
+        echo -e "Usage: $0 <host1> <host2> <port1> <port2> [<dbname> [<logdir> [schema1 [schema2 ...]]]]";
+	echo -e "If more than two arguments, then 3rd arg is port1, 4th is port2, 5th is dbname and 6th is logdir, followed by one or more schema names.";
         exit 1;
 fi
 
 host1=$1
 host2=$2
-port1=5433
-port2=5432
+#port1=5434
+#port2=5432
 user1=drc
 user2=drcadmin
 
-#dbname=drc
+#port1=5434
 if [[ $# -lt 3 ]]; then
+        echo -e "No port1 specified, so it will assume 5432.";
+        port1=5432
+else
+        port1=$3
+fi
+
+#port2=5432
+if [[ $# -lt 4 ]]; then
+        echo -e "No port2 specified, so it will assume 5432.";
+        port2=5432
+else
+        port2=$4
+fi
+
+#dbname=drc
+if [[ $# -lt 5 ]]; then
         echo -e "No dbname specified, so it will assume drc database.";
         dbname=drc
 else
-        dbname=$3
+        dbname=$5
 fi
 
-if [[ $# -lt 4 ]]; then
+if [[ $# -lt 6 ]]; then
         echo -e "No logdir specified, so it will assume log.";
         logdir=log
 else
-        logdir=$4
+        logdir=$6
 fi
 
 echo -e "host1:port1:user1: ${host1}:${port1}:${user1}";
@@ -45,14 +61,14 @@ echo -e "logdir:${logdir}";
 #schemas=('c2m2' 'slim' '_4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC');
 #schemas=('_4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet');
 # ERCC is now ExRNA
-schemas=('_4DN' 'ExRNA' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet');
+schemas=('_4DN' 'ExRNA' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet' 'SCGE');
 #schemas=('Metabolomics');
 
-if [[ $# -lt 5 ]]; then
+if [[ $# -lt 7 ]]; then
         echo -e "The program will loop over all schemas:";
 	echo "${schemas[@]}";
 else
-	shift; shift; shift; shift;
+	shift; shift; shift; shift; shift; shift;
 	schemas=("$@")
         echo -e "The program will loop over the specified schemas:";
 	echo "${schemas[@]}";

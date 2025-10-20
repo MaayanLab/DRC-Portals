@@ -995,3 +995,27 @@ export function generateSelectColumnsForFileQuery(tablename: string = '') {
 
   return colnamesString;
 }
+
+// Helper function to print Postgres connection info
+export function logDatabaseConnectionInfo() {
+  const dbUrl = process.env.C2M2_DATABASE_URL;
+
+  console.log("<-------------------------- DEBIGGING DB CONNECTION ---------------------------->");
+  if (!dbUrl) {
+    console.warn("C2M2_DATABASE_URL is not defined in environment variables.");
+    return;
+  }
+
+  try {
+    const parsed = new URL(dbUrl);
+    console.log("Connecting to PostgreSQL database:");
+    console.log(`  Host: ${parsed.hostname}`);
+    console.log(`  Port: ${parsed.port || "5432"}`);
+    console.log(`  Database: ${parsed.pathname.replace("/", "")}`);
+    console.log(`  User: ${parsed.username}`);
+    console.log(`  Schema: ${parsed.searchParams.get("schema") || "(default)"}`);
+  } catch (err) {
+    console.warn("Could not parse C2M2_DATABASE_URL:", err);
+  }
+  console.log("<------------------------------------------------------------------------------>");
+}

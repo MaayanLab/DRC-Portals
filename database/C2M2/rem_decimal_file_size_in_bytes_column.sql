@@ -23,7 +23,7 @@ UPDATE c2m2.file  SET uncompressed_size_in_bytes = REGEXP_REPLACE(uncompressed_s
 DO $$
 DECLARE
 	/*
-	schema_names text[] := ARRAY['c2m2', '_4dn', 'ercc', 'gtex', 'glygen', 'hmp', 'hubmap', 'idg', 'kidsfirst', 'lincs', 'metabolomics', 'motrpac', 'sparc']; -- Array of schema names
+	schema_names text[] := ARRAY['c2m2', '_4dn', 'ercc', 'gtex', 'glygen', 'hmp', 'hubmap', 'idg', 'kidsfirst', 'lincs', 'metabolomics', 'motrpac', 'sparc', 'sennet', 'scge']; -- Array of schema names
 	*/
 	schema_names text[] := ARRAY['sparc']; -- Array of schema names
 	schema_name text;
