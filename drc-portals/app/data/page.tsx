@@ -20,7 +20,7 @@ import { mdiArrowRight, mdiToolbox, mdiLaptop, mdiChatOutline } from '@mdi/js';
 import CFPrograms from "@/components/misc/CFPrograms"
 import { SearchForm, SearchField } from "./search2/SearchField";
 import { BlurBig } from "@/components/styled/Blur"
-import Summary from "@/app/data/search2/summary/page"
+import Summary from "@/app/data/search2/summary/SummaryComponent"
 import { ResponsivePaper } from "../info/styled"
 import Tooltip from '@mui/material/Tooltip';
 
@@ -132,7 +132,7 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
                         </Typography>
                         <Box>
                           <SearchField
-                            q={searchParams.q ?? ''}
+                            defaultValue={searchParams.q ?? ''}
                             error={searchParams.error}
                             InputProps={{
                               sx: {width:{xs: '270px', sm: '270px', md: '544px', lg: '544px', xl: '544px'} }

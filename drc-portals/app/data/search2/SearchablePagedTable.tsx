@@ -49,6 +49,7 @@ export function SearchablePagedTableCellIcon(props: {
 export default function SearchablePagedTable(props: React.PropsWithChildren<{
   label?: string,
   f: string, count: number,
+  p: number, r: number,
   loading?: boolean,
   columns: React.ReactNode[],
   rows: React.ReactNode[][],
