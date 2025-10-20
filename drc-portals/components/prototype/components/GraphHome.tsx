@@ -147,7 +147,7 @@ export default function GraphHome() {
                       Quickstart Guide
                     </Button>
                   </Link>
-                  <Link href="/info/documentation/gqi">
+                  <Link href="/data/documentation/gqi">
                     <Button
                       sx={{ textTransform: "uppercase" }}
                       color="secondary"

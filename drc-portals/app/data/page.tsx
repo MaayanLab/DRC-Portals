@@ -115,7 +115,7 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
                             imgSrc="/img/C2M2_NEO4J_level0.jpg"
                             imgAlt="Crosscut Metadata (C2M2)"
                             text="The Crosscut Metadata Model (C2M2) is a flexible metadata standard for describing experimental resources in biomedicine and related fields. Click to find more about C2M2.">
-                            <Link href="/info/documentation/C2M2" key="Metadata" color="secondary" className="underline cursor-pointer secondary" target="_blank" rel="noopener noreferrer">
+                            <Link href="/data/documentation/C2M2" key="Metadata" color="secondary" className="underline cursor-pointer secondary" target="_blank" rel="noopener noreferrer">
                               Metadata
                             </Link>
                           </CustomTooltip>

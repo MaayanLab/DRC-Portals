@@ -53,7 +53,7 @@ export default function Standards() {
                 ontologies, along with a single JSON schema.
                 <br /><br />
                 Learn more about generating a C2M2 datapackage <Link
-                href="/info/documentation/C2M2" rel="noopener" color="#3470e5">here</Link>.
+                href="/data/documentation/C2M2" rel="noopener" color="#3470e5">here</Link>.
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>
@@ -69,7 +69,7 @@ export default function Standards() {
                 language knowledge required.
                 <br /><br />
                 Learn more about the graph query interface <Link
-                href="/info/documentation/gqi" rel="noopener" color="#3470e5">here</Link>.
+                href="/data/documentation/gqi" rel="noopener" color="#3470e5">here</Link>.
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>
@@ -111,7 +111,7 @@ export default function Standards() {
                 SmartAPI enables users to search and use a connected network of tools.
                 <br /><br />
                 Learn more about generating an OpenAPI or SmartAPI specification <Link
-                href="/info/documentation/OpenAPI" rel="noopener" color="#3470e5">here</Link>.
+                href="/data/documentation/OpenAPI" rel="noopener" color="#3470e5">here</Link>.
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>
@@ -130,7 +130,7 @@ export default function Standards() {
                 relevant use cases.
                 <br /><br />
                 Learn more about generating Data Distillery Knowledge Graph Assertions <Link
-                href="/info/documentation/KGAssertions" rel="noopener" color="#3470e5">here</Link>.
+                href="/data/documentation/KGAssertions" rel="noopener" color="#3470e5">here</Link>.
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>
@@ -150,7 +150,7 @@ export default function Standards() {
                 improve the FAIRness of their tools.
                 <br /><br />
                 Learn more about performing FAIR assessments with FAIRshake <Link
-                href="/info/documentation/FAIRshake" rel="noopener" color="#3470e5">here</Link>.
+                href="/data/documentation/FAIRshake" rel="noopener" color="#3470e5">here</Link>.
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>
@@ -170,7 +170,7 @@ export default function Standards() {
                 required.
                 <br /><br />
                 Learn more about building PWB metanodes <Link
-                href="/info/documentation/PWBMetanodes" rel="noopener" color="#3470e5">here</Link>.
+                href="/data/documentation/PWBMetanodes" rel="noopener" color="#3470e5">here</Link>.
               </Typography>
             </StyledAccordionDetails>
           </StyledAccordion>
