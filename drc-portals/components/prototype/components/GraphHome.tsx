@@ -10,7 +10,7 @@ import {
   Button,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import React from "react";
+import { useCallback, useState } from "react";
 import Carousel from "react-material-ui-carousel";
 
 import { NodeResult } from "@/lib/neo4j/types";
@@ -51,11 +51,22 @@ const GRAPH_QUERY_TOOLS: Tool[] = [
 
 export default function GraphHome() {
   const router = useRouter();
+  const [firstRenderDone, setFirstRenderDone] = useState(false);
 
   const onSearchBarSubmit = (cvTerm: NodeResult) => {
     const href = `/data/graph/search?id=${encodeURIComponent(cvTerm.uuid)}&labels=${encodeURIComponent(":" + cvTerm.labels.join(":"))}`
     router.push(href)
   }
+
+  const onFirstRender = () => {
+    setFirstRenderDone(true);
+  }
+
+  const onCarouselChange = useCallback(() => {
+    if (!firstRenderDone) {
+      onFirstRender();
+    }
+  }, [firstRenderDone])
 
   return (
     <Grid container alignItems={"flex-start"} justifyContent={"center"}>
@@ -89,15 +100,16 @@ export default function GraphHome() {
                   <Carousel
                     autoPlay={false}
                     cycleNavigation={false}
-                    indicators={true}
-                    navButtonsAlwaysVisible={true}
+                    indicators={firstRenderDone}
+                    navButtonsAlwaysVisible={firstRenderDone}
+                    onChange={onCarouselChange}
+                    changeOnFirstRender={true}
                     sx={{
-                      minHeight: 300,
                       minWidth: { xs: 350, sm: 600, md: 800, lg: 800, xl: 800 },
                     }}
                   >
                     {GRAPH_QUERY_TOOLS.map((tool, i) => (
-                      <Container key={i} maxWidth="lg">
+                      <Container key={i} maxWidth="lg" sx={{ backgroundColor: "#fff" }}>
                         <Typography variant="h3" color="secondary">
                           Graph Query Tips
                         </Typography>
@@ -120,7 +132,11 @@ export default function GraphHome() {
                           >
                             <Box
                               className="flex flex-col"
-                              sx={{ minHeight: 250, boxShadow: "none", background: "#FFF" }}
+                              sx={{
+                                minHeight: 250,
+                                boxShadow: "none",
+                                background: "#FFF"
+                              }}
                             >
                               <div className="flex grow items-center justify-center relative">
                                 <Image
