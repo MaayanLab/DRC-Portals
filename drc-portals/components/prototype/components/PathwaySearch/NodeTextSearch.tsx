@@ -105,13 +105,12 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(cm
         endAdornment: (
           <InputAdornment position="end" sx={{ position: "absolute", right: "7px" }}>
             {
-              loading
-                ? <CircularProgress color="inherit" size={20} />
-                : <>
+              loading ? <CircularProgress color="inherit" size={20} /> :
+                value.length > 0 ?
                   <IconButton size="small" title="Clear" onClick={(event) => handleOnChange(event, [], "clear")}>
                     <CloseIcon fontSize="inherit" />
                   </IconButton>
-                </>
+                  : null
             }
 
           </InputAdornment>
@@ -178,7 +177,7 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(cm
 
   return (
     <Autocomplete
-      sx={{ width: "700px" }}
+      sx={{ width: "550px" }}
       size="small"
       multiple
       disableClearable
