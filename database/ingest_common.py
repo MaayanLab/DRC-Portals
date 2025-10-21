@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import functools
 import psycopg2
 import pathlib
 import csv
@@ -28,6 +29,7 @@ class TableHelper:
     self.add_columns = add_columns
   @contextlib.contextmanager
   def writer(self):
+    connection = pg_connect()
     with tempfile.TemporaryDirectory() as tmpdir:
       path = pathlib.Path(tmpdir)/(self.tablename+'.tsv')
       with path.open('w') as fw:
@@ -77,26 +79,32 @@ if DATABASE_URL == None:
   load_dotenv('../../drc-portals/.env') # for fair assessment 
   load_dotenv()
   DATABASE_URL = os.getenv("DATABASE_URL")
-result = urlparse(DATABASE_URL)
-username = result.username
-password = unquote(result.password)
-database = result.path[1:]
-hostname = result.hostname
-port = result.port
 
-##### Line below is for debug only, always keep commented otherwise
-#####print(f"username: {username}, password: {password}, database: {database}, hostname: {hostname}")
+@functools.cache
+def pg_connect():
+  result = urlparse(DATABASE_URL)
+  username = result.username
+  password = unquote(result.password)
+  database = result.path[1:]
+  hostname = result.hostname
+  port = result.port
 
-connection = psycopg2.connect(
-    database = database,
-    user = username,
-    password = password,
-    host = hostname,
-    port = port
-)
+  ##### Line below is for debug only, always keep commented otherwise
+  #####print(f"username: {username}, password: {password}, database: {database}, hostname: {hostname}")
+
+  connection = psycopg2.connect(
+      database = database,
+      user = username,
+      password = password,
+      host = hostname,
+      port = port
+  )
+  return connection
 
 #%%
-es = elasticsearch.Elasticsearch(os.getenv('ELASTICSEARCH_URL'))
+@functools.cache
+def es_connect():
+  return elasticsearch.Elasticsearch(os.getenv('ELASTICSEARCH_URL'))
 
 #%%
 class ExEncoder(json.JSONEncoder):
@@ -116,6 +124,7 @@ def maybe_json_dumps(v):
 
 @contextlib.contextmanager
 def pdp_helper():
+  es = es_connect()
   entities = {}
   m2m = {}
   m2o = {}

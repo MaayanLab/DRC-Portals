@@ -1,16 +1,13 @@
-import os
 import elasticsearch
 import functools
 import itertools
 from collections import deque
 from elasticsearch.dsl import Search
+from ingest_common import es_connect
 
-from dotenv import load_dotenv
 from tqdm.auto import tqdm
-load_dotenv('../drc-portals/.env')
-load_dotenv()
 
-es = elasticsearch.Elasticsearch(os.getenv('ELASTICSEARCH_URL'))
+es = es_connect()
 
 @functools.lru_cache(maxsize=1)
 def entity_lookup(id):

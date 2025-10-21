@@ -1,10 +1,7 @@
-import os
 import elasticsearch
-from dotenv import load_dotenv
-load_dotenv('../drc-portals/.env')
-load_dotenv()
+from ingest_common import es_connect
 
-es = elasticsearch.Elasticsearch(os.getenv('ELASTICSEARCH_URL'))
+es = es_connect()
 try:
   es.indices.create(index='entity')
   es.indices.put_settings(index='entity', body={'index': {'refresh_interval': '-1', 'number_of_shards': 4}})
