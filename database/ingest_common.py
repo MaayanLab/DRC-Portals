@@ -133,7 +133,7 @@ def pdp_helper():
     id = str(uuid5(uuid0, entity_serialized))
     if type not in entities: entities[type] = {}
     entity = json.loads(entity_serialized)
-    entities[id] = { 'slug': slug or id, 'type': entity['type'], **{f"a_{k}": maybe_json_dumps(v) for k, v in attributes.items() if v is not None}, }
+    entities[id] = { 'id': id, 'slug': slug or id, 'type': entity['type'], **{f"a_{k}": maybe_json_dumps(v) for k, v in attributes.items() if v is not None}, }
     assert 'label' in entity['attributes'] and entity['attributes']['label']
     return id
   def upsert_o2m(source_id, predicate, target_id):
@@ -155,21 +155,21 @@ def pdp_helper():
   # upsert entity details & relationships
   deque(elasticsearch.helpers.parallel_bulk(es, tqdm((
     dict(
-      _index='entity',
+      _index='entity_staging',
       _id=_id,
       _source=dict(
         _source,
-        **{
-          f"r_{pred}": rel_id
-          for pred, rel_id in m2o.get(_id, {}).items()
-        },
+        # **{
+        #   f"r_{pred}": rel_id
+        #   for pred, rel_id in m2o.get(_id, {}).items()
+        # },
       ),
     )
     for _id, _source in entities.items()
   ), desc='Ingesting entities...', total=len(entities))), maxlen=0)
   deque(elasticsearch.helpers.parallel_bulk(es, tqdm((
     dict(
-      _index='m2m',
+      _index='m2m_staging',
       _id=f"{source}:{predicate}:{target}",
       _source={
         'source_id': source,
