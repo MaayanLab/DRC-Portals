@@ -53,6 +53,10 @@ export function capitalize(s: string) {
   return `${s[0].toUpperCase()}${s.slice(1)}`
 }
 
+export function titleCapitalize(s: string) {
+  return s.split(' ').map(word => capitalize(word)).join(' ')
+}
+
 export function pluralize(s: string) {
   if (s.toLowerCase() === 'processed') return s
   if (s.toLowerCase() === 'c2m2') return s
@@ -98,7 +102,7 @@ export function predicateLabel(type: string) {
   else if (type === 'target') type = 'object of assertion'
   else if (type === 'source') type = 'subject of assertion'
   else if (type.startsWith('inv_')) type = `${type.substring(4)} of`
-  return capitalize(type.replaceAll('_',' '))
+  return titleCapitalize(type.replaceAll('_',' '))
 }
 
 export function categoryLabel(type: string) {
@@ -112,7 +116,7 @@ export function categoryLabel(type: string) {
   else if (type === 'dcc_asset') return 'Processed File'
   else if (type === 'processed') return 'Processed Data'
   else if (type === 'c2m2') return 'Cross-Cut Metadata'
-  else return entity_type_map[type] ?? capitalize(type.replaceAll('_',' '))
+  else return entity_type_map[type] ?? titleCapitalize(type.replaceAll('_',' '))
 }
 
 export function itemLabel(item: EntityType) {
@@ -142,8 +146,21 @@ export function itemDescription(item: EntityType, lookup?: Record<string, Entity
 }
 
 export function linkify(value: string) {
-  const m = /^(https?|drs):\/\/(.+)/.exec(value)
-  if (m === null) return <>{value}</>
-  if (m[1] === 'drs') return <a className="text-blue-600 cursor:pointer underline" href={`/data/drs?q=${encodeURIComponent(value)}`} target="_blank">{value}</a>
+  const uriMatch = /^(https?|drs):\/\/(.+)/.exec(value)
+  if (uriMatch === null) {
+    const nsPfMatch = /^(OBI|UBERON|data|format):(\w+)$/.exec(value)
+    if (nsPfMatch !== null && nsPfMatch[1] === 'OBI') {
+      return <a className="text-blue-600 cursor:pointer underline" href={`http://purl.obolibrary.org/obo/OBI_${nsPfMatch[2]}`} target="_blank">{value}</a>
+    } else if (nsPfMatch !== null && nsPfMatch[1] === 'UBERON') {
+      return <a className="text-blue-600 cursor:pointer underline" href={`http://purl.obolibrary.org/obo/UBERON_${nsPfMatch[2]}`} target="_blank">{value}</a>
+    } else if (nsPfMatch !== null && nsPfMatch[1] === 'data') {
+      return <a className="text-blue-600 cursor:pointer underline" href={`http://edamontology.org/data_${nsPfMatch[2]}`} target="_blank">{value}</a>
+    } else if (nsPfMatch !== null && nsPfMatch[1] === 'format') {
+      return <a className="text-blue-600 cursor:pointer underline" href={`http://edamontology.org/format_${nsPfMatch[2]}`} target="_blank">{value}</a>
+    } else {
+      return <>{value}</>
+    }
+  }
+  if (uriMatch[1] === 'drs') return <a className="text-blue-600 cursor:pointer underline" href={`/data/drs?q=${encodeURIComponent(value)}`} target="_blank">{value}</a>
   else return <a className="text-blue-600 cursor:pointer underline" href={value} target="_blank">{value}</a>
 }

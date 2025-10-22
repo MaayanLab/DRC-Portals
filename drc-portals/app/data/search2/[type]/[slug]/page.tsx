@@ -1,6 +1,6 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { capitalize, categoryLabel, EntityType, itemDescription, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType } from "@/app/data/search2/utils"
+import { categoryLabel, EntityType, humanBytesSize, itemDescription, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType, titleCapitalize } from "@/app/data/search2/utils"
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/search2/SearchablePagedTable";
 import Link from "@/utils/link";
@@ -108,13 +108,23 @@ export default async function Page(props: { params: { type: string, slug: string
           const m = /^(a|r)_(.+)$/.exec(predicate)
           if (m === null) return []
           if (m[1] == 'a') {
+            let value: string | React.ReactNode = item_source[predicate]
+            if (`r_${m[2]}` in item_source) return []
+            if (/_?(id_namespace|local_id)$/.exec(m[2]) != null) return []
+            if (m[2] === 'label') return []
+            if (m[2] === 'entrez') value = <a className="text-blue-600 cursor:pointer underline" href={`https://www.ncbi.nlm.nih.gov/gene/${item_source[predicate]}`} target="_blank" rel="noopener noreferrer">{item_source[predicate]}</a>
+            else if (m[2] === 'ensembl') value = <a className="text-blue-600 cursor:pointer underline" href={`https://www.ensembl.org/id/${item_source[predicate]}`} target="_blank" rel="noopener noreferrer">{item_source[predicate]}</a>
+            else if (m[2] === 'synonyms') value = (JSON.parse(value as string) as string[]).join(', ')
+            else if (/_in_bytes/.exec(m[2]) !== null) value = humanBytesSize(Number(item_source[predicate]))
+            else if (/_time$/.exec(m[2]) !== null) value = JSON.parse(value as string) as string
+            else value = linkify(item_source[predicate])
             return [{
-              label: capitalize(m[2].replaceAll('_', ' ')),
-              value: linkify(item_source[predicate])
+              label: titleCapitalize(m[2].replaceAll('_', ' ')),
+              value
             }]
           } else if (m[1] === 'r') {
             return [{
-              label: capitalize(m[2].replaceAll('_', ' ')),
+              label: titleCapitalize(m[2].replaceAll('_', ' ')),
               value: <div className="m-2">{item_source[predicate] in entityLookup ? <LinkedTypedNode type={entityLookup[item_source[predicate]].type} id={entityLookup[item_source[predicate]].slug} label={itemLabel(entityLookup[item_source[predicate]])} search={props.searchParams?.q ?? ''} /> : <>{item_source[predicate]}</>}</div>,
             }]
           }
@@ -122,7 +132,7 @@ export default async function Page(props: { params: { type: string, slug: string
         })
       ]}
     >
-      <ListingPageLayout
+      {Number(searchRes.hits.total) > 0 && <ListingPageLayout
         count={Number(searchRes.hits.total)}
         filters={
           <>
@@ -188,7 +198,7 @@ export default async function Page(props: { params: { type: string, slug: string
             ]
           })}
         />
-      </ListingPageLayout>
+      </ListingPageLayout>}
     </LandingPageLayout>
   )
 }
