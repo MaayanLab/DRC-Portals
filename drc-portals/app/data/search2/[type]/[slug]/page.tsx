@@ -30,6 +30,7 @@ export default async function Page(props: { params: { type: string, slug: string
   let q = decodeURIComponent(props.searchParams?.q ?? '')
   if (props.searchParams?.f) q = `${q ? `${q} ` : ''}${decodeURIComponent(props.searchParams.f)}`
   q = `${q ? `${q} ` : ''}+source_id:${item._id}`
+  const display_per_page = Math.min(Number(props.searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<M2MTargetType, TermAggType<'predicates' | 'types' | 'dccs'>>({
     index: 'm2m_target_expanded',
     query: {
@@ -58,11 +59,15 @@ export default async function Page(props: { params: { type: string, slug: string
         },
       },
     },
-    sort: [
+    sort: props.searchParams?.reverse === undefined ? [
       {'target_pagerank': {'order': 'desc'}},
-      {'_id': {'order': 'asc'} },
+      {'target_id': {'order': 'asc'} },
+    ] :  [
+      {'target_pagerank': {'order': 'asc'}},
+      {'target_id': {'order': 'desc'} },
     ],
-    size: 10,
+    search_after: props.searchParams?.cursor ? JSON.parse(decodeURIComponent(props.searchParams.cursor)) : undefined,
+    size: display_per_page,
     rest_total_hits_as_int: true,
   })
   const entityLookupRes = await elasticsearch.search<EntityType>({
@@ -157,9 +162,15 @@ export default async function Page(props: { params: { type: string, slug: string
         <SearchablePagedTable
           label="Linked to"
           f={props.searchParams?.f ?? ''}
-          p={1}
-          r={10}
-          count={Number(searchRes.hits.total)}
+          cursor={props.searchParams?.cursor}
+          reverse={props.searchParams?.reverse !== undefined}
+          display_per_page={display_per_page}
+          page={Number(props.searchParams?.page || 1)}
+          total={Number(searchRes.hits.total)}
+          cursors={[
+            searchRes.hits.hits[0].sort ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[0].sort)) : undefined,
+            searchRes.hits.hits[searchRes.hits.hits.length-1] ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[searchRes.hits.hits.length-1].sort)) : undefined,
+          ]}
           columns={[
             <>&nbsp;</>,
             <>Label</>,
