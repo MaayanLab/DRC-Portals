@@ -12,14 +12,16 @@ import { notFound } from 'next/navigation';
 import LandingPageLayout from '@/app/data/processed/LandingPageLayout';
 import SearchFilter from '@/app/data/search2/SearchFilter';
 
-export default async function Page(props: { params: { type: string, slug: string }, searchParams?: { [key: string]: string | undefined } }) {
+export default async function Page(props: { params: { type: string, slug: string } & Record<string, string>, searchParams?: { [key: string]: string | undefined } }) {
+  for (const k in props.params) props.params[k] = decodeURIComponent(props.params[k])
+  for (const k in props.searchParams) props.searchParams[k] = decodeURIComponent(props.searchParams[k] as string)
   const itemRes = await elasticsearch.search<EntityType>({
     index: 'entity',
       query: {
         bool: {
           must: [
-            { term: { 'type': decodeURIComponent(props.params.type) } },
-            { term: { 'slug': decodeURIComponent(props.params.slug) } },
+            { term: { 'type': props.params.type } },
+            { term: { 'slug': props.params.slug } },
           ]
         },
       },
@@ -27,9 +29,9 @@ export default async function Page(props: { params: { type: string, slug: string
   const item = itemRes.hits.hits[0]
   if (!item._source) notFound()
   const item_source = item._source
-  let q = decodeURIComponent(props.searchParams?.q ?? '')
-  if (props.searchParams?.facet) q = `${q ? `${q} ` : ''}${decodeURIComponent(props.searchParams.facet)}`
-  if (props.searchParams?.filter) q = `${q ? `${q} ` : ''}${decodeURIComponent(props.searchParams.filter)}`
+  let q = props.searchParams?.q ?? ''
+  if (props.searchParams?.facet) q = `${q ? `${q} ` : ''}${props.searchParams.facet}`
+  if (props.searchParams?.filter) q = `${q ? `${q} ` : ''}${props.searchParams.filter}`
   q = `${q ? `${q} ` : ''}+source_id:${item._id}`
   const display_per_page = Math.min(Number(props.searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<M2MTargetType, TermAggType<'predicates' | 'types' | 'dccs'>>({
@@ -67,7 +69,7 @@ export default async function Page(props: { params: { type: string, slug: string
       {'target_pagerank': {'order': 'asc'}},
       {'target_id': {'order': 'desc'} },
     ],
-    search_after: props.searchParams?.cursor ? JSON.parse(decodeURIComponent(props.searchParams.cursor)) : undefined,
+    search_after: props.searchParams?.cursor ? JSON.parse(props.searchParams.cursor) : undefined,
     size: display_per_page,
     rest_total_hits_as_int: true,
   })
@@ -139,21 +141,21 @@ export default async function Page(props: { params: { type: string, slug: string
             {searchRes.aggregations?.predicates && <>
               <div className="font-bold">Predicate</div>
               {searchRes.aggregations.predicates.buckets.map((filter) =>
-                <SearchFilter key={filter.key} facet={`+predicate:${filter.key}`}>{predicateLabel(filter.key)} ({filter.doc_count.toLocaleString()})</SearchFilter>
+                <SearchFilter key={filter.key} facet={`+predicate:"${filter.key}"`}>{predicateLabel(filter.key)} ({filter.doc_count.toLocaleString()})</SearchFilter>
               )}
               <br />
             </>}
             {searchRes.aggregations?.types && <>
               <div className="font-bold">Type</div>
               {searchRes.aggregations.types.buckets.map((filter) =>
-                <SearchFilter key={filter.key} facet={`+target_type:${filter.key}`}>{categoryLabel(filter.key)} ({filter.doc_count.toLocaleString()})</SearchFilter>
+                <SearchFilter key={filter.key} facet={`+target_type:"${filter.key}"`}>{categoryLabel(filter.key)} ({filter.doc_count.toLocaleString()})</SearchFilter>
               )}
               <br />
             </>}
             {searchRes.aggregations?.dccs && <>
               <div className="font-bold">DCC</div>
               {searchRes.aggregations.dccs.buckets.map((filter) =>
-                <SearchFilter key={filter.key} facet={`+target_r_dcc:${filter.key}`}>{filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : filter.key} ({filter.doc_count.toLocaleString()})</SearchFilter>
+                <SearchFilter key={filter.key} facet={`+target_r_dcc:"${filter.key}"`}>{filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : filter.key} ({filter.doc_count.toLocaleString()})</SearchFilter>
               )}
             </>}
           </>

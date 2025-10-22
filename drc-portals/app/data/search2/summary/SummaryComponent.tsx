@@ -21,8 +21,8 @@ export default async function Summary({ include }: { include?: string[] }) {
       <Grid container spacing={6} justifyContent={"center"} alignItems={"flex-start"}>
         {summaryRes.aggregations?.types.buckets.map((result) => (
         <Grid key={result.key} item xs={6} sm={4} md={3} lg={2}>
-          <a href={`/data/search2/${result.key}`}>
-            <div className="flex flex-col items-center">
+          <a href={`/data/search2/${encodeURIComponent(result.key)}`}>
+            <div className="flex flex-col items-center text-center">
               <Typography variant="h2" color="secondary">{BigInt(result.doc_count).toLocaleString()}</Typography>
               <Typography variant="subtitle1" color="secondary">{pluralize(categoryLabel(result.key))}</Typography>
             </div>
