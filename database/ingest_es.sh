@@ -39,6 +39,13 @@ EOF
 es POST /_aliases << EOF
 {
   "actions": [
+    { "remove": { "index": "*", "alias": "entity_staging" } }
+  ]
+}
+EOF
+es POST /_aliases << EOF
+{
+  "actions": [
     { "add": { "index": "entity_${INDEX_VERSION}", "alias": "entity_staging" } }
   ]
 }
@@ -56,6 +63,14 @@ es PUT /m2m_${INDEX_VERSION} << EOF
   }
 }
 EOF
+
+es POST /_aliases << EOF
+{
+  "actions": [
+    { "remove": { "index": "*", "alias": "m2m_staging" } }
+  ]
+}
+EOF
 es POST /_aliases << EOF
 {
   "actions": [
@@ -70,6 +85,14 @@ EOF
 ../.venv/bin/python ingest_c2m2_files.py
 ../.venv/bin/python ingest_kg.py
 
+# sanity checks
+es POST /entity_staging/_search << EOF
+{"query":{"match_all":{}}, "size":10,"sort":[{"pagerank":{"order": "desc"}}]}
+EOF
+es POST /m2m_staging/_search << EOF
+{"query":{"match_all":{}}, "size":10}
+EOF
+
 # provide a way to get entity from id
 es PUT /_enrich/policy/entity_lookup << EOF
 {
@@ -81,7 +104,7 @@ es PUT /_enrich/policy/entity_lookup << EOF
 }
 EOF
 
-es POST /_enrich/policy/entity_lookup/_execute
+echo "" | es POST /_enrich/policy/entity_lookup/_execute
 
 # expand target_id into full target entity
 es PUT /_ingest/pipeline/m2m_expanded_target << EOF

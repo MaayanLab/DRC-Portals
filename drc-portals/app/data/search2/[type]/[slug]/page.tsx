@@ -18,8 +18,8 @@ export default async function Page(props: { params: { type: string, slug: string
       query: {
         bool: {
           must: [
-            { term: { 'type.keyword': decodeURIComponent(props.params.type) } },
-            { term: { 'slug.keyword': decodeURIComponent(props.params.slug) } },
+            { term: { 'type': decodeURIComponent(props.params.type) } },
+            { term: { 'slug': decodeURIComponent(props.params.slug) } },
           ]
         },
       },
@@ -41,13 +41,13 @@ export default async function Page(props: { params: { type: string, slug: string
     aggs: {
       predicates: {
         terms: {
-          field: 'predicate.keyword',
+          field: 'predicate',
           size: 10,
         },
       },
       types: {
         terms: {
-          field: 'target_type.keyword',
+          field: 'target_type',
           size: 1000,
         },
       },

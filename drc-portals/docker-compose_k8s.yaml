@@ -1,4 +1,15 @@
 services:
+  drc-portal-ingest:
+    build: ../database
+    platform: linux/amd64
+    image: maayanlab/drc-portal-es-ingest:0.20.2
+    command: /bin/sh -c 'sleep infinity'
+    pull_policy: missing
+    environment:
+      - DATABASE_URL=${DEV_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public&pool_timeout=0&connection_limit=10&connect_timeout=30}
+      - ELASTICSEARCH_URL=${DEV_ELASTICSEARCH_URL:-http://elastic:${ELASTICSEARCH_PASSWORD}@drc-portal-elasticsearch:9200}
+    volumes:
+      - drc-portal-ingest:/work/ingest
   drc-portal-app:
     build: .
     platform: linux/amd64
@@ -68,6 +79,11 @@ volumes:
   drc-portal-elasticsearch:
     x-kubernetes:
       size: 100Gi
+      class: local-path
+
+  drc-portal-ingest:
+    x-kubernetes:
+      size: 50Gi
       class: local-path
 
 x-kubernetes:

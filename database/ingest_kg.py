@@ -59,11 +59,16 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
     continue
 
   with pdp_helper() as helper:
+    entities = {}
+    def upsert_entity(type, attributes, slug=None):
+      id = helper.upsert_entity(type, attributes, slug=slug)
+      entities[id] = dict(type=type, slug=slug, **{f"a_{k}": v for k,v in attributes.items()})
+      return id
     def ensure_entity(entity_type, entity_label):
       entity_type = entity_type.lower()
       if entity_type == 'gene':
         for gene in gene_lookup.get(entity_label, []):
-          yield lambda gene=gene: helper.upsert_entity('gene', dict(
+          yield lambda gene=gene: upsert_entity('gene', dict(
             label=gene_labels[gene],
             description=gene_descriptions[gene],
             ensembl=gene,
@@ -72,14 +77,14 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
       elif entity_type:
         entity_type = map_type.get(entity_type, entity_type)
         if entity_type:
-          yield lambda entity_type=entity_type, entity_label=entity_label: helper.upsert_entity(entity_type, dict(
+          yield lambda entity_type=entity_type, entity_label=entity_label: upsert_entity(entity_type, dict(
             label=entity_label,
           ))
     #
-    dcc_id = helper.upsert_entity('dcc', dict(
+    dcc_id = upsert_entity('dcc', dict(
       label=file['short_label']
     ), slug=file['short_label'])
-    dcc_asset_id = helper.upsert_entity('dcc_asset', dict(
+    dcc_asset_id = upsert_entity('dcc_asset', dict(
       label=file['filename'],
       link=file['link'],
       filetype=file['filetype'],
@@ -106,7 +111,7 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
         for assertion in tqdm(assertion_edge_reader, desc=f"  Processing {assertion_edge_file.name}..."):
           for ensure_source_id in assertion_nodes.get(assertion['source'], []):
             for ensure_target_id in assertion_nodes.get(assertion['target'], []):
-              relation_id = helper.upsert_entity('kg_relation', dict(
+              relation_id = upsert_entity('kg_relation', dict(
                 label=assertion['relation'],
               ))
               if assertion['evidence_class'] == 'nan':
@@ -120,8 +125,8 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
               #
               source_id = ensure_source_id()
               target_id = ensure_target_id()
-              assertion_id = helper.upsert_entity('kg_assertion', dict(
-                label=f"{helper.entities[source_id]['a_label']} {helper.entities[relation_id]['a_label']} {helper.entities[target_id]['a_label']}",
+              assertion_id = upsert_entity('kg_assertion', dict(
+                label=f"{entities[source_id]['a_label']} {entities[relation_id]['a_label']} {entities[target_id]['a_label']}",
                 SAB=assertion['SAB'],
                 evidence=assertion['evidence_class'],
               ))

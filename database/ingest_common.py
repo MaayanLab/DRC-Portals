@@ -14,8 +14,8 @@ from urllib.parse import urlparse, unquote
 from dotenv import load_dotenv
 from uuid import UUID, uuid5
 from datetime import datetime
-from collections import deque
 from tqdm.auto import tqdm
+import itertools
 import json
 import elasticsearch, elasticsearch.helpers
 
@@ -126,13 +126,12 @@ def maybe_json_dumps(v):
   else: return json.dumps(v, sort_keys=True, cls=ExEncoder)
 
 def es_bulk_insert(Q: queue.Queue):
+  consume, items = itertools.tee(iter(Q.get, None))
   while True:
     try:
-      for success, info in elasticsearch.helpers.parallel_bulk(es_connect(), tqdm(iter(Q.get, None), desc='Ingesting...'), max_chunk_bytes=10*1024*1024, raise_on_exception=False):
+      for (success, info), item in zip(elasticsearch.helpers.parallel_bulk(es_connect(), tqdm(consume, desc='Ingesting...'), max_chunk_bytes=10*1024*1024, raise_on_exception=False, raise_on_error=False), items):
         Q.task_done()
-        if not success:
-          print(f"putting back failed task {info=}")
-          Q.put(info)
+        if not success: Q.put(item)
     except KeyboardInterrupt:
       raise
     except Exception as e:
@@ -143,7 +142,7 @@ def es_bulk_insert(Q: queue.Queue):
     
 @contextlib.contextmanager
 def es_helper():
-  Q = queue.Queue()
+  Q = queue.Queue(1_000)
   bulk_insert_thread = threading.Thread(target=es_bulk_insert, args=(Q,))
   bulk_insert_thread.start()
   try:
@@ -155,82 +154,97 @@ def es_helper():
 @contextlib.contextmanager
 def pdp_helper():
   with es_helper() as es:
-    entities = {}
     pagerank = {}
-    m2m = set()
     m2o = {}
     def upsert_entity(type, attributes, slug=None):
       entity_serialized = maybe_json_dumps({'type': type, 'slug': slug, **{f"a_{k}": maybe_json_dumps(v) for k, v in attributes.items() if v is not None}})
       id = str(uuid5(uuid0, entity_serialized))
       entity = json.loads(entity_serialized)
       entity['id'] = id
+      if not entity['slug']: entity['slug'] = id
       entity['pagerank'] = 0
       assert 'a_label' in entity
-      if id not in entities:
-        entities[id] = entity
-        es.put(dict(
-          _index='entity_staging',
-          _id=id,
-          doc=entity,
-          doc_as_upsert=True,
-        ))
+      es.put(dict(
+        _op_type='update',
+        _index='entity_staging',
+        _id=id,
+        doc=entity,
+        doc_as_upsert=True,
+      ))
       return id
     def upsert_o2m(source_id, predicate, target_id):
       if target_id not in m2o: m2o[target_id] = {}
       assert predicate not in m2o[target_id] or m2o[target_id][predicate] == source_id
       m2o[target_id][predicate] = source_id
       es.put(dict(
+        _op_type='update',
         _index='entity_staging',
         _id=target_id,
         doc={f"r_{predicate}": source_id},
         doc_as_upsert=True,
       ))
-      if (source_id, predicate, target_id) not in m2m:
-        m2m.add((source_id, predicate, target_id))
-        es.put(dict(
-          _index='m2m_staging',
-          _id=f"{source_id}:{predicate}:{target_id}",
-          doc=dict(source_id=source_id, predicate=predicate, target_id=target_id),
-          doc_as_upsert=True,
-        ))
-        if source_id not in pagerank:
-          pagerank[source_id] = 0
-        pagerank[source_id] += 1
+      es.put(dict(
+        _op_type='update',
+        _index='m2m_staging',
+        _id=f"{source_id}:{predicate}:{target_id}",
+        doc=dict(source_id=source_id, predicate=predicate, target_id=target_id),
+        doc_as_upsert=True,
+      ))
+      # es.put(dict(
+      #   _op_type='update',
+      #   _index='entity_staging',
+      #   _id=source_id,
+      #   script=dict(source='if (ctx._source.pagerank == null) {ctx._source.pagerank = 0;} ctx._source.pagerank += 1;', lang='painless', params=dict()),
+      #   upsert=dict(id=source_id, pagerank=0),
+      #   scripted_upsert=True,
+      # ))
+      pagerank[source_id] = pagerank.get(source_id, 0) + 1
     def upsert_m2o(source_id, predicate, target_id):
       upsert_o2m(target_id, predicate, source_id)
     def upsert_m2m(source_id, predicate, target_id):
-      if (source_id, predicate, target_id) not in m2m:
-        m2m.add((source_id, predicate, target_id))
-        es.put(dict(
-          _index='m2m_staging',
-          _id=f"{source_id}:{predicate}:{target_id}",
-          doc=dict(source_id=source_id, predicate=predicate, target_id=target_id),
-          doc_as_upsert=True,
-        ))
-        if source_id not in pagerank:
-          pagerank[source_id] = 0
-        pagerank[source_id] += 1
-      if (target_id, f"inv_{predicate}", source_id) not in m2m:
-        m2m.add((target_id, f"inv_{predicate}", source_id))
-        es.put(dict(
-          _index='m2m_staging',
-          _id=f"{target_id}:inv_{predicate}:{source_id}",
-          doc=dict(source_id=target_id, predicate=f"inv_{predicate}", target_id=source_id),
-          doc_as_upsert=True,
-        ))
-        if target_id not in pagerank:
-          pagerank[target_id] = 0
-        pagerank[target_id] += 1
+      es.put(dict(
+        _op_type='update',
+        _index='m2m_staging',
+        _id=f"{source_id}:{predicate}:{target_id}",
+        doc=dict(source_id=source_id, predicate=predicate, target_id=target_id),
+        doc_as_upsert=True,
+      ))
+      # es.put(dict(
+      #   _op_type='update',
+      #   _index='entity_staging',
+      #   _id=source_id,
+      #   script=dict(source='if (ctx._source.pagerank == null) {ctx._source.pagerank = 0;} ctx._source.pagerank += 1;', lang='painless', params=dict()),
+      #   upsert=dict(id=source_id, pagerank=0),
+      #   scripted_upsert=True,
+      # ))
+      pagerank[source_id] = pagerank.get(source_id, 0) + 1
+      es.put(dict(
+        _op_type='update',
+        _index='m2m_staging',
+        _id=f"{target_id}:inv_{predicate}:{source_id}",
+        doc=dict(source_id=target_id, predicate=f"inv_{predicate}", target_id=source_id),
+        doc_as_upsert=True,
+      ))
+      # es.put(dict(
+      #   _op_type='update',
+      #   _index='entity_staging',
+      #   _id=target_id,
+      #   script=dict(source='if (ctx._source.pagerank == null) {ctx._source.pagerank = 0;} ctx._source.pagerank += 1;', lang='painless', params=dict()),
+      #   upsert=dict(id=source_id, pagerank=0),
+      #   scripted_upsert=True,
+      # ))
+      pagerank[target_id] = pagerank.get(target_id, 0) + 1
     #
-    yield type('pdp', tuple(), dict(entities=entities, upsert_o2m=upsert_o2m, upsert_m2o=upsert_m2o, upsert_m2m=upsert_m2m, upsert_entity=upsert_entity))
-  #
-  for target_id, count in pagerank.items():
-    es.put(dict(
-      _index='entity_staging',
-      _id=target_id,
-      script=dict(source='ctx._source.pagerank += params.count', lang='painless', params=dict(count=count)),
-      doc_as_upsert=True,
-    ))
+    yield type('pdp', tuple(), dict(upsert_o2m=upsert_o2m, upsert_m2o=upsert_m2o, upsert_m2m=upsert_m2m, upsert_entity=upsert_entity))
+    for source_id, pagerank in pagerank.items():
+      es.put(dict(
+        _op_type='update',
+        _index='entity_staging',
+        _id=source_id,
+        script=dict(source='if (ctx._source.pagerank == null) {ctx._source.pagerank = 0;} ctx._source.pagerank += 1;', lang='painless', params=dict()),
+        upsert=dict(id=source_id, pagerank=0),
+        scripted_upsert=True,
+      ))
 
 #%%
 # Fetch assets to ingest

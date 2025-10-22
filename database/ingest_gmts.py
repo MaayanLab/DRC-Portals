@@ -46,7 +46,7 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
     ))
     helper.upsert_m2o(library_id, 'dcc_asset', dcc_asset_id)
     helper.upsert_m2o(library_id, 'dcc', dcc_id)
-  #
+    #
     with gmt_path.open('r') as fr:
       for line in tqdm(fr, desc=f"Processing {gmt['short_label']}/{gmt['filename']}..."):
         line_split = list(map(str.strip, line.split('\t')))

@@ -27,7 +27,7 @@ export default async function Page(props: { params: { type?: string }, searchPar
     aggs: {
       types: {
         terms: {
-          field: 'type.keyword',
+          field: 'type',
           size: 1000,
         },
       },

@@ -10,7 +10,7 @@ export default async function Summary({ include }: { include?: string[] }) {
     aggs: {
       types: {
         terms: {
-          field: "type.keyword", 
+          field: "type", 
           size: 1000,
           include,
         },
