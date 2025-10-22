@@ -5,6 +5,7 @@ import Link from "@/utils/link"
 import Image, { StaticImageData } from "@/utils/image"
 import { categoryLabel, categoryColor } from "./utils"
 import { Highlight } from "@/components/misc/Highlight"
+import FormPagination from "./FormPagination"
 
 export function LinkedTypedNode({
   id,
@@ -48,8 +49,10 @@ export function SearchablePagedTableCellIcon(props: {
 
 export default function SearchablePagedTable(props: React.PropsWithChildren<{
   label?: string,
-  f: string, count: number,
-  p: number, r: number,
+  f: string,
+  page: number, total: number,
+  cursor?: string, reverse: boolean, display_per_page: number,
+  cursors: [string | undefined, string | undefined],
   loading?: boolean,
   columns: React.ReactNode[],
   rows: React.ReactNode[][],
@@ -123,7 +126,14 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                 ))}
               </List>
             </Box>
-          {/* <FormPagination p={props.p} r={props.r} count={props.count} /> */}
+          <FormPagination
+            cursor={props.cursor}
+            reverse={props.reverse}
+            display_per_page={props.display_per_page}
+            page={props.page}
+            total={props.total}
+            cursors={props.cursors}
+          />
         </Stack>
       </Grid>
     </Grid>

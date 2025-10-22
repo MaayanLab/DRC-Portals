@@ -15,6 +15,7 @@ export default async function Page(props: { params: { type?: string }, searchPar
   let q = decodeURIComponent(props.searchParams?.q ?? '')
   if (props.searchParams?.f) q = `${q ? `${q} ` : ''}${decodeURIComponent(props.searchParams.f)}`
   if (props.params.type) q = `${q ? `(${q}) ` : ''}+type:${decodeURIComponent(props.params.type)}`
+  const display_per_page = Math.min(Number(props.searchParams?.display_per_page ?? 10), 50)
   if (!q) redirect('/data')
   const searchRes = await elasticsearch.search<EntityType, TermAggType<'types' | 'dccs'>>({
     index: 'entity',
@@ -38,13 +39,20 @@ export default async function Page(props: { params: { type?: string }, searchPar
         },
       },
     },
-    sort: [
+    sort: props.searchParams?.reverse === undefined ? [
       {'pagerank': {'order': 'desc'}},
       {'_id': {'order': 'asc'} },
+    ] :  [
+      {'pagerank': {'order': 'asc'}},
+      {'_id': {'order': 'desc'} },
     ],
-    size: 10,
+    search_after: props.searchParams?.cursor ? JSON.parse(decodeURIComponent(props.searchParams.cursor)) : undefined,
+    size: display_per_page,
     rest_total_hits_as_int: true,
   })
+  if (props.searchParams?.reverse !== undefined) {
+    searchRes.hits.hits.reverse()
+  }
   const entityLookupRes = await elasticsearch.search<EntityType>({
     index: 'entity',
     query: {
@@ -101,9 +109,15 @@ export default async function Page(props: { params: { type?: string }, searchPar
       <SearchablePagedTable
         label={props.params.type ? categoryLabel(props.params.type) : undefined}
         f={props.searchParams?.f ?? ''}
-        p={1}
-        r={10}
-        count={Number(searchRes.hits.total)}
+        cursor={props.searchParams?.cursor}
+        reverse={props.searchParams?.reverse !== undefined}
+        display_per_page={display_per_page}
+        page={Number(props.searchParams?.page || 1)}
+        total={Number(searchRes.hits.total)}
+        cursors={[
+          searchRes.hits.hits[0].sort ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[0].sort)) : undefined,
+          searchRes.hits.hits[searchRes.hits.hits.length-1] ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[searchRes.hits.hits.length-1].sort)) : undefined,
+        ]}
         columns={[
           <>&nbsp;</>,
           <>Label</>,
