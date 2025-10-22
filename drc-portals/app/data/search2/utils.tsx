@@ -92,7 +92,12 @@ export function categoryColor(type: string) {
 }
 
 export function predicateLabel(type: string) {
-  if (type.startsWith('^')) type = `${type.substring(1)} of`
+  if (type === 'inv_gene_set') type = 'has gene'
+  else if (type === 'gene_set') type = 'in gene set'
+  else if (type === 'relation') type = 'defines relation'
+  else if (type === 'target') type = 'object of assertion'
+  else if (type === 'source') type = 'subject of assertion'
+  else if (type.startsWith('inv_')) type = `${type.substring(4)} of`
   return capitalize(type.replaceAll('_',' '))
 }
 
