@@ -49,7 +49,7 @@ export function SearchablePagedTableCellIcon(props: {
 
 export default function SearchablePagedTable(props: React.PropsWithChildren<{
   label?: string,
-  f: string,
+  filter: string,
   page: number, total: number,
   cursor?: string, reverse: boolean, display_per_page: number,
   cursors: [string | undefined, string | undefined],
@@ -63,8 +63,8 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
       <Grid item xs={12} sx={{marginBottom: 5}}>
         <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
           <Typography variant="h2" color="secondary" className="whitespace-nowrap">{props.label}</Typography>
-          <SearchForm name="f">
-            <SearchField name="f" defaultValue={props.f} placeholder={`Filter ${props.label}`} />
+          <SearchForm name="filter">
+            <SearchField name="filter" defaultValue={props.filter} placeholder={`Filter ${props.label}`} />
           </SearchForm>
         </Stack>
       </Grid>

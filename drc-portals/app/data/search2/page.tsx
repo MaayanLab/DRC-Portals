@@ -13,7 +13,8 @@ import SearchFilter from './SearchFilter';
 
 export default async function Page(props: { params: { type?: string }, searchParams?: { [key: string]: string | undefined } }) {
   let q = decodeURIComponent(props.searchParams?.q ?? '')
-  if (props.searchParams?.f) q = `${q ? `${q} ` : ''}${decodeURIComponent(props.searchParams.f)}`
+  if (props.searchParams?.facet) q = `${q ? `${q} ` : ''}${decodeURIComponent(props.searchParams.facet)}`
+  if (props.searchParams?.filter) q = `${q ? `${q} ` : ''}${decodeURIComponent(props.searchParams.filter)}`
   if (props.params.type) q = `${q ? `(${q}) ` : ''}+type:${decodeURIComponent(props.params.type)}`
   const display_per_page = Math.min(Number(props.searchParams?.display_per_page ?? 10), 50)
   if (!q) redirect('/data')
@@ -82,14 +83,14 @@ export default async function Page(props: { params: { type?: string }, searchPar
           {searchRes.aggregations?.types && <>
             <div className="font-bold">Type</div>
             {searchRes.aggregations.types.buckets.map((filter) =>
-              <SearchFilter key={filter.key} f={`+type:${filter.key}`}>{categoryLabel(filter.key)} ({Number(filter.doc_count).toLocaleString()})</SearchFilter>
+              <SearchFilter key={filter.key} facet={`+type:${filter.key}`}>{categoryLabel(filter.key)} ({Number(filter.doc_count).toLocaleString()})</SearchFilter>
             )}
             <br />
           </>}
           {searchRes.aggregations?.dccs && <>
             <div className="font-bold">DCC</div>
             {searchRes.aggregations.dccs.buckets.map((filter) =>
-              <SearchFilter key={filter.key} f={`+r_dcc:${filter.key}`}>{filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : filter.key} ({Number(filter.doc_count).toLocaleString()})</SearchFilter>
+              <SearchFilter key={filter.key} facet={`+r_dcc:${filter.key}`}>{filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : filter.key} ({Number(filter.doc_count).toLocaleString()})</SearchFilter>
             )}
           </>}
         </>
@@ -108,7 +109,7 @@ export default async function Page(props: { params: { type?: string }, searchPar
     >
       <SearchablePagedTable
         label={props.params.type ? categoryLabel(props.params.type) : undefined}
-        f={props.searchParams?.f ?? ''}
+        filter={props.searchParams?.filter ?? ''}
         cursor={props.searchParams?.cursor}
         reverse={props.searchParams?.reverse !== undefined}
         display_per_page={display_per_page}

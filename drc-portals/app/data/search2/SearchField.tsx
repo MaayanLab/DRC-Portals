@@ -11,7 +11,7 @@ export function SearchForm({ children, name = "q", action }: React.PropsWithChil
     <form onSubmit={evt => {
       evt.preventDefault()
       const formData = new FormData(evt.currentTarget)
-      const searchParams = new URLSearchParams()
+      const searchParams = new URLSearchParams(window.location.search)
       const value = formData.get(name)
       if (value !== null) searchParams.set(name, value.toString())
       else searchParams.delete(name)
