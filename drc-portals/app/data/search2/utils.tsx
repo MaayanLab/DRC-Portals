@@ -103,8 +103,8 @@ export function predicateLabel(type: string) {
   if (type === 'inv_gene_set') type = 'has gene'
   else if (type === 'gene_set') type = 'in gene set'
   else if (type === 'relation') type = 'defines relation'
-  else if (type === 'target') type = 'object of assertion'
-  else if (type === 'source') type = 'subject of assertion'
+  else if (type === 'target') type = 'target of assertion'
+  else if (type === 'source') type = 'source of assertion'
   else if (type.startsWith('inv_')) type = `${type.substring(4)} of`
   return titleCapitalize(type.replaceAll('_',' '))
 }
