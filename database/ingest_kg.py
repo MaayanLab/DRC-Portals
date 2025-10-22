@@ -22,15 +22,16 @@ assertions_path = ingest_path / 'assertions'
 # for now, we'll map entity types to get less junk/duplication
 map_type = {
   'hsclo': None,
-  'gp_id2pro': None,
-  'glygen_src': None,
+  'gp id2pro': None,
+  'glygen src': None,
   'motrpac': None,
-  'glygen_location': None,
+  'glygen location': None,
+  'glygen glycosequences': 'glycosequences',
   'gylcoprotein_citation': None,
   'gylcoprotein_evidence': None,
-  '4dn_qval_bin': None,
-  '4dn_file': None,
-  '4dn_dataset': None,
+  '4dn qval bin': None,
+  '4dn file': None,
+  '4dn dataset': None,
 }
 
 for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Processing KGAssertion Files...'):
