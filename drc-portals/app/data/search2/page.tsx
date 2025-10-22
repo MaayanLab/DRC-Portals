@@ -1,15 +1,15 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, EntityType, itemDescription, itemLabel, TermAggType } from "./utils"
+import { categoryLabel, EntityType, itemDescription, itemIcon, itemLabel, TermAggType } from "./utils"
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "./SearchablePagedTable";
 import Link from "@/utils/link";
 import { Button } from "@mui/material";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
-import KGNode from '@/public/img/icons/KGNode.png'
 import { redirect } from 'next/navigation';
 import SearchFilter from './SearchFilter';
+import prisma from '@/lib/prisma';
 
 export default async function Page(props: { params: { type?: string } & Record<string, string>, searchParams?: { [key: string]: string | undefined } }) {
   for (const k in props.params) props.params[k] = decodeURIComponent(props.params[k])
@@ -77,6 +77,26 @@ export default async function Page(props: { params: { type?: string } & Record<s
     ...searchRes.hits.hits.map((hit) => [hit._id, hit._source]),
     ...entityLookupRes.hits.hits.map((hit) => [hit._id, hit._source]),
   ])
+  // add dcc icons to dcc nodes (TODO: cache this)
+  const dccEntityLookup = Object.fromEntries(
+    Object.entries<EntityType>(entityLookup)
+      .filter(([_, e]) => e.type === 'dcc')
+      .map(([id, e]) => [e.a_label, id])
+  )
+  const dccs = await prisma.dCC.findMany({
+    where: {
+      short_label: {
+        in: Object.keys(dccEntityLookup),
+      }
+    },
+    select: {
+      short_label: true,
+      icon: true,
+    },
+  })
+  dccs.forEach(dcc => {
+    entityLookup[dccEntityLookup[dcc.short_label as string]].a_icon = dcc.icon as string
+  })
   return (
     <ListingPageLayout
       count={Number(searchRes.hits.total)}
@@ -130,7 +150,7 @@ export default async function Page(props: { params: { type?: string } & Record<s
           if (!hit._source) return []
           const href = `/data/search2/${hit._source.type}/${hit._source.slug}`
           return [
-            <SearchablePagedTableCellIcon href={href} src={KGNode} alt={categoryLabel(hit._source.type)} />,
+            <SearchablePagedTableCellIcon href={href} src={itemIcon(hit._source, entityLookup)} alt={categoryLabel(hit._source.type)} />,
             <LinkedTypedNode type={hit._source.type} id={hit._source.slug} label={itemLabel(hit._source)} search={props.searchParams?.q ?? ''} />,
             <Description description={itemDescription(hit._source, entityLookup)} search={props.searchParams?.q ?? ''} />,
           ]

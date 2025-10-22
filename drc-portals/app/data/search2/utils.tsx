@@ -1,4 +1,8 @@
 import React from 'react'
+import KGNode from '@/public/img/icons/KGNode.png'
+import KGEdge from '@/public/img/icons/KGEdge.png'
+import GeneIcon from '@/public/img/icons/gene.png'
+import DrugIcon from '@/public/img/icons/drug.png'
 
 export type EntityType = {
   type: string,
@@ -119,6 +123,20 @@ export function categoryLabel(type: string) {
   else return entity_type_map[type] ?? titleCapitalize(type.replaceAll('_',' '))
 }
 
+export function itemIcon(item: EntityType, lookup?: Record<string, EntityType>) {
+  if (lookup && item.r_dcc && item.r_dcc in lookup) {
+    const dcc = lookup[item.r_dcc]
+    return dcc.a_icon
+  } else if (item.type === 'gene') {
+    return GeneIcon
+  } else if (item.type === 'Drug') {
+    return DrugIcon
+  } else if (item.type == 'kg_relation') {
+    return KGEdge
+  } else {
+    return KGNode
+  }
+}
 export function itemLabel(item: EntityType) {
   return item.a_label
 }

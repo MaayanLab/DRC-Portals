@@ -1,16 +1,16 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, EntityType, humanBytesSize, itemDescription, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType, titleCapitalize } from "@/app/data/search2/utils"
+import { categoryLabel, EntityType, humanBytesSize, itemDescription, itemIcon, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType, titleCapitalize } from "@/app/data/search2/utils"
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/search2/SearchablePagedTable";
 import Link from "@/utils/link";
 import { Button } from "@mui/material";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
-import KGNode from '@/public/img/icons/KGNode.png'
 import { notFound } from 'next/navigation';
 import LandingPageLayout from '@/app/data/processed/LandingPageLayout';
 import SearchFilter from '@/app/data/search2/SearchFilter';
+import prisma from '@/lib/prisma';
 
 export default async function Page(props: { params: { type: string, slug: string } & Record<string, string>, searchParams?: { [key: string]: string | undefined } }) {
   for (const k in props.params) props.params[k] = decodeURIComponent(props.params[k])
@@ -100,6 +100,26 @@ export default async function Page(props: { params: { type: string, slug: string
     }),
     ...entityLookupRes.hits.hits.filter((hit): hit is typeof hit & {_source: EntityType} => !!hit._source).map((hit) => [hit._id, hit._source]),
   ])
+  // add dcc icons to dcc nodes (TODO: cache this)
+  const dccEntityLookup = Object.fromEntries(
+    Object.entries<EntityType>(entityLookup)
+      .filter(([_, e]) => e.type === 'dcc')
+      .map(([id, e]) => [e.a_label, id])
+  )
+  const dccs = await prisma.dCC.findMany({
+    where: {
+      short_label: {
+        in: Object.keys(dccEntityLookup),
+      }
+    },
+    select: {
+      short_label: true,
+      icon: true,
+    },
+  })
+  dccs.forEach(dcc => {
+    entityLookup[dccEntityLookup[dcc.short_label as string]].a_icon = dcc.icon as string
+  })
   return (
     <LandingPageLayout
       title={itemLabel(item_source)}
@@ -194,7 +214,7 @@ export default async function Page(props: { params: { type: string, slug: string
             if (!hit_source) return []
             const href = `/data/search2/${hit_source.target_type}/${hit_source.target_slug}`
             return [
-              <SearchablePagedTableCellIcon href={href} src={KGNode} alt={categoryLabel(hit_source.target_type)} />,
+              <SearchablePagedTableCellIcon href={href} src={itemIcon(entityLookup[hit_source.target_id], entityLookup)} alt={categoryLabel(hit_source.target_type)} />,
               <LinkedTypedNode type={hit_source.target_type} id={hit_source.target_slug} label={itemLabel(entityLookup[hit_source.target_id])} search={props.searchParams?.q ?? ''} />,
               <Description description={itemDescription(entityLookup[hit_source.target_id], entityLookup)} search={props.searchParams?.q ?? ''} />,
             ]
