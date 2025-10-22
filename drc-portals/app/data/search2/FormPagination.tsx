@@ -68,6 +68,7 @@ export default function FormPagination(props: { cursor?: string, reverse: boolea
           value={props.display_per_page}
           onChange={evt => {
             const newSearchParams = new URLSearchParams(window.location.search)
+            newSearchParams.delete('page')
             newSearchParams.delete('cursor')
             newSearchParams.delete('reverse')
             newSearchParams.set('display_per_page', evt.target.value.toString())
