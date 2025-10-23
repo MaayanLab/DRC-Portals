@@ -28,7 +28,7 @@ export default async function Page(props: { params: { type: string, slug: string
       },
   })
   const item = itemRes.hits.hits[0]
-  if (!item._source) notFound()
+  if (!item?._source) notFound()
   const item_source = item._source
   let q = props.params?.search ?? ''
   if (props.searchParams?.facet) q = `${q ? `${q} ` : ''}${props.searchParams.facet}`
