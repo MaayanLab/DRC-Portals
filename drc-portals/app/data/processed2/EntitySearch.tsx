@@ -11,12 +11,13 @@ import { redirect } from 'next/navigation';
 import SearchFilter from '@/app/data/processed2/SearchFilter';
 import prisma from '@/lib/prisma';
 
-export default async function Page(props: { params: { search?: string, type?: string } & Record<string, string>, searchParams?: { [key: string]: string | undefined } }) {
+export default async function Page(props: { params: { type?: string, search?: string, search_type?: string } & Record<string, string>, searchParams?: { [key: string]: string | undefined } }) {
   for (const k in props.params) props.params[k] = decodeURIComponent(props.params[k])
   for (const k in props.searchParams) props.searchParams[k] = decodeURIComponent(props.searchParams[k] as string)
   let q = props.params.search ?? ''
   if (props.searchParams?.facet) q = `${q ? `${q} ` : ''}${props.searchParams.facet}`
   if (props.params.type) q = `${q ? `(${q}) ` : ''}+type:"${props.params.type}"`
+  if (props.params.search_type) q = `${q ? `(${q}) ` : ''}+type:"${props.params.search_type}"`
   const display_per_page = Math.min(Number(props.searchParams?.display_per_page ?? 10), 50)
   if (!q) redirect('/data')
   const searchRes = await elasticsearch.search<EntityType, TermAggType<'types' | 'dccs'>>({
@@ -101,13 +102,13 @@ export default async function Page(props: { params: { search?: string, type?: st
       count={Number(searchRes.hits.total)}
       filters={
         <>
-          {searchRes.aggregations?.types && <>
+          {/*searchRes.aggregations?.types && <>
             <div className="font-bold">Type</div>
             {searchRes.aggregations.types.buckets.map((filter) =>
               <SearchFilter key={filter.key} facet={`+type:"${filter.key}"`}>{categoryLabel(filter.key)} ({Number(filter.doc_count).toLocaleString()})</SearchFilter>
             )}
             <br />
-          </>}
+          </>*/}
           {searchRes.aggregations?.dccs && <>
             <div className="font-bold">DCC</div>
             {searchRes.aggregations.dccs.buckets.map((filter) =>

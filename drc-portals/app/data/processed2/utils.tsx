@@ -183,23 +183,29 @@ export function linkify(value: string) {
   else return <a className="text-blue-600 cursor:pointer underline" href={value} target="_blank">{value}</a>
 }
 
-export function parse_url(): Record<string, string | null> {
-  const m = /^\/data\/processed2(\/search\/(?<search>[^\/]+?)|\/(?<type>[^\/]+?)(\/search\/(?<type_search>[^\/]+?)|\/(?<slug>[^\/]+?)(\/search\/(?<entity_search>[^\/]+?))?)?)$/.exec(window.location.pathname)
+export function parse_url(location: { pathname?: string, search?: string } = typeof window === 'undefined' ? {} : window.location): Record<string, string | null> {
+  const m = /^\/data\/processed2(\/search\/(?<search>[^\/]+?)(\/(?<search_type>[^\/]+?))?|\/(?<type>[^\/]+?)(\/search\/(?<type_search>[^\/]+?)|\/(?<slug>[^\/]+?)(\/search\/(?<entity_search>[^\/]+?))?)?)$/.exec(location.pathname ?? '')
   return Object.fromEntries([
-    ...(new URLSearchParams(window.location.search)).entries(),
+    ...(new URLSearchParams(location.search)).entries(),
     ...Object.entries(m?.groups ?? {}),
   ])
 }
-export function create_url({ search, type, type_search, slug, entity_search, ...searchParams }: {
+export function create_url({ search, search_type, type, type_search, slug, entity_search, ...searchParams }: {
   type?: string, slug?: string,
   search?: string, filter?: string,
 } & Record<string, string | null>) {
   let path = `/data/processed2`
-  if (search) path += `/search/${encodeURIComponent(search)}`
+  if (type_search) {
+    search = type_search
+    search_type = type ?? null
+  }
+  if (search) {
+    path += `/search/${encodeURIComponent(search)}`
+    if (search_type) path += `/${encodeURIComponent(search_type)}`
+  }
   else if (type) {
     path += `/${encodeURIComponent(type)}`
-    if (type_search) path += `/search/${encodeURIComponent(type_search)}`
-    else if (slug) {
+    if (slug) {
       path += `/${encodeURIComponent(slug)}`
       if (entity_search) path += `/search/${encodeURIComponent(entity_search)}`
     }
@@ -207,6 +213,6 @@ export function create_url({ search, type, type_search, slug, entity_search, ...
   const urlSearchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : undefined)
   Object.entries(searchParams)
     .forEach(([k, v]) => { if (v === null) { urlSearchParams.delete(k) } else { urlSearchParams.set(k, v) } })
-  path += `?${urlSearchParams.toString()}`
+  if (urlSearchParams.size > 0) path += `?${urlSearchParams.toString()}`
   return path
 }
