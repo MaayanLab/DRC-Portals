@@ -6,18 +6,19 @@ import { Metadata, ResolvingMetadata } from "next";
 import { categoryLabel, EntityType, TermAggType } from "./utils";
 import elasticsearch from "@/lib/elasticsearch";
 
-export async function generateMetadata(props: { params: { search: string } }, parent: ResolvingMetadata): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ search: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
+  const params = await props.params
   const parentMetadata = await parent
   return {
-    title: `${parentMetadata.title?.absolute} | Search ${decodeURIComponent(props.params.search)}`,
+    title: `${parentMetadata.title?.absolute} | Search ${decodeURIComponent(params.search)}`,
     keywords: parentMetadata.keywords,
   }
 }
 
-export default async function Page(props: React.PropsWithChildren<{ params: { search?: string, type?: string } & Record<string, string>, searchParams?: { [key: string]: string | undefined } }>) {
-  for (const k in props.params) props.params[k] = decodeURIComponent(props.params[k])
-  for (const k in props.searchParams) props.searchParams[k] = decodeURIComponent(props.searchParams[k] as string)
-  let q = props.params.search ?? ''
+export default async function Page(props: React.PropsWithChildren<{ params: Promise<{ search?: string, type?: string } & Record<string, string>> }>) {
+  const params = await props.params
+  for (const k in params) params[k] = decodeURIComponent(params[k])
+  let q = params.search ?? ''
   if (!q) redirect('/data')
   const searchRes = await elasticsearch.search<EntityType, TermAggType<'types' | 'dccs'>>({
     index: 'entity',
