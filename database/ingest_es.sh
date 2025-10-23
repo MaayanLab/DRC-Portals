@@ -185,7 +185,7 @@ EOF
 es POST /_aliases << EOF
 {
   "actions": [
-    { "remove": { "index": "*", "alias": "m2m_target_expanded" } },
+    { "remove": { "index": "*", "alias": "m2m_target_expanded" } }
   ]
 }
 EOF
