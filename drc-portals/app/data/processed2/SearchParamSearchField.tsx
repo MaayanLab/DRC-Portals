@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { SearchForm, SearchField } from '@/app/data/search2/SearchField'
+import { SearchForm, SearchField } from '@/app/data/processed2/SearchField'
 
 export default function SearchParamSearchField(props: Omit<React.ComponentProps<typeof SearchField>, 'defaultValue' | 'action'>) {
   const pathname = usePathname()
@@ -9,7 +9,7 @@ export default function SearchParamSearchField(props: Omit<React.ComponentProps<
   const q = React.useMemo(() => searchParams.get('q') ?? '', [searchParams])
   if (pathname === '/data' || pathname === '/' || pathname === "/data/enrichment" || pathname === "/data/cross") return null
   return (
-    <SearchForm action={`/data/search2`}>
+    <SearchForm>
       <SearchField {...props} defaultValue={q} />
     </SearchForm>
   )

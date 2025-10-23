@@ -44,22 +44,20 @@ export default function FormPagination(props: { cursor?: string, reverse: boolea
           variant="text"
           shape="rounded"
           color="primary"
-          renderItem={(item) => (
-            (item.page === currentPage
-              || item.page === 1
-              || item.page === currentPage - 1
-              || item.page === currentPage + 1
-              || item.page === pageCount
-              || item.type === 'start-ellipsis'
-              || item.type === 'end-ellipsis') ?
-              <PaginationItem
-                slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
-                {...item}
-              />
-              : item.page === currentPage - 2 && currentPage < pageCount - 3 ? <PaginationItem type={"start-ellipsis"} />
-              : item.page === currentPage + 2 && currentPage > 3 ? <PaginationItem type={"end-ellipsis"} />
-              : null
-          )}
+          renderItem={(item) => {
+            if (item.page && item.page < currentPage - 1 && item.page != 1) {
+              if (item.page > 2) return null
+              return <PaginationItem slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }} type="start-ellipsis" />
+            }
+            if (item.page && item.page > currentPage + 1 && item.page != pageCount) {
+              if (item.page < pageCount - 1) return null
+              return <PaginationItem slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }} type="end-ellipsis" />
+            }
+            return <PaginationItem
+              slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
+              {...item}
+            />
+          }}
         />
       </Box>
       <Stack direction={"row"} alignItems={"center"} gap={2}>

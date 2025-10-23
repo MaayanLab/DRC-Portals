@@ -1,18 +1,19 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, EntityType, humanBytesSize, itemDescription, itemIcon, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType, titleCapitalize } from "@/app/data/search2/utils"
+import { categoryLabel, EntityType, humanBytesSize, itemDescription, itemIcon, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType, titleCapitalize } from "@/app/data/processed2/utils"
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
-import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/search2/SearchablePagedTable";
+import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed2/SearchablePagedTable";
 import Link from "@/utils/link";
 import { Button } from "@mui/material";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import { notFound } from 'next/navigation';
 import LandingPageLayout from '@/app/data/processed/LandingPageLayout';
-import SearchFilter from '@/app/data/search2/SearchFilter';
+import SearchFilter from '@/app/data/processed2/SearchFilter';
 import prisma from '@/lib/prisma';
+import { create_url } from './utils';
 
-export default async function Page(props: { params: { type: string, slug: string } & Record<string, string>, searchParams?: { [key: string]: string | undefined } }) {
+export default async function Page(props: { params: { type: string, slug: string, search?: string } & Record<string, string>, searchParams?: { [key: string]: string | undefined } }) {
   for (const k in props.params) props.params[k] = decodeURIComponent(props.params[k])
   for (const k in props.searchParams) props.searchParams[k] = decodeURIComponent(props.searchParams[k] as string)
   const itemRes = await elasticsearch.search<EntityType>({
@@ -29,9 +30,8 @@ export default async function Page(props: { params: { type: string, slug: string
   const item = itemRes.hits.hits[0]
   if (!item._source) notFound()
   const item_source = item._source
-  let q = props.searchParams?.q ?? ''
+  let q = props.params?.search ?? ''
   if (props.searchParams?.facet) q = `${q ? `${q} ` : ''}${props.searchParams.facet}`
-  if (props.searchParams?.filter) q = `${q ? `${q} ` : ''}${props.searchParams.filter}`
   q = `${q ? `${q} ` : ''}+source_id:${item._id}`
   const display_per_page = Math.min(Number(props.searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<M2MTargetType, TermAggType<'predicates' | 'types' | 'dccs'>>({
@@ -194,7 +194,8 @@ export default async function Page(props: { params: { type: string, slug: string
       >
         <SearchablePagedTable
           label="Linked to"
-          filter={props.searchParams?.filter ?? ''}
+          search_name="entity_search"
+          search={props.params?.search ?? ''}
           cursor={props.searchParams?.cursor}
           reverse={props.searchParams?.reverse !== undefined}
           display_per_page={display_per_page}
@@ -212,7 +213,7 @@ export default async function Page(props: { params: { type: string, slug: string
           rows={searchRes.hits.hits.map((hit) => {
             const hit_source = hit._source
             if (!hit_source) return []
-            const href = `/data/search2/${hit_source.target_type}/${hit_source.target_slug}`
+            const href = create_url({ type: hit_source.target_type, slug: hit_source.target_slug})
             return [
               <SearchablePagedTableCellIcon href={href} src={itemIcon(entityLookup[hit_source.target_id], entityLookup)} alt={categoryLabel(hit_source.target_type)} />,
               <LinkedTypedNode type={hit_source.target_type} id={hit_source.target_slug} label={itemLabel(entityLookup[hit_source.target_id])} search={props.searchParams?.q ?? ''} />,

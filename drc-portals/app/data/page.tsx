@@ -18,11 +18,12 @@ import Icon from "@mdi/react"
 import { mdiArrowRight, mdiToolbox, mdiLaptop, mdiChatOutline } from '@mdi/js';
 
 import CFPrograms from "@/components/misc/CFPrograms"
-import { SearchForm, SearchField } from "./search2/SearchField";
+import { SearchForm, SearchField } from "@/app/data/processed2/SearchField";
 import { BlurBig } from "@/components/styled/Blur"
-import Summary from "@/app/data/search2/summary/SummaryComponent"
+import Summary from "@/app/data/processed2/SummaryComponent"
 import { ResponsivePaper } from "../info/styled"
 import Tooltip from '@mui/material/Tooltip';
+import { create_url } from "@/app/data/processed2/utils";
 
 
 
@@ -105,7 +106,7 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
               <Container maxWidth="lg" className="m-auto">
                 <Grid container spacing={2} alignItems={"center"}>
                   <Grid item xs={12}>
-                    <SearchForm action="/data/search2">
+                    <SearchForm>
                     <Stack spacing={2} justifyContent={"center"} alignItems={"center"}>
                         <Typography color="secondary" className="text-center" variant="h1">CFDE DATA PORTAL</Typography>
                         <Typography color="secondary" className="text-center" sx={{ fontSize: 20 }} variant="body1">
@@ -142,14 +143,14 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
                         <Typography variant="stats_sub" sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>
                           Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
                             {['STAT3', 'blood', 'dexamethasone'].map(example => (
-                              <Link key={example} href={`/data/search2?q=${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
+                              <Link key={example} href={create_url({ search: example })} className="underline cursor-pointer">{example}</Link>
                             ))}
                           </Stack>
                         </Typography>
                         <Typography variant="stats_sub_small" sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
                           Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
                             {['STAT3', 'blood', 'dexamethasone'].map(example => (
-                              <Link key={example} href={`/data/search2?q=${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
+                              <Link key={example} href={create_url({ search: example })} className="underline cursor-pointer">{example}</Link>
                             ))}
                           </Stack>
                         </Typography>

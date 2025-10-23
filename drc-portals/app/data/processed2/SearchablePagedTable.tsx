@@ -3,7 +3,7 @@ import { Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableF
 import { SearchForm, SearchField } from './SearchField'
 import Link from "@/utils/link"
 import Image, { StaticImageData } from "@/utils/image"
-import { categoryLabel, categoryColor } from "./utils"
+import { categoryLabel, categoryColor, create_url } from "./utils"
 import { Highlight } from "@/components/misc/Highlight"
 import FormPagination from "./FormPagination"
 
@@ -20,10 +20,11 @@ export function LinkedTypedNode({
   search?: string,
   focus?: boolean,
 }) {
+  const href = create_url({ type, slug: id })
   return (
     <div className="flex flex-col">
-      <Link href={`/data/search2/${encodeURIComponent(type)}/${encodeURIComponent(id)}`}><Typography variant="body1" sx={{overflowWrap: "break-word", maxWidth: 300, textDecoration: 'underline'}} color="secondary" fontWeight={focus ? "bold" : undefined}><Highlight search={search} text={label} /></Typography></Link>
-      <Link href={`/data/search2/${encodeURIComponent(type)}/${encodeURIComponent(id)}`}><Typography variant='caption' color={categoryColor(type)}><Highlight search={search} text={`${categoryLabel(type)} (Entity type)`} /></Typography></Link>
+      <Link href={href}><Typography variant="body1" sx={{overflowWrap: "break-word", maxWidth: 300, textDecoration: 'underline'}} color="secondary" fontWeight={focus ? "bold" : undefined}><Highlight search={search} text={label} /></Typography></Link>
+      <Link href={href}><Typography variant='caption' color={categoryColor(type)}><Highlight search={search} text={`${categoryLabel(type)} (Entity type)`} /></Typography></Link>
     </div>
   )
 }
@@ -49,7 +50,8 @@ export function SearchablePagedTableCellIcon(props: {
 
 export default function SearchablePagedTable(props: React.PropsWithChildren<{
   label?: string,
-  filter: string,
+  search_name: string,
+  search: string,
   page: number, total: number,
   cursor?: string, reverse: boolean, display_per_page: number,
   cursors: [string | undefined, string | undefined],
@@ -63,8 +65,8 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
       <Grid item xs={12} sx={{marginBottom: 5}}>
         <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
           <Typography variant="h2" color="secondary" className="whitespace-nowrap">{props.label}</Typography>
-          <SearchForm name="filter">
-            <SearchField name="filter" defaultValue={props.filter} placeholder={`Filter ${props.label}`} />
+          <SearchForm name={props.search_name}>
+            <SearchField name={props.search_name} defaultValue={props.search} placeholder={`Filter ${props.label}`} />
           </SearchForm>
         </Stack>
       </Grid>
