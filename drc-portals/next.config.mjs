@@ -90,6 +90,11 @@ const nextConfig = {
         destination: "https://info.cfde.cloud",
         permanent: false,
       },
+      {
+        source: "/info/documentation",
+        destination: "/data/documentation",
+        permanent: false,
+      },
     ];
   },
   images: {
