@@ -241,7 +241,8 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         ? {
           id: resultsRec.gene,
           name: resultsRec.gene_name,
-          url: `http://www.ensembl.org/id/${resultsRec.gene}`,
+          //url: `http://www.ensembl.org/id/${resultsRec.gene}`,
+          url: `/data/processed/entity/gene/${resultsRec.gene}`,
           description: resultsRec.gene_description ? capitalizeFirstLetter(resultsRec.gene_description) : null,
         }
         : null,
@@ -257,7 +258,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
         ? {
           id: resultsRec.compound,
           name: resultsRec.compound_name,
-          url: `http://www.ensembl.org/id/${resultsRec.compound}`,
+          url: `https://pubchem.ncbi.nlm.nih.gov/compound/${resultsRec.compound}`,
           description: resultsRec.compound_description ? capitalizeFirstLetter(resultsRec.compound_description) : null,
         }
         : null,
@@ -384,7 +385,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       {
         label: 'Gene',
         value: resultsRec?.gene_name && resultsRec?.gene_name !== "Unspecified"
-          ? <Link href={`http://www.ensembl.org/id/${resultsRec?.gene}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          ? <Link href={`/data/processed/entity/gene/${resultsRec?.gene}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {resultsRec?.gene_name}
           </Link>
           : /* resultsRec?.gene_name || */ ''
@@ -402,7 +403,7 @@ async function fetchRecordInfoQueryResults(searchParams: any) {
       {
         label: 'Compound',
         value: resultsRec?.compound_name && resultsRec?.compound_name !== "Unspecified"
-          ? <Link href={`http://www.ensembl.org/id/${resultsRec?.compound}`} className="underline cursor-pointer text-blue-600" target="_blank">
+          ? <Link href={`https://pubchem.ncbi.nlm.nih.gov/compound/${resultsRec?.compound}`} className="underline cursor-pointer text-blue-600" target="_blank">
             {resultsRec?.compound_name}
           </Link>
           : /* resultsRec?.compound_name || */ ''
