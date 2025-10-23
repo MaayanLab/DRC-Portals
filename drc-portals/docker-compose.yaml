@@ -118,6 +118,7 @@ services:
     environment:
       nginx_server_name: info.cfde.cloud
       nginx_proxy_00: /(.*) http://drc-portal-proxy/$$1
+      nginx_redirect_00: /documentation(/.*)? https://data.cfde.cloud/documentation$$1
 
   drc-portal-proxy:
     image: maayanlab/proxy:1.2.13
