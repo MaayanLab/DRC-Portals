@@ -29,13 +29,16 @@ export function SearchForm({ children, name = "search" }: React.PropsWithChildre
 }
 
 export function SearchField({ name = 'search', defaultValue, InputProps, placeholder = 'Enter one or more keywords', error }: { name?: string, defaultValue: string, InputProps?: React.ComponentProps<typeof TextField>['InputProps'], placeholder?: string, error?: string }) {
+  const [value, setValue] = React.useState('')
+  React.useEffect(() => {setValue(defaultValue)}, [defaultValue])
   return (
     <TextField
       label={error ? error.split(':')[0] : undefined}
       error={!!error}
       helperText={error ? error.split(':').slice(1).join(':') : undefined}
       name={name}
-      defaultValue={defaultValue}
+      value={value}
+      onChange={evt => {setValue(evt.currentTarget.value)}}
       placeholder={placeholder}
       color="secondary"
       InputProps={{
