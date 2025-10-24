@@ -107,14 +107,14 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
     <SearchTabs>
       <FancyTab
         id={""}
-        label={<>All ({Number(searchRes.hits.total).toLocaleString()})</>}
+        label={<>All<br />{Number(searchRes.hits.total).toLocaleString()}</>}
         priority={Number(searchRes.hits.total)}
       />
       {searchRes.aggregations?.types.buckets.map((filter) =>
         <FancyTab
           key={`${filter.key}`}
           id={filter.key}
-          label={<>{categoryLabel(filter.key)} ({Number(filter.doc_count).toLocaleString()})</>}
+          label={<>{categoryLabel(filter.key)}<br />{Number(filter.doc_count).toLocaleString()}</>}
           priority={Number(filter.doc_count)}
         />
       )}
