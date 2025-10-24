@@ -96,6 +96,7 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
           if (m === null) return []
           if (m[1] == 'a') {
             let value: string | React.ReactNode = item_source[predicate]
+            if (!value) return []
             if (`r_${m[2]}` in item_source) return []
             if (/_?(id_namespace|local_id)$/.exec(m[2]) != null) return []
             if (m[2] === 'label') return []
