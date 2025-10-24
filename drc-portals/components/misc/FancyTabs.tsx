@@ -95,7 +95,7 @@ export function FancyTabs(props: React.PropsWithChildren<{
             <Tab
               key={item.id}
               sx={{
-                fontSize: '14pt',
+                fontSize: '12pt',
                 '&.Mui-selected': {
                   color: '#295988', // Only change text color for selected tab, no background color change
                 },

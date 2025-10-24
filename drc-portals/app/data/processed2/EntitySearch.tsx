@@ -10,12 +10,13 @@ import { mdiArrowLeft } from "@mdi/js";
 import { redirect } from 'next/navigation';
 import SearchFilter from '@/app/data/processed2/SearchFilter';
 import prisma from '@/lib/prisma';
+import { ensure_array } from '@/utils/array';
 
-export default async function Page(props: { params: { type?: string, search?: string, search_type?: string } & Record<string, string>, searchParams?: { [key: string]: string | undefined } }) {
+export default async function Page(props: { params: { type?: string, search?: string, search_type?: string } & Record<string, string>, searchParams?: { [key: string]: string[] | string | undefined } }) {
   for (const k in props.params) props.params[k] = decodeURIComponent(props.params[k])
-  for (const k in props.searchParams) props.searchParams[k] = decodeURIComponent(props.searchParams[k] as string)
+  for (const k in props.searchParams) props.searchParams[k] = Array.isArray(props.searchParams[k]) ? props.searchParams[k].map(decodeURIComponent) : decodeURIComponent(props.searchParams[k] ?? '')
   let q = props.params.search ?? ''
-  if (props.searchParams?.facet) q = `${q ? `${q} ` : ''}${props.searchParams.facet}`
+  if (props.searchParams?.facet) q = `${q ? `${q} ` : ''}${ensure_array(props.searchParams.facet).map(f => `+${f}`).join(' ')}`
   if (props.params.type) q = `${q ? `(${q}) ` : ''}+type:"${props.params.type}"`
   if (props.params.search_type) q = `${q ? `(${q}) ` : ''}+type:"${props.params.search_type}"`
   const display_per_page = Math.min(Number(props.searchParams?.display_per_page ?? 10), 50)
@@ -49,7 +50,7 @@ export default async function Page(props: { params: { type?: string, search?: st
       {'pagerank': {'order': 'asc'}},
       {'_id': {'order': 'desc'} },
     ],
-    search_after: props.searchParams?.cursor ? JSON.parse(props.searchParams.cursor) : undefined,
+    search_after: props.searchParams?.cursor ? JSON.parse(props.searchParams.cursor as string) : undefined,
     size: display_per_page,
     rest_total_hits_as_int: true,
   })
@@ -112,7 +113,7 @@ export default async function Page(props: { params: { type?: string, search?: st
           {searchRes.aggregations?.dccs && <>
             <div className="font-bold">DCC</div>
             {searchRes.aggregations.dccs.buckets.map((filter) =>
-              <SearchFilter key={filter.key} facet={`+r_dcc:"${filter.key}"`}>{filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : filter.key} ({Number(filter.doc_count).toLocaleString()})</SearchFilter>
+              <SearchFilter key={filter.key} id={`r_dcc:"${filter.key}"`} label={filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : filter.key} count={Number(filter.doc_count)} />
             )}
           </>}
         </>
@@ -133,7 +134,7 @@ export default async function Page(props: { params: { type?: string, search?: st
         label={props.params.type ? categoryLabel(props.params.type) : undefined}
         search_name={props.params.type ? "type_search" : "search"}
         search={props.params.search ?? ''}
-        cursor={props.searchParams?.cursor}
+        cursor={props.searchParams?.cursor as string}
         reverse={props.searchParams?.reverse !== undefined}
         display_per_page={display_per_page}
         page={Number(props.searchParams?.page || 1)}
@@ -152,8 +153,8 @@ export default async function Page(props: { params: { type?: string, search?: st
           const href = create_url({ type: hit._source.type, slug: hit._source.slug })
           return [
             <SearchablePagedTableCellIcon href={href} src={itemIcon(hit._source, entityLookup)} alt={categoryLabel(hit._source.type)} />,
-            <LinkedTypedNode type={hit._source.type} id={hit._source.slug} label={itemLabel(hit._source)} search={props.searchParams?.q ?? ''} />,
-            <Description description={itemDescription(hit._source, entityLookup)} search={props.searchParams?.q ?? ''} />,
+            <LinkedTypedNode type={hit._source.type} id={hit._source.slug} label={itemLabel(hit._source)} search={props.searchParams?.q as string ?? ''} />,
+            <Description description={itemDescription(hit._source, entityLookup)} search={props.searchParams?.q as string ?? ''} />,
           ]
         }) ?? []}
       />
