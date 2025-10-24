@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import { create_url } from './utils';
 import { ensure_array } from '@/utils/array';
+import DRSCartButton from '@/app/data/processed2/cart/DRSCartButton';
 
 export default async function Page(props: { params: Promise<{ type: string, slug: string, search?: string } & Record<string, string>>, searchParams?: Promise<{ [key: string]: string[] | string | undefined }> }) {
   const params = await props.params
@@ -112,6 +113,7 @@ export default async function Page(props: { params: Promise<{ type: string, slug
         <>&nbsp;</>,
         <>Label</>,
         <>Description</>,
+        <>&nbsp;</>,
       ]}
       rows={searchRes.hits.hits.map((hit) => {
         const hit_source = hit._source
@@ -121,6 +123,9 @@ export default async function Page(props: { params: Promise<{ type: string, slug
           <SearchablePagedTableCellIcon href={href} src={itemIcon(entityLookup[hit_source.target_id], entityLookup)} alt={categoryLabel(hit_source.target_type)} />,
           <LinkedTypedNode type={hit_source.target_type} id={hit_source.target_slug} label={itemLabel(entityLookup[hit_source.target_id])} search={searchParams?.q as string ?? ''} />,
           <Description description={itemDescription(entityLookup[hit_source.target_id], entityLookup)} search={searchParams?.q as string ?? ''} />,
+          hit_source.target_type === 'file' ? <DRSCartButton access_url={hit_source.target_a_access_url ?? hit_source.target_a_persistent_id} />
+          : hit_source.target_type === 'dcc_asset' ? <DRSCartButton access_url={hit_source.target_a_link} />
+          : null,
         ]
       })}
     />
