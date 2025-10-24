@@ -5,6 +5,7 @@ import GeneIcon from '@/public/img/icons/gene.png'
 import DrugIcon from '@/public/img/icons/drug.png'
 
 export type EntityType = {
+  id: string,
   type: string,
   slug: string,
   pagerank: string,

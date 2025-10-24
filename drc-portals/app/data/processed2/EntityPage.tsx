@@ -3,10 +3,11 @@ import elasticsearch from "@/lib/elasticsearch"
 import { categoryLabel, EntityType, itemDescription, itemIcon, itemLabel, M2MTargetType, TermAggType } from "@/app/data/processed2/utils"
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed2/SearchablePagedTable";
 import { notFound } from 'next/navigation';
-import prisma from '@/lib/prisma';
-import { create_url } from './utils';
+import { create_url } from '@/app/data/processed2/utils';
 import { ensure_array } from '@/utils/array';
 import DRSCartButton from '@/app/data/processed2/cart/DRSCartButton';
+import { getEntity } from '@/app/data/processed2/getEntity';
+import { dccIcons } from '@/app/data/processed2/icons';
 
 export default async function Page(props: { params: Promise<{ type: string, slug: string, search?: string } & Record<string, string>>, searchParams?: Promise<{ [key: string]: string[] | string }> }) {
   const params = await props.params
@@ -16,23 +17,11 @@ export default async function Page(props: { params: Promise<{ type: string, slug
     const v = searchParams[k]
     searchParams[k] = Array.isArray(v) ? v.map(decodeURIComponent) : decodeURIComponent(v)
   }
-  const itemRes = await elasticsearch.search<EntityType>({
-    index: 'entity',
-      query: {
-        bool: {
-          must: [
-            { term: { 'type': params.type } },
-            { term: { 'slug': params.slug } },
-          ]
-        },
-      },
-  })
-  const item = itemRes.hits.hits[0]
-  if (!item?._source) notFound()
-  const item_source = item._source
+  const item = await getEntity(params)
+  if (!item) notFound()
   let q = params?.search ?? ''
   if (searchParams?.facet) q = `${q ? `${q} ` : ''}(${ensure_array(searchParams.facet).map(f => `+${f}`).join(' OR ')})`
-  q = `${q ? `${q} ` : ''}+source_id:${item._id}`
+  q = `${q ? `${q} ` : ''}+source_id:${item.id}`
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<M2MTargetType, TermAggType<'predicates' | 'types' | 'dccs'>>({
     index: 'm2m_target_expanded',
@@ -63,14 +52,14 @@ export default async function Page(props: { params: Promise<{ type: string, slug
             if (!hit_source) return []
             return Object.keys(hit_source).filter(k => k.startsWith('target_r_')).map(k => hit_source[k])
           }),
-          ...Object.keys(item_source).filter(k => k.startsWith('r_')).map(k => item_source[k]),
+          ...Object.keys(item).filter(k => k.startsWith('r_')).map(k => item[k]),
         ]))
       }
     },
     size: 100,
   })
   const entityLookup: Record<string, EntityType> = Object.fromEntries([
-    [item._id, item_source],
+    [item.id, item],
     ...searchRes.hits.hits.flatMap((hit) => {
       const hit_source = hit._source
       if (!hit_source) return []
@@ -78,25 +67,10 @@ export default async function Page(props: { params: Promise<{ type: string, slug
     }),
     ...entityLookupRes.hits.hits.filter((hit): hit is typeof hit & {_source: EntityType} => !!hit._source).map((hit) => [hit._id, hit._source]),
   ])
-  // add dcc icons to dcc nodes (TODO: cache this)
-  const dccEntityLookup = Object.fromEntries(
-    Object.entries<EntityType>(entityLookup)
-      .filter(([_, e]) => e.type === 'dcc')
-      .map(([id, e]) => [e.a_label, id])
-  )
-  const dccs = await prisma.dCC.findMany({
-    where: {
-      short_label: {
-        in: Object.keys(dccEntityLookup),
-      }
-    },
-    select: {
-      short_label: true,
-      icon: true,
-    },
-  })
-  dccs.forEach(dcc => {
-    entityLookup[dccEntityLookup[dcc.short_label as string]].a_icon = dcc.icon as string
+  const dccIconsResolved = await dccIcons
+  Object.values<EntityType>(entityLookup).forEach((e) => {
+    if (e.type === 'dcc')
+      e.a_icon = dccIconsResolved[e.slug]
   })
   return (
     <SearchablePagedTable
