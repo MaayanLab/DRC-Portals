@@ -110,7 +110,7 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
       ]}
     >
       <EntityPageAnalyze item={item} />
-      <ListingPageLayout
+      {searchRes.hits.total ? <ListingPageLayout
         count={Number(searchRes.hits.total)}
         filters={
           <>
@@ -149,7 +149,7 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
         }
       >
         {props.children}
-      </ListingPageLayout>
+      </ListingPageLayout> : props.children}
     </LandingPageLayout>
   )
 }

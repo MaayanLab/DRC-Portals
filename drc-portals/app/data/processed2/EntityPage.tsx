@@ -21,7 +21,7 @@ export default async function Page(props: { params: Promise<{ type: string, slug
   if (!item) notFound()
   let q = params?.search ?? ''
   if (searchParams?.facet) q = `${q ? `${q} ` : ''}(${ensure_array(searchParams.facet).map(f => `+${f}`).join(' OR ')})`
-  q = `${q ? `${q} ` : ''}+source_id:${item.id}`
+  q = `${q ? `${q} ` : ''}+source_id:"${item.id}"`
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<M2MTargetType, TermAggType<'predicates' | 'types' | 'dccs'>>({
     index: 'm2m_target_expanded',
@@ -42,6 +42,7 @@ export default async function Page(props: { params: Promise<{ type: string, slug
     size: display_per_page,
     rest_total_hits_as_int: true,
   })
+  if (searchRes.hits.total === 0 && !searchParams?.facet) return null
   const entityLookupRes = await elasticsearch.search<EntityType>({
     index: 'entity',
     query: {
