@@ -1,19 +1,22 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, create_url, dccIcons, EntityType, itemDescription, itemIcon, itemLabel, TermAggType } from "@/app/data/processed2/utils"
+import { categoryLabel, create_url, EntityType, itemDescription, itemIcon, itemLabel, TermAggType } from "@/app/data/processed2/utils"
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed2/SearchablePagedTable";
 import { redirect } from 'next/navigation';
 import { ensure_array } from '@/utils/array';
+import { dccIcons } from './icons';
 
-export default async function Page(props: { params: { type?: string, search?: string, search_type?: string } & Record<string, string>, searchParams?: { [key: string]: string[] | string | undefined } }) {
-  for (const k in props.params) props.params[k] = decodeURIComponent(props.params[k])
-  for (const k in props.searchParams) props.searchParams[k] = Array.isArray(props.searchParams[k]) ? props.searchParams[k].map(decodeURIComponent) : decodeURIComponent(props.searchParams[k] ?? '')
-  let q = props.params.search ?? ''
-  if (props.searchParams?.facet) q = `${q ? `${q} ` : ''}(${ensure_array(props.searchParams.facet).map(f => `+${f}`).join(' OR ')})`
-  if (props.params.type) q = `${q ? `(${q}) ` : ''}+type:"${props.params.type}"`
-  if (props.params.search_type) q = `${q ? `(${q}) ` : ''}+type:"${props.params.search_type}"`
-  const display_per_page = Math.min(Number(props.searchParams?.display_per_page ?? 10), 50)
+export default async function Page(props: { params: Promise<{ type?: string, search?: string, search_type?: string } & Record<string, string>>, searchParams?: Promise<{ [key: string]: string[] | string | undefined }> }) {
+  const params = await props.params
+  const searchParams = await props.searchParams
+  for (const k in params) params[k] = decodeURIComponent(params[k])
+  for (const k in searchParams) searchParams[k] = Array.isArray(searchParams[k]) ? searchParams[k].map(decodeURIComponent) : decodeURIComponent(searchParams[k] ?? '')
+  let q = params.search ?? ''
+  if (searchParams?.facet) q = `${q ? `${q} ` : ''}(${ensure_array(searchParams.facet).map(f => `+${f}`).join(' OR ')})`
+  if (params.type) q = `${q ? `(${q}) ` : ''}+type:"${params.type}"`
+  if (params.search_type) q = `${q ? `(${q}) ` : ''}+type:"${params.search_type}"`
   if (!q) redirect('/data')
+  const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<EntityType>({
     index: 'entity',
     query: {
@@ -22,18 +25,18 @@ export default async function Page(props: { params: { type?: string, search?: st
         default_operator: 'AND',
       },
     },
-    sort: props.searchParams?.reverse === undefined ? [
+    sort: searchParams?.reverse === undefined ? [
       {'pagerank': {'order': 'desc'}},
       {'_id': {'order': 'asc'} },
     ] :  [
       {'pagerank': {'order': 'asc'}},
       {'_id': {'order': 'desc'} },
     ],
-    search_after: props.searchParams?.cursor ? JSON.parse(props.searchParams.cursor as string) : undefined,
+    search_after: searchParams?.cursor ? JSON.parse(searchParams.cursor as string) : undefined,
     size: display_per_page,
     rest_total_hits_as_int: true,
   })
-  if (props.searchParams?.reverse !== undefined) {
+  if (searchParams?.reverse !== undefined) {
     searchRes.hits.hits.reverse()
   }
   const entityLookupRes = await elasticsearch.search<EntityType>({
@@ -63,13 +66,13 @@ export default async function Page(props: { params: { type?: string, search?: st
   })
   return (
     <SearchablePagedTable
-      label={props.params.type ? categoryLabel(props.params.type) : undefined}
-      search_name={props.params.type ? "type_search" : "search"}
-      search={props.params.search ?? ''}
-      cursor={props.searchParams?.cursor as string}
-      reverse={props.searchParams?.reverse !== undefined}
+      label={params.type ? categoryLabel(params.type) : undefined}
+      search_name={params.type ? "type_search" : "search"}
+      search={params.search ?? ''}
+      cursor={searchParams?.cursor as string}
+      reverse={searchParams?.reverse !== undefined}
       display_per_page={display_per_page}
-      page={Number(props.searchParams?.page || 1)}
+      page={Number(searchParams?.page || 1)}
       total={Number(searchRes.hits.total)}
       cursors={[
         searchRes.hits.hits.length && searchRes.hits.hits[0].sort ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[0].sort)) : undefined,
@@ -85,8 +88,8 @@ export default async function Page(props: { params: { type?: string, search?: st
         const href = create_url({ type: hit._source.type, slug: hit._source.slug })
         return [
           <SearchablePagedTableCellIcon href={href} src={itemIcon(hit._source, entityLookup)} alt={categoryLabel(hit._source.type)} />,
-          <LinkedTypedNode type={hit._source.type} id={hit._source.slug} label={itemLabel(hit._source)} search={props.searchParams?.q as string ?? ''} />,
-          <Description description={itemDescription(hit._source, entityLookup)} search={props.searchParams?.q as string ?? ''} />,
+          <LinkedTypedNode type={hit._source.type} id={hit._source.slug} label={itemLabel(hit._source)} search={searchParams?.q as string ?? ''} />,
+          <Description description={itemDescription(hit._source, entityLookup)} search={searchParams?.q as string ?? ''} />,
         ]
       }) ?? []}
     />

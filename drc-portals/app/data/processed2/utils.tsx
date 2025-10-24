@@ -3,7 +3,6 @@ import KGNode from '@/public/img/icons/KGNode.png'
 import KGEdge from '@/public/img/icons/KGEdge.png'
 import GeneIcon from '@/public/img/icons/gene.png'
 import DrugIcon from '@/public/img/icons/drug.png'
-import singleton from '@/lib/singleton'
 
 export type EntityType = {
   type: string,
@@ -124,17 +123,6 @@ export function categoryLabel(type: string) {
   else return entity_type_map[type] ?? titleCapitalize(type.replaceAll('_',' '))
 }
 
-export const dccIcons = singleton('dccIcons', async () => {
-  const { default: prisma } = await import('@/lib/prisma')
-  const dcc_icons = await prisma.dCC.findMany({
-    select: {
-      short_label: true,
-      icon: true,
-    }
-  })
-  return Object.fromEntries(dcc_icons.map(dcc => [dcc.short_label, dcc.icon]))
-})
-
 export function itemIcon(item: EntityType, lookup?: Record<string, EntityType>) {
   if (lookup && item.r_dcc && item.r_dcc in lookup) {
     const dcc = lookup[item.r_dcc]
@@ -220,6 +208,8 @@ export function create_url({ search, search_type, type, type_search, slug, entit
     if (slug) {
       path += `/${encodeURIComponent(slug)}`
       if (entity_search) path += `/search/${encodeURIComponent(entity_search)}`
+    } else {
+      path += `/search`
     }
   }
   const urlSearchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : undefined)

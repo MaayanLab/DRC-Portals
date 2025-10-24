@@ -1,6 +1,6 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, dccIcons, EntityType, humanBytesSize, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType, titleCapitalize } from "@/app/data/processed2/utils"
+import { categoryLabel, EntityType, humanBytesSize, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType, titleCapitalize } from "@/app/data/processed2/utils"
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import { LinkedTypedNode } from "@/app/data/processed2/SearchablePagedTable";
 import Link from "@/utils/link";
@@ -10,6 +10,8 @@ import { mdiArrowLeft } from "@mdi/js";
 import { notFound } from 'next/navigation';
 import LandingPageLayout from '@/app/data/processed/LandingPageLayout';
 import SearchFilter from '@/app/data/processed2/SearchFilter';
+import EntityPageAnalyze from '@/app/data/processed2/EntityPageAnalyze';
+import { dccIcons } from './icons';
 
 export default async function Page(props: React.PropsWithChildren<{ params: Promise<{ type: string, slug: string, search?: string } & Record<string, string>> }>) {
   const params = await props.params

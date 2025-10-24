@@ -7,16 +7,18 @@ import prisma from '@/lib/prisma';
 import { create_url } from './utils';
 import { ensure_array } from '@/utils/array';
 
-export default async function Page(props: { params: { type: string, slug: string, search?: string } & Record<string, string>, searchParams?: { [key: string]: string[] | string | undefined } }) {
-  for (const k in props.params) props.params[k] = decodeURIComponent(props.params[k])
-  for (const k in props.searchParams) props.searchParams[k] = Array.isArray(props.searchParams[k]) ? props.searchParams[k].map(decodeURIComponent) : decodeURIComponent(props.searchParams[k] ?? '')
+export default async function Page(props: { params: Promise<{ type: string, slug: string, search?: string } & Record<string, string>>, searchParams?: Promise<{ [key: string]: string[] | string | undefined }> }) {
+  const params = await props.params
+  const searchParams = await props.searchParams
+  for (const k in params) params[k] = decodeURIComponent(params[k])
+  for (const k in searchParams) searchParams[k] = Array.isArray(searchParams[k]) ? searchParams[k].map(decodeURIComponent) : decodeURIComponent(searchParams[k] ?? '')
   const itemRes = await elasticsearch.search<EntityType>({
     index: 'entity',
       query: {
         bool: {
           must: [
-            { term: { 'type': props.params.type } },
-            { term: { 'slug': props.params.slug } },
+            { term: { 'type': params.type } },
+            { term: { 'slug': params.slug } },
           ]
         },
       },
@@ -24,10 +26,10 @@ export default async function Page(props: { params: { type: string, slug: string
   const item = itemRes.hits.hits[0]
   if (!item?._source) notFound()
   const item_source = item._source
-  let q = props.params?.search ?? ''
-  if (props.searchParams?.facet) q = `${q ? `${q} ` : ''}(${ensure_array(props.searchParams.facet).map(f => `+${f}`).join(' OR ')})`
+  let q = params?.search ?? ''
+  if (searchParams?.facet) q = `${q ? `${q} ` : ''}(${ensure_array(searchParams.facet).map(f => `+${f}`).join(' OR ')})`
   q = `${q ? `${q} ` : ''}+source_id:${item._id}`
-  const display_per_page = Math.min(Number(props.searchParams?.display_per_page ?? 10), 50)
+  const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<M2MTargetType, TermAggType<'predicates' | 'types' | 'dccs'>>({
     index: 'm2m_target_expanded',
     query: {
@@ -36,14 +38,14 @@ export default async function Page(props: { params: { type: string, slug: string
         default_operator: 'AND',
       },
     },
-    sort: props.searchParams?.reverse === undefined ? [
+    sort: searchParams?.reverse === undefined ? [
       {'target_pagerank': {'order': 'desc'}},
       {'target_id': {'order': 'asc'} },
     ] :  [
       {'target_pagerank': {'order': 'asc'}},
       {'target_id': {'order': 'desc'} },
     ],
-    search_after: props.searchParams?.cursor ? JSON.parse(props.searchParams.cursor as string) : undefined,
+    search_after: searchParams?.cursor ? JSON.parse(searchParams.cursor as string) : undefined,
     size: display_per_page,
     rest_total_hits_as_int: true,
   })
@@ -96,11 +98,11 @@ export default async function Page(props: { params: { type: string, slug: string
     <SearchablePagedTable
       label="Linked to"
       search_name="entity_search"
-      search={props.params?.search ?? ''}
-      cursor={props.searchParams?.cursor as string}
-      reverse={props.searchParams?.reverse !== undefined}
+      search={params?.search ?? ''}
+      cursor={searchParams?.cursor as string}
+      reverse={searchParams?.reverse !== undefined}
       display_per_page={display_per_page}
-      page={Number(props.searchParams?.page || 1)}
+      page={Number(searchParams?.page || 1)}
       total={Number(searchRes.hits.total)}
       cursors={[
         searchRes.hits.hits.length && searchRes.hits.hits[0].sort ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[0].sort)) : undefined,
@@ -117,8 +119,8 @@ export default async function Page(props: { params: { type: string, slug: string
         const href = create_url({ type: hit_source.target_type, slug: hit_source.target_slug})
         return [
           <SearchablePagedTableCellIcon href={href} src={itemIcon(entityLookup[hit_source.target_id], entityLookup)} alt={categoryLabel(hit_source.target_type)} />,
-          <LinkedTypedNode type={hit_source.target_type} id={hit_source.target_slug} label={itemLabel(entityLookup[hit_source.target_id])} search={props.searchParams?.q as string ?? ''} />,
-          <Description description={itemDescription(entityLookup[hit_source.target_id], entityLookup)} search={props.searchParams?.q as string ?? ''} />,
+          <LinkedTypedNode type={hit_source.target_type} id={hit_source.target_slug} label={itemLabel(entityLookup[hit_source.target_id])} search={searchParams?.q as string ?? ''} />,
+          <Description description={itemDescription(entityLookup[hit_source.target_id], entityLookup)} search={searchParams?.q as string ?? ''} />,
         ]
       })}
     />
