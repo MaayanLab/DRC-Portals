@@ -1,9 +1,8 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, create_url, EntityType, itemDescription, itemIcon, itemLabel, TermAggType } from "@/app/data/processed2/utils"
+import { categoryLabel, create_url, dccIcons, EntityType, itemDescription, itemIcon, itemLabel, TermAggType } from "@/app/data/processed2/utils"
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed2/SearchablePagedTable";
 import { redirect } from 'next/navigation';
-import prisma from '@/lib/prisma';
 import { ensure_array } from '@/utils/array';
 
 export default async function Page(props: { params: { type?: string, search?: string, search_type?: string } & Record<string, string>, searchParams?: { [key: string]: string[] | string | undefined } }) {
@@ -57,25 +56,10 @@ export default async function Page(props: { params: { type?: string, search?: st
     ...searchRes.hits.hits.map((hit) => [hit._id, hit._source]),
     ...entityLookupRes.hits.hits.map((hit) => [hit._id, hit._source]),
   ])
-  // add dcc icons to dcc nodes (TODO: cache this)
-  const dccEntityLookup = Object.fromEntries(
-    Object.entries<EntityType>(entityLookup)
-      .filter(([_, e]) => e.type === 'dcc')
-      .map(([id, e]) => [e.a_label, id])
-  )
-  const dccs = await prisma.dCC.findMany({
-    where: {
-      short_label: {
-        in: Object.keys(dccEntityLookup),
-      }
-    },
-    select: {
-      short_label: true,
-      icon: true,
-    },
-  })
-  dccs.forEach(dcc => {
-    entityLookup[dccEntityLookup[dcc.short_label as string]].a_icon = dcc.icon as string
+  const dccIconsResolved = await dccIcons
+  Object.values<EntityType>(entityLookup).forEach((e) => {
+    if (e.type === 'dcc')
+      e.a_icon = dccIconsResolved[e.slug]
   })
   return (
     <SearchablePagedTable

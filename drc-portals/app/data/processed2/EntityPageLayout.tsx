@@ -1,6 +1,6 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, EntityType, humanBytesSize, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType, titleCapitalize } from "@/app/data/processed2/utils"
+import { categoryLabel, dccIcons, EntityType, humanBytesSize, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType, titleCapitalize } from "@/app/data/processed2/utils"
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import { LinkedTypedNode } from "@/app/data/processed2/SearchablePagedTable";
 import Link from "@/utils/link";
@@ -10,7 +10,6 @@ import { mdiArrowLeft } from "@mdi/js";
 import { notFound } from 'next/navigation';
 import LandingPageLayout from '@/app/data/processed/LandingPageLayout';
 import SearchFilter from '@/app/data/processed2/SearchFilter';
-import prisma from '@/lib/prisma';
 
 export default async function Page(props: React.PropsWithChildren<{ params: Promise<{ type: string, slug: string, search?: string } & Record<string, string>> }>) {
   const params = await props.params
@@ -79,25 +78,10 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
     [item._id, item_source],
     ...entityLookupRes.hits.hits.filter((hit): hit is typeof hit & {_source: EntityType} => !!hit._source).map((hit) => [hit._id, hit._source]),
   ])
-  // add dcc icons to dcc nodes (TODO: cache this)
-  const dccEntityLookup = Object.fromEntries(
-    Object.entries<EntityType>(entityLookup)
-      .filter(([_, e]) => e.type === 'dcc')
-      .map(([id, e]) => [e.a_label, id])
-  )
-  const dccs = await prisma.dCC.findMany({
-    where: {
-      short_label: {
-        in: Object.keys(dccEntityLookup),
-      }
-    },
-    select: {
-      short_label: true,
-      icon: true,
-    },
-  })
-  dccs.forEach(dcc => {
-    entityLookup[dccEntityLookup[dcc.short_label as string]].a_icon = dcc.icon as string
+  const dccIconsResolved = await dccIcons
+  Object.values<EntityType>(entityLookup).forEach((e) => {
+    if (e.type === 'dcc')
+      e.a_icon = dccIconsResolved[e.slug]
   })
   return (
     <LandingPageLayout

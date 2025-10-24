@@ -3,7 +3,7 @@ import SearchTabs from "@/app/data/processed2/SearchTabs";
 import { redirect } from "next/navigation";
 import { FancyTab } from "@/components/misc/FancyTabs";
 import { Metadata, ResolvingMetadata } from "next";
-import { categoryLabel, EntityType, itemLabel, TermAggType } from "./utils";
+import { categoryLabel, dccIcons, EntityType, itemLabel, TermAggType } from "./utils";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import Link from "@/utils/link";
 import { Button } from "@mui/material";
@@ -11,7 +11,6 @@ import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import SearchFilter from '@/app/data/processed2/SearchFilter';
 import elasticsearch from "@/lib/elasticsearch";
-import prisma from "@/lib/prisma";
 
 export async function generateMetadata(props: { params: Promise<{ search: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params
@@ -69,25 +68,10 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
     ...searchRes.hits.hits.map((hit) => [hit._id, hit._source]),
     ...entityLookupRes.hits.hits.map((hit) => [hit._id, hit._source]),
   ])
-  // add dcc icons to dcc nodes (TODO: cache this)
-  const dccEntityLookup = Object.fromEntries(
-    Object.entries<EntityType>(entityLookup)
-      .filter(([_, e]) => e.type === 'dcc')
-      .map(([id, e]) => [e.a_label, id])
-  )
-  const dccs = await prisma.dCC.findMany({
-    where: {
-      short_label: {
-        in: Object.keys(dccEntityLookup),
-      }
-    },
-    select: {
-      short_label: true,
-      icon: true,
-    },
-  })
-  dccs.forEach(dcc => {
-    entityLookup[dccEntityLookup[dcc.short_label as string]].a_icon = dcc.icon as string
+  const dccIconsResolved = await dccIcons
+  Object.values<EntityType>(entityLookup).forEach((e) => {
+    if (e.type === 'dcc')
+      e.a_icon = dccIconsResolved[e.slug]
   })
   if (!params.search) {
     return (
