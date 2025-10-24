@@ -1,14 +1,8 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
 import { categoryLabel, create_url, EntityType, itemDescription, itemIcon, itemLabel, TermAggType } from "@/app/data/processed2/utils"
-import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed2/SearchablePagedTable";
-import Link from "@/utils/link";
-import { Button } from "@mui/material";
-import Icon from "@mdi/react";
-import { mdiArrowLeft } from "@mdi/js";
 import { redirect } from 'next/navigation';
-import SearchFilter from '@/app/data/processed2/SearchFilter';
 import prisma from '@/lib/prisma';
 import { ensure_array } from '@/utils/array';
 
@@ -16,31 +10,17 @@ export default async function Page(props: { params: { type?: string, search?: st
   for (const k in props.params) props.params[k] = decodeURIComponent(props.params[k])
   for (const k in props.searchParams) props.searchParams[k] = Array.isArray(props.searchParams[k]) ? props.searchParams[k].map(decodeURIComponent) : decodeURIComponent(props.searchParams[k] ?? '')
   let q = props.params.search ?? ''
-  if (props.searchParams?.facet) q = `${q ? `${q} ` : ''}${ensure_array(props.searchParams.facet).map(f => `+${f}`).join(' ')}`
+  if (props.searchParams?.facet) q = `${q ? `${q} ` : ''}(${ensure_array(props.searchParams.facet).map(f => `+${f}`).join(' OR ')})`
   if (props.params.type) q = `${q ? `(${q}) ` : ''}+type:"${props.params.type}"`
   if (props.params.search_type) q = `${q ? `(${q}) ` : ''}+type:"${props.params.search_type}"`
   const display_per_page = Math.min(Number(props.searchParams?.display_per_page ?? 10), 50)
   if (!q) redirect('/data')
-  const searchRes = await elasticsearch.search<EntityType, TermAggType<'types' | 'dccs'>>({
+  const searchRes = await elasticsearch.search<EntityType>({
     index: 'entity',
     query: {
       query_string: {
         query: q,
         default_operator: 'AND',
-      },
-    },
-    aggs: {
-      types: {
-        terms: {
-          field: 'type',
-          size: 1000,
-        },
-      },
-      dccs: {
-        terms: {
-          field: 'r_dcc.keyword',
-          size: 1000,
-        },
       },
     },
     sort: props.searchParams?.reverse === undefined ? [
@@ -63,7 +43,6 @@ export default async function Page(props: { params: { type?: string, search?: st
       ids: {
         values: Array.from(new Set([
           // all dccs in the dcc filters
-          ...searchRes.aggregations ? searchRes.aggregations.dccs.buckets.map(filter => filter.key) : [],
           ...searchRes.hits.hits.flatMap((item) => {
             const item_source = item._source
             if (!item_source) return []
@@ -99,65 +78,33 @@ export default async function Page(props: { params: { type?: string, search?: st
     entityLookup[dccEntityLookup[dcc.short_label as string]].a_icon = dcc.icon as string
   })
   return (
-    <ListingPageLayout
-      count={Number(searchRes.hits.total)}
-      filters={
-        <>
-          {/*searchRes.aggregations?.types && <>
-            <div className="font-bold">Type</div>
-            {searchRes.aggregations.types.buckets.map((filter) =>
-              <SearchFilter key={filter.key} facet={`+type:"${filter.key}"`}>{categoryLabel(filter.key)} ({Number(filter.doc_count).toLocaleString()})</SearchFilter>
-            )}
-            <br />
-          </>*/}
-          {searchRes.aggregations?.dccs && <>
-            <div className="font-bold">DCC</div>
-            {searchRes.aggregations.dccs.buckets.map((filter) =>
-              <SearchFilter key={filter.key} id={`r_dcc:"${filter.key}"`} label={filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : filter.key} count={Number(filter.doc_count)} />
-            )}
-          </>}
-        </>
-      }
-      footer={
-        <Link href="/data">
-          <Button
-            sx={{textTransform: "uppercase"}}
-            color="primary"
-            variant="contained"
-            startIcon={<Icon path={mdiArrowLeft} size={1} />}>
-              BACK TO SEARCH
-          </Button>
-        </Link>
-      }
-    >
-      <SearchablePagedTable
-        label={props.params.type ? categoryLabel(props.params.type) : undefined}
-        search_name={props.params.type ? "type_search" : "search"}
-        search={props.params.search ?? ''}
-        cursor={props.searchParams?.cursor as string}
-        reverse={props.searchParams?.reverse !== undefined}
-        display_per_page={display_per_page}
-        page={Number(props.searchParams?.page || 1)}
-        total={Number(searchRes.hits.total)}
-        cursors={[
-          searchRes.hits.hits.length && searchRes.hits.hits[0].sort ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[0].sort)) : undefined,
-          searchRes.hits.hits.length && searchRes.hits.hits[searchRes.hits.hits.length-1] ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[searchRes.hits.hits.length-1].sort)) : undefined,
-        ]}
-        columns={[
-          <>&nbsp;</>,
-          <>Label</>,
-          <>Description</>,
-        ]}
-        rows={searchRes.hits.hits.map((hit) => {
-          if (!hit._source) return []
-          const href = create_url({ type: hit._source.type, slug: hit._source.slug })
-          return [
-            <SearchablePagedTableCellIcon href={href} src={itemIcon(hit._source, entityLookup)} alt={categoryLabel(hit._source.type)} />,
-            <LinkedTypedNode type={hit._source.type} id={hit._source.slug} label={itemLabel(hit._source)} search={props.searchParams?.q as string ?? ''} />,
-            <Description description={itemDescription(hit._source, entityLookup)} search={props.searchParams?.q as string ?? ''} />,
-          ]
-        }) ?? []}
-      />
-    </ListingPageLayout>
+    <SearchablePagedTable
+      label={props.params.type ? categoryLabel(props.params.type) : undefined}
+      search_name={props.params.type ? "type_search" : "search"}
+      search={props.params.search ?? ''}
+      cursor={props.searchParams?.cursor as string}
+      reverse={props.searchParams?.reverse !== undefined}
+      display_per_page={display_per_page}
+      page={Number(props.searchParams?.page || 1)}
+      total={Number(searchRes.hits.total)}
+      cursors={[
+        searchRes.hits.hits.length && searchRes.hits.hits[0].sort ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[0].sort)) : undefined,
+        searchRes.hits.hits.length && searchRes.hits.hits[searchRes.hits.hits.length-1] ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[searchRes.hits.hits.length-1].sort)) : undefined,
+      ]}
+      columns={[
+        <>&nbsp;</>,
+        <>Label</>,
+        <>Description</>,
+      ]}
+      rows={searchRes.hits.hits.map((hit) => {
+        if (!hit._source) return []
+        const href = create_url({ type: hit._source.type, slug: hit._source.slug })
+        return [
+          <SearchablePagedTableCellIcon href={href} src={itemIcon(hit._source, entityLookup)} alt={categoryLabel(hit._source.type)} />,
+          <LinkedTypedNode type={hit._source.type} id={hit._source.slug} label={itemLabel(hit._source)} search={props.searchParams?.q as string ?? ''} />,
+          <Description description={itemDescription(hit._source, entityLookup)} search={props.searchParams?.q as string ?? ''} />,
+        ]
+      }) ?? []}
+    />
   )
 }
