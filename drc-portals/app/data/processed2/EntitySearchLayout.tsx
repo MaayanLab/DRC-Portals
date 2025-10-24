@@ -26,6 +26,7 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
   const params = await props.params
   for (const k in params) params[k] = decodeURIComponent(params[k])
   let q = params.search ?? ''
+  if (params.type) q = `${q ? `(${q}) ` : ''}+type:"${params.type}"`
   if (!q) redirect('/data')
   const searchRes = await elasticsearch.search<EntityType, TermAggType<'types' | 'dccs'>>({
     index: 'entity',
@@ -88,6 +89,36 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
   dccs.forEach(dcc => {
     entityLookup[dccEntityLookup[dcc.short_label as string]].a_icon = dcc.icon as string
   })
+  if (!params.search) {
+    return (
+      <ListingPageLayout
+        count={Number(searchRes.hits.total)}
+        filters={
+          <>
+            {searchRes.aggregations?.dccs && <>
+              <div className="font-bold">DCC</div>
+              {searchRes.aggregations.dccs.buckets.map((filter) =>
+                <SearchFilter key={filter.key} id={`r_dcc:"${filter.key}"`} label={filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : filter.key} count={Number(filter.doc_count)} />
+              )}
+            </>}
+          </>
+        }
+        footer={
+          <Link href="/data">
+            <Button
+              sx={{textTransform: "uppercase"}}
+              color="primary"
+              variant="contained"
+              startIcon={<Icon path={mdiArrowLeft} size={1} />}>
+                BACK TO SEARCH
+            </Button>
+          </Link>
+        }
+      >
+        {props.children}
+      </ListingPageLayout>
+    )
+  }
   return (
     <SearchTabs>
       <FancyTab
@@ -107,13 +138,6 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
         count={Number(searchRes.hits.total)}
         filters={
           <>
-            {/*searchRes.aggregations?.types && <>
-              <div className="font-bold">Type</div>
-              {searchRes.aggregations.types.buckets.map((filter) =>
-                <SearchFilter key={filter.key} facet={`+type:"${filter.key}"`}>{categoryLabel(filter.key)} ({Number(filter.doc_count).toLocaleString()})</SearchFilter>
-              )}
-              <br />
-            </>*/}
             {searchRes.aggregations?.dccs && <>
               <div className="font-bold">DCC</div>
               {searchRes.aggregations.dccs.buckets.map((filter) =>
