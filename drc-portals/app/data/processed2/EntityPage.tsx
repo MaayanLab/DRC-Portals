@@ -8,11 +8,14 @@ import { create_url } from './utils';
 import { ensure_array } from '@/utils/array';
 import DRSCartButton from '@/app/data/processed2/cart/DRSCartButton';
 
-export default async function Page(props: { params: Promise<{ type: string, slug: string, search?: string } & Record<string, string>>, searchParams?: Promise<{ [key: string]: string[] | string | undefined }> }) {
+export default async function Page(props: { params: Promise<{ type: string, slug: string, search?: string } & Record<string, string>>, searchParams?: Promise<{ [key: string]: string[] | string }> }) {
   const params = await props.params
   const searchParams = await props.searchParams
   for (const k in params) params[k] = decodeURIComponent(params[k])
-  for (const k in searchParams) searchParams[k] = Array.isArray(searchParams[k]) ? searchParams[k].map(decodeURIComponent) : decodeURIComponent(searchParams[k] ?? '')
+  for (const k in searchParams) {
+    const v = searchParams[k]
+    searchParams[k] = Array.isArray(v) ? v.map(decodeURIComponent) : decodeURIComponent(v)
+  }
   const itemRes = await elasticsearch.search<EntityType>({
     index: 'entity',
       query: {

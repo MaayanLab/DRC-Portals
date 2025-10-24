@@ -7,11 +7,14 @@ import { ensure_array } from '@/utils/array';
 import { dccIcons } from './icons';
 import DRSCartButton from '@/app/data/processed2/cart/DRSCartButton';
 
-export default async function Page(props: { params: Promise<{ type?: string, search?: string, search_type?: string } & Record<string, string>>, searchParams?: Promise<{ [key: string]: string[] | string | undefined }> }) {
+export default async function Page(props: { params: Promise<{ type?: string, search?: string, search_type?: string } & Record<string, string>>, searchParams?: Promise<{ [key: string]: string[] | string }> }) {
   const params = await props.params
   const searchParams = await props.searchParams
   for (const k in params) params[k] = decodeURIComponent(params[k])
-  for (const k in searchParams) searchParams[k] = Array.isArray(searchParams[k]) ? searchParams[k].map(decodeURIComponent) : decodeURIComponent(searchParams[k] ?? '')
+  for (const k in searchParams) {
+    const v = searchParams[k]
+    searchParams[k] = Array.isArray(v) ? v.map(decodeURIComponent) : decodeURIComponent(v)
+  }
   let q = params.search ?? ''
   if (searchParams?.facet) q = `${q ? `${q} ` : ''}(${ensure_array(searchParams.facet).map(f => `+${f}`).join(' OR ')})`
   if (params.type) q = `${q ? `(${q}) ` : ''}+type:"${params.type}"`
