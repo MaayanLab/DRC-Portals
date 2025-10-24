@@ -1,10 +1,11 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, create_url, EntityType, itemDescription, itemIcon, itemLabel, TermAggType } from "@/app/data/processed2/utils"
+import { categoryLabel, create_url, EntityType, itemDescription, itemIcon, itemLabel } from "@/app/data/processed2/utils"
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed2/SearchablePagedTable";
 import { redirect } from 'next/navigation';
 import { ensure_array } from '@/utils/array';
 import { dccIcons } from './icons';
+import DRSCartButton from '@/app/data/processed2/cart/DRSCartButton';
 
 export default async function Page(props: { params: Promise<{ type?: string, search?: string, search_type?: string } & Record<string, string>>, searchParams?: Promise<{ [key: string]: string[] | string | undefined }> }) {
   const params = await props.params
@@ -82,6 +83,7 @@ export default async function Page(props: { params: Promise<{ type?: string, sea
         <>&nbsp;</>,
         <>Label</>,
         <>Description</>,
+        <>&nbsp;</>,
       ]}
       rows={searchRes.hits.hits.map((hit) => {
         if (!hit._source) return []
@@ -90,6 +92,9 @@ export default async function Page(props: { params: Promise<{ type?: string, sea
           <SearchablePagedTableCellIcon href={href} src={itemIcon(hit._source, entityLookup)} alt={categoryLabel(hit._source.type)} />,
           <LinkedTypedNode type={hit._source.type} id={hit._source.slug} label={itemLabel(hit._source)} search={searchParams?.q as string ?? ''} />,
           <Description description={itemDescription(hit._source, entityLookup)} search={searchParams?.q as string ?? ''} />,
+          hit._source.type === 'file' ? <DRSCartButton access_url={hit._source.a_access_url ?? hit._source.a_persistent_id} />
+          : hit._source.type === 'dcc_asset' ? <DRSCartButton access_url={hit._source.a_link} />
+          : null,
         ]
       }) ?? []}
     />
