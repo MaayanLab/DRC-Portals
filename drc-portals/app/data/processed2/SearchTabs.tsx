@@ -11,10 +11,10 @@ export default function SearchTabs(props: React.PropsWithChildren<{}>) {
   const params = React.useMemo(() => parse_url({ pathname }), [pathname])
   return (
     <FancyTabs
-      tab={params.search_type ?? undefined}
-      defaultTab="all"
+      tab={params.search_type ?? ""}
+      defaultTab=""
       onChange={(evt, tab) => {
-        router.push(create_url({ ...parse_url(), search_type: tab }), { scroll: false })
+        router.push(create_url({ ...parse_url(), search_type: tab || null }), { scroll: false })
       }}
     >
       {props.children}

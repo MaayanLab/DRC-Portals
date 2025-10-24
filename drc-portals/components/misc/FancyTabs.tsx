@@ -71,10 +71,10 @@ export function FancyTabs(props: React.PropsWithChildren<{
     return {tabs, enabledTabs: tabs.filter(tab => !tab.disabled)}
   }, [ctx.tabs])
   const currentTab = React.useMemo(() => [
-    props.tab ? ctx.tabs[props.tab] : undefined,
-    tab ? ctx.tabs[tab] : undefined,
+    props.tab !== undefined ? ctx.tabs[props.tab] : undefined,
+    tab !== undefined ? ctx.tabs[tab] : undefined,
     ...tabs,
-  ].filter(tab => tab && !tab.disabled && !tab.hidden && !tab.loading)[0]?.id, [props.tab, tab, tabs])
+  ].filter(tab => tab !== undefined && !tab.disabled && !tab.hidden && !tab.loading)[0]?.id, [props.tab, tab, tabs])
   React.useEffect(() => {
     if (initializing_state !== 'pre' && props.tab === undefined && props.onChange && currentTab !== undefined) {
       props.onChange(undefined, currentTab)
