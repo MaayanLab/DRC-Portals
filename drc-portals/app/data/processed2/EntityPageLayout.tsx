@@ -119,6 +119,7 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
         })
       ]}
     >
+      <EntityPageAnalyze item={item._source} />
       <ListingPageLayout
         count={Number(searchRes.hits.total)}
         filters={
