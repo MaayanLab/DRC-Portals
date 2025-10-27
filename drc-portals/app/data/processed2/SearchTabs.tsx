@@ -14,7 +14,14 @@ export default function SearchTabs(props: React.PropsWithChildren<{}>) {
       tab={params.search_type ?? ""}
       defaultTab=""
       onChange={(evt, tab) => {
-        router.push(create_url({ ...parse_url(), search_type: tab || null }), { scroll: false })
+        router.push(create_url({
+          ...parse_url(),
+          search_type: tab || null,
+          facet: null,
+          page: '1',
+          cursor: null,
+          reverse: null,
+        }), { scroll: false })
       }}
     >
       {props.children}

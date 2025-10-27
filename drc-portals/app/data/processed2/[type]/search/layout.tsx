@@ -1,1 +1,1 @@
-export { default } from '@/app/data/processed2/EntitySearchLayout'
+export { default } from '@/app/data/processed2/EntityTypeLayout'
