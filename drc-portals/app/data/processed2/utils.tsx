@@ -191,29 +191,36 @@ export function parse_url(location: { pathname?: string, search?: string } = typ
     ...Object.entries(m?.groups ?? {}),
   ])
 }
-export function create_url({ search, search_type, type, type_search, slug, entity_search, ...searchParams }: {
+export function create_url({ error, search, search_type, type, type_search, slug, entity_search, ...searchParams }: {
   type?: string, slug?: string,
   search?: string, filter?: string,
+  error?: string,
 } & Record<string, string | null>) {
   let path = `/data/processed2`
-  if (type_search) {
-    search = type_search
-    search_type = type ?? null
-  }
-  if (search) {
-    path += `/search/${encodeURIComponent(search)}`
-    if (search_type) path += `/${encodeURIComponent(search_type)}`
-  }
-  else if (type) {
-    path += `/${encodeURIComponent(type)}`
-    if (slug) {
-      path += `/${encodeURIComponent(slug)}`
-      if (entity_search) path += `/search/${encodeURIComponent(entity_search)}`
-    } else {
-      path += `/search`
-    }
-  }
   const urlSearchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : undefined)
+  if (!error) {
+    if (type_search) {
+      search = type_search
+      search_type = type ?? null
+    }
+    if (search) {
+      path += `/search/${encodeURIComponent(search)}`
+      if (search_type) path += `/${encodeURIComponent(search_type)}`
+    }
+    else if (type) {
+      path += `/${encodeURIComponent(type)}`
+      if (slug) {
+        path += `/${encodeURIComponent(slug)}`
+        if (entity_search) path += `/search/${encodeURIComponent(entity_search)}`
+      } else {
+        path += `/search`
+      }
+    }
+    urlSearchParams.delete('search')
+  } else {
+    if (search) searchParams['search'] = search
+    searchParams['error'] = error
+  }
   Object.entries(searchParams)
     .forEach(([k, v]) => { if (v === null) { urlSearchParams.delete(k) } else { urlSearchParams.set(k, v) } })
   if (urlSearchParams.size > 0) path += `?${urlSearchParams.toString()}`

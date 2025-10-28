@@ -3,7 +3,7 @@ import SearchTabs from "@/app/data/processed2/SearchTabs";
 import { redirect } from "next/navigation";
 import { FancyTab } from "@/components/misc/FancyTabs";
 import { Metadata, ResolvingMetadata } from "next";
-import { categoryLabel, EntityType, TermAggType } from "./utils";
+import { categoryLabel, create_url, EntityType, TermAggType } from "./utils";
 import elasticsearch from "@/lib/elasticsearch";
 
 export async function generateMetadata(props: { params: Promise<{ search: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
@@ -39,6 +39,7 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
     size: 0,
     rest_total_hits_as_int: true,
   })
+  if (!searchRes.hits.total) redirect(create_url({ search: params.search , error: 'No results matching search' }))
   return (
     <SearchTabs>
       <FancyTab

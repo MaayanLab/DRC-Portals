@@ -6,7 +6,7 @@ import { InputAdornment, TextField } from '@mui/material';
 import { useRouter } from "@/utils/navigation";
 import { create_url, parse_url } from "./utils";
 
-export function SearchForm({ children, name = "search" }: React.PropsWithChildren<{ name?: string }>) {
+export function SearchForm({ children, name, param = "search" }: React.PropsWithChildren<{ name: string, param?: string }>) {
   const router = useRouter()
   return (
     <form onSubmit={evt => {
@@ -14,12 +14,12 @@ export function SearchForm({ children, name = "search" }: React.PropsWithChildre
       const formData = new FormData(evt.currentTarget)
       const params = parse_url()
       const value = formData.get(name)
-      if (value !== null) params[name] = value.toString()
-      else delete params[name]
+      params[param] = value !== null ? value.toString() : null
       params['page'] = null
       params['cursor'] = null
       params['reverse'] = null
       params['facet'] = null
+      params['error'] = null
       router.push(create_url(params))
     }}>
       {children}

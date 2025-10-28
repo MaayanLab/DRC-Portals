@@ -1,6 +1,6 @@
 import React from "react";
 import { redirect } from "next/navigation";
-import { EntityType, itemLabel, TermAggType } from "./utils";
+import { categoryLabel, EntityType, itemLabel, TermAggType } from "./utils";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import Link from "@/utils/link";
 import { Button } from "@mui/material";
@@ -9,12 +9,13 @@ import { mdiArrowLeft } from "@mdi/js";
 import SearchFilter from '@/app/data/processed2/SearchFilter';
 import elasticsearch from "@/lib/elasticsearch";
 import { dccIcons } from "./icons";
+import { Metadata, ResolvingMetadata } from "next";
 
-export async function generateMetadata(props: { params: Promise<{ search: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ type: string, search?: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params
   const parentMetadata = await parent
   return {
-    title: `${parentMetadata.title?.absolute} | Search ${decodeURIComponent(params.search)}`,
+    title: `${parentMetadata.title?.absolute} | ${categoryLabel(params.type)}${params.search ? ` | Search ${decodeURIComponent(params.search)}` : ''}`,
     keywords: parentMetadata.keywords,
   }
 }

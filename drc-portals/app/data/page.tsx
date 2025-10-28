@@ -85,7 +85,7 @@ const tool_cards = [
   }
 ];
 
-export default async function Home({ searchParams }: { searchParams: { q?: string, error?: string } }) {
+export default async function Home({ searchParams }: { searchParams: { search?: string, error?: string } }) {
   return (
     <main className="text-center">
       <Grid container alignItems={"flex-start"} justifyContent={"center"}>
@@ -106,8 +106,8 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
               <Container maxWidth="lg" className="m-auto">
                 <Grid container spacing={2} alignItems={"center"}>
                   <Grid item xs={12}>
-                    <SearchForm>
-                    <Stack spacing={2} justifyContent={"center"} alignItems={"center"}>
+                    <SearchForm name="search" param="search">
+                      <Stack spacing={2} justifyContent={"center"} alignItems={"center"}>
                         <Typography color="secondary" className="text-center" variant="h1">CFDE DATA PORTAL</Typography>
                         <Typography color="secondary" className="text-center" sx={{ fontSize: 20 }} variant="body1">
                           Search Common Fund Programs'&nbsp;
@@ -133,7 +133,8 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
                         </Typography>
                         <Box>
                           <SearchField
-                            defaultValue={searchParams.q ?? ''}
+                            name="search"
+                            defaultValue={searchParams.search ?? ''}
                             error={searchParams.error}
                             InputProps={{
                               sx: {width:{xs: '270px', sm: '270px', md: '544px', lg: '544px', xl: '544px'} }

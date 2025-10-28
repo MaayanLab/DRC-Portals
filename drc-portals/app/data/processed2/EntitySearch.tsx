@@ -70,7 +70,7 @@ export default async function Page(props: { params: Promise<{ type?: string, sea
   })
   return (
     <SearchablePagedTable
-      label={params.search ? undefined : params.type ? categoryLabel(params.type) : undefined}
+      label={params.type ? categoryLabel(params.type) : undefined}
       search_name={params.type ? "type_search" : "search"}
       search={params.search ?? ''}
       cursor={searchParams?.cursor as string}

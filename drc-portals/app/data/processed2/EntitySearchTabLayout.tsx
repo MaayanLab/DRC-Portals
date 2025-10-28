@@ -1,6 +1,6 @@
 import React from "react";
 import { redirect } from "next/navigation";
-import { EntityType, itemLabel, TermAggType } from "./utils";
+import { capitalize, EntityType, itemLabel, TermAggType } from "./utils";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import Link from "@/utils/link";
 import { Button } from "@mui/material";
@@ -9,6 +9,7 @@ import { mdiArrowLeft } from "@mdi/js";
 import SearchFilter from '@/app/data/processed2/SearchFilter';
 import elasticsearch from "@/lib/elasticsearch";
 import { dccIcons } from "./icons";
+import { FancyTab } from "@/components/misc/FancyTabs";
 
 export default async function Page(props: React.PropsWithChildren<{ params: Promise<{ search: string, type?: string } & Record<string, string>> }>) {
   const params = await props.params
@@ -35,6 +36,19 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
     size: 0,
     rest_total_hits_as_int: true,
   })
+  if (searchRes.hits.total === 0) {
+    if (!params.type) redirect('/data')
+    return (
+      <>
+        <FancyTab
+          id={params.type}
+          label={<>{capitalize(params.type)}<br />{Number(searchRes.hits.total).toLocaleString()}</>}
+          priority={Number(searchRes.hits.total)}
+        />
+        {props.children}
+      </>
+    )
+  }
   const entityLookupRes = await elasticsearch.search<EntityType>({
     index: 'entity',
     query: {
