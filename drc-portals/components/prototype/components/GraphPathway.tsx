@@ -14,7 +14,10 @@ import {
 } from "react";
 import { z } from "zod";
 
-import { fetchNodeByIdAndLabels, fetchPathwaySearchCount } from "@/lib/neo4j/api";
+import {
+  fetchNodeByIdAndLabels,
+  fetchPathwaySearchCount,
+} from "@/lib/neo4j/api";
 import { createPathwaySearchAllPathsCypher } from "@/lib/neo4j/cypher";
 import { Direction } from "@/lib/neo4j/enums";
 import { parsePathwayTree } from "@/lib/neo4j/utils";
@@ -42,7 +45,7 @@ import {
   deepCopyPathwaySearchNode,
   isPathwaySearchEdgeElement,
 } from "../utils/pathway-search";
-import { downloadBlob, getNodeDisplayProperty } from "../utils/shared";
+import { downloadBlob } from "../utils/shared";
 import { PathwaySearchElementSchema } from "../validation/pathway-search";
 
 import GraphPathwayResults from "./PathwaySearch/GraphPathwayResults";
@@ -50,6 +53,9 @@ import GraphPathwaySearch from "./PathwaySearch/GraphPathwaySearch";
 import AlertSnackbar from "./shared/AlertSnackbar";
 
 export default function GraphPathway() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [searchElements, setSearchElements] = useState<PathwaySearchElement[]>(
     []
   );
@@ -59,15 +65,12 @@ export default function GraphPathway() {
   const [snackbarMsg, setSnackbarMsg] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
   const [loadingNodes, setLoadingNodes] = useState<string[]>([]);
-  const [loadingInitial, setLoadingInitial] = useState(true);
+  const [loadingInitial, setLoadingInitial] = useState(searchParams.size > 0);
   const countsAbortControllerRef = useRef(new AbortController());
   const pathwayContextValue: PathwaySearchContextProps = useMemo(
     () => ({ tree }),
     [tree]
   );
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const PATHWAY_DATA_PARSE_ERROR =
     "Failed to parse pathway data import. Please check the data format.";
   const PATHWAY_DATA_PARSE_SUCCESS = "Pathway data imported successfully.";
@@ -125,7 +128,7 @@ export default function GraphPathway() {
 
   const stopLoading = () => {
     abortCountsRequest();
-  }
+  };
 
   const updateCounts = (
     candidateSearchElements: PathwaySearchElement[],
@@ -254,7 +257,9 @@ export default function GraphPathway() {
 
     // TODO: Again, this is probably unnecessary, see the above comment
     if (cvTerm.properties.name === undefined) {
-      console.warn("CV term search returned node with no name property! Aborting.");
+      console.warn(
+        "CV term search returned node with no name property! Aborting."
+      );
       return;
     }
 
@@ -263,8 +268,8 @@ export default function GraphPathway() {
         id: cvTerm.uuid,
         dbLabel: cvTerm.labels[0],
         props: {
-          name: [cvTerm.properties.name]
-        }
+          name: [cvTerm.properties.name],
+        },
       },
       ["path-element"]
     );
@@ -274,17 +279,16 @@ export default function GraphPathway() {
       initialTree = createTree([initialNode]);
     } catch (e) {
       console.error(e);
-      updateSnackbar(
-        true,
-        "An error occurred reading CV term data.",
-        "error"
-      );
+      updateSnackbar(true, "An error occurred reading CV term data.", "error");
       return;
     }
 
     setTree(initialTree);
     setSearchElements([initialNode]);
-    router.push(pathname + `?id=${encodeURIComponent(cvTerm.uuid)}&labels=${encodeURIComponent(":" + cvTerm.labels.join(":"))}`)
+    router.push(
+      pathname +
+      `?id=${encodeURIComponent(cvTerm.uuid)}&labels=${encodeURIComponent(":" + cvTerm.labels.join(":"))}`
+    );
   };
 
   const handleExport = useCallback(() => {
@@ -533,7 +537,6 @@ export default function GraphPathway() {
     const labels = searchParams.get("labels");
 
     if (id !== null && labels !== null) {
-      setLoadingInitial(true);
       getCvTerm(id, labels)
         .then(({ data }) => {
           handleSearchBarSubmit(data);
