@@ -80,6 +80,8 @@ export const fetchPathwayNodeOptions = (
   filter: string | null,
   nodeId: string,
   tree: string,
+  skip?: number,
+  limit?: number,
   fetchProps?: RequestInit
 ) =>
   fetch(`${GRAPH_API_PREFIX}/pathway/terms`, {
@@ -88,5 +90,5 @@ export const fetchPathwayNodeOptions = (
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ filter, nodeId, tree }),
+    body: JSON.stringify({ filter, nodeId, tree, skip, limit }),
   });

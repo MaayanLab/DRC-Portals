@@ -50,29 +50,12 @@ export const getTermsCypher = () => `
   `;
 
 export const filterTermBySynonyms = (nodeId: string) => `
-    CALL {
-      WITH ${nodeId}
-      MATCH (s)<-[:HAS_SYNONYM]-(${nodeId})
-      WHERE s.name = $phrase
-      RETURN ${nodeId} AS term
-      LIMIT $limit
-
-      UNION ALL
-
-      WITH ${nodeId}
-      MATCH (s)<-[:HAS_SYNONYM]-(${nodeId})
-      WHERE s.name =~ $substring
-      RETURN ${nodeId} AS term
-      LIMIT $limit
-
-      UNION ALL
-
-      WITH ${nodeId}
-      MATCH (s)<-[:HAS_SYNONYM]-(${nodeId})
-      WHERE apoc.text.fuzzyMatch($phrase, s.name)
-      RETURN ${nodeId} AS term
-      LIMIT $limit
-    }
+    WITH ${nodeId}
+    MATCH (s)<-[:HAS_SYNONYM]-(${nodeId})
+    WHERE
+      s.name = $phrase OR
+      s.name =~ $substring OR
+      apoc.text.fuzzyMatch($phrase, s.name)
   `;
 
 export const getTermsFromLabelCypher = (label: string) => `
