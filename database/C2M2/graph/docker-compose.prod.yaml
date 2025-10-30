@@ -1,6 +1,6 @@
 services:
   neo4j:
-    image: neo4j:5.22.0-community-bullseye
+    image: neo4j:5.26.14-community-bullseye
     container_name: drc-portals-neo4j-prod
     restart: unless-stopped
     ports:
@@ -33,6 +33,7 @@ services:
       - NEO4J_server_bolt_tls__level=REQUIRED
       - NEO4J_server_https_enabled=true
       - NEO4J_server_http_enabled=false
+      - NEO4J_server_databases_default__to__read__only
       - NEO4J_dbms_ssl_policy_https_enabled=true
       - NEO4J_dbms_ssl_policy_https_base__directory=/ssl/https
       - NEO4J_dbms_ssl_policy_https_private__key=neo4j.key
