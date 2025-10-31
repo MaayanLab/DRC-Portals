@@ -48,7 +48,7 @@ export const ChartCxtMenu = forwardRef<HTMLDivElement, ChartCxtMenuProps>(
         setHoveredItemId(null);
       }, []);
 
-      const onCloseWrapper = useCallback(() => {
+      const onCloseWrapper = useCallback((event: MouseEvent | TouchEvent) => {
         setTree(initialTree);
         setHoveredItemId(null);
         onClose();
