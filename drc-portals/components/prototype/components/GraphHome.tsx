@@ -79,7 +79,6 @@ export default function GraphHome() {
                 justifyContent={"center"}
                 alignItems={"center"}
               >
-                <div className="bg-red-300 p-4">Due to unforseen circumstances the C2M2 Graph Search is currently down. We're working hard to bring it back soon.</div>
                 <Typography color="secondary" className="text-center" variant="h1">C2M2 GRAPH SEARCH</Typography>
 
                 <Box>

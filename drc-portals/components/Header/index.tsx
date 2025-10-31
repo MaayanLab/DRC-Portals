@@ -68,7 +68,7 @@ const info_nav = [
 
 const data_nav = [
   { title: "Search", href: "/data" },
-  // { title: "Graph", href: "/data/graph" },
+  { title: "Graph", href: "/data/graph" },
   { title: "Enrichment", href: "/data/enrichment" },
   { title: "Cross", href: "/data/cross" },
   { title: "Assistant", href: "/data/chat" },
