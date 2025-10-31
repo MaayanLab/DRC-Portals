@@ -278,6 +278,40 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     [canvasCxtMenuItems]
   );
 
+  const handleCtrlTap = useCallback((event: EventObject) => {
+    if (event.originalEvent.ctrlKey) {
+      handleCxtTap(event);
+    }
+  }, [handleCxtTap]);
+
+  const handleNodeCtrlTap = useCallback(
+    (event: EventObject) => {
+      if (event.originalEvent.ctrlKey) {
+        openNodeCxt(event);
+      }
+    },
+    [openNodeCxt]
+  );
+
+
+  const handleEdgeCtrlTap = useCallback(
+    (event: EventObject) => {
+      if (event.originalEvent.ctrlKey) {
+        openEdgeCxt(event);
+      }
+    },
+    [openEdgeCxt]
+  );
+
+  const handleCanvasCtrlTap = useCallback(
+    (event: EventObject) => {
+      if (event.originalEvent.ctrlKey) {
+        openCanvasCxt(event);
+      }
+    },
+    [openCanvasCxt]
+  );
+
   const clearCloseNodeCxtTimer = useCallback(() => {
     if (closeNodeCxtTimerId !== null) {
       clearTimeout(closeNodeCxtTimerId);
@@ -324,6 +358,14 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       { event: "mouseout", target: "edge", callback: handleBlurEdge },
       { event: "grab", target: "node", callback: handleGrabNode },
       { event: "drag", target: "node", callback: handleDragNode },
+      { event: "tap", callback: handleCtrlTap }, // Shared cxttap behavior
+      ...(cxtMenuEnabled
+        ? [
+          { event: "tap", callback: handleCanvasCtrlTap }, // Canvas specific cxttap behavior
+          { event: "tap", target: "node", callback: handleNodeCtrlTap },
+          { event: "tap", target: "edge", callback: handleEdgeCtrlTap },
+        ]
+        : []),
       { event: "cxttap", callback: handleCxtTap }, // Shared cxttap behavior
       ...(cxtMenuEnabled
         ? [
@@ -359,6 +401,10 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       openCanvasCxt,
       openNodeCxt,
       openEdgeCxt,
+      handleCtrlTap,
+      handleCanvasCtrlTap,
+      handleNodeCtrlTap,
+      handleEdgeCtrlTap
     ]
   );
 
