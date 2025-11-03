@@ -118,7 +118,12 @@ export default async function Page(props: { params: Promise<{ type: string, slug
       })}
       tableFooter={!!downloadable_files &&
         <div className="flex flex-row justify-end">
-          <FetchDRSCartButton count={downloadable_files} />
+          <FetchDRSCartButton
+            source_id={item.id}
+            search={params.search}
+            facet={ensure_array(searchParams?.facet).map(f => `+${f}`).join(' OR ')}
+            count={downloadable_files}
+          />
         </div>
       }
     />

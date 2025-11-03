@@ -3,19 +3,30 @@ import React from 'react';
 import Button from '@mui/material/Button';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'; // Ensure you have @mui/icons-material installed
 import { setLocalStorage } from '@/utils/localstorage';
-import { unique } from '@/utils/array';
-import { parse_url } from '../utils';
+import { ensure_array, unique } from '@/utils/array';
+import { EntityType } from '@/app/data/processed2/utils';
 
-export function FetchDRSCartButton(props: { count?: number }) {
-  const handleDRSBundle = React.useCallback(() => {
-    const url = parse_url(window.location)
-    // TODO: get query and add it to localstorage
-    // setLocalStorage('drs-cart', cart => unique([
-    //   ...(cart || '').split('\n'),
-    //   ...[props.access_url ?? '']
-    // ].filter(item => !!item)).join('\n'))
-    alert('Coming soon!')
-  }, []);
+export function FetchDRSCartButton(props: { source_id?: string, search?: string, facet?: string[] | string, count?: number }) {
+  const handleDRSBundle = React.useCallback(async () => {
+    const params = new URLSearchParams()
+    if (props.source_id) params.set('source_id', props.source_id)
+    if (props.search) params.set('search', props.search)
+    ensure_array(props.facet).forEach(facet => params.append('facet', facet))
+    let paramsStr: string | null = params.toString()
+    while (paramsStr) {
+      const req = await fetch(`/data/processed2/api/entity?${paramsStr}`)
+      const res: {
+        total: number,
+        items: EntityType[],
+        next: string | null,
+      } = await req.json()
+      setLocalStorage('drs-cart', cart => unique([
+        ...(cart || '').split('\n'),
+        ...res.items.map((item) => item.a_access_url || item.a_link || item.a_persistent_id || ''),
+      ].filter(item => !!item)).join('\n'))
+      paramsStr = res.next
+    }
+  }, [props.source_id, props.search, props.facet]);
   return (
     <>
       <Button
