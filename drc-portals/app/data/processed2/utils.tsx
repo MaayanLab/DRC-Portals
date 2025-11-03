@@ -188,7 +188,7 @@ export function parse_url(location: { pathname?: string, search?: string } = typ
   const m = /^\/data\/processed2(\/search\/(?<search>[^\/]+?)(\/(?<search_type>[^\/]+?))?|\/(?<type>[^\/]+?)(\/search\/(?<type_search>[^\/]+?)|\/(?<slug>[^\/]+?)(\/search\/(?<entity_search>[^\/]+?))?)?)$/.exec(location.pathname ?? '')
   return Object.fromEntries([
     ...(new URLSearchParams(location.search)).entries(),
-    ...Object.entries(m?.groups ?? {}),
+    ...Object.entries(m?.groups ?? {}).map(([k,v]) => [k, typeof v === 'string' ? decodeURIComponent(v) : v]),
   ])
 }
 export function create_url({ error, search, search_type, type, type_search, slug, entity_search, ...searchParams }: {
