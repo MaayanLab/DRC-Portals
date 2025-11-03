@@ -341,6 +341,7 @@ export function generateFilterQueryStringForRecordInfo(searchParams: any, schema
   console.log("RECORDINFOQUERY filterConditionStr = ", filterConditionStr);
   return filterConditionStr;
 }
+
 // Mano: Not sure if use of this function is sql-injection safe
 //export function generateFilterQueryString(searchParams: Record<string, string>, tablename: string) {
 export function generateFilterQueryString(searchParams: any, tablename: string): SQL {
@@ -391,7 +392,93 @@ export function generateFilterQueryString(searchParams: any, tablename: string):
   return filterConditionStr;
 }
 
+//--------------------------------------------------------------------------------
+// SQL object built from filters for use in full-text query, only if no type appears 
+// more than once, so that no need to have the OR logic as that doesn't seem to work
+export function generateFullTextQueryStringFROMt_SQLraw(searchParams_t: { type: string; entity_type: string; }[] | undefined): SQL {
+  let filters = [] as SQL[]
 
+  const valid_colnames: string[] = ['dcc', 'disease',
+    'taxonomy', 'ncbi_taxonomy', 'anatomy', 'biofluid', 'gene', 'protein', 'compound',
+    'data_type', 'assay_type', 'subject_ethnicity', 'subject_sex', 'subject_race', 'file_format', 'ptm_type', 'ptm_subtype', 'ptm_site_type'];
+
+  console.log("searchParams_t: " + JSON.stringify(searchParams_t));
+  if (!searchParams_t) return SQL.empty();
+
+  //const tablename = "allres";
+  if (searchParams_t) {
+    const encounteredTypes = new Set<string>();
+
+    for (const t of searchParams_t) {
+      if(valid_colnames.includes(t.type) && t.entity_type && t.entity_type !== 'Unspecified'){
+
+        if (encounteredTypes.has(t.type)) {
+          return SQL.empty(); // Don;t want OR logic as that causes issues
+        }
+        encounteredTypes.add(t.type);
+        filters.push(SQL.template`${t.entity_type}`);
+      }
+    }
+  }
+  //const filterClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
+  const FTS_filterConditionStr = filters.length ? SQL.join(' AND ', ...filters) : SQL.empty();
+  // console.log("FILTERS LENGTH =");
+  // console.log(filters.length)
+
+  return FTS_filterConditionStr;
+}
+
+// SQL object built from filters for use in full-text query, only if no type appears 
+// more than once, so that no need to have the OR logic as that doesn't seem to work
+export function generateFullTextQueryStringFROMt(searchParams_t: { type: string; entity_type: string | null; }[] | undefined): string {
+  let filters = [] as string[]
+
+  const valid_colnames: string[] = ['dcc', 'disease',
+    'taxonomy', 'ncbi_taxonomy', 'anatomy', 'biofluid', 'gene', 'protein', 'compound',
+    'data_type', 'assay_type', 'subject_ethnicity', 'subject_sex', 'subject_race', 'file_format', 'ptm_type', 'ptm_subtype', 'ptm_site_type'];
+
+  console.log("searchParams_t: " + JSON.stringify(searchParams_t));
+  if (!searchParams_t) return '';
+
+  //const tablename = "allres";
+  if (searchParams_t) {
+    const encounteredTypes = new Set<string>();
+
+    for (const t of searchParams_t) {
+      if(valid_colnames.includes(t.type) && t.entity_type && t.entity_type !== 'Unspecified'){
+
+        if (encounteredTypes.has(t.type)) {
+          return ''; // Don;t want OR logic as that causes issues
+        }
+        encounteredTypes.add(t.type);
+        filters.push(`"${t.entity_type}"`);
+      }
+    }
+  }
+  //const filterClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
+  const FTS_filterConditionStr = filters.length ? filters.join(' AND ') : '';
+  // console.log("FILTERS LENGTH =");
+  // console.log(filters.length)
+
+  return FTS_filterConditionStr;
+}
+
+export function generate_qWITHt_FTQS(q: string, t: { type: string; entity_type: string | null; }[] | undefined): string {
+  const use_t_in_q: number = 0;
+  const ftqsFROMt = (use_t_in_q == 1) ? generateFullTextQueryStringFROMt(t) : '';
+  const qWITHt_FTQS = !(ftqsFROMt === '') ? `${q} AND ${ftqsFROMt}` : q;
+
+  // If SQL type objects
+  // const searchParams_q_SQLraw = SQL.template`${q}`; // If SQL
+  //console.log("searchParams_q_SQLraw: " + JSON.stringify(searchParams_q_SQLraw));
+  //const ftqsFROMt_SQLraw = (use_t_in_q == 1) ? generateFullTextQueryStringFROMt_SQLraw(t) : SQL.empty(); // If SQL  
+  //const qWITHt_FTQS_SQLraw = !ftqsFROMt_SQLraw.isEmpty() ? SQL.join(' AND ', searchParams_q_SQLraw, ftqsFROMt_SQLraw) : searchParams_q_SQLraw;
+  
+  console.log("* NEW: ftqsFROMt:" + JSON.stringify(ftqsFROMt));
+  console.log("* NEW: qWITHt_FTQS:" + JSON.stringify(qWITHt_FTQS));
+  return qWITHt_FTQS;
+}
+//--------------------------------------------------------------------------------
 
 export function generateFilterClauseFromtParam(t: { type: string; entity_type: string; }[] | undefined, tablename: string): SQL {
   let filters = [] as SQL[];
@@ -951,6 +1038,91 @@ export function generateFilterStringsForURL(): string {
     `'|ptm_site_type_name:', allres.ptm_site_type_name `
   );
 }
+
+//----------------------------------------------------------------------------------
+/**
+ * Generates the PostgreSQL SQL expression string for concatenating and cleaning up
+ * the table's *_name columns except project_local_id. This expression is designed to be embedded in a larger query.
+ * * This version simplifies the column selection and relies on nested REPLACE and REGEXP_REPLACE 
+ * functions in the baseString to remove both empty quotes ('""') and the literal quoted 
+ * string ('"Unspecified"'), and normalize consecutive spaces.
+ * * @param {string} tablename The alias or name of the table to reference (e.g., 'allres'). Defaults to 'allres'.
+ * @returns {string} The raw SQL expression (not a full SELECT query), which prepends a space 
+ * only if the resulting string is non-empty. The output format is: CASE WHEN ... ELSE ' ' || "phrase1" "phrase2" ... END
+ */
+export function generateFilterStringsForURL_INCtINq(tablename: string = 'allres'): string {
+    // List of all columns ending in '_name' from the original specification
+    const nameColumns: string[] = [
+        'dcc_name',
+        'project_local_id',
+        'disease_name',
+        'taxonomy_name',
+        'anatomy_name',
+        'biofluid_name',
+        'gene_name',
+        'protein_name',
+        'compound_name',
+        'data_type_name',
+        'assay_type_name',
+        'subject_ethnicity_name',
+        'subject_sex_name',
+        'subject_race_name',
+        'file_format_name',
+        'ptm_type_name',
+        'ptm_subtype_name',
+        'ptm_site_type_name',
+    ];
+
+    // 1. Generate the list of quoted strings for CONCAT_WS
+    // This logic ensures all column values are quoted (e.g., "value") 
+    // and that NULL values generate '""', and 'Unspecified' generates '"Unspecified"'.
+    const quotedClauses: string = nameColumns
+        .map(column => 
+            // Generates: CONCAT('"', COALESCE(allres.column, ''), '"')
+            // COALESCE is not needed
+            //`CONCAT('"', COALESCE(${tablename}.${column}, ''), '"')`
+            `CONCAT('"', ${tablename}.${column}, '"')`
+        )
+        .join(', '); //        .join(',\n            ');
+
+    // 2. Define the base concatenation and cleanup logic as a sub-expression
+    const concatenatedString = `CONCAT_WS(
+        ' ',
+        ${quotedClauses}
+    )`;
+
+    // Apply required cleanups:
+    // 1. Remove literal quoted string '"Unspecified"'
+    // 2. Remove empty quotes '""' (from NULL values)
+    // 3. Normalize spaces using REGEXP_REPLACE (replaces 2 or more spaces with a single space globally)
+    const baseString: string = `REGEXP_REPLACE(
+    REPLACE(
+        REPLACE(
+            ${concatenatedString},
+        '"Unspecified"', ''),
+    '""', ''),
+' {2,}', ' ', 'g')`;
+
+    // 3. Assemble the final SQL expression string using a CASE statement
+    // to conditionally prepend a space only if the baseString is NOT empty after trimming.
+    const tINqSQLString: string = `CASE
+        WHEN TRIM(${baseString}) = '' THEN ''
+        ELSE ' ' || TRIM(${baseString})
+    END`;
+
+    return tINqSQLString;
+}
+
+// generateFilterStringsForURL_INCtINq results in speed-up by a factor of 2-200
+export function generateFilterStringsForURL_INCtINq_SQLraw(tablename: string = 'allres'): SQL {
+  const use_tINq_forURL: number = 1; // 0 (to not use t in q for building uRL) or 1 (to use)
+  const FilterStringsForURL_INCtINq = (use_tINq_forURL === 0 ? '' : generateFilterStringsForURL_INCtINq('allres')); // can use it or not (set to '')
+  console.log("***FilterStringsForURL_INCtINq = " + FilterStringsForURL_INCtINq);
+
+  const FilterStringsForURL_INCtINq_SQLraw = SQL.raw(FilterStringsForURL_INCtINq === '' ? "''" : FilterStringsForURL_INCtINq);
+  return FilterStringsForURL_INCtINq_SQLraw;
+}
+//----------------------------------------------------------------------------------
 
 // generate a string of columna names (separated by comma) to use in sql query for selecting column with modification
 export function generateSelectColumnsForFileQuery(tablename: string = '') {

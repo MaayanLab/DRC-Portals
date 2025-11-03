@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';; // Ensure React and useStat
 import prisma from '@/lib/prisma/c2m2';
 import SQL from '@/lib/prisma/raw';
 import { generateFilterQueryString, generateSelectColumnsStringModified, generateSelectColumnsStringPlain, generateOrderByString } from '@/app/data/c2m2/utils';
-import { generateFilterStringsForURL } from '@/app/data/c2m2/utils';
+import { generate_qWITHt_FTQS } from '@/app/data/c2m2/utils';
+import { generateFilterStringsForURL, generateFilterStringsForURL_INCtINq_SQLraw } from '@/app/data/c2m2/utils';
 import { Tooltip, Typography } from '@mui/material'; // Add CircularProgress for loading state
 import Link from "@/utils/link";
 import { getDCCIcon, getdccCFlink, capitalizeFirstLetter, isURL, generateMD5Hash, sanitizeFilename } from "@/app/data/c2m2/utils";
@@ -63,12 +64,15 @@ interface C2M2SearchResult {
 
 export default async function C2M2MainSearchTableComponent({ searchParams, main_table }: { searchParams: any, main_table: string }): Promise<JSX.Element> {
     console.log("In C2M2MainTableComponent");
-    console.log("q = " + searchParams.q);
+    console.log("q = " + JSON.stringify(searchParams.q));
+    console.log("t = " + JSON.stringify(searchParams.t));
 
     const selectColumns = generateSelectColumnsStringModified("allres_full");
     const selectColumnsPlain = generateSelectColumnsStringPlain();
     const orderByClause = generateOrderByString();
     const FilterStringsForURL = generateFilterStringsForURL();
+    // generateFilterStringsForURL_INCtINq_SQLraw results in speed-up by a factor of 2-200
+    const FilterStringsForURL_INCtINq_SQLraw = generateFilterStringsForURL_INCtINq_SQLraw('allres'); // can use it or not (set to '')
 
     try {
         if (!searchParams.q) return <Typography>No query specified</Typography>;
@@ -80,15 +84,20 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
 
         const filterClause = generateFilterQueryString(searchParams, "allres_full");
         console.log("DONE WITH filterClause generation " + JSON.stringify(filterClause));
+
+        const qWITHt_FTQS = generate_qWITHt_FTQS(searchParams.q, searchParams.t);
+
         const query = SQL.template`
             WITH 
             allres AS (
                 SELECT DISTINCT
                     /* allres_full.searchable AS searchable, */
-                    ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank,
+                    /* original: ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank, */
+                    ts_rank_cd(searchable, websearch_to_tsquery('english', ${qWITHt_FTQS})) AS rank,
                     ${SQL.raw(selectColumns)}
                 FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} AS allres_full 
-                WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
+                /* original: WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) */
+                WHERE searchable @@ websearch_to_tsquery('english', ${qWITHt_FTQS})
                     ${!filterClause.isEmpty() ? SQL.template`AND ${filterClause}` : SQL.empty()}
                 ORDER BY ${SQL.raw(orderByClause)} 
                 OFFSET ${offset} 
@@ -98,7 +107,7 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
             allres_filtered AS (
                 SELECT allres.*,
                 /* SELECT distinct allres.* except rank, DID NOT WORK ; difference of 0.002 vs 0.00204 is leading to two identical records being listed */ 
-                concat_ws('', '/data/c2m2/search/record_info?q=', ${searchParams.q}, '&t=', 'dcc_name:', allres.dcc_name, 
+                concat_ws('', '/data/c2m2/search/record_info?q=', ${searchParams.q}, ${FilterStringsForURL_INCtINq_SQLraw}, '&t=', 'dcc_name:', allres.dcc_name, 
                 ${SQL.raw(FilterStringsForURL)}
                 ) AS record_info_url
                 FROM allres
@@ -215,7 +224,8 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
                     {res.gene_name !== "Unspecified" && (
                         <>
                             <span>Gene: </span>
-                            <Link href={`http://www.ensembl.org/id/${res.gene}`} target="_blank"><i><u>{res.gene_name}</u></i></Link>
+                            { /* <Link href={`http://www.ensembl.org/id/${res.gene}`} target="_blank"><i><u>{res.gene_name}</u></i></Link> */ }
+                            <Link href={`/data/processed/entity/gene/${res.gene}`} target="_blank"><i><u>{res.gene_name}</u></i></Link>
                             <br />
                         </>
                     )}
