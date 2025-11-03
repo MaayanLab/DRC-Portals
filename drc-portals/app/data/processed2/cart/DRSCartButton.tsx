@@ -11,7 +11,7 @@ export function FetchDRSCartButton(props: { source_id?: string, search?: string,
     const params = new URLSearchParams()
     if (props.source_id) params.set('source_id', props.source_id)
     if (props.search) params.set('search', props.search)
-    ensure_array(props.facet).forEach(facet => params.append('facet', facet))
+    ensure_array(props.facet).forEach(facet => { if (facet) { params.append('facet', facet) } })
     let paramsStr: string | null = params.toString()
     while (paramsStr) {
       const req = await fetch(`/data/processed2/api/entity?${paramsStr}`)

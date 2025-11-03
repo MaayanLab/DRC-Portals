@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   const filter: estypes.QueryDslQueryContainer[] = []
   if (searchParams.has('search')) filter.push({ simple_query_string: { query: searchParams.getAll('search').join(' '), default_operator: 'AND' } })
   if (searchParams.has('source_id')) filter.push({ query_string: { query: `+source_id:"${searchParams.get('source_id')}"` } })
-  if (searchParams.has('facet')) searchParams.getAll('facet').forEach(facet => filter.push({ query_string: { query: facet } }))
+  if (searchParams.has('facet')) searchParams.getAll('facet').forEach(facet => { if (facet) { filter.push({ query_string: { query: facet } }) } })
   const searchRes = await elasticsearch.search<M2MTargetType | EntityType>({
     index: searchParams.has('source_id') ? 'm2m_target_expanded' : 'entity',
     query: {
