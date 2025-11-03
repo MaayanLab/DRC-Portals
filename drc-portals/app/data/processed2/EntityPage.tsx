@@ -23,7 +23,7 @@ export default async function Page(props: { params: Promise<{ type: string, slug
   const filter: estypes.QueryDslQueryContainer[] = []
   filter.push({ query_string: { query: `+source_id:"${item.id}"` } })
   if (params?.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
-  if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) filter.push({ query_string: { query: ensure_array(searchParams.facet).map(f => `+${f}`).join(' OR ') } })
+  if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) filter.push({ query_string: { query: ensure_array(searchParams.facet).map(f => f).join(' OR ') } })
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<M2MTargetType, TermAggType<'files'>>({
     index: 'm2m_target_expanded',
@@ -121,7 +121,10 @@ export default async function Page(props: { params: Promise<{ type: string, slug
           <FetchDRSCartButton
             source_id={item.id}
             search={params.search}
-            facet={ensure_array(searchParams?.facet).map(f => `+${f}`).join(' OR ')}
+            facet={[
+              ensure_array(searchParams?.facet).map(f => f).join(' OR '),
+              'target_type:file OR target_type:dcc_asset',
+            ]}
             count={downloadable_files}
           />
         </div>

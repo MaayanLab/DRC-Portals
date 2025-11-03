@@ -18,7 +18,7 @@ export default async function Page(props: { params: Promise<{ type?: string, sea
   }
   const filter: estypes.QueryDslQueryContainer[] = []
   if (params.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
-  if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) filter.push({ query_string: { query: ensure_array(searchParams.facet).map(f => `+${f}`).join(' OR ') } })
+  if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) filter.push({ query_string: { query: ensure_array(searchParams.facet).map(f => f).join(' OR ') } })
   if (params.type) filter.push({ query_string: { query: `+type:"${params.type}"` } })
   if (params.search_type) filter.push({ query_string: { query: `+type:"${params.search_type}"` } })
   if (filter.length === 0) redirect('/data')
@@ -115,8 +115,9 @@ export default async function Page(props: { params: Promise<{ type?: string, sea
           <FetchDRSCartButton
             search={params.search}
             facet={[
-              [...ensure_array(params.type), ...ensure_array(params.search_type)].map(type => `+type:"${type}"`).join(' OR '),
-              ensure_array(searchParams?.facet).map(f => `+${f}`).join(' OR '),
+              [...ensure_array(params.type), ...ensure_array(params.search_type)].map(type => `type:"${type}"`).join(' OR '),
+              ensure_array(searchParams?.facet).map(f => f).join(' OR '),
+              'type:file OR type:dcc_asset',
             ]}
             count={downloadable_files}
           />
