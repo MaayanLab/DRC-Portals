@@ -51,7 +51,7 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(
   const [value, setValue] = useState<string[]>(
     node.data.props === undefined ? [] : node.data.props[propName] || []
   );
-  const [input, setInput] = useState<string | null>(null);
+  const [filter, setFilter] = useState<string | null>(null);
   const [options, setOptions] = useState<readonly string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -114,12 +114,10 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(
           return;
         }
 
-        if (synonymMap.current !== undefined) {
-          synonymMap.current.clear();
-          data.forEach(({ name, synonym }) => {
-            synonymMap.current.set(name, synonym);
-          });
-        }
+        synonymMap.current.clear();
+        data.forEach(({ name, synonym }) => {
+          synonymMap.current.set(name, synonym);
+        });
 
         setOptions(data.map((obj) => obj.name));
       } catch (error) {
@@ -153,11 +151,9 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(
           return;
         }
 
-        if (synonymMap.current !== undefined) {
-          data.forEach(({ name, synonym }) => {
-            synonymMap.current.set(name, synonym);
-          });
-        }
+        data.forEach(({ name, synonym }) => {
+          synonymMap.current.set(name, synonym);
+        });
 
         setOptions((prev) => {
           return [
@@ -250,7 +246,7 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(
   const handleOnInputChange = useMemo(
     () =>
       debounce((event: SyntheticEvent, input: string, reason: string) => {
-        setInput(input);
+        setFilter(input);
         setPage(0);
         replaceOptions(input, 0);
       }, 500),
@@ -331,7 +327,11 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(
 
   // Add new options any time the page changes
   useEffect(() => {
-    extendOptions(input, page);
+    if (page === 0) {
+      replaceOptions(filter, page);
+    } else {
+      extendOptions(filter, page);
+    }
   }, [page]);
 
   useEffect(() => {
@@ -341,9 +341,6 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(
 
   // Clean up
   useEffect(() => {
-    // Fetch an initial set of options when the component is first rendered
-    replaceOptions(null, 0);
-
     return () => {
       // Make sure any open requests are canceled if the component is unmounted
       abortCVTermRequest();

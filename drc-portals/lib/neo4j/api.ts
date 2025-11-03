@@ -15,8 +15,12 @@ export const fetchNodeByIdAndLabels = (
     },
   });
 
-export const fetchCVTerms = (query: string, fetchProps?: RequestInit) =>
-  fetch(`${GRAPH_API_PREFIX}/terms?q=${query}`, {
+export const fetchCVTerms = (
+  query: string,
+  skip: number,
+  fetchProps?: RequestInit
+) =>
+  fetch(`${GRAPH_API_PREFIX}/terms?q=${query}&skip=${skip}`, {
     ...fetchProps,
     method: "GET",
     headers: {

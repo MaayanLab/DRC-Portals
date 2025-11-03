@@ -10,7 +10,7 @@ import {
   parsePathwayTree,
 } from "@/lib/neo4j/utils";
 
-const PATHWAY_TERMS_LIMIT = 10;
+const PATHWAY_TERMS_LIMIT = 15;
 const MAX_ALLOWABLE_LIMIT = 1000;
 
 // TODO: Would be awesome if we could somehow guarantee that the ids passed in for a given pathway will be exactly the same every time
