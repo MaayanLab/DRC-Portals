@@ -134,6 +134,7 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
               {searchRes.aggregations.dccs.buckets.map((filter) =>
                 <SearchFilter key={filter.key} id={`target_r_dcc:"${filter.key}"`} label={filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : filter.key} count={Number(filter.doc_count)} />
               )}
+              <br />
             </>}
           </>
         }

@@ -1,12 +1,12 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
 import { estypes } from '@elastic/elasticsearch'
-import { categoryLabel, create_url, EntityType, itemDescription, itemIcon, itemLabel } from "@/app/data/processed2/utils"
+import { categoryLabel, create_url, EntityType, itemDescription, itemIcon, itemLabel, TermAggType } from "@/app/data/processed2/utils"
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed2/SearchablePagedTable";
 import { redirect } from 'next/navigation';
 import { ensure_array } from '@/utils/array';
 import { dccIcons } from './icons';
-import DRSCartButton from '@/app/data/processed2/cart/DRSCartButton';
+import { DRSCartButton, FetchDRSCartButton } from '@/app/data/processed2/cart/DRSCartButton';
 
 export default async function Page(props: { params: Promise<{ type?: string, search?: string, search_type?: string } & Record<string, string>>, searchParams?: Promise<{ [key: string]: string[] | string }> }) {
   const params = await props.params
@@ -18,16 +18,24 @@ export default async function Page(props: { params: Promise<{ type?: string, sea
   }
   const filter: estypes.QueryDslQueryContainer[] = []
   if (params.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
-  if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) filter.push({ query_string: { query: ensure_array(searchParams.facet).map(f => `+${f}`).join(' '), default_operator: 'OR' } })
+  if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) filter.push({ query_string: { query: ensure_array(searchParams.facet).map(f => `+${f}`).join(' OR ') } })
   if (params.type) filter.push({ query_string: { query: `+type:"${params.type}"` } })
   if (params.search_type) filter.push({ query_string: { query: `+type:"${params.search_type}"` } })
   if (filter.length === 0) redirect('/data')
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
-  const searchRes = await elasticsearch.search<EntityType>({
+  const searchRes = await elasticsearch.search<EntityType, TermAggType<'files'>>({
     index: 'entity',
     query: {
       bool: {
         filter,
+      },
+    },
+    aggs: {
+      files: {
+        terms: {
+          field: 'type',
+          include: ['file', 'dcc_asset'],
+        },
       },
     },
     sort: searchParams?.reverse === undefined ? [
@@ -69,6 +77,7 @@ export default async function Page(props: { params: Promise<{ type?: string, sea
     if (e.type === 'dcc')
       e.a_icon = dccIconsResolved[e.slug]
   })
+  const downloadable_files = searchRes.aggregations?.files.buckets.reduce((sum, { doc_count }) => sum + Number(doc_count), 0)
   return (
     <SearchablePagedTable
       label={params.type ? categoryLabel(params.type) : undefined}
@@ -101,6 +110,11 @@ export default async function Page(props: { params: Promise<{ type?: string, sea
           : null,
         ]
       }) ?? []}
+      tableFooter={!!downloadable_files &&
+        <div className="flex flex-row justify-end">
+          <FetchDRSCartButton count={downloadable_files} />
+        </div>
+      }
     />
   )
 }

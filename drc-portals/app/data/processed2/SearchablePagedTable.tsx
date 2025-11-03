@@ -1,5 +1,5 @@
 import React from "react"
-import { Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Typography, List, ListItem, Box, Divider } from "@mui/material"
+import { Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, List, ListItem, Box, Divider } from "@mui/material"
 import { SearchForm, SearchField } from './SearchField'
 import Link from "@/utils/link"
 import Image, { StaticImageData } from "@/utils/image"
@@ -58,6 +58,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
   loading?: boolean,
   columns: React.ReactNode[],
   rows: React.ReactNode[][],
+  tableFooter?: React.ReactNode,
 }>) {
   const id = React.useId()
   return (
@@ -107,28 +108,29 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                 </TableBody>
               </Table>
             </TableContainer>
-            </Box>
-            <Box sx={{display: {xs: "block", sm: "none", md: "none", lg: "none", xl: "none",}}}>
-              <List>
-                {props.rows.map((row, i) => (
-                  <React.Fragment key={i}>
-                    <ListItem>
-                      <Grid container justifyContent={"flex-start"} alignItems={"center"}>
-                        <Grid item xs={3}>
-                          {row[0]}
-                        </Grid>
-                        <Grid item xs={9}>
-                          <Stack spacing={1}>
-                            {row.slice(1).map((cell, j) => <div key={j}>{cell}</div>)}
-                          </Stack>
-                        </Grid>
+          </Box>
+          <Box sx={{display: {xs: "block", sm: "none", md: "none", lg: "none", xl: "none",}}}>
+            <List>
+              {props.rows.map((row, i) => (
+                <React.Fragment key={i}>
+                  <ListItem>
+                    <Grid container justifyContent={"flex-start"} alignItems={"center"}>
+                      <Grid item xs={3}>
+                        {row[0]}
                       </Grid>
-                    </ListItem>
-                    {(i < props.rows.length - 1 ) && <Divider/>}
-                  </React.Fragment>
-                ))}
-              </List>
-            </Box>
+                      <Grid item xs={9}>
+                        <Stack spacing={1}>
+                          {row.slice(1).map((cell, j) => <div key={j}>{cell}</div>)}
+                        </Stack>
+                      </Grid>
+                    </Grid>
+                  </ListItem>
+                  {(i < props.rows.length - 1 ) && <Divider/>}
+                </React.Fragment>
+              ))}
+            </List>
+          </Box>
+          {props.tableFooter}
           <FormPagination
             cursor={props.cursor}
             reverse={props.reverse}

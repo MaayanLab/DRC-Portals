@@ -5,7 +5,7 @@ import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, De
 import { notFound } from 'next/navigation';
 import { create_url } from '@/app/data/processed2/utils';
 import { ensure_array } from '@/utils/array';
-import DRSCartButton from '@/app/data/processed2/cart/DRSCartButton';
+import { FetchDRSCartButton, DRSCartButton } from '@/app/data/processed2/cart/DRSCartButton';
 import { getEntity } from '@/app/data/processed2/getEntity';
 import { dccIcons } from '@/app/data/processed2/icons';
 import { estypes } from '@elastic/elasticsearch';
@@ -23,13 +23,21 @@ export default async function Page(props: { params: Promise<{ type: string, slug
   const filter: estypes.QueryDslQueryContainer[] = []
   filter.push({ query_string: { query: `+source_id:"${item.id}"` } })
   if (params?.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
-  if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) filter.push({ query_string: { query: ensure_array(searchParams.facet).map(f => `+${f}`).join(' '), default_operator: 'OR' } })
+  if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) filter.push({ query_string: { query: ensure_array(searchParams.facet).map(f => `+${f}`).join(' OR ') } })
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
-  const searchRes = await elasticsearch.search<M2MTargetType, TermAggType<'predicates' | 'types' | 'dccs'>>({
+  const searchRes = await elasticsearch.search<M2MTargetType, TermAggType<'files'>>({
     index: 'm2m_target_expanded',
     query: {
       bool: {
         filter,
+      },
+    },
+    aggs: {
+      files: {
+        terms: {
+          field: 'target_type',
+          include: ['file', 'dcc_asset'],
+        },
       },
     },
     sort: searchParams?.reverse === undefined ? [
@@ -74,6 +82,7 @@ export default async function Page(props: { params: Promise<{ type: string, slug
     if (e.type === 'dcc')
       e.a_icon = dccIconsResolved[e.slug]
   })
+  const downloadable_files = searchRes.aggregations?.files.buckets.reduce((sum, { doc_count }) => sum + Number(doc_count), 0)
   return (
     <SearchablePagedTable
       label="Linked to"
@@ -107,6 +116,11 @@ export default async function Page(props: { params: Promise<{ type: string, slug
           : null,
         ]
       })}
+      tableFooter={!!downloadable_files &&
+        <div className="flex flex-row justify-end">
+          <FetchDRSCartButton count={downloadable_files} />
+        </div>
+      }
     />
   )
 }
