@@ -196,9 +196,10 @@ export function create_url({ error, search, search_type, type, type_search, slug
   search?: string, filter?: string,
   error?: string,
 } & Record<string, string | null>) {
-  let path = `/data/processed2`
+  let path = `/data`
   const urlSearchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : undefined)
   if (!error) {
+    path += `/processed2`
     if (type_search) {
       search = type_search
       search_type = type ?? null
@@ -217,6 +218,7 @@ export function create_url({ error, search, search_type, type, type_search, slug
       }
     }
     urlSearchParams.delete('search')
+    urlSearchParams.delete('error')
   } else {
     if (search) searchParams['search'] = search
     searchParams['error'] = error
