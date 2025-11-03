@@ -59,14 +59,15 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
   columns: React.ReactNode[],
   rows: React.ReactNode[][],
 }>) {
+  const id = React.useId()
   return (
     <Grid container justifyContent={'space-between'}>
       {props.label && 
       <Grid item xs={12} sx={{marginBottom: 5}}>
         <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
           <Typography variant="h2" color="secondary" className="whitespace-nowrap">{props.label}</Typography>
-          <SearchForm name={props.search_name}>
-            <SearchField name={props.search_name} defaultValue={props.search} placeholder={`Filter ${props.label}`} />
+          <SearchForm name={id} param={props.search_name}>
+            <SearchField name={id} defaultValue={props.search} placeholder={`Filter ${props.label}`} />
           </SearchForm>
         </Stack>
       </Grid>
