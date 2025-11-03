@@ -10,19 +10,20 @@ import SearchFilter from '@/app/data/processed2/SearchFilter';
 import elasticsearch from "@/lib/elasticsearch";
 import { dccIcons } from "./icons";
 import { FancyTab } from "@/components/misc/FancyTabs";
+import { estypes } from "@elastic/elasticsearch";
 
 export default async function Page(props: React.PropsWithChildren<{ params: Promise<{ search: string, type?: string } & Record<string, string>> }>) {
   const params = await props.params
   for (const k in params) params[k] = decodeURIComponent(params[k])
   if (!params.search) redirect('/data')
-  let q = `${params.search}`
-  if (params.type) q = `(${q}) +type:"${params.type}"`
+  const filter: estypes.QueryDslQueryContainer[] = []
+  if (params.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
+  if (params.type) filter.push({ query_string: { query: `+type:"${params.type}"` } })
   const searchRes = await elasticsearch.search<EntityType, TermAggType<'dccs'>>({
     index: 'entity',
     query: {
-      query_string: {
-        query: q,
-        default_operator: 'AND',
+      bool: {
+        filter,
       },
     },
     aggs: {

@@ -8,6 +8,7 @@ import { ensure_array } from '@/utils/array';
 import DRSCartButton from '@/app/data/processed2/cart/DRSCartButton';
 import { getEntity } from '@/app/data/processed2/getEntity';
 import { dccIcons } from '@/app/data/processed2/icons';
+import { estypes } from '@elastic/elasticsearch';
 
 export default async function Page(props: { params: Promise<{ type: string, slug: string, search?: string } & Record<string, string>>, searchParams?: Promise<{ [key: string]: string[] | string }> }) {
   const params = await props.params
@@ -19,16 +20,16 @@ export default async function Page(props: { params: Promise<{ type: string, slug
   }
   const item = await getEntity(params)
   if (!item) notFound()
-  let q = params?.search ?? ''
-  if (searchParams?.facet) q = `${q ? `${q} ` : ''}(${ensure_array(searchParams.facet).map(f => `+${f}`).join(' OR ')})`
-  q = `${q ? `${q} ` : ''}+source_id:"${item.id}"`
+  const filter: estypes.QueryDslQueryContainer[] = []
+  filter.push({ query_string: { query: `+source_id:"${item.id}"` } })
+  if (params?.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
+  if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) filter.push({ query_string: { query: ensure_array(searchParams.facet).map(f => `+${f}`).join(' '), default_operator: 'OR' } })
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<M2MTargetType, TermAggType<'predicates' | 'types' | 'dccs'>>({
     index: 'm2m_target_expanded',
     query: {
-      query_string: {
-        query: q,
-        default_operator: 'AND',
+      bool: {
+        filter,
       },
     },
     sort: searchParams?.reverse === undefined ? [

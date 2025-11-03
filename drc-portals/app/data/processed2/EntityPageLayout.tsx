@@ -13,20 +13,21 @@ import SearchFilter from '@/app/data/processed2/SearchFilter';
 import EntityPageAnalyze from '@/app/data/processed2/EntityPageAnalyze';
 import { dccIcons } from '@/app/data/processed2/icons';
 import { getEntity } from '@/app/data/processed2/getEntity';
+import { estypes } from '@elastic/elasticsearch';
 
 export default async function Page(props: React.PropsWithChildren<{ params: Promise<{ type: string, slug: string, search?: string } & Record<string, string>> }>) {
   const params = await props.params
   for (const k in props.params) params[k] = decodeURIComponent(params[k])
   const item = await getEntity(params)
   if (!item) notFound()
-  let q = params?.search ?? ''
-  q = `${q ? `${q} ` : ''}+source_id:${item.id}`
+  const filter: estypes.QueryDslQueryContainer[] = []
+  filter.push({ query_string: { query: `+source_id:"${item.id}"` } })
+  if (params?.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
   const searchRes = await elasticsearch.search<M2MTargetType, TermAggType<'predicates' | 'types' | 'dccs'>>({
     index: 'm2m_target_expanded',
     query: {
-      query_string: {
-        query: q,
-        default_operator: 'AND',
+      bool: {
+        filter,
       },
     },
     aggs: {

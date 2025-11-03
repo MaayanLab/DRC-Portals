@@ -1,5 +1,6 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
+import { estypes } from '@elastic/elasticsearch'
 import { categoryLabel, create_url, EntityType, itemDescription, itemIcon, itemLabel } from "@/app/data/processed2/utils"
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed2/SearchablePagedTable";
 import { redirect } from 'next/navigation';
@@ -15,18 +16,18 @@ export default async function Page(props: { params: Promise<{ type?: string, sea
     const v = searchParams[k]
     searchParams[k] = Array.isArray(v) ? v.map(decodeURIComponent) : decodeURIComponent(v)
   }
-  let q = params.search ?? ''
-  if (searchParams?.facet) q = `${q ? `${q} ` : ''}(${ensure_array(searchParams.facet).map(f => `+${f}`).join(' OR ')})`
-  if (params.type) q = `${q ? `(${q}) ` : ''}+type:"${params.type}"`
-  if (params.search_type) q = `${q ? `(${q}) ` : ''}+type:"${params.search_type}"`
-  if (!q) redirect('/data')
+  const filter: estypes.QueryDslQueryContainer[] = []
+  if (params.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
+  if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) filter.push({ query_string: { query: ensure_array(searchParams.facet).map(f => `+${f}`).join(' '), default_operator: 'OR' } })
+  if (params.type) filter.push({ query_string: { query: `+type:"${params.type}"` } })
+  if (params.search_type) filter.push({ query_string: { query: `+type:"${params.search_type}"` } })
+  if (filter.length === 0) redirect('/data')
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<EntityType>({
     index: 'entity',
     query: {
-      query_string: {
-        query: q,
-        default_operator: 'AND',
+      bool: {
+        filter,
       },
     },
     sort: searchParams?.reverse === undefined ? [

@@ -5,6 +5,7 @@ import { FancyTab } from "@/components/misc/FancyTabs";
 import { Metadata, ResolvingMetadata } from "next";
 import { categoryLabel, create_url, EntityType, TermAggType } from "./utils";
 import elasticsearch from "@/lib/elasticsearch";
+import { estypes } from "@elastic/elasticsearch";
 
 export async function generateMetadata(props: { params: Promise<{ search: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params
@@ -19,13 +20,13 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
   const params = await props.params
   for (const k in params) params[k] = decodeURIComponent(params[k])
   if (!params.search) redirect('/data')
-  let q = `${params.search}`
+  const filter: estypes.QueryDslQueryContainer[] = []
+  if (params.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
   const searchRes = await elasticsearch.search<EntityType, TermAggType<'types' | 'dccs'>>({
     index: 'entity',
     query: {
-      query_string: {
-        query: q,
-        default_operator: 'AND',
+      bool: {
+        filter,
       },
     },
     aggs: {
