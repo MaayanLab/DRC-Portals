@@ -224,6 +224,8 @@ export default async function C2M2MainSearchTableComponent({ searchParams, main_
                     {res.gene_name !== "Unspecified" && (
                         <>
                             <span>Gene: </span>
+                            {/* <Link href={`http://www.ensembl.org/id/${res.gene}`} target="_blank"><i><u>{res.gene_name}</u></i></Link> */}
+                            <Link href={`/data/processed/entity/gene/${res.gene}`} target="_blank"><i><u>{res.gene_name}</u></i></Link>
                             { /* <Link href={`http://www.ensembl.org/id/${res.gene}`} target="_blank"><i><u>{res.gene_name}</u></i></Link> */ }
                             <Link href={`/data/processed/entity/gene/${res.gene}`} target="_blank"><i><u>{res.gene_name}</u></i></Link>
                             <br />
