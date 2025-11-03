@@ -277,6 +277,8 @@ date_div >> ${logf};
 #date_div >> ${logf};
 
 # To create additional indexes on some tables for faster query
+# ChatGPT suggests: for indexing use gin with gin_trgm_ops as in: USING gin(colname gin_trgm_ops);
+# This can be applied to columns of ffl tables as well.
 logf=${logdir}/log_c2m2_other_indexes.log
 date_div >> ${logf};
 psql "$(python3 dburl.py)" -a -f c2m2_other_indexes.sql -o ${logf}
