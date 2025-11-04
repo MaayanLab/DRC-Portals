@@ -229,6 +229,7 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
         label='Enter a keyword ("diabetes", "human", etc...)'
         helperText={error}
         error={error !== null}
+        color="secondary"
         InputProps={{
           ...params.InputProps,
           sx: {

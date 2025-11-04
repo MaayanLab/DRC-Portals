@@ -260,6 +260,7 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(
         label={label}
         helperText={error}
         error={error !== null}
+        color="secondary"
         InputProps={{
           ...params.InputProps,
           sx: {
