@@ -2,7 +2,7 @@ services:
   drc-portal-ingest:
     build: ../database
     platform: linux/amd64
-    image: maayanlab/drc-portal-es-ingest:0.20.2
+    image: maayanlab/drc-portal-es-ingest:0.21.0
     command: /bin/sh -c 'sleep infinity'
     pull_policy: missing
     environment:
@@ -13,7 +13,7 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-es:0.22.7
+    image: maayanlab/drc-portal-es:0.22.8
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
