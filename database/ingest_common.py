@@ -125,6 +125,15 @@ def maybe_json_dumps(v):
   if type(v) == str: return v
   else: return json.dumps(v, sort_keys=True, cls=ExEncoder)
 
+@functools.lru_cache()
+def stemmer():
+  from nltk.stem.porter import PorterStemmer
+  return PorterStemmer()
+
+def label_ident(k):
+  from nltk.tokenize import word_tokenize
+  return ' '.join([stemmer().stem(word) for word in word_tokenize(k)])
+
 def es_bulk_insert(Q: queue.Queue):
   consume, items = itertools.tee(iter(Q.get, None))
   while True:
@@ -139,7 +148,7 @@ def es_bulk_insert(Q: queue.Queue):
       continue
     else:
       break
-    
+
 @contextlib.contextmanager
 def es_helper():
   Q = queue.Queue(1_000)
@@ -156,14 +165,27 @@ def pdp_helper():
   with es_helper() as es:
     pagerank = {}
     m2o = {}
-    def upsert_entity(type, attributes, slug=None):
-      entity_serialized = maybe_json_dumps({'type': type, 'slug': slug, **{f"a_{k}": maybe_json_dumps(v) for k, v in attributes.items() if v is not None}})
-      id = str(uuid5(uuid0, entity_serialized))
-      entity = json.loads(entity_serialized)
-      entity['id'] = id
-      if not entity['slug']: entity['slug'] = id
-      entity['pagerank'] = 0
-      assert 'a_label' in entity
+    def upsert_entity(type, attributes, slug=None, pk=None):
+      '''
+      type: the entity type
+      attributes: all entity attributes (searchable)
+      slug: a human readable type-unique id for the entity id
+      pk: a type-unique string for building the entity id
+      '''
+      attributes = {f"a_{k}": maybe_json_dumps(v) for k, v in attributes.items() if v is not None}
+      assert 'a_label' in attributes
+      identity = dict(type=type)
+      if slug is not None: identity['slug'] = slug
+      elif pk is not None: identity['pk'] = pk
+      else: identity.update(attributes)
+      id = str(uuid5(uuid0, maybe_json_dumps(identity)))
+      entity = dict(
+        id=id,
+        type=type,
+        slug=slug or id,
+        pagerank=0,
+        **attributes,
+      )
       es.put(dict(
         _op_type='update',
         _index='entity_staging',
@@ -172,7 +194,7 @@ def pdp_helper():
         doc_as_upsert=True,
       ))
       return id
-    def upsert_o2m(source_id, predicate, target_id):
+    def upsert_m2o(target_id, predicate, source_id):
       if target_id not in m2o: m2o[target_id] = {}
       assert predicate not in m2o[target_id] or m2o[target_id][predicate] == source_id
       m2o[target_id][predicate] = source_id
@@ -199,8 +221,6 @@ def pdp_helper():
       #   scripted_upsert=True,
       # ))
       pagerank[source_id] = pagerank.get(source_id, 0) + 1
-    def upsert_m2o(source_id, predicate, target_id):
-      upsert_o2m(target_id, predicate, source_id)
     def upsert_m2m(source_id, predicate, target_id):
       es.put(dict(
         _op_type='update',
@@ -235,7 +255,7 @@ def pdp_helper():
       # ))
       pagerank[target_id] = pagerank.get(target_id, 0) + 1
     #
-    yield type('pdp', tuple(), dict(upsert_o2m=upsert_o2m, upsert_m2o=upsert_m2o, upsert_m2m=upsert_m2m, upsert_entity=upsert_entity))
+    yield type('pdp', tuple(), dict(upsert_m2o=upsert_m2o, upsert_m2m=upsert_m2m, upsert_entity=upsert_entity))
     for source_id, pagerank in pagerank.items():
       es.put(dict(
         _op_type='update',

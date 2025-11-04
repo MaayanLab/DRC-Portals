@@ -4,7 +4,7 @@ import json
 import zipfile
 from tqdm.auto import tqdm
 
-from ingest_common import ingest_path, current_dcc_assets, pdp_helper
+from ingest_common import ingest_path, current_dcc_assets, pdp_helper, label_ident
 from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_descriptions
 
 debug = 1;
@@ -61,9 +61,9 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
 
   with pdp_helper() as helper:
     entities = {}
-    def upsert_entity(type, attributes, slug=None):
-      id = helper.upsert_entity(type, attributes, slug=slug)
-      entities[id] = dict(type=type, slug=slug, **{f"a_{k}": v for k,v in attributes.items()})
+    def upsert_entity(type, attributes, slug=None, pk=None):
+      id = helper.upsert_entity(type, attributes, slug=slug, pk=pk)
+      entities[id] = dict(type=type, slug=slug or id, **{f"a_{k}": v for k,v in attributes.items()})
       return id
     def ensure_entity(entity_type, entity_label):
       entity_type = entity_type.lower()
@@ -80,7 +80,7 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
         if entity_type:
           yield lambda entity_type=entity_type, entity_label=entity_label: upsert_entity(entity_type, dict(
             label=entity_label,
-          ))
+          ), pk=label_ident(entity_label))
     #
     dcc_id = upsert_entity('dcc', dict(
       label=file['short_label']
@@ -89,7 +89,7 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
       label=file['filename'],
       link=file['link'],
       filetype=file['filetype'],
-    ))
+    ), pk=file['link'])
     helper.upsert_m2o(dcc_asset_id, 'dcc', dcc_id)
 
     # capture all the nodes
@@ -130,11 +130,11 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
                 label=f"{entities[source_id]['a_label']} {entities[relation_id]['a_label']} {entities[target_id]['a_label']}",
                 SAB=assertion['SAB'],
                 evidence=assertion['evidence_class'],
-              ))
+              ), pk=f"{dcc_asset_id}:{source_id}:{relation_id}:{target_id}")
               try:
-                helper.upsert_o2m(source_id, 'source', assertion_id)
-                helper.upsert_o2m(target_id, 'target', assertion_id)
-                helper.upsert_o2m(relation_id, 'relation', assertion_id)
+                helper.upsert_m2o(assertion_id, 'source', source_id)
+                helper.upsert_m2o(assertion_id, 'target', target_id)
+                helper.upsert_m2o(assertion_id, 'relation', relation_id)
               except KeyboardInterrupt: raise
               except:
                 continue

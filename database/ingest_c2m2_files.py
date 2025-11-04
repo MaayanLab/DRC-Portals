@@ -5,7 +5,7 @@ import pathlib
 from tqdm.auto import tqdm
 from datapackage import Package
 
-from ingest_common import ingest_path, current_dcc_assets, pdp_helper
+from ingest_common import ingest_path, current_dcc_assets, pdp_helper, label_ident
 
 def predicate_from_fields(fields):
   if len(fields) == 1: return fields[0]
@@ -61,21 +61,25 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
       label=c2m2['filename'],
       access_url=c2m2['link'],
       filetype=c2m2['filetype'],
-    ))
+    ), pk=c2m2['link'])
     helper.upsert_m2o(dcc_asset_id, 'dcc', dcc_id)
   #
+  cv_tables = {'analysis_type', 'anatoy', 'assay_type', 'biofluid', 'compound', 'data_type', 'disease', 'file_format', 'gene', 'ncbi_taxonomy', 'phenotype', 'protein', 'sample_prep_method', 'substance'}
   for rc_name in ['project', 'file', 'subject', 'biosample', 'collection']:
     rc = pkg.get_resource(rc_name)
     with pdp_helper() as helper:
       in_mem_ids = {}
       for fk in rc.schema.foreign_keys:
-        fk_rc = fk['reference']['resource']
-        in_mem_ids[fk_rc] = {}
-        for row in tqdm(pkg.get_resource(fk_rc).read(keyed=True), desc=f"Reading {fk_rc}..."):
-          row['label'] = row.pop('name')
+        fk_rc_name = fk['reference']['resource']
+        in_mem_ids[fk_rc_name] = {}
+        fk_rc = pkg.get_resource(fk_rc_name)
+        for row in tqdm(fk_rc.read(keyed=True), desc=f"Reading {fk_rc_name}..."):
+          pk = tuple([row[k] for k in fk_rc.schema.primary_key])
           key = tuple([row[k] for k in fk['reference']['fields']])
-          in_mem_ids[fk_rc][key] = helper.upsert_entity(fk_rc, row)
+          row['label'] = row.pop('name')
+          in_mem_ids[fk_rc_name][key] = helper.upsert_entity(fk_rc_name, row, pk=label_ident(row['label']) if fk_rc_name in cv_tables else ':'.join(pk))
       for row in tqdm(rc.read(keyed=True), desc=f"Reading {rc_name} records..."):
+        pk = tuple([row[k] for k in rc.schema.primary_key])
         if 'name' in row: row['label'] = row.pop('name')
         elif 'filename' in row: row['label'] = row['filename']
         elif 'local_id' in row: row['label'] = f"{row['id_namespace']}:{row['local_id']}"
@@ -88,7 +92,7 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
           if not row['access_url']:
             if persistent_id_probably_access_url(row.get('persistent_id')):
               row['access_url'] = row['persistent_id']
-        source_id = helper.upsert_entity(rc_name, row)
+        source_id = helper.upsert_entity(rc_name, row, pk=':'.join(pk))
         helper.upsert_m2o(source_id, 'dcc_asset', dcc_asset_id)
         helper.upsert_m2o(source_id, 'dcc', dcc_id)
         for fk in rc.schema.foreign_keys:

@@ -13,7 +13,7 @@ with pdp_helper() as helper:
       label=file['filename'],
       access_url=file['link'],
       filetype=file['filetype'],
-    ))
+    ), pk=file['link'])
     dcc_id = helper.upsert_entity('dcc', dict(
       label=file['short_label']
     ), slug=file['short_label'])

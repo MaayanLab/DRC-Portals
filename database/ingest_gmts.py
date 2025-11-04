@@ -1,7 +1,7 @@
 #%%
 from tqdm.auto import tqdm
 
-from ingest_common import ingest_path, current_dcc_assets, pdp_helper
+from ingest_common import ingest_path, current_dcc_assets, pdp_helper, label_ident
 from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_descriptions
 
 #%%
@@ -39,13 +39,8 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
       label=gmt['filename'],
       access_url=gmt['link'],
       filetype=gmt['filetype'],
-    ))
+    ), pk=gmt['link'])
     helper.upsert_m2o(dcc_asset_id, 'dcc', dcc_id)
-    library_id = helper.upsert_entity(xmt_library_type, dict(
-      label=gmt['filename'],
-    ))
-    helper.upsert_m2o(library_id, 'dcc_asset', dcc_asset_id)
-    helper.upsert_m2o(library_id, 'dcc', dcc_id)
     #
     with gmt_path.open('r') as fr:
       for line in tqdm(fr, desc=f"Processing {gmt['short_label']}/{gmt['filename']}..."):
@@ -55,8 +50,7 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
         set_id = helper.upsert_entity(xmt_set_type, dict(
           label=set_label,
           description=set_description,
-        ))
-        helper.upsert_m2o(set_id, xmt_library_type, library_id)
+        ), pk=f"{dcc_asset_id}:{set_label}")
         helper.upsert_m2o(set_id, 'dcc_asset', dcc_asset_id)
         helper.upsert_m2o(set_id, 'dcc', dcc_id)
         if xmt_type == 'gene':
@@ -73,5 +67,5 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
           for entity in set_entities:
             entity_id = helper.upsert_entity(xmt_type, dict(
               label=entity,
-            ))
+            ), pk=label_ident(entity))
             helper.upsert_m2m(entity_id, xmt_set_type, set_id)
