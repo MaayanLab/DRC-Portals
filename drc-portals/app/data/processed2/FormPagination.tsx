@@ -39,7 +39,7 @@ export default function FormPagination(props: { cursor?: string, reverse: boolea
               newSearchParams.set('reverse', '')
               newSearchParams.set('page', pageCount.toString())
             }
-            router.push(pathname + '?' + newSearchParams.toString(), { scroll: false })
+            router.push(pathname + '?' + newSearchParams.toString(), { scroll: true })
           }}
           variant="text"
           shape="rounded"

@@ -8,23 +8,22 @@ import { Highlight } from "@/components/misc/Highlight"
 import FormPagination from "./FormPagination"
 
 export function LinkedTypedNode({
-  id,
+  href,
   type,
   label,
   search,
   focus = false,
 }: {
-  id: string,
+  href: string,
   type: string,
   label: string,
   search?: string,
   focus?: boolean,
 }) {
-  const href = create_url({ type, slug: id })
   return (
     <div className="flex flex-col">
-      <Link href={href}><Typography variant="body1" sx={{overflowWrap: "break-word", maxWidth: 300, textDecoration: 'underline'}} color="secondary" fontWeight={focus ? "bold" : undefined}><Highlight search={search} text={label} /></Typography></Link>
-      <Link href={href}><Typography variant='caption' color={categoryColor(type)}><Highlight search={search} text={`${categoryLabel(type)} (Entity type)`} /></Typography></Link>
+      <Link href={href} scroll={false}><Typography variant="body1" sx={{overflowWrap: "break-word", maxWidth: 300, textDecoration: 'underline'}} color="secondary" fontWeight={focus ? "bold" : undefined}><Highlight search={search} text={label} /></Typography></Link>
+      <Link href={href} scroll={false}><Typography variant='caption' color={categoryColor(type)}><Highlight search={search} text={`${categoryLabel(type)} (Entity type)`} /></Typography></Link>
     </div>
   )
 }
@@ -41,7 +40,7 @@ export function SearchablePagedTableCellIcon(props: {
 }) {
   return (
     <Box sx={{width: {xs: "4rem", sm: "4rem", md: "8rem", lg: "8rem", xl: "8rem"}, height: {xs: "2rem", sm: "2rem", md: "4rem", lg: "4rem", xl: "4rem"}, position: "relative"}}>
-      <Link href={props.href}>
+      <Link href={props.href} scroll={false}>
         <Image className="object-contain" src={props.src} alt={props.alt} fill />
       </Link>
     </Box>

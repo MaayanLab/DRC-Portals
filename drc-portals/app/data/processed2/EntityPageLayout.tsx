@@ -1,6 +1,6 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, EntityType, humanBytesSize, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType, titleCapitalize } from "@/app/data/processed2/utils"
+import { categoryLabel, create_url, EntityType, humanBytesSize, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType, titleCapitalize } from "@/app/data/processed2/utils"
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import { LinkedTypedNode } from "@/app/data/processed2/SearchablePagedTable";
 import Link from "@/utils/link";
@@ -101,9 +101,10 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
               value
             }]
           } else if (m[1] === 'r') {
+            const neighbor = item[predicate] in entityLookup ? entityLookup[item[predicate]] : undefined
             return [{
               label: titleCapitalize(m[2].replaceAll('_', ' ')),
-              value: <div className="m-2">{item[predicate] in entityLookup ? <LinkedTypedNode type={entityLookup[item[predicate]].type} id={entityLookup[item[predicate]].slug} label={itemLabel(entityLookup[item[predicate]])} /> : <>{item[predicate]}</>}</div>,
+              value: <div className="m-2">{neighbor ? <LinkedTypedNode href={create_url({ type: neighbor.type, slug: neighbor.slug })} type={neighbor.type} label={itemLabel(neighbor)} /> : <>{item[predicate]}</>}</div>,
             }]
           }
           return []

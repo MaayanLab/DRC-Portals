@@ -109,7 +109,7 @@ export default async function Page(props: { params: Promise<{ type: string, slug
         const href = create_url({ type: hit_source.target_type, slug: hit_source.target_slug})
         return [
           <SearchablePagedTableCellIcon href={href} src={itemIcon(entityLookup[hit_source.target_id], entityLookup)} alt={categoryLabel(hit_source.target_type)} />,
-          <LinkedTypedNode type={hit_source.target_type} id={hit_source.target_slug} label={itemLabel(entityLookup[hit_source.target_id])} search={searchParams?.q as string ?? ''} />,
+          <LinkedTypedNode href={href} type={hit_source.target_type} label={itemLabel(entityLookup[hit_source.target_id])} search={searchParams?.q as string ?? ''} />,
           <Description description={itemDescription(entityLookup[hit_source.target_id], entityLookup)} search={searchParams?.q as string ?? ''} />,
           hit_source.target_type === 'file' ? <DRSCartButton access_url={hit_source.target_a_access_url ?? hit_source.target_a_persistent_id} />
           : hit_source.target_type === 'dcc_asset' ? <DRSCartButton access_url={hit_source.target_a_link} />
