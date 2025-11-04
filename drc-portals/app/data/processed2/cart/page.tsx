@@ -8,12 +8,13 @@ import ClearIcon from '@mui/icons-material/Clear';
 import Link from '@/utils/link'
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
-import SearchablePagedTable from "@/app/data/processed2/SearchablePagedTable";
+import SearchablePagedTable, { SearchablePagedTableCell, SearchablePagedTableCellIcon } from "@/app/data/processed2/SearchablePagedTable";
 import { Grid, Box, MenuItem, Pagination, PaginationItem, Select, Stack, Typography } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { InputAdornment, TextField } from '@mui/material';
 import { mdiMagnify } from "@mdi/js";
+import FileIcon from '@/public/img/icons/fileIcon.png'
 
 const rowsPerPageOptions = [10, 20, 50]
 
@@ -46,14 +47,18 @@ export default function DRSCart() {
           </Grid>
         }
         columns={[
+          <>&nbsp;</>,
           <>Access URL</>,
           <>&nbsp;</>,
         ]}
         rows={filteredCart.slice((page-1)*displayPerPage, page*displayPerPage).map(item => [
-          item,
-          <IconButton onClick={evt => {setRawCart(cart => (cart || '').split('\n').filter(cartItem => cartItem !== item).join('\n'))}}>
-            <ClearIcon />
-          </IconButton>,
+          <SearchablePagedTableCellIcon src={FileIcon} alt="" />,
+          <SearchablePagedTableCell sx={{maxWidth: 'unset'}}>{item}</SearchablePagedTableCell>,
+          <SearchablePagedTableCell>
+            <IconButton onClick={evt => {setRawCart(cart => (cart || '').split('\n').filter(cartItem => cartItem !== item).join('\n'))}}>
+              <ClearIcon />
+            </IconButton>
+          </SearchablePagedTableCell>,
         ])}
         tableFooter={
           <div className="flex flex-row gap-4">

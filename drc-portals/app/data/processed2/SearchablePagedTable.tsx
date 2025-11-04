@@ -1,5 +1,5 @@
 import React from "react"
-import { Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, List, ListItem, Box, Divider } from "@mui/material"
+import { Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, List, ListItem, Box, Divider, TableCellProps } from "@mui/material"
 import { SearchForm, SearchField } from './SearchField'
 import Link from "@/utils/link"
 import Image, { StaticImageData } from "@/utils/image"
@@ -34,15 +34,25 @@ export function Description({ search, description }: { search: string, descripti
   }
 }
 
-export function SearchablePagedTableCellIcon(props: {
-  src: string | StaticImageData, href: string, alt: string
-}) {
+export function SearchablePagedTableCell(props: React.PropsWithChildren<TableCellProps>) {
   return (
-    <Box sx={{width: {xs: "4rem", sm: "4rem", md: "8rem", lg: "8rem", xl: "8rem"}, height: {xs: "2rem", sm: "2rem", md: "4rem", lg: "4rem", xl: "4rem"}, position: "relative"}}>
-      <Link href={props.href} scroll={false}>
-        <Image className="object-contain" src={props.src} alt={props.alt} fill />
-      </Link>
-    </Box>
+    <TableCell {...props} sx={{maxWidth: 300, overflowWrap: 'break-word', borderBottom: {xs: 0, md: '1px solid rgba(224, 224, 224, 1)'}, ...props.sx}}>
+      {props.children}
+    </TableCell>
+  )
+}
+
+export function SearchablePagedTableCellIcon({ src, href, alt, ...props}: {
+  src: string | StaticImageData, href?: string, alt: string
+} & TableCellProps) {
+  return (
+    <SearchablePagedTableCell {...props} sx={{maxWidth: 'unset'}}>
+      <Box sx={{position: "relative", width: {xs: "4rem", sm: "4rem", md: "8rem", lg: "8rem", xl: "8rem"}, height: {xs: "2rem", sm: "2rem", md: "4rem", lg: "4rem", xl: "4rem"}}}>
+        <Link href={href ?? 'javascript:'} scroll={false}>
+          <Image className="object-contain" src={src} alt={alt} fill />
+        </Link>
+      </Box>
+    </SearchablePagedTableCell>
   )
 }
 
@@ -76,7 +86,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
       {props.tableHeader}
       <Grid item xs={12}>
         <Stack spacing={1}>
-          <Box sx={{display: {xs: "none", sm: "block", md: "block", lg: "block", xl: "block",}}}>
+          <Box sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block",}}}>
             <TableContainer component={Paper} elevation={0} variant="rounded-top">
               <Table aria-label="simple table">
                 <TableHead>
@@ -100,28 +110,24 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                         sx={{ 
                           '&:last-child td, &:last-child th': { border: 0 },
                         }}
-                      >
-                        {row.map((cell, j) => <TableCell sx={{maxWidth: 300, overflowWrap: 'break-word'}} key={j}>
-                          {cell}
-                        </TableCell>)}
-                      </TableRow>
+                      >{row.map((cell, j) => <React.Fragment key={j}>{cell}</React.Fragment>)}</TableRow>
                     ))}
                 </TableBody>
               </Table>
             </TableContainer>
           </Box>
-          <Box sx={{display: {xs: "block", sm: "none", md: "none", lg: "none", xl: "none",}}}>
-            <List>
+          <Box sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
+            <List component={Paper}>
               {props.rows.map((row, i) => (
                 <React.Fragment key={i}>
                   <ListItem>
                     <Grid container justifyContent={"flex-start"} alignItems={"center"}>
-                      <Grid item xs={3}>
+                      <Grid item xs={2} md={3}>
                         {row[0]}
                       </Grid>
-                      <Grid item xs={9}>
+                      <Grid item xs={10} md={9}>
                         <Stack spacing={1}>
-                          {row.slice(1).map((cell, j) => <div key={j}>{cell}</div>)}
+                          {row.slice(1).map((cell, j) => <React.Fragment key={j}>{cell}</React.Fragment>)}
                         </Stack>
                       </Grid>
                     </Grid>
