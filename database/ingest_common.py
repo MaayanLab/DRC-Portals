@@ -261,8 +261,8 @@ def pdp_helper():
         _op_type='update',
         _index='entity_staging',
         _id=source_id,
-        script=dict(source='if (ctx._source.pagerank == null) {ctx._source.pagerank = 0;} ctx._source.pagerank += 1;', lang='painless', params=dict()),
-        upsert=dict(id=source_id, pagerank=0),
+        script=dict(source='if (ctx._source.pagerank == null) {ctx._source.pagerank = 0;} ctx._source.pagerank += params.pagerank;', lang='painless', params=dict(pagerank=pagerank)),
+        upsert=dict(id=source_id, pagerank=pagerank),
         scripted_upsert=True,
       ))
 

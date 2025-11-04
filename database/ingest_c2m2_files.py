@@ -64,7 +64,7 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
     ), pk=c2m2['link'])
     helper.upsert_m2o(dcc_asset_id, 'dcc', dcc_id)
   #
-  cv_tables = {'analysis_type', 'anatoy', 'assay_type', 'biofluid', 'compound', 'data_type', 'disease', 'file_format', 'gene', 'ncbi_taxonomy', 'phenotype', 'protein', 'sample_prep_method', 'substance'}
+  cv_tables = {'analysis_type', 'anatomy', 'assay_type', 'biofluid', 'compound', 'data_type', 'disease', 'file_format', 'gene', 'ncbi_taxonomy', 'phenotype', 'protein', 'sample_prep_method', 'substance'}
   for rc_name in ['project', 'file', 'subject', 'biosample', 'collection']:
     rc = pkg.get_resource(rc_name)
     with pdp_helper() as helper:
