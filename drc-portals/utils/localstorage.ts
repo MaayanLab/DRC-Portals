@@ -23,7 +23,7 @@ export function setLocalStorage(key: string, update: (oldValue: string | null) =
  *  & setMyState only takes a value not a callback
  */
 export function useLocalStorage(key: string) {
-  const [value, _setValue] = React.useState(() => typeof window !== 'undefined' ? window.localStorage.getItem(key) : null)
+  const [value, _setValue] = React.useState<string | null>(null)
   const storageListener = React.useCallback((evt: StorageEvent) => {
     if (evt.key === key) {
       _setValue(() => evt.newValue)
@@ -32,6 +32,7 @@ export function useLocalStorage(key: string) {
   React.useEffect(() => {
     if (typeof window === 'undefined') return
     window.addEventListener('storage', storageListener)
+    _setValue(window.localStorage.getItem(key))
     return () => {window.removeEventListener('storage', storageListener)}
   }, [key])
   const setValue = React.useCallback((update: (oldValue: string | null) => string | null) => setLocalStorage(key, update), [key])
