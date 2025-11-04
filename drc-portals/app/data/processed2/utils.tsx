@@ -37,6 +37,10 @@ export type TermAggType<K extends string> = Record<K, {
   buckets: { key: string, doc_count: number }[]
 }>
 
+export type FilterAggType<K extends string> = Record<K, {
+  doc_count: number
+}>
+
 const entity_type_map: Record<string, string> = {
   'CLINGEN ALLELE REGISTRY': 'ClinGen Allele',
   'Congenital Abnormality': 'Congenital Abnormality',

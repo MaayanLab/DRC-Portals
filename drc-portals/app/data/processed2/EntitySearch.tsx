@@ -1,7 +1,7 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
 import { estypes } from '@elastic/elasticsearch'
-import { categoryLabel, create_url, EntityType, itemDescription, itemIcon, itemLabel, TermAggType } from "@/app/data/processed2/utils"
+import { categoryLabel, create_url, EntityType, FilterAggType, itemDescription, itemIcon, itemLabel, TermAggType } from "@/app/data/processed2/utils"
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description, SearchablePagedTableHeader } from "@/app/data/processed2/SearchablePagedTable";
 import { redirect } from 'next/navigation';
 import { ensure_array } from '@/utils/array';
@@ -24,7 +24,7 @@ export default async function Page(props: { params: Promise<{ type?: string, sea
   if (params.search_type) filter.push({ query_string: { query: `+type:"${params.search_type}"` } })
   if (filter.length === 0) redirect('/data')
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
-  const searchRes = await elasticsearch.search<EntityType, TermAggType<'files'>>({
+  const searchRes = await elasticsearch.search<EntityType, FilterAggType<'files'>>({
     index: 'entity',
     query: {
       bool: {
@@ -33,9 +33,8 @@ export default async function Page(props: { params: Promise<{ type?: string, sea
     },
     aggs: {
       files: {
-        terms: {
-          field: 'type',
-          include: ['file', 'dcc_asset'],
+        filter: {
+          exists: { field: 'a_access_url' }
         },
       },
     },
@@ -78,7 +77,6 @@ export default async function Page(props: { params: Promise<{ type?: string, sea
     if (e.type === 'dcc')
       e.a_icon = dccIconsResolved[e.slug]
   })
-  const downloadable_files = searchRes.aggregations?.files.buckets.reduce((sum, { doc_count }) => sum + Number(doc_count), 0)
   return (
     <SearchablePagedTable
       tableHeader={
@@ -101,21 +99,19 @@ export default async function Page(props: { params: Promise<{ type?: string, sea
           <SearchablePagedTableCellIcon href={href} src={itemIcon(hit._source, entityLookup)} alt={categoryLabel(hit._source.type)} />,
           <LinkedTypedNode href={href} type={hit._source.type} label={itemLabel(hit._source)} search={searchParams?.q as string ?? ''} />,
           <Description description={itemDescription(hit._source, entityLookup)} search={searchParams?.q as string ?? ''} />,
-          hit._source.type === 'file' ? <DRSCartButton access_url={hit._source.a_access_url ?? hit._source.a_persistent_id} />
-          : hit._source.type === 'dcc_asset' ? <DRSCartButton access_url={hit._source.a_link} />
-          : null,
+          hit._source.a_access_url && <DRSCartButton access_url={hit._source.a_access_url} />,
         ]
       }) ?? []}
-      tableFooter={!!downloadable_files &&
+      tableFooter={!!searchRes.aggregations?.files.doc_count &&
         <div className="flex flex-row justify-end">
           <FetchDRSCartButton
             search={params.search}
             facet={[
               [...ensure_array(params.type), ...ensure_array(params.search_type)].map(type => `type:"${type}"`).join(' OR '),
               ensure_array(searchParams?.facet).map(f => f).join(' OR '),
-              'type:file OR type:dcc_asset',
+              '_exists_:a_access_url',
             ]}
-            count={downloadable_files}
+            count={searchRes.aggregations.files.doc_count}
           />
         </div>
       }

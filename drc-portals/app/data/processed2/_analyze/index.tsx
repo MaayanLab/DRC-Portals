@@ -247,10 +247,10 @@ const modules: {
     />,
   },
   {
-    compatible: (item) => item.type === 'processed_file' && typeof item.a_link === 'string' && item.a_link.endsWith('.gmt'),
+    compatible: (item) => item.type === 'processed_file' && typeof item.a_access_url === 'string' && item.a_access_url.endsWith('.gmt'),
     button: async ({ item }) => <PWBButton
       body={{
-        data: { gene_set_library: { type: "GMTFileUpload", value: { url: item.a_link, filename: item.a_link.split('/').slice(-1)[0], description: item.a_description } } },
+        data: { gene_set_library: { type: "GMTFileUpload", value: { url: item.a_a_access_url, filename: item.a_a_access_url.split('/').slice(-1)[0], description: item.a_description } } },
         workflow: [
           { id: "input_gene_set_library", type: "GMTFileUpload", data: { id: "gene_set_library" } },
         ],

@@ -1,6 +1,6 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, EntityType, itemDescription, itemIcon, itemLabel, M2MTargetType, TermAggType } from "@/app/data/processed2/utils"
+import { categoryLabel, EntityType, FilterAggType, itemDescription, itemIcon, itemLabel, M2MTargetType, TermAggType } from "@/app/data/processed2/utils"
 import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description, SearchablePagedTableHeader } from "@/app/data/processed2/SearchablePagedTable";
 import { notFound } from 'next/navigation';
 import { create_url } from '@/app/data/processed2/utils';
@@ -26,7 +26,7 @@ export default async function Page(props: { params: Promise<{ type: string, slug
   if (params?.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
   if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) filter.push({ query_string: { query: ensure_array(searchParams.facet).map(f => f).join(' OR ') } })
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
-  const searchRes = await elasticsearch.search<M2MTargetType, TermAggType<'files'>>({
+  const searchRes = await elasticsearch.search<M2MTargetType, FilterAggType<'files'>>({
     index: 'm2m_target_expanded',
     query: {
       bool: {
@@ -35,9 +35,8 @@ export default async function Page(props: { params: Promise<{ type: string, slug
     },
     aggs: {
       files: {
-        terms: {
-          field: 'target_type',
-          include: ['file', 'dcc_asset'],
+        filter: {
+          exists: { field: 'target_a_access_url' }
         },
       },
     },
@@ -83,7 +82,6 @@ export default async function Page(props: { params: Promise<{ type: string, slug
     if (e.type === 'dcc')
       e.a_icon = dccIconsResolved[e.slug]
   })
-  const downloadable_files = searchRes.aggregations?.files.buckets.reduce((sum, { doc_count }) => sum + Number(doc_count), 0)
   return (
     <SearchablePagedTable
       tableHeader={
@@ -107,21 +105,19 @@ export default async function Page(props: { params: Promise<{ type: string, slug
           <SearchablePagedTableCellIcon href={href} src={itemIcon(entityLookup[hit_source.target_id], entityLookup)} alt={categoryLabel(hit_source.target_type)} />,
           <LinkedTypedNode href={href} type={hit_source.target_type} label={itemLabel(entityLookup[hit_source.target_id])} search={searchParams?.q as string ?? ''} />,
           <Description description={itemDescription(entityLookup[hit_source.target_id], entityLookup)} search={searchParams?.q as string ?? ''} />,
-          hit_source.target_type === 'file' ? <DRSCartButton access_url={hit_source.target_a_access_url ?? hit_source.target_a_persistent_id} />
-          : hit_source.target_type === 'dcc_asset' ? <DRSCartButton access_url={hit_source.target_a_link} />
-          : null,
+          hit_source.target_a_access_url && <DRSCartButton access_url={hit_source.target_a_access_url} />,
         ]
       })}
-      tableFooter={!!downloadable_files &&
+      tableFooter={!!searchRes.aggregations?.files.doc_count &&
         <div className="flex flex-row justify-end">
           <FetchDRSCartButton
             source_id={item.id}
             search={params.search}
             facet={[
               ensure_array(searchParams?.facet).map(f => f).join(' OR '),
-              'target_type:file OR target_type:dcc_asset',
+              '_exists_:target_a_access_url',
             ]}
-            count={downloadable_files}
+            count={searchRes.aggregations.files.doc_count}
           />
         </div>
       }
