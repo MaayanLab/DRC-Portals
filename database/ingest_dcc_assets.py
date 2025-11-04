@@ -11,7 +11,7 @@ with pdp_helper() as helper:
   for _, file in tqdm(dcc_assets.iterrows(), total=dcc_assets.shape[0], desc='Processing DCC Assets...'):
     dcc_asset_id = helper.upsert_entity('dcc_asset', dict(
       label=file['filename'],
-      link=file['link'],
+      access_url=file['link'],
       filetype=file['filetype'],
     ))
     dcc_id = helper.upsert_entity('dcc', dict(

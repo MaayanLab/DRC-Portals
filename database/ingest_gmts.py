@@ -37,7 +37,7 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
     ), slug=gmt['short_label'])
     dcc_asset_id = helper.upsert_entity('dcc_asset', dict(
       label=gmt['filename'],
-      link=gmt['link'],
+      access_url=gmt['link'],
       filetype=gmt['filetype'],
     ))
     helper.upsert_m2o(dcc_asset_id, 'dcc', dcc_id)

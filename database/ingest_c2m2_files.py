@@ -1,4 +1,5 @@
 #%%
+import re
 import zipfile
 import pathlib
 from tqdm.auto import tqdm
@@ -10,6 +11,19 @@ def predicate_from_fields(fields):
   if len(fields) == 1: return fields[0]
   elif len(fields) == 2 and fields[0].endswith('_id_namespace') and fields[1].endswith('_local_id'): return fields[0][:-len('_id_namespace')]
   else: raise NotImplementedError(fields)
+
+def valid_access_url(access_url):
+  return type(access_url) == str and re.match(r'^(https?|drs|ftp|s3|gs|gsiftp|globus|htsget|ftps|sftp)://', access_url) is not None
+
+def persistent_id_probably_access_url(access_url):
+  if type(access_url) == str:
+    # these IRIs are certainly access urls
+    if re.match(r'^(drs|ftp|s3|gs|gsiftp|globus|htsget|ftps|sftp)://', access_url) is not None:
+      return True
+    # http(s) could be, probably is if the final path component seems to be a file with an extension
+    if re.match(r'^https?://.+?/[^/]+?\.[^/\.]+$', access_url) is not None:
+      return True
+  return False
 
 #%%
 dcc_assets = current_dcc_assets()
@@ -45,7 +59,7 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
     ), slug=c2m2['short_label'])
     dcc_asset_id = helper.upsert_entity('dcc_asset', dict(
       label=c2m2['filename'],
-      link=c2m2['link'],
+      access_url=c2m2['link'],
       filetype=c2m2['filetype'],
     ))
     helper.upsert_m2o(dcc_asset_id, 'dcc', dcc_id)
@@ -66,6 +80,14 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
         elif 'filename' in row: row['label'] = row['filename']
         elif 'local_id' in row: row['label'] = f"{row['id_namespace']}:{row['local_id']}"
         else: raise RuntimeError(f"{row=}")
+        if rc_name == 'file':
+          # remove access_url if present and invalid
+          if not valid_access_url(row.get('access_url')):
+            row['access_url'] = None
+          # use persistent id if it's "probably" an access url
+          if not row['access_url']:
+            if persistent_id_probably_access_url(row.get('persistent_id')):
+              row['access_url'] = row['persistent_id']
         source_id = helper.upsert_entity(rc_name, row)
         helper.upsert_m2o(source_id, 'dcc_asset', dcc_asset_id)
         helper.upsert_m2o(source_id, 'dcc', dcc_id)
