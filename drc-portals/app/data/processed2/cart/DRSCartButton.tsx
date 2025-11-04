@@ -6,6 +6,11 @@ import { setLocalStorage } from '@/utils/localstorage';
 import { ensure_array, unique } from '@/utils/array';
 import { EntityType } from '@/app/data/processed2/utils';
 
+function validAccessUrl(access_url?: string) {
+  if (!access_url) return false
+  return /^(https?|drs|ftp|s3|gs|gsiftp|globus|htsget|ftps|sftp):\/\//gi.exec(access_url) !== null
+}
+
 export function FetchDRSCartButton(props: { source_id?: string, search?: string, facet?: string[] | string, count?: number }) {
   const handleDRSBundle = React.useCallback(async () => {
     const params = new URLSearchParams()
@@ -22,8 +27,8 @@ export function FetchDRSCartButton(props: { source_id?: string, search?: string,
       } = await req.json()
       setLocalStorage('drs-cart', cart => unique([
         ...(cart || '').split('\n'),
-        ...res.items.map((item) => item.a_access_url || item.a_link || item.a_persistent_id || ''),
-      ].filter(item => !!item)).join('\n'))
+        ...res.items.map((item) => item.a_access_url || item.a_link || item.a_persistent_id),
+      ].filter(validAccessUrl)).join('\n'))
       paramsStr = res.next
     }
   }, [props.source_id, props.search, props.facet]);
@@ -47,7 +52,7 @@ export function DRSCartButton(props: { access_url?: string }) {
     setLocalStorage('drs-cart', cart => unique([
       ...(cart || '').split('\n'),
       ...[props.access_url ?? '']
-    ].filter(item => !!item)).join('\n'))
+    ].filter(validAccessUrl)).join('\n'))
   }, [props.access_url]);
   return (
     <>
