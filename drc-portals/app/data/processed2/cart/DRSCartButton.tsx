@@ -51,7 +51,7 @@ export function DRSCartButton(props: { access_url?: string }) {
   const handleDRSBundle = React.useCallback(() => {
     setLocalStorage('drs-cart', cart => unique([
       ...(cart || '').split('\n'),
-      ...[props.access_url ?? '']
+      props.access_url ?? '',
     ].filter(validAccessUrl)).join('\n'))
   }, [props.access_url]);
   return (

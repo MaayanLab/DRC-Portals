@@ -57,7 +57,7 @@ export default function DRSCart() {
         ])}
         tableFooter={
           <div className="flex flex-row gap-4">
-            <DRSBundleButton data={cart.map(access_url => ({ access_url }))} />
+            <DRSBundleButton data={cart} />
             <Button
               variant="contained"
               color="primary"
