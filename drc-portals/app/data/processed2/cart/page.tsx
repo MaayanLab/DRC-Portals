@@ -1,43 +1,61 @@
 'use client'
 import React from 'react'
 import { useLocalStorage } from '@/utils/localstorage'
-import { Button, Container, Grid, Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton } from '@mui/material'
+import { Button, IconButton } from '@mui/material'
 import DRSBundleButton from '@/app/data/processed2/cart/DRSBundleButton'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import ClearIcon from '@mui/icons-material/Clear';
+import Link from '@/utils/link'
+import Icon from "@mdi/react";
+import { mdiArrowLeft } from "@mdi/js";
+import SearchablePagedTable from "@/app/data/processed2/SearchablePagedTable";
+import { Grid, Box, MenuItem, Pagination, PaginationItem, Select, Stack, Typography } from '@mui/material'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { InputAdornment, TextField } from '@mui/material';
+import { mdiMagnify } from "@mdi/js";
+
+const rowsPerPageOptions = [10, 20, 50]
 
 export default function DRSCart() {
   const [rawCart, setRawCart] = useLocalStorage('drs-cart')
+  const [search, setSearch] = React.useState('')
+  const [page, setPage] = React.useState(1)
+  const [displayPerPage, setDisplayPerPage] = React.useState(10)
   const cart = React.useMemo(() => (rawCart||'').split('\n').filter(item => !!item), [rawCart])
+  const filteredCart = React.useMemo(() => cart.filter(item => item.toLowerCase().includes(search.toLowerCase())), [cart, search])
+  const pageCount = React.useMemo(() => ((filteredCart.length/displayPerPage)|0)+(((filteredCart.length%displayPerPage)===0)?0:1), [filteredCart, displayPerPage])
   return (
-    <Container maxWidth="xl">
-      <Typography variant="h2" color="secondary.dark" sx={{mt:2}} gutterBottom>DATA RESOURCE CART</Typography>
-      {cart.length > 0 ? <>
-        <Grid item>
-          <TableContainer component={Paper} elevation={0} variant="rounded-top" sx={{ maxHeight: 1100, width: '100%', overflowX: 'auto', maxWidth: '1100px' }}>
-            <Table stickyHeader aria-label="simple table" sx={{ tableLayout: 'auto', minWidth: '100%' }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ backgroundColor: '#CAD2E9' }}>Access URL</TableCell>
-                  <TableCell sx={{ backgroundColor: '#CAD2E9' }}>&nbsp;</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {cart.map((item, i) => (
-                  <TableRow key={i}>
-                    <TableCell>{item}</TableCell>
-                    <TableCell>
-                      <IconButton onClick={evt => {setRawCart(cart => (cart || '').split('\n').filter(cartItem => cartItem !== item).join('\n'))}}>
-                        <ClearIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Grid>
-        <Grid item>
+    <>
+      <SearchablePagedTable
+        tableHeader={
+          <Grid item xs={12} sx={{marginBottom: 5}}>
+            <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
+              <Typography variant="h1" color="secondary" className="whitespace-nowrap">Data Resource Cart</Typography>
+              <TextField
+                value={search}
+                onChange={evt => {setSearch(evt.currentTarget.value)}}
+                placeholder={"Search Data Resource Cart"}
+                color="secondary"
+                InputProps={{
+                  sx: {borderRadius: 1, height: 50, fieldset: { borderColor: "#2D5986" }},
+                  endAdornment: <InputAdornment position="end"><Icon path={mdiMagnify} size={1} /></InputAdornment>,
+                }}
+              />
+            </Stack>
+          </Grid>
+        }
+        columns={[
+          <>Access URL</>,
+          <>&nbsp;</>,
+        ]}
+        rows={filteredCart.slice((page-1)*displayPerPage, page*displayPerPage).map(item => [
+          item,
+          <IconButton onClick={evt => {setRawCart(cart => (cart || '').split('\n').filter(cartItem => cartItem !== item).join('\n'))}}>
+            <ClearIcon />
+          </IconButton>,
+        ])}
+        tableFooter={
           <div className="flex flex-row gap-4">
             <DRSBundleButton data={cart.map(access_url => ({ access_url }))} />
             <Button
@@ -58,10 +76,53 @@ export default function DRSCart() {
               Empty Cart
             </Button>
           </div>
-        </Grid>
-      </> : <>
-        <Typography variant="body2" color="secondary.dark">Your cart is currently empty</Typography>
-      </>}
-    </Container>
+        }
+        tablePagination={
+          <Stack direction={"row"} justifyContent={"space-between"} justifyItems={"center"} alignContent={"center"} alignItems="center" flexWrap={"wrap"} gap={2}>
+            <Box justifySelf={"center"}>
+              <Pagination
+                siblingCount={1}
+                boundaryCount={1}
+                page={page}
+                count={pageCount}
+                onChange={(evt, value) => {setPage(value)}}
+                variant="text"
+                shape="rounded"
+                color="primary"
+                renderItem={(item) =>
+                  <PaginationItem
+                    slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
+                    {...item}
+                  />
+                }
+              />
+            </Box>
+            <Stack direction={"row"} alignItems={"center"} gap={2}>
+              <Typography variant="nav" noWrap>DISPLAY PER PAGE</Typography>
+              <Select
+                value={displayPerPage}
+                onChange={evt => {
+                  setDisplayPerPage(Number(evt.target.value))
+                  setPage(1)
+                }}
+              >
+                {rowsPerPageOptions.map(rowsPerPage =>
+                  <MenuItem key={rowsPerPage} value={rowsPerPage}>{rowsPerPage}</MenuItem>
+                )}
+              </Select>
+            </Stack>
+          </Stack>
+        }
+      />
+      <Link href="/data">
+        <Button
+          sx={{textTransform: "uppercase"}}
+          color="primary"
+          variant="contained"
+          startIcon={<Icon path={mdiArrowLeft} size={1} />}>
+            BACK TO SEARCH
+        </Button>
+      </Link>
+    </>
   )
 }
