@@ -127,12 +127,14 @@ def maybe_json_dumps(v):
 
 @functools.lru_cache()
 def stemmer():
+  import nltk; nltk.download('punkt_tab')
   from nltk.stem.porter import PorterStemmer
   return PorterStemmer()
 
 def label_ident(k):
+  ps = stemmer()
   from nltk.tokenize import word_tokenize
-  return ' '.join([stemmer().stem(word) for word in word_tokenize(k)])
+  return ' '.join([ps.stem(word) for word in word_tokenize(k)])
 
 def es_bulk_insert(Q: queue.Queue):
   consume, items = itertools.tee(iter(Q.get, None))
