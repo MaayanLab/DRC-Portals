@@ -1,5 +1,6 @@
+'use client'
 import React from "react"
-import { Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, List, ListItem, Box, Divider, TableCellProps } from "@mui/material"
+import { Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, List, ListItem, Box, Divider, TableCellProps, TableCellBaseProps } from "@mui/material"
 import { SearchForm, SearchField } from './SearchField'
 import Link from "@/utils/link"
 import Image, { StaticImageData } from "@/utils/image"
@@ -34,9 +35,12 @@ export function Description({ search, description }: { search: string, descripti
   }
 }
 
+const SearchablePagedTableCellContext = React.createContext<{component: React.ElementType<TableCellBaseProps, keyof React.JSX.IntrinsicElements>}>({ component: 'td' })
+
 export function SearchablePagedTableCell(props: React.PropsWithChildren<TableCellProps>) {
+  const { component } = React.useContext(SearchablePagedTableCellContext)
   return (
-    <TableCell {...props} sx={{maxWidth: 300, overflowWrap: 'break-word', borderBottom: {xs: 0, md: '1px solid rgba(224, 224, 224, 1)'}, ...props.sx}}>
+    <TableCell {...props} component={component} sx={{maxWidth: 300, overflowWrap: 'break-word', borderBottom: {xs: 0, md: '1px solid rgba(224, 224, 224, 1)'}, ...props.sx}}>
       {props.children}
     </TableCell>
   )
@@ -99,42 +103,46 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {props.rows.length === 0 ? <TableRow>
-                    <TableCell colSpan={props.columns.length} align="center">
-                      {props.loading ? <>Loading results...</> : <>No results satisfy the query and filters</>}
-                    </TableCell>
-                  </TableRow> :
-                    props.rows.map((row, i) => (
-                      <TableRow
-                        key={i}
-                        sx={{ 
-                          '&:last-child td, &:last-child th': { border: 0 },
-                        }}
-                      >{row.map((cell, j) => <React.Fragment key={j}>{cell}</React.Fragment>)}</TableRow>
-                    ))}
+                  <SearchablePagedTableCellContext.Provider value={{ component: 'td' }}>
+                    {props.rows.length === 0 ? <TableRow>
+                      <TableCell colSpan={props.columns.length} align="center">
+                        {props.loading ? <>Loading results...</> : <>No results satisfy the query and filters</>}
+                      </TableCell>
+                    </TableRow> :
+                      props.rows.map((row, i) => (
+                        <TableRow
+                          key={i}
+                          sx={{ 
+                            '&:last-child td, &:last-child th': { border: 0 },
+                          }}
+                        >{row.map((cell, j) => <React.Fragment key={j}>{cell}</React.Fragment>)}</TableRow>
+                      ))}
+                  </SearchablePagedTableCellContext.Provider>
                 </TableBody>
               </Table>
             </TableContainer>
           </Box>
           <Box sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
             <List component={Paper}>
-              {props.rows.map((row, i) => (
-                <React.Fragment key={i}>
-                  <ListItem>
-                    <Grid container justifyContent={"flex-start"} alignItems={"center"}>
-                      <Grid item xs={2} md={3}>
-                        {row[0]}
+              <SearchablePagedTableCellContext.Provider value={{ component: 'div' }}>
+                {props.rows.map((row, i) => (
+                  <React.Fragment key={i}>
+                    <ListItem>
+                      <Grid container justifyContent={"flex-start"} alignItems={"center"}>
+                        <Grid item xs={2} md={3}>
+                          {row[0]}
+                        </Grid>
+                        <Grid item xs={10} md={9}>
+                          <Stack spacing={1}>
+                            {row.slice(1).map((cell, j) => <React.Fragment key={j}>{cell}</React.Fragment>)}
+                          </Stack>
+                        </Grid>
                       </Grid>
-                      <Grid item xs={10} md={9}>
-                        <Stack spacing={1}>
-                          {row.slice(1).map((cell, j) => <React.Fragment key={j}>{cell}</React.Fragment>)}
-                        </Stack>
-                      </Grid>
-                    </Grid>
-                  </ListItem>
-                  {(i < props.rows.length - 1 ) && <Divider/>}
-                </React.Fragment>
-              ))}
+                    </ListItem>
+                    {(i < props.rows.length - 1 ) && <Divider/>}
+                  </React.Fragment>
+                ))}
+              </SearchablePagedTableCellContext.Provider>
             </List>
           </Box>
           {props.tableFooter}
