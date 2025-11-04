@@ -3,9 +3,8 @@ import { Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableH
 import { SearchForm, SearchField } from './SearchField'
 import Link from "@/utils/link"
 import Image, { StaticImageData } from "@/utils/image"
-import { categoryLabel, categoryColor, create_url } from "./utils"
+import { categoryLabel, categoryColor } from "./utils"
 import { Highlight } from "@/components/misc/Highlight"
-import FormPagination from "./FormPagination"
 
 export function LinkedTypedNode({
   href,
@@ -47,31 +46,34 @@ export function SearchablePagedTableCellIcon(props: {
   )
 }
 
-export default function SearchablePagedTable(props: React.PropsWithChildren<{
-  label?: string,
+export function SearchablePagedTableHeader(props: {
+  label: string,
   search_name: string,
   search: string,
-  page: number, total: number,
-  cursor?: string, reverse: boolean, display_per_page: number,
-  cursors: [string | undefined, string | undefined],
+}) {
+  const id = React.useId()
+  return (
+    <Grid item xs={12} sx={{marginBottom: 5}}>
+      <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
+        <Typography variant="h2" color="secondary" className="whitespace-nowrap">{props.label}</Typography>
+        <SearchForm name={id} param={props.search_name}>
+          <SearchField name={id} defaultValue={props.search} placeholder={`Filter ${props.label}`} />
+        </SearchForm>
+      </Stack>
+    </Grid>
+  )
+}
+export default function SearchablePagedTable(props: React.PropsWithChildren<{
+  tableHeader?: React.ReactNode,
   loading?: boolean,
   columns: React.ReactNode[],
   rows: React.ReactNode[][],
   tableFooter?: React.ReactNode,
+  tablePagination?: React.ReactNode,
 }>) {
-  const id = React.useId()
   return (
     <Grid container justifyContent={'space-between'}>
-      {props.label && 
-      <Grid item xs={12} sx={{marginBottom: 5}}>
-        <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
-          <Typography variant="h2" color="secondary" className="whitespace-nowrap">{props.label}</Typography>
-          <SearchForm name={id} param={props.search_name}>
-            <SearchField name={id} defaultValue={props.search} placeholder={`Filter ${props.label}`} />
-          </SearchForm>
-        </Stack>
-      </Grid>
-      }
+      {props.tableHeader}
       <Grid item xs={12}>
         <Stack spacing={1}>
           <Box sx={{display: {xs: "none", sm: "block", md: "block", lg: "block", xl: "block",}}}>
@@ -130,14 +132,7 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
             </List>
           </Box>
           {props.tableFooter}
-          <FormPagination
-            cursor={props.cursor}
-            reverse={props.reverse}
-            display_per_page={props.display_per_page}
-            page={props.page}
-            total={props.total}
-            cursors={props.cursors}
-          />
+          {props.tablePagination}
         </Stack>
       </Grid>
     </Grid>

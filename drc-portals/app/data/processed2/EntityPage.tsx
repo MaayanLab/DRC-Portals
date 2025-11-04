@@ -1,7 +1,7 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
 import { categoryLabel, EntityType, itemDescription, itemIcon, itemLabel, M2MTargetType, TermAggType } from "@/app/data/processed2/utils"
-import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed2/SearchablePagedTable";
+import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description, SearchablePagedTableHeader } from "@/app/data/processed2/SearchablePagedTable";
 import { notFound } from 'next/navigation';
 import { create_url } from '@/app/data/processed2/utils';
 import { ensure_array } from '@/utils/array';
@@ -9,6 +9,7 @@ import { FetchDRSCartButton, DRSCartButton } from '@/app/data/processed2/cart/DR
 import { getEntity } from '@/app/data/processed2/getEntity';
 import { dccIcons } from '@/app/data/processed2/icons';
 import { estypes } from '@elastic/elasticsearch';
+import FormPagination from '@/app/data/processed2/FormPagination';
 
 export default async function Page(props: { params: Promise<{ type: string, slug: string, search?: string } & Record<string, string>>, searchParams?: Promise<{ [key: string]: string[] | string }> }) {
   const params = await props.params
@@ -85,18 +86,13 @@ export default async function Page(props: { params: Promise<{ type: string, slug
   const downloadable_files = searchRes.aggregations?.files.buckets.reduce((sum, { doc_count }) => sum + Number(doc_count), 0)
   return (
     <SearchablePagedTable
-      label="Linked to"
-      search_name="entity_search"
-      search={params?.search ?? ''}
-      cursor={searchParams?.cursor as string}
-      reverse={searchParams?.reverse !== undefined}
-      display_per_page={display_per_page}
-      page={Number(searchParams?.page || 1)}
-      total={Number(searchRes.hits.total)}
-      cursors={[
-        searchRes.hits.hits.length && searchRes.hits.hits[0].sort ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[0].sort)) : undefined,
-        searchRes.hits.hits.length && searchRes.hits.hits[searchRes.hits.hits.length-1] ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[searchRes.hits.hits.length-1].sort)) : undefined,
-      ]}
+      tableHeader={
+        <SearchablePagedTableHeader
+          label="Linked to"
+          search_name="entity_search"
+          search={params?.search ?? ''}
+        />
+      }
       columns={[
         <>&nbsp;</>,
         <>Label</>,
@@ -128,6 +124,19 @@ export default async function Page(props: { params: Promise<{ type: string, slug
             count={downloadable_files}
           />
         </div>
+      }
+      tablePagination={
+        <FormPagination
+          cursor={searchParams?.cursor as string}
+          reverse={searchParams?.reverse !== undefined}
+          display_per_page={display_per_page}
+          page={Number(searchParams?.page || 1)}
+          total={Number(searchRes.hits.total)}
+          cursors={[
+            searchRes.hits.hits.length && searchRes.hits.hits[0].sort ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[0].sort)) : undefined,
+            searchRes.hits.hits.length && searchRes.hits.hits[searchRes.hits.hits.length-1] ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[searchRes.hits.hits.length-1].sort)) : undefined,
+          ]}
+        />
       }
     />
   )

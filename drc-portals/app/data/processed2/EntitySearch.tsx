@@ -2,11 +2,12 @@ import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
 import { estypes } from '@elastic/elasticsearch'
 import { categoryLabel, create_url, EntityType, itemDescription, itemIcon, itemLabel, TermAggType } from "@/app/data/processed2/utils"
-import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description } from "@/app/data/processed2/SearchablePagedTable";
+import SearchablePagedTable, { SearchablePagedTableCellIcon, LinkedTypedNode, Description, SearchablePagedTableHeader } from "@/app/data/processed2/SearchablePagedTable";
 import { redirect } from 'next/navigation';
 import { ensure_array } from '@/utils/array';
 import { dccIcons } from './icons';
 import { DRSCartButton, FetchDRSCartButton } from '@/app/data/processed2/cart/DRSCartButton';
+import FormPagination from '@/app/data/processed2/FormPagination';
 
 export default async function Page(props: { params: Promise<{ type?: string, search?: string, search_type?: string } & Record<string, string>>, searchParams?: Promise<{ [key: string]: string[] | string }> }) {
   const params = await props.params
@@ -80,18 +81,13 @@ export default async function Page(props: { params: Promise<{ type?: string, sea
   const downloadable_files = searchRes.aggregations?.files.buckets.reduce((sum, { doc_count }) => sum + Number(doc_count), 0)
   return (
     <SearchablePagedTable
-      label={params.type ? categoryLabel(params.type) : undefined}
-      search_name={params.type ? "type_search" : "search"}
-      search={params.search ?? ''}
-      cursor={searchParams?.cursor as string}
-      reverse={searchParams?.reverse !== undefined}
-      display_per_page={display_per_page}
-      page={Number(searchParams?.page || 1)}
-      total={Number(searchRes.hits.total)}
-      cursors={[
-        searchRes.hits.hits.length && searchRes.hits.hits[0].sort ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[0].sort)) : undefined,
-        searchRes.hits.hits.length && searchRes.hits.hits[searchRes.hits.hits.length-1] ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[searchRes.hits.hits.length-1].sort)) : undefined,
-      ]}
+      tableHeader={
+        params.type && <SearchablePagedTableHeader
+          label={categoryLabel(params.type)}
+          search_name="type_search"
+          search={params?.search ?? ''}
+        />
+      }
       columns={[
         <>&nbsp;</>,
         <>Label</>,
@@ -122,6 +118,19 @@ export default async function Page(props: { params: Promise<{ type?: string, sea
             count={downloadable_files}
           />
         </div>
+      }
+      tablePagination={
+        <FormPagination
+          cursor={searchParams?.cursor as string}
+          reverse={searchParams?.reverse !== undefined}
+          display_per_page={display_per_page}
+          page={Number(searchParams?.page || 1)}
+          total={Number(searchRes.hits.total)}
+          cursors={[
+            searchRes.hits.hits.length && searchRes.hits.hits[0].sort ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[0].sort)) : undefined,
+            searchRes.hits.hits.length && searchRes.hits.hits[searchRes.hits.hits.length-1] ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[searchRes.hits.hits.length-1].sort)) : undefined,
+          ]}
+        />
       }
     />
   )
