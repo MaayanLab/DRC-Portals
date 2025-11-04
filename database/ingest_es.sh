@@ -199,3 +199,11 @@ es POST /_aliases << EOF
   ]
 }
 EOF
+
+# get current indexes
+# echo "" | es GET /_cat/indices?v
+
+# delete old index
+# echo "" | es DELETE /entity_${INDEX_VERSION}
+# echo "" | es DELETE /m2m_${INDEX_VERSION}
+# echo "" | es DELETE /m2m_target_expanded_${INDEX_VERSION}
