@@ -14,6 +14,7 @@ import EntityPageAnalyze from '@/app/data/processed2/EntityPageAnalyze';
 import { dccIcons } from '@/app/data/processed2/icons';
 import { getEntity } from '@/app/data/processed2/getEntity';
 import { estypes } from '@elastic/elasticsearch';
+import { DRSCartButton } from './cart/DRSCartButton';
 
 export default async function Page(props: React.PropsWithChildren<{ params: Promise<{ type: string, slug: string, search?: string } & Record<string, string>> }>) {
   const params = await props.params
@@ -80,7 +81,7 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
       title={itemLabel(item)}
       subtitle={categoryLabel(item.type)}
       metadata={[
-        ...Object.keys(item).toReversed().flatMap(predicate => {
+        ...Object.keys(item).toSorted().toReversed().flatMap(predicate => {
           if (item[predicate] === 'null') return []
           const m = /^(a|r)_(.+)$/.exec(predicate)
           if (m === null) return []
@@ -95,7 +96,11 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
             else if (m[2] === 'synonyms') value = (JSON.parse(value as string) as string[]).join(', ')
             else if (/_in_bytes/.exec(m[2]) !== null) value = humanBytesSize(Number(item[predicate]))
             else if (/_time$/.exec(m[2]) !== null) value = JSON.parse(value as string) as string
-            else if (m[2] == 'icon') value = <img className="inline-block max-w-24 p-2" src={value as string} />
+            else if (m[2] == 'icon') value = <img className="max-w-28 max-h-48 align-top m-0 mb-2" src={value as string} />
+            else if (m[2] == 'access_url') value = <div className="flex flex-col place-items-start">
+              {linkify(value as string)}
+              <DRSCartButton access_url={value as string} />
+            </div>
             else value = linkify(item[predicate])
             return [{
               label: titleCapitalize(m[2].replaceAll('_', ' ')),
@@ -105,7 +110,7 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
             const neighbor = item[predicate] in entityLookup ? entityLookup[item[predicate]] : undefined
             return [{
               label: titleCapitalize(m[2].replaceAll('_', ' ')),
-              value: <div className="m-2">{neighbor ? <LinkedTypedNode href={create_url({ type: neighbor.type, slug: neighbor.slug })} type={neighbor.type} label={itemLabel(neighbor)} /> : <>{item[predicate]}</>}</div>,
+              value: neighbor ? <LinkedTypedNode href={create_url({ type: neighbor.type, slug: neighbor.slug })} type={neighbor.type} label={itemLabel(neighbor)} /> : item[predicate],
             }]
           }
           return []

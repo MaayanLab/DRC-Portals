@@ -27,7 +27,7 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
       </Grid>
       <Grid item xs={12}>
         <Stack>
-          {props.metadata?.map((item, i) => item && item.value ? <div key={i} className="prose max-w-none"><strong>{item.label}</strong>: {item.value}</div> : null)}
+          {props.metadata?.map((item, i) => item && item.value ? <div key={i} className="prose max-w-none flex flex-row gap-1 place-items-start"><span className="text-nowrap"><strong>{item.label}</strong>:</span>{item.value}</div> : null)}
           {props.description ? <div className="prose max-w-none"><strong>Description</strong>: {props.description}</div> : null}
         </Stack>
       </Grid>
