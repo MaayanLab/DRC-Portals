@@ -11,6 +11,8 @@ import {
   CircularProgress,
   IconButton,
   TextField,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
@@ -45,6 +47,13 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
   const abortControllerRef = useRef(new AbortController());
   const cvTermsMap = useRef(new Map<string, [string, NodeResult]>());
   const OPTION_FETCH_LIMIT = 15;
+  const theme = useTheme();
+  const isXs = useMediaQuery(theme.breakpoints.only("xs"));
+  const isSm = useMediaQuery(theme.breakpoints.only("sm"));
+  const label =
+    isXs ? "Enter a keyword" :
+      isSm ? 'Enter a keyword (e.g. "diabetes")' :
+        'Enter a keyword ("diabetes", "human", etc...)';
 
   const abortCVTermRequest = () => {
     const abortController = abortControllerRef.current;
@@ -223,10 +232,10 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
   };
 
   const handleRenderInput = useCallback(
-    (params: AutocompleteRenderInputParams) => (
-      <TextField
+    (params: AutocompleteRenderInputParams) => {
+      return <TextField
         {...params}
-        label='Enter a keyword ("diabetes", "human", etc...)'
+        label={label}
         helperText={error}
         error={error !== null}
         color="secondary"
@@ -255,8 +264,8 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
           ),
         }}
       />
-    ),
-    [loading, error, filter]
+    },
+    [loading, error, filter, label]
   );
 
   const getOptionLabel = (option: string) => {
@@ -361,7 +370,7 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
       sx={{
         borderRadius: "4px",
         width: "auto",
-        minWidth: "480px",
+        minWidth: { xs: 240, sm: 360, md: 480 },
         backgroundColor: "transparent",
         "& .MuiOutlinedInput-root": {
           paddingRight: "120px!important",

@@ -353,7 +353,7 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(
 
   return (
     <Autocomplete
-      sx={{ width: "550px" }}
+      sx={{ width: { xs: 240, sm: 360, md: 540 } }}
       size="small"
       multiple
       disableClearable
