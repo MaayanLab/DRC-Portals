@@ -183,7 +183,7 @@ export function linkify(value: string) {
     } else if (nsPfMatch !== null && nsPfMatch[1] === 'format') {
       return <a className="text-blue-600 cursor:pointer underline" href={`http://edamontology.org/format_${nsPfMatch[2]}`} target="_blank">{value}</a>
     } else {
-      const emailMatch = /^[^@]+@\w+\.\w+$/.exec(value)
+      const emailMatch = /^[^ @]+@[^ @]+$/.exec(value)
       if (emailMatch !== null) {
         return <a className="text-blue-600 cursor:pointer underline" href={`mailto:${value}`} target="_blank">{value}</a>
       } else {
