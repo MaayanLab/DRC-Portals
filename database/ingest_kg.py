@@ -87,7 +87,7 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
     ), slug=file['short_label'])
     dcc_asset_id = upsert_entity('dcc_asset', dict(
       label=file['filename'],
-      link=file['link'],
+      access_url=file['link'],
       filetype=file['filetype'],
     ), pk=file['link'])
     helper.upsert_m2o(dcc_asset_id, 'dcc', dcc_id)
