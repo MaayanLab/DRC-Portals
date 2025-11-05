@@ -63,43 +63,43 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
       filetype=c2m2['filetype'],
     ), pk=c2m2['link'])
     helper.upsert_m2o(dcc_asset_id, 'dcc', dcc_id)
-  #
-  # We rely on the fact that upsert_entity will merge with an entity
-  #  with the same pk.
-  # Then by using pk as (id_namespace, local_id) or (id),
-  #  which is used throughout C2M2, we can get reference the actual entity
-  #  even if it's not registered yet / without keeping it in memory
-  cv_lookup = {}
-
-  # process cv records first, store them in memory
-  with pdp_helper() as helper:
+    #
+    # We rely on the fact that upsert_entity will merge with an entity
+    #  with the same pk.
+    # Then by using pk as (id_namespace, local_id) or (id),
+    #  which is used throughout C2M2, we can get reference the actual entity
+    #  even if it's not registered yet / without keeping it in memory
+    #
+    # process cv records first, store them in memory
+    # TODO: if we could just use the id as the slug we could avoid storing any of this in memory
+    #       but we'll need to update the other ingest steps to rely on C2M2 CV terms
+    cv_lookup = {}
     for rc_name in pkg.resource_names:
       rc = pkg.get_resource(rc_name)
       if {field.name for field in rc.schema.fields} >= {'id'}:
         for row in tqdm(rc.read(keyed=True), desc=f"Reading {rc_name} records..."):
-          if 'name' in row:
+          if rc_name == 'dcc':
+            row['label'] = row['dcc_abbreviation']
+            cv_lookup[row['id']] = helper.upsert_entity(rc_name, row, slug=row['dcc_abbreviation'])
+          elif rc_name == 'gene':
             row['label'] = row.pop('name')
-          elif 'dcc_name' in row:
-            row['label'] = row.pop('dcc_name')
+            cv_lookup[row['id']] = helper.upsert_entity(rc_name, row, slug=row['id'])
           elif rc_name == 'ptm':
             row['label'] = row['id']
+            cv_lookup[row['id']] = helper.upsert_entity(rc_name, row, pk=row['id'])
           else:
-            raise NotImplementedError(f"label for {row=}")
-          cv_lookup[row['id']] = source_id = helper.upsert_entity(rc_name, row, pk=label_ident(row['label']))
-
-  # then process entities and m2m
-  for rc_name in pkg.resource_names:
-    rc = pkg.get_resource(rc_name)
-    with pdp_helper() as helper:
+            if 'name' in row: row['label'] = row.pop('name')
+            else: raise NotImplementedError(f"label for {row=}")
+            cv_lookup[row['id']] = helper.upsert_entity(rc_name, row, pk=label_ident(row['label']))
+    #
+    # then process entities and m2m
+    for rc_name in pkg.resource_names:
+      rc = pkg.get_resource(rc_name)
       for row in tqdm(rc.read(keyed=True), desc=f"Reading {rc_name} records..."):
         fks = [*rc.schema.foreign_keys]
         edge_type = None
         if 'name' in row: row['label'] = row.pop('name')
-        if rc_name == 'dcc':
-          row['label'] = row['dcc_abbreviation']
-          source_id = helper.upsert_entity(rc_name, row, slug=row['dcc_abbreviation'])
-          edge_type = 'm2o'
-        elif {field.name for field in rc.schema.fields} >= {'id_namespace', 'local_id'}:
+        if {field.name for field in rc.schema.fields} >= {'id_namespace', 'local_id'}:
           # we have a dcc-specific entity
           edge_type = 'm2o'
           if 'filename' in row: row['label'] = row['filename']
@@ -126,11 +126,12 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
           # the first fk will be the source_id
           fk = fks.pop(0)
           local_key = tuple([row[k] for k in fk['fields']])
+          # lookup ids in cv_lookup
           source_id = helper.resolve_entity_id(
             fk['reference']['resource'],
             {k: v for k, v in zip(fk['reference']['fields'], local_key)},
             pk=':'.join(local_key),
-          )
+          ) if len(local_key) > 1 else cv_lookup[local_key[0]]
         else:
           print(f"warn: not sure what to do with {rc_name}")
           continue
@@ -141,14 +142,11 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
           # skip missing attributes
           if any(v is None for v in local_key): continue
           predicate = predicate_from_fields(fk['fields'])
-          # lookup ids in cv_lookup
-          pk = ':'.join(local_key) if len(local_key) > 1 else cv_lookup[local_key[0]]
-          # obtain the target id
           target_id = helper.resolve_entity_id(
             fk['reference']['resource'],
             {k: v for k, v in zip(fk['reference']['fields'], local_key)},
-            pk=pk,
-          )
+            pk=':'.join(local_key),
+          ) if len(local_key) > 1 else cv_lookup[local_key[0]]
           # add the edge between the source and the target
           try:
             if edge_type == 'm2m':

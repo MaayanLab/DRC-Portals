@@ -10,6 +10,7 @@ import urllib.request
 import queue
 import threading
 import traceback
+import typing as t
 from urllib.parse import urlparse, unquote
 from dotenv import load_dotenv
 from uuid import UUID, uuid5
@@ -165,16 +166,20 @@ def es_helper():
 @contextlib.contextmanager
 def pdp_helper():
   with es_helper() as es:
+    resolved_ids = set()
+    registered_ids = set()
     pagerank = {}
     m2o = {}
-    def resolve_entity_id(type, attributes, slug=None, pk=None):
+    def resolve_entity_id(type: str, attributes: dict, slug: t.Optional[str]=None, pk: t.Optional[str]=None):
+      assert type
       identity = dict(type=type)
       if slug is not None: identity['slug'] = slug
       elif pk is not None: identity['pk'] = pk
       else: identity.update(attributes)
       id = str(uuid5(uuid0, maybe_json_dumps(identity)))
+      resolved_ids.add((type, id, slug, pk))
       return id
-    def upsert_entity(type, attributes, slug=None, pk=None):
+    def upsert_entity(type: str, attributes: dict, slug: t.Optional[str]=None, pk: t.Optional[str]=None):
       '''
       type: the entity type
       attributes: all entity attributes (searchable)
@@ -191,6 +196,7 @@ def pdp_helper():
         pagerank=0,
         **attributes,
       )
+      registered_ids.add((type, id, slug, pk))
       es.put(dict(
         _op_type='update',
         _index='entity_staging',
@@ -270,6 +276,7 @@ def pdp_helper():
         upsert=dict(id=source_id, pagerank=pagerank),
         scripted_upsert=True,
       ))
+    assert registered_ids >= resolved_ids, f"Never registered {resolved_ids-registered_ids=}"
 
 #%%
 # Fetch assets to ingest
