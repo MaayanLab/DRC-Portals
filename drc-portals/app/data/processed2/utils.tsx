@@ -55,6 +55,8 @@ const entity_type_map: Record<string, string> = {
   'GLYGEN RESIDUE': 'Residue',
   'GLYTOUCAN': 'Glytoucan',
   'GTEXEQTL': 'eQTL',
+  'ptm': 'Post Translational Modification',
+  'ncbi_taxonomy': 'Taxonomy',
 }
 
 export function capitalize(s: string) {
