@@ -95,6 +95,7 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
             else if (m[2] === 'synonyms') value = (JSON.parse(value as string) as string[]).join(', ')
             else if (/_in_bytes/.exec(m[2]) !== null) value = humanBytesSize(Number(item[predicate]))
             else if (/_time$/.exec(m[2]) !== null) value = JSON.parse(value as string) as string
+            else if (m[2] == 'icon') value = <img className="inline-block max-w-24 p-2" src={value as string} />
             else value = linkify(item[predicate])
             return [{
               label: titleCapitalize(m[2].replaceAll('_', ' ')),
