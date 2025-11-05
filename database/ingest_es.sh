@@ -98,55 +98,12 @@ EOF
 # create index for m2m
 es PUT /m2m_${INDEX_VERSION} << EOF
 {
-  "settings": {
-    "analysis": {
-      "analyzer": {
-        "custom_analyzer": {
-          "tokenizer": "custom_tokenizer"
-        }
-      },
-      "tokenizer": {
-        "custom_tokenizer": {
-          "type": "simple_pattern_split",
-          "pattern": "[^a-zA-Z0-9']",
-          "lowercase": true
-        }
-      }
-    }
-  },
   "mappings": {
     "properties": {
       "source_id": {"type": "keyword"},
       "predicate": {"type": "keyword"},
       "target_id": {"type": "keyword"}
-    },
-    "dynamic_templates": [
-      {
-        "attributes": {
-          "match_mapping_type": "string",
-          "match": "target_a_*",
-          "mapping": {
-            "type": "text",
-            "analyzer": "custom_analyzer",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
-            }
-          }
-        }
-      },
-      {
-        "relationships": {
-          "match_mapping_type": "string",
-          "match": "target_r_*",
-          "mapping": {
-            "type": "keyword"
-          }
-        }
-      }
-    ]
+    }
   }
 }
 EOF
@@ -227,6 +184,22 @@ EOF
 # create index for m2m
 es PUT /m2m_target_expanded_${INDEX_VERSION} << EOF
 {
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "custom_analyzer": {
+          "tokenizer": "custom_tokenizer"
+        }
+      },
+      "tokenizer": {
+        "custom_tokenizer": {
+          "type": "simple_pattern_split",
+          "pattern": "[^a-zA-Z0-9']",
+          "lowercase": true
+        }
+      }
+    }
+  },
   "mappings": {
     "properties": {
       "source_id": {"type": "keyword"},
@@ -235,7 +208,34 @@ es PUT /m2m_target_expanded_${INDEX_VERSION} << EOF
       "target_type": {"type": "keyword"},
       "target_slug": {"type": "keyword"},
       "target_pagerank": {"type": "long"}
-    }
+    },
+    "dynamic_templates": [
+      {
+        "attributes": {
+          "match_mapping_type": "string",
+          "match": "target_a_*",
+          "mapping": {
+            "type": "text",
+            "analyzer": "custom_analyzer",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      },
+      {
+        "relationships": {
+          "match_mapping_type": "string",
+          "match": "target_r_*",
+          "mapping": {
+            "type": "keyword"
+          }
+        }
+      }
+    ]
   }
 }
 EOF
