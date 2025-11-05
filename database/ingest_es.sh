@@ -29,7 +29,11 @@ es PUT /entity_${INDEX_VERSION} << EOF
     "analysis": {
       "analyzer": {
         "custom_analyzer": {
-          "tokenizer": "custom_tokenizer"
+          "tokenizer": "custom_tokenizer",
+          "filter": [
+            "lowercase",
+            "asciifolding"
+          ]
         }
       },
       "tokenizer": {
@@ -188,7 +192,11 @@ es PUT /m2m_target_expanded_${INDEX_VERSION} << EOF
     "analysis": {
       "analyzer": {
         "custom_analyzer": {
-          "tokenizer": "custom_tokenizer"
+          "tokenizer": "custom_tokenizer",
+          "filter": [
+            "lowercase",
+            "asciifolding"
+          ]
         }
       },
       "tokenizer": {
