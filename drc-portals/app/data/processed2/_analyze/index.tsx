@@ -42,6 +42,7 @@ const modules: {
       || item.type === 'metabolite'
       || item.type === 'anatomy'
       || item.type === 'protein'
+      || item.type === 'substance'
     ),
     button: ({ item }) => {
       const url = React.useMemo(() => {
@@ -247,20 +248,7 @@ const modules: {
     />,
   },
   {
-    compatible: (item) => item.type === 'processed_file' && typeof item.a_access_url === 'string' && item.a_access_url.endsWith('.gmt'),
-    button: async ({ item }) => <PWBButton
-      body={{
-        data: { gene_set_library: { type: "GMTFileUpload", value: { url: item.a_a_access_url, filename: item.a_a_access_url.split('/').slice(-1)[0], description: item.a_description } } },
-        workflow: [
-          { id: "input_gene_set_library", type: "GMTFileUpload", data: { id: "gene_set_library" } },
-        ],
-      }}
-      title="Playbook Workflow Builder"
-      description={<>The Playbook Workflow Builder helps you interactively construct workflows leveraging CFDE APIs without code. Start a new workflow with {item.a_label}.</>}
-    />,
-  },
-  {
-    compatible: (item) => item.type === 'file' && typeof item.a_access_url === 'string' && item.a_access_url.endsWith('.gmt'),
+    compatible: (item) => typeof item.a_access_url !== 'undefined' && typeof item.a_access_url === 'string' && item.a_access_url.endsWith('.gmt'),
     button: async ({ item }) => <PWBButton
       body={{
         data: { gene_set_library: { type: "GMTFileUpload", value: { url: item.a_access_url, filename: item.a_filename, description: item.a_description } } },
