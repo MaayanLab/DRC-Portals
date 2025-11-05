@@ -64,41 +64,98 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
     ), pk=c2m2['link'])
     helper.upsert_m2o(dcc_asset_id, 'dcc', dcc_id)
   #
-  cv_tables = {'analysis_type', 'anatomy', 'assay_type', 'biofluid', 'compound', 'data_type', 'disease', 'file_format', 'gene', 'ncbi_taxonomy', 'phenotype', 'protein', 'sample_prep_method', 'substance'}
-  for rc_name in ['project', 'file', 'subject', 'biosample', 'collection']:
+  # We rely on the fact that upsert_entity will merge with an entity
+  #  with the same pk.
+  # Then by using pk as (id_namespace, local_id) or (id),
+  #  which is used throughout C2M2, we can get reference the actual entity
+  #  even if it's not registered yet / without keeping it in memory
+  cv_lookup = {}
+
+  # process cv records first, store them in memory
+  with pdp_helper() as helper:
+    for rc_name in pkg.resource_names:
+      rc = pkg.get_resource(rc_name)
+      if {field.name for field in rc.schema.fields} >= {'id'}:
+        for row in tqdm(rc.read(keyed=True), desc=f"Reading {rc_name} records..."):
+          if 'name' in row:
+            row['label'] = row.pop('name')
+          elif 'dcc_name' in row:
+            row['label'] = row.pop('dcc_name')
+          elif rc_name == 'ptm':
+            row['label'] = row['id']
+          else:
+            raise NotImplementedError(f"label for {row=}")
+          cv_lookup[row['id']] = source_id = helper.upsert_entity(rc_name, row, pk=label_ident(row['label']))
+
+  # then process entities and m2m
+  for rc_name in pkg.resource_names:
     rc = pkg.get_resource(rc_name)
     with pdp_helper() as helper:
-      in_mem_ids = {}
-      for fk in rc.schema.foreign_keys:
-        fk_rc_name = fk['reference']['resource']
-        in_mem_ids[fk_rc_name] = {}
-        fk_rc = pkg.get_resource(fk_rc_name)
-        for row in tqdm(fk_rc.read(keyed=True), desc=f"Reading {fk_rc_name}..."):
-          pk = tuple([row[k] for k in fk_rc.schema.primary_key])
-          key = tuple([row[k] for k in fk['reference']['fields']])
-          row['label'] = row.pop('name')
-          in_mem_ids[fk_rc_name][key] = helper.upsert_entity(fk_rc_name, row, pk=label_ident(row['label']) if fk_rc_name in cv_tables else ':'.join(pk))
       for row in tqdm(rc.read(keyed=True), desc=f"Reading {rc_name} records..."):
-        pk = tuple([row[k] for k in rc.schema.primary_key])
+        fks = [*rc.schema.foreign_keys]
+        edge_type = None
         if 'name' in row: row['label'] = row.pop('name')
-        elif 'filename' in row: row['label'] = row['filename']
-        elif 'local_id' in row: row['label'] = f"{row['id_namespace']}:{row['local_id']}"
-        else: raise RuntimeError(f"{row=}")
-        if rc_name == 'file':
-          # remove access_url if present and invalid
-          if not valid_access_url(row.get('access_url')):
-            row['access_url'] = None
-          # use persistent id if it's "probably" an access url
-          if not row['access_url']:
-            if persistent_id_probably_access_url(row.get('persistent_id')):
-              row['access_url'] = row['persistent_id']
-        source_id = helper.upsert_entity(rc_name, row, pk=':'.join(pk))
-        helper.upsert_m2o(source_id, 'dcc_asset', dcc_asset_id)
-        helper.upsert_m2o(source_id, 'dcc', dcc_id)
-        for fk in rc.schema.foreign_keys:
-          key = tuple([row[k] for k in fk['fields']])
-          if None in key: continue
-          target_id = in_mem_ids[fk['reference']['resource']][key]
-          helper.upsert_m2o(source_id, predicate_from_fields(fk['fields']), target_id)
-        # TODO: how about the m2ms?
-      del in_mem_ids
+        if rc_name == 'dcc':
+          row['label'] = row['dcc_abbreviation']
+          source_id = helper.upsert_entity(rc_name, row, slug=row['dcc_abbreviation'])
+          edge_type = 'm2o'
+        elif {field.name for field in rc.schema.fields} >= {'id_namespace', 'local_id'}:
+          # we have a dcc-specific entity
+          edge_type = 'm2o'
+          if 'filename' in row: row['label'] = row['filename']
+          else: row['label'] = row['local_id']
+          if rc_name == 'file':
+            # remove access_url if present and invalid
+            if not valid_access_url(row.get('access_url')):
+              row['access_url'] = None
+            # use persistent id if it's "probably" an access url
+            if not row['access_url']:
+              if persistent_id_probably_access_url(row.get('persistent_id')):
+                row['access_url'] = row['persistent_id']
+          #
+          source_id = helper.upsert_entity(rc_name, row, pk=':'.join([row['id_namespace'], row['local_id']]))
+          helper.upsert_m2o(source_id, 'dcc_asset', dcc_asset_id)
+          helper.upsert_m2o(source_id, 'dcc', dcc_id)
+        elif {field.name for field in rc.schema.fields} >= {'id'}:
+          # we have a cv term (already added but not its fks)
+          source_id = cv_lookup[row['id']]
+          edge_type = 'm2o'
+        elif len(fks) > 1:
+          # we have a m2m
+          edge_type = 'm2m'
+          # the first fk will be the source_id
+          fk = fks.pop(0)
+          local_key = tuple([row[k] for k in fk['fields']])
+          source_id = helper.resolve_entity_id(
+            fk['reference']['resource'],
+            {k: v for k, v in zip(fk['reference']['fields'], local_key)},
+            pk=':'.join(local_key),
+          )
+        else:
+          print(f"warn: not sure what to do with {rc_name}")
+          continue
+        #
+        for fk in fks:
+          # get fk
+          local_key = tuple([row[k] for k in fk['fields']])
+          # skip missing attributes
+          if any(v is None for v in local_key): continue
+          predicate = predicate_from_fields(fk['fields'])
+          # lookup ids in cv_lookup
+          pk = ':'.join(local_key) if len(local_key) > 1 else cv_lookup[local_key[0]]
+          # obtain the target id
+          target_id = helper.resolve_entity_id(
+            fk['reference']['resource'],
+            {k: v for k, v in zip(fk['reference']['fields'], local_key)},
+            pk=pk,
+          )
+          # add the edge between the source and the target
+          try:
+            if edge_type == 'm2m':
+              helper.upsert_m2m(source_id, predicate, target_id)
+            elif edge_type == 'm2o':
+              helper.upsert_m2o(source_id, predicate, target_id)
+            elif edge_type == 'o2m':
+              helper.upsert_m2o(target_id, predicate, source_id)
+          except Exception as e:
+            raise RuntimeError(f"{rc_name=}, {fk['reference']['resource']=}") from e

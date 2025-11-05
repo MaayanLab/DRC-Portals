@@ -167,6 +167,13 @@ def pdp_helper():
   with es_helper() as es:
     pagerank = {}
     m2o = {}
+    def resolve_entity_id(type, attributes, slug=None, pk=None):
+      identity = dict(type=type)
+      if slug is not None: identity['slug'] = slug
+      elif pk is not None: identity['pk'] = pk
+      else: identity.update(attributes)
+      id = str(uuid5(uuid0, maybe_json_dumps(identity)))
+      return id
     def upsert_entity(type, attributes, slug=None, pk=None):
       '''
       type: the entity type
@@ -176,11 +183,7 @@ def pdp_helper():
       '''
       attributes = {f"a_{k}": maybe_json_dumps(v) for k, v in attributes.items() if v is not None}
       assert 'a_label' in attributes
-      identity = dict(type=type)
-      if slug is not None: identity['slug'] = slug
-      elif pk is not None: identity['pk'] = pk
-      else: identity.update(attributes)
-      id = str(uuid5(uuid0, maybe_json_dumps(identity)))
+      id = resolve_entity_id(type, attributes, slug=slug, pk=pk)
       entity = dict(
         id=id,
         type=type,
@@ -257,7 +260,7 @@ def pdp_helper():
       # ))
       pagerank[target_id] = pagerank.get(target_id, 0) + 1
     #
-    yield type('pdp', tuple(), dict(upsert_m2o=upsert_m2o, upsert_m2m=upsert_m2m, upsert_entity=upsert_entity))
+    yield type('pdp', tuple(), dict(upsert_m2o=upsert_m2o, upsert_m2m=upsert_m2m, upsert_entity=upsert_entity, resolve_entity_id=resolve_entity_id))
     for source_id, pagerank in pagerank.items():
       es.put(dict(
         _op_type='update',
