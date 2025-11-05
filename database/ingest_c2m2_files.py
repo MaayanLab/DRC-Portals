@@ -79,8 +79,8 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
       if {field.name for field in rc.schema.fields} >= {'id'}:
         for row in tqdm(rc.read(keyed=True), desc=f"Reading {rc_name} records..."):
           if rc_name == 'dcc':
-            row['label'] = row['dcc_abbreviation']
-            cv_lookup[row['id']] = helper.upsert_entity(rc_name, row, slug=row['dcc_abbreviation'])
+            row['label'] = c2m2['short_label']
+            cv_lookup[row['id']] = helper.upsert_entity(rc_name, row, slug=c2m2['short_label'])
           elif rc_name == 'gene':
             row['label'] = row.pop('name')
             cv_lookup[row['id']] = helper.upsert_entity(rc_name, row, slug=row['id'])
@@ -133,6 +133,7 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
             pk=':'.join(local_key),
           ) if len(local_key) > 1 else cv_lookup[local_key[0]]
         else:
+          # this only occurs with subject_race because an enum is used instead of a CV table
           print(f"warn: not sure what to do with {rc_name}")
           continue
         #
