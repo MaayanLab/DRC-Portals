@@ -140,6 +140,21 @@ const modules: {
     </CardButton>,
   },
   {
+    compatible: (item) => item.type === 'protein' && typeof item.a_synonyms !== 'undefined' /* these are from the C2M2 and the ID is a UniProtKB id */,
+    button: ({ item }) => <CardButton
+      icon={<img src={'/img/icons/uniprot.svg'} height={64} alt="Gene and Drug Landing Page Aggegrator" className="p-2" />}
+      title="UniProtKB"
+      description={<>UniProt is the world's leading high-quality, comprehensive and freely accessible resource of protein sequence and functional information Knowledge Base. Find out more about {item.a_id}.</>}
+    >
+      <Button
+        color="secondary"
+        size="small"
+        href={`https://www.uniprot.org/uniprotkb/${encodeURIComponent(item.a_id)}/entry`}
+        target="_blank"
+      >Submit</Button>
+    </CardButton>,
+  },
+  {
     compatible: (item) => item.type === 'gene',
     button: ({ item }) => <PWBButton
       body={{
