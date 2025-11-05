@@ -46,7 +46,7 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
       },
       dccs: {
         terms: {
-          field: 'target_r_dcc.keyword',
+          field: 'target_r_dcc',
           size: 1000,
         },
       },
@@ -110,7 +110,7 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
             const neighbor = item[predicate] in entityLookup ? entityLookup[item[predicate]] : undefined
             return [{
               label: titleCapitalize(m[2].replaceAll('_', ' ')),
-              value: neighbor ? <LinkedTypedNode href={create_url({ type: neighbor.type, slug: neighbor.slug })} type={neighbor.type} label={itemLabel(neighbor)} /> : item[predicate],
+              value: neighbor?.type ? <LinkedTypedNode href={create_url({ type: neighbor.type, slug: neighbor.slug })} type={neighbor.type} label={itemLabel(neighbor)} /> : item[predicate],
             }]
           }
           return []

@@ -29,7 +29,7 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
     aggs: {
       dccs: {
         terms: {
-          field: 'r_dcc.keyword',
+          field: 'r_dcc',
           size: 1000,
         },
       },
