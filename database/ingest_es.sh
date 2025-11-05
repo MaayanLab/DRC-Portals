@@ -25,13 +25,56 @@ es_transform_execute() {
 # create index for entity
 es PUT /entity_${INDEX_VERSION} << EOF
 {
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "custom_analyzer": {
+          "tokenizer": "custom_tokenizer"
+        }
+      },
+      "tokenizer": {
+        "custom_tokenizer": {
+          "type": "simple_pattern_split",
+          "pattern": "[^a-zA-Z0-9']",
+          "lowercase": true
+        }
+      }
+    }
+  },
   "mappings": {
     "properties": {
       "id": {"type": "keyword"},
       "type": {"type": "keyword"},
       "slug": {"type": "keyword"},
       "pagerank": {"type": "long"}
-    }
+    },
+    "dynamic_templates": [
+      {
+        "attributes": {
+          "match_mapping_type": "string",
+          "match": "a_*",
+          "mapping": {
+            "type": "text",
+            "analyzer": "custom_analyzer",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      },
+      {
+        "relationships": {
+          "match_mapping_type": "string",
+          "match": "r_*",
+          "mapping": {
+            "type": "keyword"
+          }
+        }
+      }
+    ]
   }
 }
 EOF
@@ -43,6 +86,7 @@ es POST /_aliases << EOF
   ]
 }
 EOF
+
 es POST /_aliases << EOF
 {
   "actions": [
@@ -54,12 +98,55 @@ EOF
 # create index for m2m
 es PUT /m2m_${INDEX_VERSION} << EOF
 {
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "custom_analyzer": {
+          "tokenizer": "custom_tokenizer"
+        }
+      },
+      "tokenizer": {
+        "custom_tokenizer": {
+          "type": "simple_pattern_split",
+          "pattern": "[^a-zA-Z0-9']",
+          "lowercase": true
+        }
+      }
+    }
+  },
   "mappings": {
     "properties": {
       "source_id": {"type": "keyword"},
       "predicate": {"type": "keyword"},
       "target_id": {"type": "keyword"}
-    }
+    },
+    "dynamic_templates": [
+      {
+        "attributes": {
+          "match_mapping_type": "string",
+          "match": "target_a_*",
+          "mapping": {
+            "type": "text",
+            "analyzer": "custom_analyzer",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      },
+      {
+        "relationships": {
+          "match_mapping_type": "string",
+          "match": "target_r_*",
+          "mapping": {
+            "type": "keyword"
+          }
+        }
+      }
+    ]
   }
 }
 EOF
@@ -71,6 +158,7 @@ es POST /_aliases << EOF
   ]
 }
 EOF
+
 es POST /_aliases << EOF
 {
   "actions": [
@@ -202,6 +290,7 @@ EOF
 
 # get current indexes
 # echo "" | es GET /_cat/indices?v
+# echo "" | es GET /_aliases
 
 # delete old index
 # echo "" | es DELETE /entity_${INDEX_VERSION}
