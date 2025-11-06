@@ -152,7 +152,7 @@ def es_bulk_insert(Q: queue.Queue):
           else:
             retries += 1
             Q.put(item)
-            if info['error']['type'] != 'version_conflict_engine_exception':
+            if info.get('update', {}).get('error', {}).get('type') != 'version_conflict_engine_exception':
               print(f"\nwarning: {item=}, {info=}\n")
             pbar.set_description(f"Ingesting {retries} retries {reconnects} reconnects...")
       except KeyboardInterrupt:
