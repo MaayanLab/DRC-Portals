@@ -103,6 +103,7 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
     #
     # the reference tables are pseudo-cv term tables but enums were used instead, we'll just treat them the same as cv tables
     for rc_name, rc in c2m2_reference_tables.items():
+      if 'association_type' in rc_name: continue
       for _, row in rc.iterrows():
         row['label'] = row.pop('name')
         cv_lookup[row['id']] = helper.upsert_entity(rc_name, row, pk=row['id'])
@@ -179,8 +180,25 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
           if v is None: continue
           if (rc_name, k) in c2m2_reference_tables_mappings:
             if v not in cv_lookup: continue # invalid entry, shouldn't pass validation, but we'll just skip it for now
-            target_id = cv_lookup[v]
-            helper.upsert_m2o(source_id, k, target_id)
+            if k == 'association_type':
+              # association type is a kind of predicate on a m2m
+              #  we could do it like kg assertions and just store the m2m entry
+              #  but it's probably nicer to have the disease/phenotype directly attached to the subject/biosample
+              association_type = c2m2_reference_tables[c2m2_reference_tables_mappings[(rc_name, k)]].set_index('id').to_dict().get(v)
+              if association_type is None: continue # invalid entry, shouldn't pass validation, but we'll just skip it for now
+              fk = fks.pop(0)
+              predicate = f"{fk['reference']['resource']} {association_type}"
+              local_key = tuple([row[k] for k in fk['fields']])
+              target_id = helper.resolve_entity_id(
+                fk['reference']['resource'],
+                {k: v for k, v in zip(fk['reference']['fields'], local_key)},
+                pk=':'.join(local_key),
+              ) if len(local_key) > 1 else cv_lookup[local_key[0]]
+              helper.upsert_m2m(source_id, predicate, target_id)
+            else:
+              # the other cv_references are m2o connections
+              target_id = cv_lookup[v]
+              helper.upsert_m2o(source_id, k, target_id)
         #
         # add foreign key relationships
         for fk in fks:
