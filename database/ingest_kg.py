@@ -2,6 +2,7 @@
 import csv
 import json
 import zipfile
+import re
 from tqdm.auto import tqdm
 
 from ingest_common import ingest_path, current_dcc_assets, pdp_helper, label_ident
@@ -102,7 +103,7 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
         assertion_node_reader = csv.DictReader(fr, fieldnames=columns, delimiter=',')
         for assertion_node in tqdm(assertion_node_reader, desc=f"  Processing {assertion_node_file.name}..."):
           if not assertion_node.get('label'): assertion_node['label'] = assertion_node['id']
-          assertion_nodes[assertion_node['id']] = list(ensure_entity({ k.lower(): v for k, v in assertion_node.items() }))
+          assertion_nodes[assertion_node['id']] = list(ensure_entity({ re.sub(r'[ \.-]', '_', k.lower()): v for k, v in assertion_node.items() }))
     #
     # register all of the edges
     for assertion_edge_file in assertions_extract_path.glob('*.edges.csv'):
@@ -110,7 +111,7 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
         columns = next(fr).strip().split(',')
         assertion_edge_reader = csv.DictReader(fr, fieldnames=columns, delimiter=',')
         for assertion in tqdm(assertion_edge_reader, desc=f"  Processing {assertion_edge_file.name}..."):
-          assertion = {k.lower():v for k,v in assertion.items() if k != 'dcc'}
+          assertion = {re.sub(r'[ \.-]', '_', k.lower()): v for k,v in assertion.items() if k != 'dcc'}
           for ensure_source_id in assertion_nodes.get(assertion['source'], []):
             for ensure_target_id in assertion_nodes.get(assertion['target'], []):
               relation_id = upsert_entity('kg_relation', dict(
