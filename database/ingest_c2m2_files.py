@@ -2,6 +2,7 @@
 import re
 import zipfile
 import pathlib
+import pandas as pd
 from tqdm.auto import tqdm
 from datapackage import Package
 
@@ -25,6 +26,30 @@ def persistent_id_probably_access_url(access_url):
     if re.match(r'^https?://.+?/[^/]+?\.[^/\.]+$', access_url) is not None:
       return True
   return False
+
+#%%
+# get reference tables
+if not pathlib.Path('ingest/c2m2_reference_tables').exists():
+  import urllib.request
+  urllib.request.urlretrieve("https://files.osf.io/v1/resources/m3a85/providers/osfstorage/?zip=", 'ingest/c2m2_reference_tables.zip')
+  with zipfile.ZipFile('ingest/c2m2_reference_tables.zip', 'r') as c2m2_zip:
+    c2m2_zip.extractall('ingest/c2m2_reference_tables')
+
+c2m2_reference_tables = {
+  f.stem: pd.read_csv(f, sep='\t') for f in pathlib.Path('ingest/c2m2_reference_tables').glob('*.tsv')
+}
+# TODO: ideally this could be implicit -- besides ptm site_type we probably could just look for enum fields
+c2m2_reference_tables_mappings = {
+  ('biosample_disease', 'association_type'): 'disease_association_type',
+  ('subject_disease', 'association_type'): 'disease_association_type',
+  ('subject_phenotype', 'association_type'): 'phenotype_association_type',
+  ('ptm', 'site_type'): 'site_type',
+  ('subject', 'ethnicity'): 'subject_ethnicity',
+  ('subject', 'granularity'): 'subject_granularity',
+  ('subject_race', 'race'): 'subject_race',
+  ('subject_role_taxonomy', 'role_id'): 'subject_role',
+  ('subject', 'sex'): 'subject_sex',
+}
 
 #%%
 dcc_assets = current_dcc_assets()
@@ -75,6 +100,12 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
     # TODO: if we could just use the id as the slug we could avoid storing any of this in memory
     #       but we'll need to update the other ingest steps to rely on C2M2 CV terms
     cv_lookup = {}
+    #
+    # the reference tables are pseudo-cv term tables but enums were used instead, we'll just treat them the same as cv tables
+    for rc_name, rc in c2m2_reference_tables.items():
+      for _, row in rc.iterrows():
+        cv_lookup[row['id']] = helper.upsert_entity(rc_name, row, pk=row['id'])
+    #
     for rc_name in pkg.resource_names:
       rc = pkg.get_resource(rc_name)
       if {field.name for field in rc.schema.fields} >= {'id'}:
@@ -129,7 +160,7 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
           # we have a cv term (already added but not its fks)
           source_id = cv_lookup[row['id']]
           edge_type = 'm2o'
-        elif len(fks) > 1:
+        else:
           # we have a m2m
           edge_type = 'm2m'
           # the first fk will be the source_id
@@ -141,11 +172,14 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
             {k: v for k, v in zip(fk['reference']['fields'], local_key)},
             pk=':'.join(local_key),
           ) if len(local_key) > 1 else cv_lookup[local_key[0]]
-        else:
-          # this only occurs with subject_race because an enum is used instead of a CV table
-          print(f"warn: not sure what to do with {rc_name}")
-          continue
         #
+        # add cv_reference_table relationships
+        for k, v in row.items():
+          if (rc_name, k) in c2m2_reference_tables_mappings:
+            target_id = cv_lookup[v]
+            helper.upsert_m2o(source_id, predicate, target_id)
+        #
+        # add foreign key relationships
         for fk in fks:
           # get fk
           local_key = tuple([row[k] for k in fk['fields']])
