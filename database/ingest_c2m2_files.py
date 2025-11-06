@@ -178,6 +178,7 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
         for k, v in row.items():
           if v is None: continue
           if (rc_name, k) in c2m2_reference_tables_mappings:
+            if v not in cv_lookup: continue # invalid entry, shouldn't pass validation, but we'll just skip it for now
             target_id = cv_lookup[v]
             helper.upsert_m2o(source_id, k, target_id)
         #
