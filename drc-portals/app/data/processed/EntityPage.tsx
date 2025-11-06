@@ -4,7 +4,7 @@ import { categoryLabel, EntityType, FilterAggType, itemDescription, itemIcon, it
 import SearchablePagedTable, { SearchablePagedTableCell, SearchablePagedTableCellIcon, LinkedTypedNode, Description, SearchablePagedTableHeader } from "@/app/data/processed/SearchablePagedTable";
 import { notFound } from 'next/navigation';
 import { create_url } from '@/app/data/processed/utils';
-import { ensure_array } from '@/utils/array';
+import { ensure_array, groupby } from '@/utils/array';
 import { FetchDRSCartButton, DRSCartButton } from '@/app/data/processed/cart/DRSCartButton';
 import { getEntity } from '@/app/data/processed/getEntity';
 import { esDCCs } from '@/app/data/processed/dccs';
@@ -44,7 +44,15 @@ export default async function Page(props: PageProps) {
   const filter: estypes.QueryDslQueryContainer[] = []
   filter.push({ query_string: { query: `+source_id:"${item.id}"` } })
   if (params?.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
-  if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) filter.push({ query_string: { query: ensure_array(searchParams.facet).map(f => f).join(' OR ') } })
+  if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) {
+    filter.push({
+      query_string: {
+        query: Object.entries(groupby(
+          ensure_array(searchParams.facet).filter(f => !!f), f => f.substring(0, f.indexOf(':'))
+        )).map(([_, F]) => `(${F.join(' OR ')})`).join(' AND '),
+      }
+    })
+  }
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<M2MTargetType, FilterAggType<'files'>>({
     index: 'm2m_target_expanded',

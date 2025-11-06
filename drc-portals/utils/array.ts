@@ -13,3 +13,13 @@ export function unique(L: string[]): string[] {
   }
   return U
 }
+
+export function groupby<T>(L: T[], keyfun: (el: T) => string): Record<string, T[]> {
+  const buckets: Record<string, T[]> = {}
+  for (const el of L) {
+    const key = keyfun(el)
+    if (!(key in buckets)) buckets[key] = []
+    buckets[key].push(el)
+  }
+  return buckets
+}

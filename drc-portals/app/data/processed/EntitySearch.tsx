@@ -4,7 +4,7 @@ import { estypes } from '@elastic/elasticsearch'
 import { categoryLabel, create_url, EntityType, FilterAggType, itemDescription, itemIcon, itemLabel, TermAggType } from "@/app/data/processed/utils"
 import SearchablePagedTable, { SearchablePagedTableCell, SearchablePagedTableCellIcon, LinkedTypedNode, Description, SearchablePagedTableHeader } from "@/app/data/processed/SearchablePagedTable";
 import { redirect } from 'next/navigation';
-import { ensure_array } from '@/utils/array';
+import { ensure_array, groupby } from '@/utils/array';
 import { esDCCs } from '@/app/data/processed/dccs';
 import { DRSCartButton, FetchDRSCartButton } from '@/app/data/processed/cart/DRSCartButton';
 import FormPagination from '@/app/data/processed/FormPagination';
@@ -21,7 +21,15 @@ export default async function Page(props: PageProps) {
   }
   const filter: estypes.QueryDslQueryContainer[] = []
   if (params.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
-  if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) filter.push({ query_string: { query: ensure_array(searchParams.facet).map(f => f).join(' OR ') } })
+  if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) {
+    filter.push({
+      query_string: {
+        query: Object.entries(groupby(
+          ensure_array(searchParams.facet).filter(f => !!f), f => f.substring(0, f.indexOf(':'))
+        )).map(([_, F]) => `(${F.join(' OR ')})`).join(' AND '),
+      }
+    })
+  }
   if (params.type) filter.push({ query_string: { query: `+type:"${params.type}"` } })
   if (params.search_type) filter.push({ query_string: { query: `+type:"${params.search_type}"` } })
   if (filter.length === 0) redirect('/data')
