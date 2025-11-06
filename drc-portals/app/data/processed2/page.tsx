@@ -1,6 +1,6 @@
 import React from 'react'
 import SummaryComponent from '@/app/data/processed2/SummaryComponent'
-import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
+import ListingPageLayout from "@/app/data/processed2/ListingPageLayout";
 import Link from '@/utils/link';
 import { Button, Grid, Typography } from '@mui/material';
 import Icon from "@mdi/react";

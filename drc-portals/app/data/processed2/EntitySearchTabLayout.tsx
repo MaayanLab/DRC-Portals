@@ -1,7 +1,7 @@
 import React from "react";
 import { redirect } from "next/navigation";
 import { capitalize, categoryLabel, EntityType, itemLabel, TermAggType } from "./utils";
-import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
+import ListingPageLayout from "@/app/data/processed2/ListingPageLayout";
 import Link from "@/utils/link";
 import { Button } from "@mui/material";
 import Icon from "@mdi/react";

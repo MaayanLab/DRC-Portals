@@ -1,14 +1,14 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
 import { categoryLabel, create_url, EntityType, humanBytesSize, itemDescription, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType, titleCapitalize } from "@/app/data/processed2/utils"
-import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
+import ListingPageLayout from "@/app/data/processed2/ListingPageLayout";
 import { LinkedTypedNode } from "@/app/data/processed2/SearchablePagedTable";
 import Link from "@/utils/link";
 import { Button } from "@mui/material";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import { notFound } from 'next/navigation';
-import LandingPageLayout from '@/app/data/processed/LandingPageLayout';
+import LandingPageLayout from '@/app/data/processed2/LandingPageLayout';
 import SearchFilter from '@/app/data/processed2/SearchFilter';
 import EntityPageAnalyze from '@/app/data/processed2/EntityPageAnalyze';
 import { esDCCs, getEsDCC } from '@/app/data/processed2/dccs';

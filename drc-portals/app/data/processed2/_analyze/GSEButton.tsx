@@ -3,7 +3,7 @@
 import Button from "@mui/material/Button"
 import Image from "@/utils/image"
 import GSEIcon from '@/public/img/icons/CFDE-GSE.png'
-import CardButton from "@/app/data/processed/CardButton"
+import CardButton from "@/app/data/processed2/CardButton"
 import * as React from 'react';
 
 export default function GSEButton(props: React.PropsWithChildren<{ title: React.ReactNode, description: React.ReactNode,
