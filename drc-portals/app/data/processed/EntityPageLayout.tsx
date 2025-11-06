@@ -35,13 +35,13 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
     keywords: [
       parentMetadata.keywords,
       categoryLabel(params.type),
-      dcc?.a_label,
       itemLabel(item),
+      dcc?.a_label,
     ].filter(item => !!item).join(', '),
     description: [
       parentMetadata.description,
-      dcc?.a_description,
       itemDescription(item),
+      dcc?.a_description,
     ].filter(item => !!item).join('. ')
   }
 }
