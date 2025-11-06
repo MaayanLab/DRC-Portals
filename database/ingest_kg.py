@@ -65,22 +65,22 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
       id = helper.upsert_entity(type, attributes, slug=slug, pk=pk)
       entities[id] = dict(type=type, slug=slug or id, **{f"a_{k}": v for k,v in attributes.items()})
       return id
-    def ensure_entity(entity_type, entity_label):
-      entity_type = entity_type.lower()
+    def ensure_entity(entity):
+      entity_type = entity.pop('type').lower()
       if entity_type == 'gene':
-        for gene in gene_lookup.get(entity_label, []):
-          yield lambda gene=gene: upsert_entity('gene', dict(
+        for gene in gene_lookup.get(entity['label'], []):
+          yield lambda gene=gene: upsert_entity('gene', dict(entity,
             label=gene_labels[gene],
             description=gene_descriptions[gene],
             ensembl=gene,
             entrez=gene_entrez[gene],
           ), slug=gene)
+        if not gene_lookup.get(entity['label']) and entity.get('ensembl'):
+          yield lambda entity=entity: upsert_entity('gene', entity, slug=entity['ensembl'])
       elif entity_type:
         entity_type = map_type.get(entity_type, entity_type)
         if entity_type:
-          yield lambda entity_type=entity_type, entity_label=entity_label: upsert_entity(entity_type, dict(
-            label=entity_label,
-          ), pk=label_ident(entity_label))
+          yield lambda entity_type=entity_type, entity=entity: upsert_entity(entity_type, entity, pk=label_ident(entity['label']))
     #
     dcc_id = upsert_entity('dcc', dict(
       label=file['short_label']
@@ -101,8 +101,8 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
         columns[0] = 'id'
         assertion_node_reader = csv.DictReader(fr, fieldnames=columns, delimiter=',')
         for assertion_node in tqdm(assertion_node_reader, desc=f"  Processing {assertion_node_file.name}..."):
-          # TODO: capture other metdata
-          assertion_nodes[assertion_node['id']] = list(ensure_entity(assertion_node['type'], assertion_node['label'] or assertion_node['id']))
+          if not assertion_node.get('label'): assertion_node['label'] = assertion_node['id']
+          assertion_nodes[assertion_node['id']] = list(ensure_entity({ k.lower(): v for k, v in assertion_node.items() }))
     #
     # register all of the edges
     for assertion_edge_file in assertions_extract_path.glob('*.edges.csv'):
@@ -110,6 +110,7 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
         columns = next(fr).strip().split(',')
         assertion_edge_reader = csv.DictReader(fr, fieldnames=columns, delimiter=',')
         for assertion in tqdm(assertion_edge_reader, desc=f"  Processing {assertion_edge_file.name}..."):
+          assertion = {k.lower():v for k,v in assertion.items() if k != 'dcc'}
           for ensure_source_id in assertion_nodes.get(assertion['source'], []):
             for ensure_target_id in assertion_nodes.get(assertion['target'], []):
               relation_id = upsert_entity('kg_relation', dict(
@@ -118,25 +119,20 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
               if assertion['evidence_class'] == 'nan':
                 assertion['evidence_class'] = None
               if assertion['evidence_class']:
-                try:
-                  assertion['evidence_class'] = json.loads(assertion['evidence_class'])
-                except:
-                  assertion['evidence_class'] = assertion['evidence_class']
+                try: assertion['evidence_class'] = json.loads(assertion['evidence_class'])
+                except KeyboardInterrupt: raise
+                except: assertion['evidence_class'] = assertion['evidence_class']
                 assertion['evidence_class'] = json.dumps(assertion['evidence_class'])
               #
               source_id = ensure_source_id()
               target_id = ensure_target_id()
-              assertion_id = upsert_entity('kg_assertion', dict(
-                label=f"{entities[source_id]['a_label']} {entities[relation_id]['a_label']} {entities[target_id]['a_label']}",
-                SAB=assertion['SAB'],
-                evidence=assertion['evidence_class'],
-              ), pk=f"{dcc_asset_id}:{source_id}:{relation_id}:{target_id}")
+              if not assertion.get('label'): assertion['label'] = f"{entities[source_id]['a_label']} {entities[relation_id]['a_label']} {entities[target_id]['a_label']}"
+              assertion_id = upsert_entity('kg_assertion', assertion, pk=f"{dcc_asset_id}:{source_id}:{relation_id}:{target_id}")
               try:
                 helper.upsert_m2o(assertion_id, 'source', source_id)
                 helper.upsert_m2o(assertion_id, 'target', target_id)
                 helper.upsert_m2o(assertion_id, 'relation', relation_id)
               except KeyboardInterrupt: raise
-              except:
-                continue
+              except: continue
               helper.upsert_m2o(assertion_id, 'dcc_asset', dcc_asset_id)
               helper.upsert_m2o(assertion_id, 'dcc', dcc_id)
