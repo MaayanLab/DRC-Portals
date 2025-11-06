@@ -9,7 +9,9 @@ import { esDCCs } from '@/app/data/processed2/dccs';
 import { DRSCartButton, FetchDRSCartButton } from '@/app/data/processed2/cart/DRSCartButton';
 import FormPagination from '@/app/data/processed2/FormPagination';
 
-export default async function Page(props: { params: Promise<{ type?: string, search?: string, search_type?: string } & Record<string, string>>, searchParams?: Promise<{ [key: string]: string[] | string }> }) {
+type PageProps = { params: Promise<{ type?: string, search?: string, search_type?: string } & Record<string, string>>, searchParams?: Promise<{ [key: string]: string[] | string }> }
+
+export default async function Page(props: PageProps) {
   const params = await props.params
   const searchParams = await props.searchParams
   for (const k in params) params[k] = decodeURIComponent(params[k])

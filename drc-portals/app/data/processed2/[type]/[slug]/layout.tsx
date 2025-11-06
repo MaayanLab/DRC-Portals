@@ -1,1 +1,1 @@
-export { default } from '@/app/data/processed2/EntityPageLayout'
+export { default, generateMetadata } from '@/app/data/processed2/EntityPageLayout'

@@ -1,6 +1,6 @@
 import React from "react";
 import { redirect } from "next/navigation";
-import { capitalize, EntityType, itemLabel, TermAggType } from "./utils";
+import { capitalize, categoryLabel, EntityType, itemLabel, TermAggType } from "./utils";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import Link from "@/utils/link";
 import { Button } from "@mui/material";
@@ -11,8 +11,27 @@ import elasticsearch from "@/lib/elasticsearch";
 import { esDCCs } from '@/app/data/processed2/dccs';
 import { FancyTab } from "@/components/misc/FancyTabs";
 import { estypes } from "@elastic/elasticsearch";
+import { Metadata, ResolvingMetadata } from "next";
 
-export default async function Page(props: React.PropsWithChildren<{ params: Promise<{ search: string, type?: string } & Record<string, string>> }>) {
+type PageProps = { params: Promise<{ search: string, type?: string } & Record<string, string>> }
+
+export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const params = await props.params
+  for (const k in props.params) params[k] = decodeURIComponent(params[k])
+  const parentMetadata = await parent
+  return {
+    title: [
+      parentMetadata.title?.absolute,
+      params.type && categoryLabel(params.type),
+    ].filter(title => !!title).join(' | '),
+    keywords: [
+      parentMetadata.keywords,
+      params.type && categoryLabel(params.type),
+    ].filter(item => !!item).join(', '),
+  }
+}
+
+export default async function Page(props: React.PropsWithChildren<PageProps>) {
   const params = await props.params
   for (const k in params) params[k] = decodeURIComponent(params[k])
   if (!params.search) redirect('/data')

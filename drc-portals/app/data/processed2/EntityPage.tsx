@@ -10,8 +10,28 @@ import { getEntity } from '@/app/data/processed2/getEntity';
 import { esDCCs } from '@/app/data/processed2/dccs';
 import { estypes } from '@elastic/elasticsearch';
 import FormPagination from '@/app/data/processed2/FormPagination';
+import { Metadata, ResolvingMetadata } from 'next';
 
-export default async function Page(props: { params: Promise<{ type: string, slug: string, search?: string } & Record<string, string>>, searchParams?: Promise<{ [key: string]: string[] | string }> }) {
+type PageProps = { params: Promise<{ type: string, slug: string, search?: string } & Record<string, string>>, searchParams?: Promise<{ [key: string]: string[] | string }> }
+
+export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const params = await props.params
+  for (const k in params) params[k] = decodeURIComponent(params[k])
+  const parentMetadata = await parent
+  return {
+    title: [
+      // NOTE: EntityPageLayout.generateMetadata will already be applied
+      parentMetadata.title?.absolute,
+      params.search && `Search ${params.search}`
+    ].filter(item => !!item).join(' | '),
+    keywords: [
+      params.search,
+      parentMetadata.keywords
+    ].filter(item => !!item).join(', '),
+  }
+}
+
+export default async function Page(props: PageProps) {
   const params = await props.params
   const searchParams = await props.searchParams
   for (const k in params) params[k] = decodeURIComponent(params[k])

@@ -5,7 +5,15 @@ import Link from '@/utils/link';
 import { Button, Grid, Typography } from '@mui/material';
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from '@mdi/js';
+import { Metadata } from 'next';
 
+export const metadata: Metadata = {
+  title: 'CFDE Data Portal | Summary',
+  description: 'Summary of processed data available for search.',
+  icons: {
+    icon: '/img/favicon.png', // /public path
+  },
+}
 export default async function Page() {
   return <ListingPageLayout
     footer={

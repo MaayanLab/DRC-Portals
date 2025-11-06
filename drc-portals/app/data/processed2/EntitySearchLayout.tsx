@@ -11,8 +11,14 @@ export async function generateMetadata(props: { params: Promise<{ search: string
   const params = await props.params
   const parentMetadata = await parent
   return {
-    title: `${parentMetadata.title?.absolute} | Search ${decodeURIComponent(params.search)}`,
-    keywords: parentMetadata.keywords,
+    title: [
+      parentMetadata.title?.absolute,
+      params.search && `Search ${decodeURIComponent(params.search)}`,
+    ].filter(title => !!title).join(' | '),
+    keywords: [
+      parentMetadata.keywords,
+      params.search,
+    ].filter(item => !!item).join(', '),
   }
 }
 

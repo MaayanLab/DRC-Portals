@@ -1,6 +1,6 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, create_url, EntityType, humanBytesSize, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType, titleCapitalize } from "@/app/data/processed2/utils"
+import { categoryLabel, create_url, EntityType, humanBytesSize, itemDescription, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType, titleCapitalize } from "@/app/data/processed2/utils"
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import { LinkedTypedNode } from "@/app/data/processed2/SearchablePagedTable";
 import Link from "@/utils/link";
@@ -11,19 +11,48 @@ import { notFound } from 'next/navigation';
 import LandingPageLayout from '@/app/data/processed/LandingPageLayout';
 import SearchFilter from '@/app/data/processed2/SearchFilter';
 import EntityPageAnalyze from '@/app/data/processed2/EntityPageAnalyze';
-import { esDCCs } from '@/app/data/processed2/dccs';
+import { esDCCs, getEsDCC } from '@/app/data/processed2/dccs';
 import { getEntity } from '@/app/data/processed2/getEntity';
 import { estypes } from '@elastic/elasticsearch';
 import { DRSCartButton } from './cart/DRSCartButton';
+import { Metadata, ResolvingMetadata } from 'next';
 
-export default async function Page(props: React.PropsWithChildren<{ params: Promise<{ type: string, slug: string, search?: string } & Record<string, string>> }>) {
+type PageProps = { params: Promise<{ type: string, slug: string } & Record<string, string>> }
+
+export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const params = await props.params
+  for (const k in props.params) params[k] = decodeURIComponent(params[k])
+  const item = await getEntity(params)
+  if (!item) return {}
+  const dcc = await getEsDCC(item.r_dcc)
+  const parentMetadata = await parent
+  return {
+    title: [
+      parentMetadata.title?.absolute,
+      categoryLabel(params.type),
+      itemLabel(item),
+    ].filter(title => !!title).join(' | '),
+    keywords: [
+      parentMetadata.keywords,
+      categoryLabel(params.type),
+      dcc?.a_label,
+      itemLabel(item),
+    ].filter(item => !!item).join(', '),
+    description: [
+      parentMetadata.description,
+      dcc?.a_description,
+      itemDescription(item),
+    ].filter(item => !!item).join('. ')
+  }
+}
+
+export default async function Page(props: React.PropsWithChildren<PageProps>) {
   const params = await props.params
   for (const k in props.params) params[k] = decodeURIComponent(params[k])
   const item = await getEntity(params)
   if (!item) notFound()
   const filter: estypes.QueryDslQueryContainer[] = []
   filter.push({ query_string: { query: `+source_id:"${item.id}"` } })
-  if (params?.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
   const searchRes = await elasticsearch.search<M2MTargetType, TermAggType<'predicates' | 'types' | 'dccs'>>({
     index: 'm2m_target_expanded',
     query: {
