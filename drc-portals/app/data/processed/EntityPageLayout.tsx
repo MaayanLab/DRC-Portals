@@ -1,6 +1,6 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, create_url, EntityType, facetLabel, humanBytesSize, itemDescription, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType, titleCapitalize } from "@/app/data/processed/utils"
+import { categoryLabel, create_url, EntityType, humanBytesSize, itemDescription, itemLabel, linkify, M2MTargetType, TermAggType, titleCapitalize } from "@/app/data/processed/utils"
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 import Link from "@/utils/link";
@@ -9,13 +9,13 @@ import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import { notFound } from 'next/navigation';
 import LandingPageLayout from '@/app/data/processed/LandingPageLayout';
-import SearchFilter, { CollapseFilters } from '@/app/data/processed/SearchFilter';
 import EntityPageAnalyze from '@/app/data/processed/EntityPageAnalyze';
 import { esDCCs, getEsDCC } from '@/app/data/processed/dccs';
 import { getEntity } from '@/app/data/processed/getEntity';
 import { estypes } from '@elastic/elasticsearch';
 import { DRSCartButton } from './cart/DRSCartButton';
 import { Metadata, ResolvingMetadata } from 'next';
+import ClientSideFacets from '@/app/data/processed/ClientSideFacets';
 
 type PageProps = { params: Promise<{ type: string, slug: string } & Record<string, string>> }
 
@@ -138,23 +138,13 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
       {searchRes.hits.total ? <ListingPageLayout
         count={Number(searchRes.hits.total)}
         filters={
-          <>
-            <CollapseFilters>
-              {facets.map(facet => {
-                const agg = searchRes.aggregations
-                if (!agg) return null
-              if (agg[facet].buckets.length === 0 || agg[facet].buckets.length === 1) return null
-                return <div key={facet} className="mb-2">
-                  <div className="font-bold">{facetLabel(facet)}</div>
-                  <div className="flex flex-col">
-                    {agg[facet].buckets.map(filter => 
-                      <SearchFilter key={`${filter.key}`} id={`${facet}:"${filter.key}"`} label={filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : facet === 'target_type' ? categoryLabel(filter.key) : filter.key} count={Number(filter.doc_count)} />
-                    )}
-                  </div>
-                </div>
-              })}
-            </CollapseFilters>
-          </>
+          <ClientSideFacets
+            aggregations={searchRes.aggregations ?? {}}
+            params={{
+              source_id: item.id,
+            }}
+            entityLookup={entityLookup}
+          />
         }
         footer={
           <Link href="/data">

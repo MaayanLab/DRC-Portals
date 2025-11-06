@@ -1,16 +1,16 @@
 import React from "react";
 import { redirect } from "next/navigation";
-import { categoryLabel, EntityType, facetLabel, itemLabel, TermAggType } from "./utils";
+import { categoryLabel, EntityType, TermAggType } from "./utils";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import Link from "@/utils/link";
 import { Button } from "@mui/material";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
-import SearchFilter, { CollapseFilters } from '@/app/data/processed/SearchFilter';
 import elasticsearch from "@/lib/elasticsearch";
 import { esDCCs } from '@/app/data/processed/dccs';
 import { Metadata, ResolvingMetadata } from "next";
 import { estypes } from "@elastic/elasticsearch";
+import ClientSideFacets from "@/app/data/processed/ClientSideFacets";
 
 export async function generateMetadata(props: { params: Promise<{ type: string, search?: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params
@@ -78,21 +78,14 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
     <ListingPageLayout
       count={Number(searchRes.hits.total)}
       filters={
-        <CollapseFilters>
-          {facets.map(facet => {
-            const agg = searchRes.aggregations
-            if (!agg) return null
-            if (agg[facet].buckets.length === 0 || agg[facet].buckets.length === 1) return null
-            return <div key={facet} className="mb-2">
-              <div className="font-bold">{facetLabel(facet)}</div>
-              <div className="flex flex-col">
-                {agg[facet].buckets.map(filter => 
-                  <SearchFilter key={`${filter.key}`} id={`${facet}:"${filter.key}"`} label={filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : facet === 'type' ? categoryLabel(filter.key) : filter.key} count={Number(filter.doc_count)} />
-                )}
-              </div>
-            </div>
-          })}
-        </CollapseFilters>
+        <ClientSideFacets
+          aggregations={searchRes.aggregations ?? {}}
+          params={{
+            type: params.type,
+            search: params.search,
+          }}
+          entityLookup={entityLookup}
+        />
       }
       footer={
         <Link href="/data">

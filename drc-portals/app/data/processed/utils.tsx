@@ -191,7 +191,7 @@ export function linkify(value: string) {
   else return <a className="text-blue-600 cursor:pointer underline" href={value} target="_blank">{value}</a>
 }
 
-export function parse_url(location: { pathname?: string, search?: string } = typeof window === 'undefined' ? {} : window.location): Record<string, string | null> {
+export function parse_url(location: { pathname?: string, search?: URLSearchParams | string } = typeof window === 'undefined' ? {} : window.location): Record<string, string | null> {
   const m = /^\/data\/processed(\/search\/(?<search>[^\/]+?)(\/(?<search_type>[^\/]+?))?|\/entity\/(?<type>[^\/]+?)(\/search\/(?<type_search>[^\/]+?)|\/(?<slug>[^\/]+?)(\/search\/(?<entity_search>[^\/]+?))?)?)$/.exec(location.pathname ?? '')
   return Object.fromEntries([
     ...(new URLSearchParams(location.search)).entries(),

@@ -21,7 +21,7 @@ export function CollapseFilters(props: React.PropsWithChildren<{}>) {
   </>
 }
 
-export default function SearchFilter(props: React.PropsWithChildren<{ id: string, label: string, color?: string, count: number }>) {
+export default function SearchFilter(props: React.PropsWithChildren<{ id: string, label: string, color?: string, filter_count?: number, count?: number }>) {
   const router = useRouter()
   const rawSearchParams = useSearchParams()
   const { searchParams, currentFilterSet } = React.useMemo(() => {
@@ -40,12 +40,14 @@ export default function SearchFilter(props: React.PropsWithChildren<{ id: string
   }, [props.id, rawSearchParams])
   return (
     <FormControlLabel
+      sx={{ display: props.filter_count === 0 ? 'none' : 'flex' }}
       onClick={evt => {router.push(`?${searchParams.toString()}`, { scroll: false })}}
       control={<Checkbox/>}
       label={
-        <Typography variant='body2'
+        <Typography
+          variant='body2'
           color={props.color ?? 'secondary'}
-        >{props.label} ({props.count.toLocaleString()})</Typography>
+        >{props.label} ({[props.filter_count, props.count].filter(c => !!c).map(c => c.toLocaleString()).join(' / ')})</Typography>
       }
       checked={currentFilterSet}
     />
