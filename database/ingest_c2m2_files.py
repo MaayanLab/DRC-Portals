@@ -6,6 +6,7 @@ from tqdm.auto import tqdm
 from datapackage import Package
 
 from ingest_common import ingest_path, current_dcc_assets, pdp_helper, label_ident
+from ingest_entity_common import gene_labels, gene_descriptions, gene_entrez
 
 def predicate_from_fields(fields):
   if len(fields) == 1: return fields[0]
@@ -82,7 +83,15 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
             row['label'] = c2m2['short_label']
             cv_lookup[row['id']] = helper.upsert_entity(rc_name, row, slug=c2m2['short_label'])
           elif rc_name == 'gene':
+            gene = row['id']
             row['label'] = row.pop('name')
+            if gene in gene_labels:
+              row.update(
+                label=gene_labels[gene],
+                description=gene_descriptions[gene],
+                ensembl=gene,
+                entrez=gene_entrez[gene],
+              )
             cv_lookup[row['id']] = helper.upsert_entity(rc_name, row, slug=row['id'])
           elif rc_name == 'ptm':
             row['label'] = row['id']
