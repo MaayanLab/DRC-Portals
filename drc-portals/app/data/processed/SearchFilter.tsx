@@ -47,7 +47,7 @@ export default function SearchFilter(props: React.PropsWithChildren<{ id: string
         <Typography
           variant='body2'
           color={props.color ?? 'secondary'}
-        >{props.label} ({[props.filter_count, props.count].filter(c => !!c).map(c => c.toLocaleString()).join(' / ')})</Typography>
+        >{props.label} ({[props.filter_count, props.count].filter((c): c is number => !!c).map(c => c.toLocaleString()).join(' / ')})</Typography>
       }
       checked={currentFilterSet}
     />
