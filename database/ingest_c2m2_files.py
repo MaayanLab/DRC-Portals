@@ -104,6 +104,7 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
     # the reference tables are pseudo-cv term tables but enums were used instead, we'll just treat them the same as cv tables
     for rc_name, rc in c2m2_reference_tables.items():
       for _, row in rc.iterrows():
+        row['label'] = row.pop('name')
         cv_lookup[row['id']] = helper.upsert_entity(rc_name, row, pk=row['id'])
     #
     for rc_name in pkg.resource_names:
@@ -175,9 +176,10 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
         #
         # add cv_reference_table relationships
         for k, v in row.items():
+          if v is None: continue
           if (rc_name, k) in c2m2_reference_tables_mappings:
             target_id = cv_lookup[v]
-            helper.upsert_m2o(source_id, predicate, target_id)
+            helper.upsert_m2o(source_id, k, target_id)
         #
         # add foreign key relationships
         for fk in fks:
