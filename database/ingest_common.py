@@ -145,7 +145,7 @@ def es_bulk_insert(Q: queue.Queue):
   with tqdm(desc='Ingesting...') as pbar:
     while True:
       try:
-        for (success, info), item in zip(elasticsearch.helpers.parallel_bulk(es_connect(), consume, max_chunk_bytes=10*1024*1024, raise_on_exception=False, raise_on_error=False, thread_count=4), items):
+        for (success, info), item in zip(elasticsearch.helpers.parallel_bulk(es_connect(), consume, max_chunk_bytes=10*1024*1024, raise_on_exception=False, raise_on_error=False, thread_count=6), items):
           Q.task_done()
           if success:
             pbar.update(1)
@@ -166,7 +166,7 @@ def es_bulk_insert(Q: queue.Queue):
 
 @contextlib.contextmanager
 def es_helper():
-  Q = queue.Queue(1_000)
+  Q = queue.Queue(1_000_000)
   bulk_insert_thread = threading.Thread(target=es_bulk_insert, args=(Q,))
   bulk_insert_thread.start()
   try:
