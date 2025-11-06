@@ -1,1 +1,0 @@
-export { default, generateMetadata } from '@/app/data/processed2/EntitySearchLayout'

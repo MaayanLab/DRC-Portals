@@ -11,8 +11,7 @@ import {
 	Box
 } from '@mui/material';
 
-import { DataComponent } from './DataComponent';
-import SearchParamSearchField from '@/app/data/processed2/SearchParamSearchField'
+import SearchParamSearchField from '@/app/data/processed/SearchParamSearchField'
 import { Logo } from '../styled/Logo'
 import { DRCDrawer } from './drawer';
 

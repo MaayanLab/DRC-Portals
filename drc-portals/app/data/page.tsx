@@ -18,12 +18,12 @@ import Icon from "@mdi/react"
 import { mdiArrowRight, mdiToolbox, mdiLaptop, mdiChatOutline } from '@mdi/js';
 
 import CFPrograms from "@/components/misc/CFPrograms"
-import { SearchForm, SearchField } from "@/app/data/processed2/SearchField";
+import { SearchForm, SearchField } from "@/app/data/processed/SearchField";
 import { BlurBig } from "@/components/styled/Blur"
-import Summary from "@/app/data/processed2/SummaryComponent"
+import Summary from "@/app/data/processed/SummaryComponent"
 import { ResponsivePaper } from "../info/styled"
 import Tooltip from '@mui/material/Tooltip';
-import { create_url } from "@/app/data/processed2/utils";
+import { create_url } from "@/app/data/processed/utils";
 
 
 

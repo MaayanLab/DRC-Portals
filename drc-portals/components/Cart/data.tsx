@@ -17,7 +17,7 @@ export default function CartFab() {
       bottom: 105,
       right: 50,
     }}>
-      <Link href="/data/processed2/cart">
+      <Link href="/data/processed/cart">
         <Badge badgeContent={cart.length} color="error" overlap='circular'>
           <Fab sx={{ zIndex: 0 }} aria-label={'cart'} color={'primary'}>
             <Icon style={{ color: "#336699" }} path={mdiCart} size={1} />
