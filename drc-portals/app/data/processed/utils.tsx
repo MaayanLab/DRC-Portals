@@ -96,6 +96,12 @@ export function categoryColor(type: string) {
   return palette[pearson_hash(type)]
 }
 
+export function facetLabel(facet: string) {
+  if (facet.startsWith('target_')) facet = facet.substring('target_'.length)
+  if (facet.startsWith('r_')) facet = facet.substring('r_'.length)
+  return titleCapitalize(facet.replaceAll('_',' '))
+}
+
 export function predicateLabel(type: string) {
   if (type === 'inv_gene_set') type = 'has gene'
   else if (type === 'gene_set') type = 'in gene set'
@@ -135,7 +141,7 @@ export function itemIcon(item: EntityType, lookup?: Record<string, EntityType>) 
   }
 }
 export function itemLabel(item: EntityType) {
-  return item.a_label
+  return item.a_label.replaceAll('_', ' ')
 }
 
 export function humanBytesSize(size: number) {

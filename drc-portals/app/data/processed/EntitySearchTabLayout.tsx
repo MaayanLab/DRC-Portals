@@ -1,12 +1,12 @@
 import React from "react";
 import { redirect } from "next/navigation";
-import { capitalize, categoryLabel, EntityType, itemLabel, TermAggType } from "./utils";
+import { capitalize, categoryLabel, EntityType, facetLabel, itemLabel, TermAggType } from "./utils";
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import Link from "@/utils/link";
 import { Button } from "@mui/material";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
-import SearchFilter from '@/app/data/processed/SearchFilter';
+import SearchFilter, { CollapseFilters } from '@/app/data/processed/SearchFilter';
 import elasticsearch from "@/lib/elasticsearch";
 import { esDCCs } from '@/app/data/processed/dccs';
 import { FancyTab } from "@/components/misc/FancyTabs";
@@ -38,21 +38,20 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
   const filter: estypes.QueryDslQueryContainer[] = []
   if (params.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
   if (params.type) filter.push({ query_string: { query: `+type:"${params.type}"` } })
-  const searchRes = await elasticsearch.search<EntityType, TermAggType<'dccs'>>({
+  const facets = [
+    'r_dcc',
+    'r_source', 'r_relation', 'r_target',
+    'r_disease', 'r_species', 'r_anatomy', 'r_gene', 'r_protein', 'r_compound', 'r_data_type', 'r_assay_type',
+    'r_file_format', 'r_ptm_type', 'r_ptm_subtype', 'r_ptm_site_type',
+  ]
+  const searchRes = await elasticsearch.search<EntityType, TermAggType<typeof facets[0]>>({
     index: 'entity',
     query: {
       bool: {
         filter,
       },
     },
-    aggs: {
-      dccs: {
-        terms: {
-          field: 'r_dcc',
-          size: 1000,
-        },
-      },
-    },
+    aggs: Object.fromEntries(facets.map(facet => [facet, { terms: { field: facet as string, size: 5 } }])),
     size: 0,
     rest_total_hits_as_int: true,
   })
@@ -74,6 +73,12 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
     query: {
       ids: {
         values: Array.from(new Set([
+          ...facets.flatMap(facet => {
+            if (facet === 'r_dcc') return []
+            const agg = searchRes.aggregations
+            if (!agg) return []
+            return agg[facet].buckets.map(filter => filter.key)
+          }),
         ]))
       }
     },
@@ -88,14 +93,21 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
     <ListingPageLayout
       count={Number(searchRes.hits.total)}
       filters={
-        <>
-          {searchRes.aggregations?.dccs && <>
-            <div className="font-bold">DCC</div>
-            {searchRes.aggregations.dccs.buckets.map((filter) =>
-              <SearchFilter key={filter.key} id={`r_dcc:"${filter.key}"`} label={filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : filter.key} count={Number(filter.doc_count)} />
-            )}
-          </>}
-        </>
+        <CollapseFilters>
+          {facets.map(facet => {
+            const agg = searchRes.aggregations
+            if (!agg) return null
+            if (agg[facet].buckets.length === 0 || agg[facet].buckets.length === 1) return null
+            return <div key={facet} className="mb-2">
+              <div className="font-bold">{facetLabel(facet)}</div>
+              <div className="flex flex-col">
+                {agg[facet].buckets.map(filter => 
+                  <SearchFilter key={`${filter.key}`} id={`${facet}:"${filter.key}"`} label={filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : facet === 'type' ? categoryLabel(filter.key) : filter.key} count={Number(filter.doc_count)} />
+                )}
+              </div>
+            </div>
+          })}
+        </CollapseFilters>
       }
       footer={
         <Link href="/data">

@@ -1,6 +1,6 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, create_url, EntityType, humanBytesSize, itemDescription, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType, titleCapitalize } from "@/app/data/processed/utils"
+import { categoryLabel, create_url, EntityType, facetLabel, humanBytesSize, itemDescription, itemLabel, linkify, M2MTargetType, predicateLabel, TermAggType, titleCapitalize } from "@/app/data/processed/utils"
 import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
 import { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 import Link from "@/utils/link";
@@ -9,7 +9,7 @@ import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import { notFound } from 'next/navigation';
 import LandingPageLayout from '@/app/data/processed/LandingPageLayout';
-import SearchFilter from '@/app/data/processed/SearchFilter';
+import SearchFilter, { CollapseFilters } from '@/app/data/processed/SearchFilter';
 import EntityPageAnalyze from '@/app/data/processed/EntityPageAnalyze';
 import { esDCCs, getEsDCC } from '@/app/data/processed/dccs';
 import { getEntity } from '@/app/data/processed/getEntity';
@@ -53,33 +53,21 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
   if (!item) notFound()
   const filter: estypes.QueryDslQueryContainer[] = []
   filter.push({ query_string: { query: `+source_id:"${item.id}"` } })
-  const searchRes = await elasticsearch.search<M2MTargetType, TermAggType<'predicates' | 'types' | 'dccs'>>({
+  const facets = [
+    'target_type', 'target_predicate',
+    'target_r_dcc', 'target_r_project',
+    'target_r_source', 'target_r_relation', 'target_r_target',
+    'target_r_disease', 'target_r_species', 'target_r_anatomy', 'target_r_gene', 'target_r_protein', 'target_r_compound', 'target_r_data_type', 'target_r_assay_type',
+    'target_r_file_format', 'target_r_ptm_type', 'target_r_ptm_subtype', 'target_r_ptm_site_type',
+  ]
+  const searchRes = await elasticsearch.search<M2MTargetType, TermAggType<typeof facets[0]>>({
     index: 'm2m_target_expanded',
     query: {
       bool: {
         filter,
       },
     },
-    aggs: {
-      predicates: {
-        terms: {
-          field: 'predicate',
-          size: 10,
-        },
-      },
-      types: {
-        terms: {
-          field: 'target_type',
-          size: 1000,
-        },
-      },
-      dccs: {
-        terms: {
-          field: 'target_r_dcc',
-          size: 1000,
-        },
-      },
-    },
+    aggs: Object.fromEntries(facets.map(facet => [facet, { terms: { field: facet as string, size: 5 } }])),
     size: 0,
     rest_total_hits_as_int: true,
   })
@@ -89,6 +77,12 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
       ids: {
         values: Array.from(new Set([
           ...Object.keys(item).filter(k => k.startsWith('r_') && k !== 'r_dcc').map(k => item[k]),
+          ...facets.flatMap(facet => {
+            if (facet === 'r_dcc') return []
+            const agg = searchRes.aggregations
+            if (!agg) return []
+            return agg[facet].buckets.map(filter => filter.key)
+          }),
         ]))
       }
     },
@@ -145,27 +139,21 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
         count={Number(searchRes.hits.total)}
         filters={
           <>
-            {searchRes.aggregations?.predicates && <>
-              <div className="font-bold">Predicate</div>
-              {searchRes.aggregations.predicates.buckets.map((filter) =>
-                <SearchFilter key={filter.key} id={`predicate:"${filter.key}"`} label={predicateLabel(filter.key)} count={Number(filter.doc_count)} />
-              )}
-              <br />
-            </>}
-            {searchRes.aggregations?.types && <>
-              <div className="font-bold">Type</div>
-              {searchRes.aggregations.types.buckets.map((filter) =>
-                <SearchFilter key={filter.key} id={`target_type:"${filter.key}"`} label={categoryLabel(filter.key)} count={Number(filter.doc_count)} />
-              )}
-              <br />
-            </>}
-            {searchRes.aggregations?.dccs && <>
-              <div className="font-bold">DCC</div>
-              {searchRes.aggregations.dccs.buckets.map((filter) =>
-                <SearchFilter key={filter.key} id={`target_r_dcc:"${filter.key}"`} label={filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : filter.key} count={Number(filter.doc_count)} />
-              )}
-              <br />
-            </>}
+            <CollapseFilters>
+              {facets.map(facet => {
+                const agg = searchRes.aggregations
+                if (!agg) return null
+              if (agg[facet].buckets.length === 0 || agg[facet].buckets.length === 1) return null
+                return <div key={facet} className="mb-2">
+                  <div className="font-bold">{facetLabel(facet)}</div>
+                  <div className="flex flex-col">
+                    {agg[facet].buckets.map(filter => 
+                      <SearchFilter key={`${filter.key}`} id={`${facet}:"${filter.key}"`} label={filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : facet === 'target_type' ? categoryLabel(filter.key) : filter.key} count={Number(filter.doc_count)} />
+                    )}
+                  </div>
+                </div>
+              })}
+            </CollapseFilters>
           </>
         }
         footer={
