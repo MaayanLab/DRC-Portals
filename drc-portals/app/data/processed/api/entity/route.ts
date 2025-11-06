@@ -1,6 +1,6 @@
 import { type NextRequest } from 'next/server'
 import elasticsearch from "@/lib/elasticsearch"
-import { EntityType, M2MSourceType, M2MTargetType } from '@/app/data/processed/utils'
+import { EntityType, M2MTargetType } from '@/app/data/processed/utils'
 import { estypes } from '@elastic/elasticsearch'
 
 const limit = 1000

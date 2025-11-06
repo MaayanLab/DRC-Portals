@@ -23,16 +23,6 @@ export type M2MTargetType = {
   target_a_description: string,
 } & Record<string, string>
 
-export type M2MSourceType = {
-  target_id: string,
-  predicate: string,
-  source_id: string,
-  source_slug: string,
-  source_pagerank: string,
-  source_a_label: string,
-  source_a_description: string,
-} & Record<string, string>
-
 export type TermAggType<K extends string> = Record<K, {
   buckets: { key: string, doc_count: number }[]
 }>
