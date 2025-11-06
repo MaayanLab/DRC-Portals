@@ -4,6 +4,7 @@ import functools
 import psycopg2
 import pathlib
 import csv
+import time
 import contextlib
 import tempfile
 import urllib.request
@@ -139,18 +140,29 @@ def label_ident(k):
 
 def es_bulk_insert(Q: queue.Queue):
   consume, items = itertools.tee(iter(Q.get, None))
-  while True:
-    try:
-      for (success, info), item in zip(elasticsearch.helpers.parallel_bulk(es_connect(), tqdm(consume, desc='Ingesting...'), max_chunk_bytes=10*1024*1024, raise_on_exception=False, raise_on_error=False), items):
-        Q.task_done()
-        if not success: Q.put(item)
-    except KeyboardInterrupt:
-      raise
-    except Exception as e:
-      traceback.print_exc()
-      continue
-    else:
-      break
+  retries = 0
+  reconnects = 0
+  with tqdm(desc='Ingesting...') as pbar:
+    while True:
+      try:
+        for (success, info), item in zip(elasticsearch.helpers.parallel_bulk(es_connect(), consume, max_chunk_bytes=10*1024*1024, raise_on_exception=False, raise_on_error=False, thread_count=4), items):
+          Q.task_done()
+          if success:
+            pbar.update(1)
+          else:
+            retries += 1
+            Q.put(item)
+            pbar.set_description(f"Ingesting {retries} retries {reconnects} reconnects...")
+      except KeyboardInterrupt:
+        raise
+      except Exception:
+        traceback.print_exc()
+        reconnects += 1
+        pbar.set_description(f"Ingesting {retries} retries {reconnects} reconnects...")
+        time.sleep(1)
+        continue
+      else:
+        break
 
 @contextlib.contextmanager
 def es_helper():
