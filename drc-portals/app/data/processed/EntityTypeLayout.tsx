@@ -49,7 +49,7 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
         filter,
       },
     },
-    aggs: Object.fromEntries(facets.map(facet => [facet, { terms: { field: facet as string, size: 5 } }])),
+    aggs: Object.fromEntries(facets.map(facet => [facet, { terms: { field: facet as string, size: 5, min_doc_count: 2 } }])),
     size: 0,
     rest_total_hits_as_int: true,
   })
