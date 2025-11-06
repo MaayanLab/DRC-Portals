@@ -7,7 +7,7 @@ import { create_url } from '@/app/data/processed2/utils';
 import { ensure_array } from '@/utils/array';
 import { FetchDRSCartButton, DRSCartButton } from '@/app/data/processed2/cart/DRSCartButton';
 import { getEntity } from '@/app/data/processed2/getEntity';
-import { dccIcons } from '@/app/data/processed2/icons';
+import { esDCCs } from '@/app/data/processed2/dccs';
 import { estypes } from '@elastic/elasticsearch';
 import FormPagination from '@/app/data/processed2/FormPagination';
 
@@ -60,9 +60,9 @@ export default async function Page(props: { params: Promise<{ type: string, slug
           ...searchRes.hits.hits.flatMap((hit) => {
             const hit_source = hit._source
             if (!hit_source) return []
-            return Object.keys(hit_source).filter(k => k.startsWith('target_r_')).map(k => hit_source[k])
+            return Object.keys(hit_source).filter(k => k.startsWith('target_r_') && k !== 'target_r_dcc').map(k => hit_source[k])
           }),
-          ...Object.keys(item).filter(k => k.startsWith('r_')).map(k => item[k]),
+          ...Object.keys(item).filter(k => k.startsWith('r_') && k !== 'r_dcc').map(k => item[k]),
         ]))
       }
     },
@@ -70,6 +70,7 @@ export default async function Page(props: { params: Promise<{ type: string, slug
   })
   const entityLookup: Record<string, EntityType> = Object.fromEntries([
     [item.id, item],
+    ...Object.entries(await esDCCs),
     ...searchRes.hits.hits.flatMap((hit) => {
       const hit_source = hit._source
       if (!hit_source) return []
@@ -77,11 +78,6 @@ export default async function Page(props: { params: Promise<{ type: string, slug
     }),
     ...entityLookupRes.hits.hits.filter((hit): hit is typeof hit & {_source: EntityType} => !!hit._source).map((hit) => [hit._id, hit._source]),
   ])
-  const dccIconsResolved = await dccIcons
-  Object.values<EntityType>(entityLookup).forEach((e) => {
-    if (e.type === 'dcc')
-      e.a_icon = dccIconsResolved[e.slug]
-  })
   return (
     <SearchablePagedTable
       tableHeader={

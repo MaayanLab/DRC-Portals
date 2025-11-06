@@ -11,7 +11,7 @@ import { notFound } from 'next/navigation';
 import LandingPageLayout from '@/app/data/processed/LandingPageLayout';
 import SearchFilter from '@/app/data/processed2/SearchFilter';
 import EntityPageAnalyze from '@/app/data/processed2/EntityPageAnalyze';
-import { dccIcons } from '@/app/data/processed2/icons';
+import { esDCCs } from '@/app/data/processed2/dccs';
 import { getEntity } from '@/app/data/processed2/getEntity';
 import { estypes } from '@elastic/elasticsearch';
 import { DRSCartButton } from './cart/DRSCartButton';
@@ -59,9 +59,7 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
     query: {
       ids: {
         values: Array.from(new Set([
-          // all dccs in the dcc filters
-          ...searchRes.aggregations ? searchRes.aggregations.dccs.buckets.map((filter) => filter.key) : [],
-          ...Object.keys(item).filter(k => k.startsWith('r_')).map(k => item[k]),
+          ...Object.keys(item).filter(k => k.startsWith('r_') && k !== 'r_dcc').map(k => item[k]),
         ]))
       }
     },
@@ -69,13 +67,9 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
   })
   const entityLookup: Record<string, EntityType> = Object.fromEntries([
     [item.id, item],
+    ...Object.entries(await esDCCs),
     ...entityLookupRes.hits.hits.filter((hit): hit is typeof hit & {_source: EntityType} => !!hit._source).map((hit) => [hit._id, hit._source]),
   ])
-  const dccIconsResolved = await dccIcons
-  Object.values<EntityType>(entityLookup).forEach((e) => {
-    if (e.type === 'dcc')
-      e.a_icon = dccIconsResolved[e.slug]
-  })
   return (
     <LandingPageLayout
       title={itemLabel(item)}

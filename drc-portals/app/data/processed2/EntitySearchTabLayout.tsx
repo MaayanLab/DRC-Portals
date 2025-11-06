@@ -8,7 +8,7 @@ import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import SearchFilter from '@/app/data/processed2/SearchFilter';
 import elasticsearch from "@/lib/elasticsearch";
-import { dccIcons } from "./icons";
+import { esDCCs } from '@/app/data/processed2/dccs';
 import { FancyTab } from "@/components/misc/FancyTabs";
 import { estypes } from "@elastic/elasticsearch";
 
@@ -55,22 +55,16 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
     query: {
       ids: {
         values: Array.from(new Set([
-          // all dccs in the dcc filters
-          ...searchRes.aggregations ? searchRes.aggregations.dccs.buckets.map(filter => filter.key) : [],
         ]))
       }
     },
     size: 100,
   })
   const entityLookup = Object.fromEntries([
+    ...Object.entries(await esDCCs),
     ...searchRes.hits.hits.map((hit) => [hit._id, hit._source]),
     ...entityLookupRes.hits.hits.map((hit) => [hit._id, hit._source]),
   ])
-  const dccIconsResolved = await dccIcons
-  Object.values<EntityType>(entityLookup).forEach((e) => {
-    if (e.type === 'dcc')
-      e.a_icon = dccIconsResolved[e.slug]
-  })
   return (
     <ListingPageLayout
       count={Number(searchRes.hits.total)}
