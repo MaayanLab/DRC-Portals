@@ -284,6 +284,12 @@ date_div >> ${logf};
 psql "$(python3 dburl.py)" -a -f c2m2_other_indexes.sql -o ${logf}
 date_div >> ${logf};
 
+#---------- To find the words that appear in lot of rows/records
+logf=${logdir}/log_run_stat_on_ffl_cmp.log
+date_div >> ${logf};
+psql "$(python3 dburl.py)" -a -f run_stat_on_ffl_cmp.sql -o ${logf}
+date_div >> ${logf};
+
 #-------------------------------------------------------------------------------------------------------
 # *ONLY* to copy the updated tables (e.g. after new ingest) to another server
 # As of now, user1 and user2 on the two hosts, respectively are hard-coded as drcadmin and drc or drcadmin and drcadmin, so only intended for use by Mano. Others can run after altering these values suitably.
