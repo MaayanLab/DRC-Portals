@@ -1,7 +1,6 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, create_url, EntityType, humanBytesSize, itemDescription, itemLabel, linkify, M2MTargetType, TermAggType, titleCapitalize } from "@/app/data/processed/utils"
-import ListingPageLayout from "@/app/data/processed/ListingPageLayout";
+import { categoryLabel, create_url, EntityType, humanBytesSize, itemDescription, itemLabel, linkify, titleCapitalize } from "@/app/data/processed/utils"
 import { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 import Link from "@/utils/link";
 import { Button } from "@mui/material";
@@ -9,13 +8,12 @@ import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import { notFound } from 'next/navigation';
 import LandingPageLayout from '@/app/data/processed/LandingPageLayout';
+import ListingPageLayoutClientSideFacets from '@/app/data/processed/ListingPageLayoutClientSideFacets';
 import EntityPageAnalyze from '@/app/data/processed/EntityPageAnalyze';
 import { esDCCs, getEsDCC } from '@/app/data/processed/dccs';
 import { getEntity } from '@/app/data/processed/getEntity';
-import { estypes } from '@elastic/elasticsearch';
 import { DRSCartButton } from './cart/DRSCartButton';
 import { Metadata, ResolvingMetadata } from 'next';
-import ClientSideFacets from '@/app/data/processed/ClientSideFacets';
 
 type PageProps = { params: Promise<{ type: string, slug: string } & Record<string, string>> }
 
@@ -51,38 +49,12 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
   for (const k in props.params) params[k] = decodeURIComponent(params[k])
   const item = await getEntity(params)
   if (!item) notFound()
-  const filter: estypes.QueryDslQueryContainer[] = []
-  filter.push({ query_string: { query: `+source_id:"${item.id}"` } })
-  const facets = [
-    'target_type', 'target_predicate',
-    'target_r_dcc', 'target_r_project',
-    'target_r_source', 'target_r_relation', 'target_r_target',
-    'target_r_disease', 'target_r_species', 'target_r_anatomy', 'target_r_gene', 'target_r_protein', 'target_r_compound', 'target_r_data_type', 'target_r_assay_type',
-    'target_r_file_format', 'target_r_ptm_type', 'target_r_ptm_subtype', 'target_r_ptm_site_type',
-  ]
-  const searchRes = await elasticsearch.search<M2MTargetType, TermAggType<typeof facets[0]>>({
-    index: 'm2m_target_expanded',
-    query: {
-      bool: {
-        filter,
-      },
-    },
-    aggs: Object.fromEntries(facets.map(facet => [facet, { terms: { field: facet as string, size: 5, min_doc_count: 2 } }])),
-    size: 0,
-    rest_total_hits_as_int: true,
-  })
   const entityLookupRes = await elasticsearch.search<EntityType>({
     index: 'entity',
     query: {
       ids: {
         values: Array.from(new Set([
           ...Object.keys(item).filter(k => k.startsWith('r_') && k !== 'r_dcc').map(k => item[k]),
-          ...facets.flatMap(facet => {
-            if (facet === 'r_dcc') return []
-            const agg = searchRes.aggregations
-            if (!agg) return []
-            return agg[facet].buckets.map(filter => filter.key)
-          }),
         ]))
       }
     },
@@ -135,17 +107,9 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
       ]}
     >
       <EntityPageAnalyze item={item} />
-      {searchRes.hits.total ? <ListingPageLayout
-        count={Number(searchRes.hits.total)}
-        filters={
-          <ClientSideFacets
-            aggregations={searchRes.aggregations ?? {}}
-            params={{
-              source_id: item.id,
-            }}
-            entityLookup={entityLookup}
-          />
-        }
+      <ListingPageLayoutClientSideFacets
+        entityLookup={entityLookup}
+        source_id={item.id}
         footer={
           <Link href="/data">
             <Button
@@ -159,7 +123,7 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
         }
       >
         {props.children}
-      </ListingPageLayout> : props.children}
+      </ListingPageLayoutClientSideFacets>
     </LandingPageLayout>
   )
 }
