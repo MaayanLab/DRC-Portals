@@ -2,11 +2,12 @@
 
 import React from "react"
 import SearchFilter, { CollapseFilters } from "@/app/data/processed/SearchFilter"
-import { categoryLabel, EntityType, facetLabel, itemLabel, parse_url } from "@/app/data/processed/utils"
+import { categoryLabel, create_url, EntityType, facetLabel, itemLabel, parse_url } from "@/app/data/processed/utils"
 import { useSearchParams } from "next/navigation"
 import trpc from "@/lib/trpc/client"
-import { Paper, Grid, Typography } from "@mui/material"
+import { Paper, Grid, Typography, Button } from "@mui/material"
 import usePathname from "@/utils/pathname"
+import { useRouter } from "next/navigation"
 
 export default function ListingPageLayoutClientSideFacets(props: React.PropsWithChildren<{
   source_id?: string,
@@ -15,6 +16,7 @@ export default function ListingPageLayoutClientSideFacets(props: React.PropsWith
   footer?: React.ReactNode,
   entityLookup?: Record<string, EntityType>,
 }>) {
+  const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const params = React.useMemo(() => parse_url({ pathname, search: searchParams }), [pathname, searchParams])
@@ -38,6 +40,13 @@ export default function ListingPageLayoutClientSideFacets(props: React.PropsWith
               <Typography variant="h5">{data?.total?.toLocaleString()}</Typography>
             </div>
             <div className="flex flex-col text-lg">
+              {Object.keys(data?.aggregations ?? {}).length > 0 && <Button
+                sx={{textTransform: "uppercase"}}
+                color="primary"
+                variant="contained"
+                disabled={!searchParams.has('facet')}
+                onClick={evt => {router.push(create_url({...params, facet: null}), { scroll: false })}}
+              >Reset filters</Button>}
               <CollapseFilters>
                 {Object.keys(data?.aggregations ?? {}).map(facet => {
                   if (aggregations[facet].buckets.length === 0) return null
