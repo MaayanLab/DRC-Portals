@@ -1,7 +1,7 @@
 "use client";
 
-import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
-import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
+import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
+import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 import {
   ClickAwayListener,
   IconButton,
@@ -551,7 +551,10 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
         onClose={handleContextMenuClose}
       ></ChartCxtMenu>
       {toolbarPosition === undefined ? null : (
-        <WidgetContainer key="cy-chart-toolbar" sx={{ ...toolbarPosition }}>
+        <WidgetContainer key="cy-chart-toolbar" sx={{
+          ...toolbarPosition,
+          flexDirection: "column",
+        }}>
           <Tooltip
             open={showToolbarHiddenTooltip}
             title={toolbarHidden ? "Show Toolbar" : "Hide Toolbar"}
@@ -560,12 +563,13 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
             onMouseLeave={() => setShowToolbarHiddenTooltip(false)}
             TransitionProps={{ exit: false }}
             arrow
+            placement="left"
           >
-            <IconButton onClick={handleHideToolbarBtnClicked}>
+            <IconButton sx={{ height: "40px", width: "40px" }} onClick={handleHideToolbarBtnClicked}>
               {toolbarHidden ? (
-                <KeyboardDoubleArrowLeftIcon />
+                <KeyboardDoubleArrowDownIcon />
               ) : (
-                <KeyboardDoubleArrowRightIcon />
+                <KeyboardDoubleArrowUpIcon />
               )}
             </IconButton>
           </Tooltip>

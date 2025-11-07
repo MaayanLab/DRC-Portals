@@ -304,7 +304,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
                 ? <IconButton aria-label="start-over" disabled onClick={handleReset}>
                   <RestartAltIcon />
                 </IconButton>
-                : <Tooltip title="Start Over" arrow>
+                : <Tooltip title="Start Over" arrow placement="left">
                   <IconButton aria-label="start-over" onClick={handleReset}>
                     <RestartAltIcon />
                   </IconButton>
@@ -322,7 +322,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
                 ? <IconButton aria-label="stop-loading" disabled onClick={handleStopLoading}>
                   <StopIcon />
                 </IconButton>
-                : <Tooltip title="Stop Loading" arrow>
+                : <Tooltip title="Stop Loading" arrow placement="left">
                   <IconButton aria-label="stop-loading" onClick={handleStopLoading}>
                     <StopIcon />
                   </IconButton>
@@ -335,7 +335,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       () => (
         <Divider
           key="pathway-search-chart-toolbar-divider-0"
-          orientation="vertical"
+          orientation="horizontal"
           variant="middle"
           flexItem
         />
@@ -343,7 +343,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       () => {
         return (
           <Fragment key="pathway-search-chart-toolbar-cypher-query">
-            <Tooltip title="Copy Cypher Query" arrow>
+            <Tooltip title="Copy Cypher Query" arrow placement="left">
               <IconButton aria-label="cypher-query" onClick={onCopyCypher}>
                 <ContentCopyIcon />
               </IconButton>
@@ -354,7 +354,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       () => {
         return (
           <Fragment key="pathway-search-chart-toolbar-download-pathway">
-            <Tooltip title="Download Pathway" arrow>
+            <Tooltip title="Download Pathway" arrow placement="left">
               <IconButton aria-label="download-pathway" onClick={onDownload}>
                 <FileDownloadIcon />
               </IconButton>
@@ -365,7 +365,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       () => {
         return (
           <Fragment key="pathway-search-chart-toolbar-upload-pathway">
-            <Tooltip title="Upload Pathway" arrow>
+            <Tooltip title="Upload Pathway" arrow placement="left">
               <IconButton aria-label="upload-pathway" component="label">
                 <FileUploadIcon />
                 <VisuallyHiddenInput
@@ -387,7 +387,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       () => (
         <Divider
           key="pathway-search-chart-toolbar-divider-1"
-          orientation="vertical"
+          orientation="horizontal"
           variant="middle"
           flexItem
         />
@@ -395,7 +395,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       () => {
         return (
           <Fragment key="pathway-search-chart-toolbar-help">
-            <Tooltip title="Help" arrow>
+            <Tooltip title="Help" arrow placement="left">
               <Link href="/data/graph/help" target="_blank">
                 <IconButton aria-label="pathway-help" component="label">
                   <HelpIcon />

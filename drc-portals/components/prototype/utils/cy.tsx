@@ -426,7 +426,7 @@ export const downloadChartData = (
 
   return (
     <Fragment key={key}>
-      <Tooltip title={title} arrow>
+      <Tooltip title={title} arrow placement="left">
         <IconButton aria-label="download-data" onClick={action}>
           <FileDownloadIcon />
         </IconButton>
@@ -449,7 +449,7 @@ export const downloadChartPNG = (
 
   return (
     <Fragment key={key}>
-      <Tooltip title={title} arrow>
+      <Tooltip title={title} arrow placement="left">
         <IconButton aria-label="download-png" onClick={action}>
           <PhotoCameraIcon />
         </IconButton>
