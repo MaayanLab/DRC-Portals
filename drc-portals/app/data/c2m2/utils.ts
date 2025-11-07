@@ -393,6 +393,7 @@ export function generateFilterQueryString(searchParams: any, tablename: string):
 }
 
 //--------------------------------------------------------------------------------
+// This function is essentially not being used by setting a flag to 0 in the function generate_qWITHt_FTQS
 // SQL object built from filters for use in full-text query, only if no type appears 
 // more than once, so that no need to have the OR logic as that doesn't seem to work
 export function generateFullTextQueryStringFROMt_SQLraw(searchParams_t: { type: string; entity_type: string; }[] | undefined): SQL {
@@ -428,6 +429,7 @@ export function generateFullTextQueryStringFROMt_SQLraw(searchParams_t: { type: 
   return FTS_filterConditionStr;
 }
 
+// This function is essentially not being used by setting a flag to 0 in the function generate_qWITHt_FTQS
 // SQL object built from filters for use in full-text query, only if no type appears 
 // more than once, so that no need to have the OR logic as that doesn't seem to work
 export function generateFullTextQueryStringFROMt(searchParams_t: { type: string; entity_type: string | null; }[] | undefined): string {
@@ -464,6 +466,7 @@ export function generateFullTextQueryStringFROMt(searchParams_t: { type: string;
 }
 
 export function generate_qWITHt_FTQS(q: string, t: { type: string; entity_type: string | null; }[] | undefined): string {
+  // We don't need to use the SRQraw here
   const use_t_in_q: number = 0;
   const ftqsFROMt = (use_t_in_q == 1) ? generateFullTextQueryStringFROMt(t) : '';
   const qWITHt_FTQS = !(ftqsFROMt === '') ? `${q} AND ${ftqsFROMt}` : q;
