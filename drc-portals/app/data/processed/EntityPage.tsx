@@ -79,7 +79,7 @@ export default async function Page(props: PageProps) {
     size: display_per_page,
     rest_total_hits_as_int: true,
   })
-  if (searchRes.hits.total === 0 && !searchParams?.facet) return null
+  if (searchRes.hits.total === 0 && !params.search && !searchParams?.facet) return null
   const entityLookupRes = await elasticsearch.search<EntityType>({
     index: 'entity',
     query: {

@@ -210,7 +210,7 @@ export function create_url({ error, search, search_type, type, type_search, slug
     path += `/processed`
     if (type_search) {
       search = type_search
-      search_type = type ?? null
+      if (!search_type) search_type = type ?? null
     }
     if (search) {
       path += `/search/${encodeURIComponent(search)}`
