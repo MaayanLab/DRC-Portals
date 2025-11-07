@@ -108,6 +108,7 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
             ]);
           });
           setOptions(Array.from(cvTermsMap.current.keys()));
+          setLoading(false);
         } catch (error) {
           // Only set an error if it wasn't because we manually aborted the request
           if (!abortController.signal.aborted) {
@@ -116,9 +117,6 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
               `An error occurred fetching options for ${input}. Please try again later.`
             );
           }
-          setOptions([]);
-        } finally {
-          setLoading(false);
         }
       }, 500),
     []
@@ -159,7 +157,6 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
             `An error occurred fetching options for ${input}. Please try again later.`
           );
         }
-        setOptions([]);
       }
     },
     [fetchOptions]

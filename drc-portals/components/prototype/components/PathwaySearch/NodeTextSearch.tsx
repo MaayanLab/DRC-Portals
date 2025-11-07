@@ -120,19 +120,18 @@ export default function NodeTextSearch<K extends keyof StringPropertyConfigs>(
         });
 
         setOptions(data.map((obj) => obj.name));
+        setLoading(false);
       } catch (error) {
         // Only set an error if it wasn't because we manually aborted the request
         if (error !== ABORT_ERROR) {
           // Note that in dev mode, there's a race condition between the two initial requests so we can't actually use the abort controller
           // status. This is why we instead use the value of the error to check if the request was manually aborted.
           console.error(error);
+          setLoading(false);
           setError(
             `An error occurred fetching options for ${label}. Please try again later.`
           );
         }
-        setOptions([]);
-      } finally {
-        setLoading(false);
       }
     },
     [value, fetchOptions]
