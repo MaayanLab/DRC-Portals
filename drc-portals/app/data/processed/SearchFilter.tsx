@@ -5,14 +5,27 @@ import { Button } from "@mui/material";
 import { Checkbox, FormControlLabel, Typography } from '@mui/material'
 import { useRouter, useSearchParams } from 'next/navigation'
 
+export function CollapseFilter(props: React.PropsWithChildren<{}>) {
+  const [collapsed, setCollapsed] = React.useState(true)
+  const children = React.useMemo(() => (Array.isArray(props.children) ? props.children : [props.children]).filter(child => !!child), [props.children])
+  if (children.length <= 5) return children
+  return <>
+    {collapsed ? children.slice(0, 5) : children}
+    <button
+      onClick={evt => {setCollapsed(collapsed => !collapsed)}}
+    >{collapsed ? <>+ {children.length-5} More</> : <>- Less</>}</button>
+  </>
+}
+
 export function CollapseFilters(props: React.PropsWithChildren<{}>) {
   const [collapsed, setCollapsed] = React.useState(true)
   const children = React.useMemo(() => (Array.isArray(props.children) ? props.children : [props.children]).filter(child => !!child), [props.children])
   if (!collapsed) return children
-  if (children.length < 4) return children
+  if (children.length <= 4) return children
   return <>
     {children.slice(0, 4)}
     <Button
+      size='large'
       sx={{textTransform: "uppercase"}}
       color="primary"
       variant="contained"

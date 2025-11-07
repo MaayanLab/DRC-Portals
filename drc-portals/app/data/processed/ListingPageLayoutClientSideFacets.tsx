@@ -1,7 +1,7 @@
 'use client'
 
 import React from "react"
-import SearchFilter, { CollapseFilters } from "@/app/data/processed/SearchFilter"
+import SearchFilter, { CollapseFilter, CollapseFilters } from "@/app/data/processed/SearchFilter"
 import { categoryLabel, create_url, EntityType, facetLabel, itemLabel, parse_url } from "@/app/data/processed/utils"
 import { useSearchParams } from "next/navigation"
 import trpc from "@/lib/trpc/client"
@@ -53,14 +53,16 @@ export default function ListingPageLayoutClientSideFacets(props: React.PropsWith
                   return <div key={facet} className="mb-2">
                     <div className="font-bold">{facetLabel(facet)}</div>
                     <div className="flex flex-col">
-                      {aggregations[facet].buckets.map(filter => 
-                        <SearchFilter
-                          key={`${filter.key}`}
-                          id={`${facet}:"${filter.key}"`}
-                          label={filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : facet === 'type' || facet === 'target_type' ? categoryLabel(filter.key) : filter.key}
-                          count={filter.doc_count}
-                        />
-                      )}
+                      <CollapseFilter>
+                        {aggregations[facet].buckets.map(filter => 
+                          <SearchFilter
+                            key={`${filter.key}`}
+                            id={`${facet}:"${filter.key}"`}
+                            label={filter.key in entityLookup ? itemLabel(entityLookup[filter.key]) : facet === 'type' || facet === 'target_type' ? categoryLabel(filter.key) : filter.key}
+                            count={filter.doc_count}
+                          />
+                        )}
+                      </CollapseFilter>
                     </div>
                   </div>
                 })}

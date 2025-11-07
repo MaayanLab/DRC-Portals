@@ -91,7 +91,7 @@ export default router({
           filter,
         },
       },
-      aggs: Object.fromEntries(facets.map(facet => [facet, { terms: { field: facet as string, size: 5 } }])),
+      aggs: Object.fromEntries(facets.map(facet => [facet, { terms: { field: facet as string, size: 20 } }])),
       size: 0,
       rest_total_hits_as_int: true,
     })
@@ -109,7 +109,7 @@ export default router({
           ]))
         }
       },
-      size: 100,
+      size: 200,
     })
     const entityLookup: Record<string, EntityType> = Object.fromEntries([
       ...entityLookupRes.hits.hits.filter((hit): hit is typeof hit & {_source: EntityType} => !!hit._source).map((hit) => [hit._id, hit._source]),
