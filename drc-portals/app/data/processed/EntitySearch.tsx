@@ -112,8 +112,9 @@ export default async function Page(props: PageProps) {
           <FetchDRSCartButton
             search={params.search}
             facet={[
-              [...ensure_array(params.type), ...ensure_array(params.search_type)].map(type => `type:"${type}"`).join(' OR '),
-              ensure_array(searchParams?.facet).map(f => f).join(' OR '),
+              ...ensure_array(params.type).map(type => type ? `type:"${type}"` : undefined),
+              ...ensure_array(params.search_type).map(type => type ? `type:"${type}"` : undefined),
+              ...ensure_array(searchParams?.facet),
               '_exists_:a_access_url',
             ]}
             count={searchRes.aggregations.files.doc_count}

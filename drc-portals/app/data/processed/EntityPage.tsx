@@ -138,7 +138,7 @@ export default async function Page(props: PageProps) {
             source_id={item.id}
             search={params.search}
             facet={[
-              ensure_array(searchParams?.facet).map(f => f).join(' OR '),
+              ...ensure_array(searchParams?.facet),
               '_exists_:target_a_access_url',
             ]}
             count={searchRes.aggregations.files.doc_count}

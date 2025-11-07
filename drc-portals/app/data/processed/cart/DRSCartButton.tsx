@@ -4,29 +4,27 @@ import Button from '@mui/material/Button';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'; // Ensure you have @mui/icons-material installed
 import { setLocalStorage } from '@/utils/localstorage';
 import { ensure_array, unique } from '@/utils/array';
-import { EntityType } from '@/app/data/processed/utils';
+import trpc from "@/lib/trpc/client"
 
-export function FetchDRSCartButton(props: { source_id?: string, search?: string, facet?: string[] | string, count?: number }) {
+export function FetchDRSCartButton(props: { source_id?: string, search?: string, facet?: (string | undefined)[] | string | undefined, count?: number }) {
+  const search = trpc.search.useMutation()
+  const facet = React.useMemo(() => ensure_array(props.facet).filter((f): f is string => !!f), [props.facet])
   const handleDRSBundle = React.useCallback(async () => {
-    const params = new URLSearchParams()
-    if (props.source_id) params.set('source_id', props.source_id)
-    if (props.search) params.set('search', props.search)
-    ensure_array(props.facet).forEach(facet => { if (facet) { params.append('facet', facet) } })
-    let paramsStr: string | null = params.toString()
-    while (paramsStr) {
-      const req = await fetch(`/data/processed/api/entity?${paramsStr}`)
-      const res: {
-        total: number,
-        items: EntityType[],
-        next: string | null,
-      } = await req.json()
+    let cursor: string | undefined
+    do {
+      const res = await search.mutateAsync({
+        source_id: props.source_id,
+        search: props.search,
+        facet,
+        cursor: cursor,
+      })
       setLocalStorage('drs-cart', cart => unique([
         ...(cart || '').split('\n'),
-        ...res.items.map((item) => item.a_access_url),
+        ...res.items.map((item) => item?.a_access_url ?? ''),
       ].filter(access_url => !!access_url)).join('\n'))
-      paramsStr = res.next
-    }
-  }, [props.source_id, props.search, props.facet]);
+      cursor = res.next
+    } while (cursor !== undefined)
+  }, [props.source_id, props.search, facet])
   return (
     <>
       <Button

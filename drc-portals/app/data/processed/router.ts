@@ -1,11 +1,57 @@
 import { procedure, router } from '@/lib/trpc'
 import elasticsearch from "@/lib/elasticsearch"
-import { EntityType, TermAggType } from '@/app/data/processed/utils'
+import { EntityType, M2MTargetType, TermAggType } from '@/app/data/processed/utils'
 import { estypes } from '@elastic/elasticsearch'
 import { z } from 'zod'
 import { groupby } from '@/utils/array'
 
+const limit = 100
+
 export default router({
+  search: procedure.input(z.object({
+    source_id: z.string().optional(),
+    search: z.string().optional(),
+    facet: z.string().array().optional(),
+    cursor: z.string().optional(),
+  })).mutation(async (props) => {
+    const filter: estypes.QueryDslQueryContainer[] = []
+    if (props.input.source_id) filter.push({ query_string: { query: `+source_id:"${props.input.source_id}"` } })
+    if (props.input.search) filter.push({ simple_query_string: { query: props.input.search, default_operator: 'AND' } })
+    if (props.input.facet?.length) filter.push({
+      query_string: {
+        query: Object.entries(groupby(
+          props.input.facet, f => f.substring(0, f.indexOf(':'))
+        )).map(([_, F]) => `(${F.join(' OR ')})`).join(' AND '),
+      }
+    })
+    const searchRes = await elasticsearch.search<M2MTargetType | EntityType>({
+      index: props.input.source_id ? 'm2m_target_expanded' : 'entity',
+      query: {
+        bool: {
+          filter,
+        },
+      },
+      sort: props.input.source_id ? [
+        {'target_pagerank': {'order': 'desc'}},
+        {'target_id': {'order': 'asc'} },
+      ] : [
+        {'pagerank': {'order': 'desc'}},
+        {'id': {'order': 'asc'} },
+      ],
+      size: limit,
+      search_after: props.input.cursor ? JSON.parse(props.input.cursor) : undefined,
+      rest_total_hits_as_int: true,
+    })
+    const next = searchRes.hits.hits.length === limit ? JSON.stringify(searchRes.hits.hits[searchRes.hits.hits.length-1].sort) : undefined
+    const items = props.input.source_id ?
+      searchRes.hits.hits.map(hit => Object.fromEntries(Object.entries(hit._source as M2MTargetType).flatMap(([k,v]) => k.startsWith('target_') ? [[k.substring('target_'.length), v]] : [])))
+      : searchRes.hits.hits.map(hit => hit._source)
+    return {
+      items,
+      total: searchRes.hits.total,
+      next,
+    }
+  }),
   facet: procedure.input(z.object({
     source_id: z.string().optional(),
     search: z.string().optional(),
@@ -17,7 +63,7 @@ export default router({
     if (props.input.facet?.length) filter.push({
       query_string: {
         query: Object.entries(groupby(
-          props.input.facet.filter(f => !!f), f => f.substring(0, f.indexOf(':'))
+          props.input.facet, f => f.substring(0, f.indexOf(':'))
         )).map(([_, F]) => `(${F.join(' OR ')})`).join(' AND '),
       }
     })
