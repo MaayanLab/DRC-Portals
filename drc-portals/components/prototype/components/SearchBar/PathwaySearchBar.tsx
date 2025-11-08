@@ -367,7 +367,7 @@ export default function PathwaySearchBar(cmpProps: PathwaySearchBarProps) {
       sx={{
         borderRadius: "4px",
         width: "auto",
-        minWidth: { xs: 240, sm: 360, md: 480 },
+        minWidth: { xs: 225, sm: 360, md: 480 },
         backgroundColor: "transparent",
         "& .MuiOutlinedInput-root": {
           paddingRight: "120px!important",
