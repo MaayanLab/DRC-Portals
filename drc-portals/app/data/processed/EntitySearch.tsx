@@ -104,7 +104,7 @@ export default async function Page(props: PageProps) {
           <SearchablePagedTableCellIcon href={href} src={itemIcon(hit._source, entityLookup)} alt={categoryLabel(hit._source.type)} />,
           <SearchablePagedTableCell><LinkedTypedNode href={href} type={hit._source.type} label={itemLabel(hit._source)} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,
           <SearchablePagedTableCell sx={{maxWidth: 'unset'}}><Description description={itemDescription(hit._source, entityLookup)} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,
-          hit._source.a_access_url && <SearchablePagedTableCell><DRSCartButton access_url={hit._source.a_access_url} /></SearchablePagedTableCell>,
+          hit._source.a_access_url && <SearchablePagedTableCell><DRSCartButton access_url={hit._source.a_access_url} responsive /></SearchablePagedTableCell>,
         ]
       }) ?? []}
       tableFooter={!!searchRes.aggregations?.files.doc_count &&

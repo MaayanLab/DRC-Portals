@@ -1,5 +1,6 @@
 'use client'
 import React from 'react';
+import { Box } from '@mui/system';
 import Button from '@mui/material/Button';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'; // Ensure you have @mui/icons-material installed
 import { setLocalStorage } from '@/utils/localstorage';
@@ -40,7 +41,7 @@ export function FetchDRSCartButton(props: { source_id?: string, search?: string,
   );
 };
 
-export function DRSCartButton(props: { access_url?: string }) {
+export function DRSCartButton(props: { access_url?: string, responsive?: boolean }) {
   const handleDRSBundle = React.useCallback(() => {
     setLocalStorage('drs-cart', cart => unique([
       ...(cart || '').split('\n'),
@@ -48,16 +49,19 @@ export function DRSCartButton(props: { access_url?: string }) {
     ].filter(access_url => !!access_url)).join('\n'))
   }, [props.access_url]);
   return (
-    <>
-      <Button
-        variant="contained"
-        color="primary"
-        startIcon={<ShoppingCartIcon />}
-        onClick={handleDRSBundle}
-        disabled={!props.access_url}
-      >
+    <Button
+      title="Add to cart"
+      variant="contained"
+      color="primary"
+      onClick={handleDRSBundle}
+      disabled={!props.access_url}
+    >
+      <Box title="Add to cart" component="span" sx={{ marginLeft: { md: props.responsive ? '0px' : undefined, xs: '-4px' }, marginRight: { md: props.responsive ? '0px' : undefined, xs: '4px' } }}>
+        <ShoppingCartIcon />
+      </Box>
+      <Box component="span" sx={{ display: { md: props.responsive ? 'none' : 'block', xs: 'block' } }}>
         Add to Cart
-      </Button>
-    </>
+      </Box>
+    </Button>
   );
 };
