@@ -5,7 +5,6 @@ import FormPagination from './FormPagination';
 import Link from '@/utils/link';
 import Image, { StaticImageData } from '@/utils/image';
 import { NodeType } from '@prisma/client';
-import { type_to_string } from '../processed/utils';
 import PageviewOutlinedIcon from '@mui/icons-material/PageviewOutlined';
 import TagComponent from './TagComponent';
 import { RowType } from './utils'; // Import the RowType
@@ -32,7 +31,7 @@ export function LinkedTypedNode({
             </Link>
             <Link href={`/data/c2m2/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}`}>
                 <Typography variant='caption' color="secondary">
-                    {type_to_string(type, entity_type)}
+                    {type}
                 </Typography>
             </Link>
         </div>

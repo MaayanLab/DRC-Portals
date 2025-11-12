@@ -4,15 +4,23 @@ import { mdiMagnify } from "@mdi/js";
 import Icon from '@mdi/react';
 import { InputAdornment, TextField } from '@mui/material';
 import { useRouter } from "@/utils/navigation";
+import { create_url, parse_url } from "./utils";
 
-export function SearchForm({ children, action }: React.PropsWithChildren<{ action?: string }>) {
+export function SearchForm({ children, name, param = "search" }: React.PropsWithChildren<{ name: string, param?: string }>) {
   const router = useRouter()
   return (
     <form onSubmit={evt => {
       evt.preventDefault()
       const formData = new FormData(evt.currentTarget)
-      const q = formData.get('q')
-      router.push(`${action ? action : window.location.pathname}/${q}`)
+      const params = parse_url()
+      const value = formData.get(name)
+      params[param] = value !== null ? value.toString() : null
+      params['page'] = null
+      params['cursor'] = null
+      params['reverse'] = null
+      params['facet'] = null
+      params['error'] = null
+      router.push(create_url(params))
     }}>
       {children}
       <input className="hidden" type="submit" />
@@ -20,14 +28,17 @@ export function SearchForm({ children, action }: React.PropsWithChildren<{ actio
   )
 }
 
-export function SearchField({ q, InputProps, placeholder = 'Enter one or more keywords', error }: { q: string, InputProps?: React.ComponentProps<typeof TextField>['InputProps'], placeholder?: string, error?: string }) {
+export function SearchField({ name = 'search', defaultValue, InputProps, placeholder = 'Enter one or more keywords', error }: { name?: string, defaultValue: string, InputProps?: React.ComponentProps<typeof TextField>['InputProps'], placeholder?: string, error?: string }) {
+  const [value, setValue] = React.useState('')
+  React.useEffect(() => {setValue(defaultValue)}, [defaultValue])
   return (
     <TextField
       label={error ? error.split(':')[0] : undefined}
       error={!!error}
       helperText={error ? error.split(':').slice(1).join(':') : undefined}
-      name="q"
-      defaultValue={q}
+      name={name}
+      value={value}
+      onChange={evt => {setValue(evt.currentTarget.value)}}
       placeholder={placeholder}
       color="secondary"
       InputProps={{
