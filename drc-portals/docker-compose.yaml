@@ -43,6 +43,7 @@ services:
       - TURL_CRED
       - GSC_DATABASE_URL=${PROD_GSC_DATABASE_URL}
       - MCP_API_KEY
+      - ELASTICSEARCH_URL=${PROD_ELASTICSEARCH_URL:-http://elastic:${ELASTICSEARCH_PASSWORD}@drc-portal-elasticsearch:9200}
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
@@ -82,6 +83,7 @@ services:
       - NEXT_PUBLIC_GSE
       - NEXT_PUBLIC_ENRICHR_URL
       - TURL_CRED
+      - ELASTICSEARCH_URL=${DEV_ELASTICSEARCH_URL:-http://elastic:${ELASTICSEARCH_PASSWORD}@drc-portal-elasticsearch:9200}
   drc-portal-worker:
     build:
       context: ..
@@ -211,7 +213,6 @@ services:
       - ES_JAVA_OPTS=-Xms2g -Xmx2g
     ports:
       - 9200:9200
-      - 9300:9300
     volumes:
       - drc-portal-elasticsearch:/usr/share/elasticsearch/data
 
