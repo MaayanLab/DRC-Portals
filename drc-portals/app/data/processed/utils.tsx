@@ -97,20 +97,20 @@ export function categoryColor(type: string) {
   return palette[pearson_hash(type)]
 }
 
-export function facetLabel(facet: string) {
-  if (facet.startsWith('target_')) facet = facet.substring('target_'.length)
-  if (facet.startsWith('r_')) facet = facet.substring('r_'.length)
-  return titleCapitalize(facet.replaceAll('_',' '))
-}
-
 export function predicateLabel(type: string) {
   if (type === 'inv_gene_set') type = 'has gene'
   else if (type === 'gene_set') type = 'in gene set'
-  else if (type === 'relation') type = 'defines relation'
-  else if (type === 'target') type = 'target of assertion'
-  else if (type === 'source') type = 'source of assertion'
+  else if (type === 'relation') type = 'assertion'
+  else if (type === 'target') type = 'target node'
+  else if (type === 'source') type = 'source node'
   else if (type.startsWith('inv_')) type = `${type.substring(4)} of`
   return titleCapitalize(type.replaceAll('_',' '))
+}
+
+export function facetLabel(facet: string) {
+  if (facet.startsWith('target_')) facet = facet.substring('target_'.length)
+  if (facet.startsWith('r_')) facet = facet.substring('r_'.length)
+  return predicateLabel(facet.replaceAll('_',' '))
 }
 
 export function categoryLabel(type: string) {
