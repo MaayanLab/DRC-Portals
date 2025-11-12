@@ -35,7 +35,7 @@ export function Description({ search, description }: { search: string, descripti
   }
 }
 
-const SearchablePagedTableCellContext = React.createContext<{component: React.ElementType<TableCellBaseProps, keyof React.JSX.IntrinsicElements>}>({ component: 'td' })
+const SearchablePagedTableCellContext = React.createContext<{component: React.ElementType<TableCellBaseProps>}>({ component: 'td' })
 
 export function SearchablePagedTableCell(props: React.PropsWithChildren<TableCellProps>) {
   const { component } = React.useContext(SearchablePagedTableCellContext)
