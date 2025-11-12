@@ -2,6 +2,9 @@ import remarkGfm from "remark-gfm";
 import createMDX from "@next/mdx";
 
 process.env.NEXTAUTH_URL_INTERNAL = "http://localhost:3000/auth";
+const PUBLIC_URL = process.env.PUBLIC_URL
+if (!PUBLIC_URL) throw new Error("Please configure PUBLIC_URL");
+const NEXTAUTH_URL = process.env.NEXTAUTH_URL ?? `${PUBLIC_URL}/auth`
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -17,7 +20,8 @@ const nextConfig = {
     },
   },
   env: {
-    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    PUBLIC_URL,
+    NEXTAUTH_URL,
   },
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   async rewrites() {

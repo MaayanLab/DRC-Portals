@@ -17,10 +17,7 @@ const TrpcProvider: React.FC<{ children: React.ReactNode }> = ({
       })
   )
 
-  const url = process.env.NEXT_PUBLIC_URL
-    ? `${process.env.NEXT_PUBLIC_URL}/api/trpc/`
-    : process.env.NODE_ENV === 'development' ? "http://localhost:3000/api/trpc/"
-    : '/api/trpc'
+  const url = `${process.env.NODE_ENV === 'production' ? (process.env.PUBLIC_URL ?? '') : 'http://localhost:3000'}/api/trpc/`
 
   const [trpcClient] = useState(() =>
     trpc.createClient({
