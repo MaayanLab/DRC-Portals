@@ -197,10 +197,10 @@ services:
     deploy:
       resources:
         reservations:
-          cpus: '1.0'
-          memory: 2048M
+          cpus: '2.0'
+          memory: 3072M
         limits:
-          memory: 4096M
+          memory: 6144M
     environment:
       - cluster.name=elastic
       - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
@@ -209,8 +209,7 @@ services:
       - bootstrap.memory_lock=true
       - xpack.security.http.ssl.enabled=false
       - xpack.security.transport.ssl.enabled=false
-      - indices.id_field_data.enabled=true
-      - ES_JAVA_OPTS=-Xms2g -Xmx2g
+      - ES_JAVA_OPTS=-Xms3g -Xmx3g
     ports:
       - 9200:9200
     volumes:
