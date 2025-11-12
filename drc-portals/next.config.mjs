@@ -65,6 +65,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/data/search/:path*",
+        destination: "/data/processed/search/:path*",
+        permanent: true,
+      },
+      {
         has: [{ type: "host", value: "data.cfde.cloud" }],
         source: "/info/:path*",
         destination: "https://info.cfde.cloud/:path*",

@@ -156,7 +156,7 @@ export default async function Home({ searchParams }: { searchParams: { search?: 
                           </Stack>
                         </Typography>
                         <div className="flex align-center space-x-10">
-                          <Link href="/data/search/help"><Button sx={{textTransform: 'uppercase'}} color="secondary">Learn More</Button></Link>
+                          <Link href="/data/processed/help"><Button sx={{textTransform: 'uppercase'}} color="secondary">Learn More</Button></Link>
                           <Button sx={{textTransform: 'uppercase'}} variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1}/>} type="submit">Search</Button>
                         </div>
                       </Stack>
