@@ -115,6 +115,7 @@
     "recharts": "^2.1.9",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.0",
+    "schema-dts": "^1.1.5",
     "string-similarity-js": "^2.1.4",
     "swr": "^2.2.4",
     "tippy.js": "^6.3.7",
