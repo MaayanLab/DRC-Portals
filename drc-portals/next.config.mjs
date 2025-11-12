@@ -57,17 +57,17 @@ const nextConfig = {
       {
         source: "/data/contribute/documentation",
         destination: "/data/submit",
-        permanent: true,
+        permanent: false,
       },
       {
         source: "/data/contribute/:path*",
         destination: "/data/submit/:path*",
-        permanent: true,
+        permanent: false,
       },
       {
         source: "/data/search/:path*",
         destination: "/data/processed/search/:path*",
-        permanent: true,
+        permanent: false,
       },
       {
         has: [{ type: "host", value: "data.cfde.cloud" }],
