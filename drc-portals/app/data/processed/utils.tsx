@@ -196,7 +196,7 @@ export function linkify(value: string) {
 }
 
 export function parse_url(location: { pathname?: string, search?: ReadonlyURLSearchParams | URLSearchParams | string } = typeof window === 'undefined' ? {} : window.location): Record<string, string | null> {
-  const m = /^\/data\/processed(\/search\/(?<search>[^\/]+?)(\/(?<search_type>[^\/]+?))?|\/entity\/(?<type>[^\/]+?)(\/search\/(?<type_search>[^\/]+?)|\/(?<slug>[^\/]+?)(\/search\/(?<entity_search>[^\/]+?))?)?)$/.exec(location.pathname ?? '')
+  const m = /^(\/data)?\/processed(\/search\/(?<search>[^\/]+?)(\/(?<search_type>[^\/]+?))?|\/entity\/(?<type>[^\/]+?)(\/search\/(?<type_search>[^\/]+?)|\/(?<slug>[^\/]+?)(\/search\/(?<entity_search>[^\/]+?))?)?)$/.exec(location.pathname ?? '')
   return Object.fromEntries([
     ...(new URLSearchParams(location.search)).entries(),
     ...Object.entries(m?.groups ?? {}).map(([k,v]) => [k, typeof v === 'string' ? decodeURIComponent(v) : v]),
@@ -207,7 +207,7 @@ export function create_url({ error, search, search_type, type, type_search, slug
   search?: string, filter?: string,
   error?: string,
 } & Record<string, string | null>) {
-  let path = `/data`
+  let path = typeof window !== 'undefined' && window.location.origin === 'data.cfde.cloud' ? '' : '/data'
   const urlSearchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : undefined)
   if (!error) {
     path += `/processed`
