@@ -78,9 +78,9 @@ export default async function Page(props: PageProps) {
     size: 100,
   })
   const entityLookup = Object.fromEntries([
-    ...Object.entries(await esDCCs),
     ...searchRes.hits.hits.map((hit) => [hit._id, hit._source]),
     ...entityLookupRes.hits.hits.map((hit) => [hit._id, hit._source]),
+    ...Object.entries(await esDCCs),
   ])
   return (
     <SearchablePagedTable

@@ -62,8 +62,8 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
   })
   const entityLookup: Record<string, EntityType> = Object.fromEntries([
     [item.id, item],
-    ...Object.entries(await esDCCs),
     ...entityLookupRes.hits.hits.filter((hit): hit is typeof hit & {_source: EntityType} => !!hit._source).map((hit) => [hit._id, hit._source]),
+    ...Object.entries(await esDCCs),
   ])
   return (
     <LandingPageLayout

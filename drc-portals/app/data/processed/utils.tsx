@@ -131,9 +131,12 @@ export function itemIcon(item: EntityType, lookup?: Record<string, EntityType>) 
   if (lookup && item.r_dcc && item.r_dcc in lookup) {
     const dcc = lookup[item.r_dcc]
     return dcc.a_icon
+  } else if (lookup && item.type === 'dcc' && item.id in lookup) {
+    const dcc = lookup[item.id]
+    return dcc.a_icon
   } else if (item.type === 'gene') {
     return GeneIcon
-  } else if (item.type === 'Drug') {
+  } else if (item.type === 'drug') {
     return DrugIcon
   } else if (item.type == 'kg_relation') {
     return KGEdge

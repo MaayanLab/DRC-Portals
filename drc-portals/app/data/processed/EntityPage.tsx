@@ -98,13 +98,13 @@ export default async function Page(props: PageProps) {
   })
   const entityLookup: Record<string, EntityType> = Object.fromEntries([
     [item.id, item],
-    ...Object.entries(await esDCCs),
     ...searchRes.hits.hits.flatMap((hit) => {
       const hit_source = hit._source
       if (!hit_source) return []
       return [[hit_source.target_id, Object.fromEntries(Object.entries(hit_source).flatMap(([k,v]) => k.startsWith('target_') ? [[k.substring('target_'.length), v]] : []))]]
     }),
     ...entityLookupRes.hits.hits.filter((hit): hit is typeof hit & {_source: EntityType} => !!hit._source).map((hit) => [hit._id, hit._source]),
+    ...Object.entries(await esDCCs),
   ])
   return (
     <SearchablePagedTable
