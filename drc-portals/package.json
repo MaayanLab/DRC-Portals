@@ -12,9 +12,10 @@
     "migrate:primary": "prisma migrate deploy --schema=prisma/schema.prisma",
     "migrate": "npm run migrate:primary",
     "build": "npm run generate && next build",
+    "version:dev": "PUBLIC_URL=https://dev.cfde.cloud NEXTAUTH_URL=https://dev.cfde.cloud/auth npm run build && ts-node cli/version-compose.ts maayanlab/drc-portal-dev rc && docker-compose build drc-portal-app-dev && docker-compose push drc-portal-app-dev",
     "start": "next start",
     "lint": "next lint",
-    "version": "npm run build && ts-node cli/version-compose.ts && docker-compose build drc-portal-app",
+    "version": "npm run build && ts-node cli/version-compose.ts maayanlab/drc-portal-app && docker-compose build drc-portal-app",
     "postversion": "docker-compose push drc-portal-app",
     "worker": "NODE_OPTIONS=\"--loader ts-node/esm\" graphile-worker"
   },
