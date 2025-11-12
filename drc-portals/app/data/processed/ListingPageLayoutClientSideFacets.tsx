@@ -29,11 +29,8 @@ export default function ListingPageLayoutClientSideFacets(props: React.PropsWith
   const entityLookup = {...(props.entityLookup ?? {}), ...(data?.entityLookup ?? {})}
   return (
     <Grid container justifyContent={"center"} spacing={2}>
-      <Grid item container xs={12} spacing={2}>
-        <Grid item xs={12} sm={data?.total === undefined ? 9 : data.total === 0 ? 12 : 9}>
-          {props.children}
-        </Grid>
-        <Grid item xs={12} sm={3} sx={{ visibility: data?.total === 0 ? 'hidden' : 'visible'}}>
+      <Grid item container xs={12} spacing={2} flexDirection={"row-reverse"}>
+        <Grid item sm={12} md={3} sx={{ visibility: data?.total === 0 ? 'hidden' : 'visible' }}>
           <Paper sx={{background: "linear-gradient(180deg, #EDF0F8 0%, transparent 100%)", height: '100%', padding: "12px 24px" }} elevation={0}>
             <div className="flex flex-row align-middle justify-between border-b border-b-slate-400 mb-4">
               <Typography variant="h5">Results found</Typography>
@@ -69,6 +66,9 @@ export default function ListingPageLayoutClientSideFacets(props: React.PropsWith
               </CollapseFilters>
             </div>
           </Paper>
+        </Grid>
+        <Grid item xs={12} md={data?.total === undefined ? 9 : data.total === 0 ? 12 : 9}>
+          {props.children}
         </Grid>
       </Grid>
       {props.footer && <Grid item xs={12}>

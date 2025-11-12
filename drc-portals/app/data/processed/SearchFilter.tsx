@@ -2,8 +2,9 @@
 
 import React from 'react'
 import { Button } from "@mui/material";
-import { Checkbox, FormControlLabel, Typography } from '@mui/material'
+import { Checkbox, Typography } from '@mui/material'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { Box } from '@mui/system';
 
 export function CollapseFilter(props: React.PropsWithChildren<{}>) {
   const [collapsed, setCollapsed] = React.useState(true)
@@ -21,16 +22,16 @@ export function CollapseFilters(props: React.PropsWithChildren<{}>) {
   const [collapsed, setCollapsed] = React.useState(true)
   const children = React.useMemo(() => (Array.isArray(props.children) ? props.children : [props.children]).filter(child => !!child), [props.children])
   if (!collapsed) return children
-  if (children.length <= 4) return children
+  if (children.length <= 3) return children
   return <>
-    {children.slice(0, 4)}
+    {children.slice(0, 3)}
     <Button
       size='large'
       sx={{textTransform: "uppercase"}}
       color="primary"
       variant="contained"
       onClick={evt => {setCollapsed(false)}}
-    >+ More filters</Button>
+    >+ {children.length-3} More filters</Button>
   </>
 }
 
@@ -52,17 +53,28 @@ export default function SearchFilter(props: React.PropsWithChildren<{ id: string
     return { searchParams, currentFilterSet }
   }, [props.id, rawSearchParams])
   return (
-    <FormControlLabel
-      sx={{ display: props.filter_count === 0 ? 'none' : 'flex' }}
+    <Box
+      sx={{ display: props.filter_count === 0 ? 'none' : 'flex', alignItems: 'center', marginLeft: '-11px', cursor: 'pointer' }}
       onClick={evt => {router.push(`?${searchParams.toString()}`, { scroll: false })}}
-      control={<Checkbox/>}
-      label={
-        <Typography
-          variant='body2'
-          color={props.color ?? 'secondary'}
-        >{props.label} ({[props.filter_count, props.count].filter((c): c is number => !!c).map(c => c.toLocaleString()).join(' / ')})</Typography>
-      }
-      checked={currentFilterSet}
-    />
+    >
+      <Checkbox checked={currentFilterSet} />
+      <Typography
+        title={props.label}
+        sx={{
+          overflow: 'hidden',
+          whiteSpace: 'nowrap',
+          textOverflow: 'ellipsis',
+          display: 'block',
+          flexGrow: '1',
+        }}
+        variant='body2'
+        color={props.color ?? 'secondary'}
+      >{props.label}</Typography>
+      <Typography
+        title={props.label}
+        variant='body2'
+        color={props.color ?? 'secondary'}
+      >&nbsp;({[props.filter_count, props.count].filter((c): c is number => !!c).map(c => c.toLocaleString()).join(' / ')})</Typography>
+    </Box>
   )
 }
