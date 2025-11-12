@@ -187,6 +187,13 @@ services:
       memlock:
         soft: -1
         hard: -1
+    deploy:
+      resources:
+        reservations:
+          cpus: '1.0'
+          memory: 2048M
+        limits:
+          memory: 4096M
     environment:
       - cluster.name=elastic
       - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
@@ -196,7 +203,7 @@ services:
       - xpack.security.http.ssl.enabled=false
       - xpack.security.transport.ssl.enabled=false
       - indices.id_field_data.enabled=true
-      - ES_JAVA_OPTS=-Xms32g -Xmx32g
+      - ES_JAVA_OPTS=-Xms2g -Xmx2g
     ports:
       - 9200:9200
       - 9300:9300
@@ -296,7 +303,7 @@ volumes:
 
   drc-portal-elasticsearch:
     x-kubernetes:
-      size: 50Gi
+      size: 100Gi
       class: gp2
 
 x-kubernetes:
