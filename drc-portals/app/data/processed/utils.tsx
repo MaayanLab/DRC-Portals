@@ -110,6 +110,7 @@ export function predicateLabel(type: string) {
 export function facetLabel(facet: string) {
   if (facet.startsWith('target_')) facet = facet.substring('target_'.length)
   if (facet.startsWith('r_')) facet = facet.substring('r_'.length)
+  if (facet.endsWith('_id')) facet = facet.substring(0, facet.length-'_id'.length)
   return predicateLabel(facet.replaceAll('_',' '))
 }
 

@@ -30,7 +30,7 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
   const filter: estypes.QueryDslQueryContainer[] = []
   if (params.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
   const searchRes = await elasticsearch.search<EntityType, TermAggType<'types' | 'dccs'>>({
-    index: 'entity',
+    index: 'entity_v8_expanded',
     query: {
       bool: {
         filter,

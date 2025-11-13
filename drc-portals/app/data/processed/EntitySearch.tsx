@@ -36,7 +36,7 @@ export default async function Page(props: PageProps) {
   if (filter.length === 0) redirect('/data')
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<EntityType, FilterAggType<'files'>>({
-    index: 'entity',
+    index: 'entity_v8_expanded',
     query: {
       bool: {
         filter,
@@ -71,7 +71,7 @@ export default async function Page(props: PageProps) {
           ...searchRes.hits.hits.flatMap((item) => {
             const item_source = item._source
             if (!item_source) return []
-            return Object.keys(item_source).filter(k => k.startsWith('r_') && k !== 'r_dcc').map(k => item_source[k])
+            return Object.keys(item_source).filter(k => /^r_(.+)_id$/.exec(k) !== null && k !== 'r_dcc_id').map(k => item_source[k])
           })
         ]))
       }

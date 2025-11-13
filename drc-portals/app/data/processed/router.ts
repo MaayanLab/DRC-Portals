@@ -25,7 +25,7 @@ export default router({
       }
     })
     const searchRes = await elasticsearch.search<M2MTargetType | EntityType>({
-      index: props.input.source_id ? 'm2m_target_expanded' : 'entity',
+      index: props.input.source_id ? 'm2m_target_expanded' : 'entity_v8_expanded',
       query: {
         bool: {
           filter,
@@ -85,7 +85,7 @@ export default router({
       )
     }
     const searchRes = await elasticsearch.search<unknown, TermAggType<typeof facets[0]>>({
-      index: props.input.source_id ? 'm2m_target_expanded' : 'entity',
+      index: props.input.source_id ? 'm2m_target_expanded' : 'entity_v8_expanded',
       query: {
         bool: {
           filter,
@@ -96,7 +96,7 @@ export default router({
       rest_total_hits_as_int: true,
     })
     const entityLookupRes = await elasticsearch.search<EntityType>({
-      index: 'entity',
+      index: 'entity_v8_expanded',
       query: {
         ids: {
           values: Array.from(new Set([
