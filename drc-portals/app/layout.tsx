@@ -28,12 +28,12 @@ export default function RootLayout({
         <ThemeRegistry options={{ key: 'mui' }}>
         <NextAuthProvider>
         <TrpcProvider>
-          <Grid container justifyContent={'space-between'} direction={"column"} sx={{minHeight: "100vh", marginTop: 2}}>
+          <Grid container justifyContent={'space-between'} direction={"column"} sx={{ minWidth: '400px', maxWidth: '100vw', minHeight: "100vh", marginTop: 2, overflow: 'hidden' }}>
             {/* <Grid item><Header/></Grid> */}
             {children}
           </Grid>
         </TrpcProvider>
-        <AdministrationDirectives />
+        <AdministrationDirectives style={{ minWidth: '400px', maxWidth: '100vw' }} />
         </NextAuthProvider>
         </ThemeRegistry>
         </AppProgressProvider>

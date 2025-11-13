@@ -82,7 +82,7 @@ export function FancyTabs(props: React.PropsWithChildren<{
   }, [initializing_state, props.tab, props.onChange, currentTab])
   return (
     <Grid container xs={12}>
-      <Grid item xs={2} paddingRight={2}>
+      <Grid item xs={4} sm={2} paddingRight={2}>
         <Tabs
           variant="scrollable"
           textColor='secondary'
@@ -122,7 +122,7 @@ export function FancyTabs(props: React.PropsWithChildren<{
           ))}
         </Tabs>
       </Grid>
-      <Grid item xs={10}>
+      <Grid item container xs={8} sm={10}>
         {enabledTabs.length > 0 ? null
           : initializing_state === 'pre' ? props.preInitializationFallback
             : initializing_state === 'post' ? props.postInitializationFallback

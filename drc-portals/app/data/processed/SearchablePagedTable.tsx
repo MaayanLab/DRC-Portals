@@ -51,7 +51,7 @@ export function SearchablePagedTableCellIcon({ src, href, alt, ...props}: {
 } & TableCellProps) {
   return (
     <SearchablePagedTableCell {...props} sx={{maxWidth: 'unset'}}>
-      <Box sx={{position: "relative", width: {xs: "4rem", sm: "4rem", md: "8rem", lg: "8rem", xl: "8rem"}, height: {xs: "2rem", sm: "2rem", md: "4rem", lg: "4rem", xl: "4rem"}}}>
+      <Box sx={{position: "relative", width: {xs: "2rem", sm: "4rem", md: "8rem", lg: "8rem", xl: "8rem"}, height: {xs: "2rem", sm: "2rem", md: "4rem", lg: "4rem", xl: "4rem"}}}>
         <Link href={href ?? 'javascript:'} scroll={false}>
           <Image className="object-contain" src={src} alt={alt} fill />
         </Link>
@@ -68,7 +68,7 @@ export function SearchablePagedTableHeader(props: {
   const id = React.useId()
   return (
     <Grid item xs={12} sx={{marginBottom: 5}}>
-      <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
+      <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'} gap={2}>
         <Typography variant="h2" color="secondary" className="whitespace-nowrap">{props.label}</Typography>
         <SearchForm name={id} param={props.search_name}>
           <SearchField name={id} defaultValue={props.search} placeholder={`Filter ${props.label}`} />

@@ -92,10 +92,10 @@ export default function DataLayout({
         }}
       />
       <Grid item><Header path={"/data"}/></Grid>
-      <Grid item className="flex grow">
+      <Grid item container className="grow overflow-hidden">
         <Background background="#E7F3F5">
           {/* <NavBreadcrumbs/> */}
-          <div>{children}</div>
+          {children}
         </Background>
       </Grid>
       <CartFab />

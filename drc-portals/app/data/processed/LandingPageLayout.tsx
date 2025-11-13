@@ -31,7 +31,9 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
           {props.description ? <div className="prose max-w-none"><strong>Description</strong>: {props.description}</div> : null}
         </Stack>
       </Grid>
-      {props.children}
+      <Grid item container xs={12}>
+        {props.children}
+      </Grid>
     </Grid>
   )
 }
