@@ -50,10 +50,10 @@ export default async function Page(props: PageProps) {
     },
     sort: searchParams?.reverse === undefined ? [
       {'pagerank': {'order': 'desc'}},
-      {'_id': {'order': 'asc'} },
+      {'id': {'order': 'asc'} },
     ] :  [
       {'pagerank': {'order': 'asc'}},
-      {'_id': {'order': 'desc'} },
+      {'id': {'order': 'desc'} },
     ],
     search_after: searchParams?.cursor ? JSON.parse(searchParams.cursor as string) : undefined,
     size: display_per_page,
