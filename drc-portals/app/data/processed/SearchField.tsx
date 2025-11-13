@@ -51,6 +51,7 @@ export function SearchField({ name = 'search', defaultValue, InputProps, placeho
   ), [value, options])
   return (
     <Autocomplete
+      value={value}
       freeSolo
       options={Object.keys(filteredOptionTypes)}
       renderOption={(props, option, { inputValue }) => {
@@ -80,7 +81,6 @@ export function SearchField({ name = 'search', defaultValue, InputProps, placeho
           error={!!error}
           helperText={error ? error.split(':').slice(1).join(':') : undefined}
           name={name}
-          value={value}
           onChange={evt => {setValue(evt.currentTarget.value)}}
           placeholder={placeholder}
           color="secondary"
