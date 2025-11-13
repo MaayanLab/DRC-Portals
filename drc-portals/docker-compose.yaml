@@ -2,7 +2,7 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.23.3
+    image: maayanlab/drc-portal:0.23.4
     deploy:
       replicas: 3
       resources:
