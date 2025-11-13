@@ -113,6 +113,10 @@ export default async function Page(props: PageProps) {
           label="Linked to"
           search_name="entity_search"
           search={params?.search ?? ''}
+          autocomplete={{
+            source_id: item.id,
+            facet: ensure_array(searchParams?.facet),
+          }}
         />
       }
       columns={[

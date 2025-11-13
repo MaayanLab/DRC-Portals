@@ -89,6 +89,10 @@ export default async function Page(props: PageProps) {
           label={categoryLabel(params.type)}
           search_name="type_search"
           search={params?.search ?? ''}
+          autocomplete={{
+            type: params.type,
+            facet: ensure_array(searchParams?.facet),
+          }}
         />
       }
       columns={[

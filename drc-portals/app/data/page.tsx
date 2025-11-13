@@ -139,6 +139,7 @@ export default async function Home({ searchParams }: { searchParams: { search?: 
                             InputProps={{
                               sx: {width:{xs: '270px', sm: '270px', md: '544px', lg: '544px', xl: '544px'} }
                             }}
+                            autocomplete={{}}
                           />
                         </Box>
                         <Typography variant="stats_sub" sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>

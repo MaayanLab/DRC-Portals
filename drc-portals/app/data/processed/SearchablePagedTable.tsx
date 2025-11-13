@@ -64,6 +64,7 @@ export function SearchablePagedTableHeader(props: {
   label: string,
   search_name: string,
   search: string,
+  autocomplete?: { source_id?: string, type?: string, facet?: string[] },
 }) {
   const id = React.useId()
   return (
@@ -71,7 +72,15 @@ export function SearchablePagedTableHeader(props: {
       <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'} gap={2}>
         <Typography variant="h2" color="secondary" className="whitespace-nowrap">{props.label}</Typography>
         <SearchForm name={id} param={props.search_name}>
-          <SearchField name={id} defaultValue={props.search} placeholder={`Filter ${props.label}`} />
+          <SearchField
+            name={id}
+            defaultValue={props.search}
+            placeholder={`Filter ${props.label}`}
+            autocomplete={props.autocomplete}
+            InputProps={{
+              sx: {width:{xs: '200px', sm: '200px', md: '270px', lg: '270px', xl: '270px'} }
+            }}
+          />
         </SearchForm>
       </Stack>
     </Grid>

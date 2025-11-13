@@ -18,7 +18,15 @@ export default function SearchParamSearchField(props: Omit<React.ComponentProps<
   ) return null
   return (
     <SearchForm name={id} param={props.name}>
-      <SearchField {...props} name={id} defaultValue={params.search ?? ''} />
+      <SearchField
+        {...props}
+        name={id}
+        defaultValue={params.search ?? ''}
+        autocomplete={{}}
+        InputProps={{
+          sx: {width:{xs: '200px', sm: '200px', md: '270px', lg: '270px', xl: '270px'} }
+        }}
+      />
     </SearchForm>
   )
 }

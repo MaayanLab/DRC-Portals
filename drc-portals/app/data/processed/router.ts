@@ -120,4 +120,48 @@ export default router({
       entityLookup,
     }
   }),
+  autocomplete: procedure.input(z.object({
+    search: z.string(),
+    source_id: z.string().optional(),
+    facet: z.string().array().optional(),
+  })).query(async (props) => {
+    if (props.input.search.length < 3) return []
+    const filter: estypes.QueryDslQueryContainer[] = []
+    if (props.input.source_id) filter.push({ query_string: { query: `+source_id:"${props.input.source_id}"` } })
+    if (props.input.facet?.length) filter.push({
+      query_string: {
+        query: Object.entries(groupby(
+          props.input.facet, f => f.substring(0, f.indexOf(':'))
+        )).map(([_, F]) => `(${F.join(' OR ')})`).join(' AND '),
+      }
+    })
+    const searchRes = await elasticsearch.search<M2MTargetType | EntityType>({
+      index: props.input.source_id ? 'm2m_target_expanded' : 'entity',
+      query: {
+        bool: {
+          must: {
+            match_phrase_prefix: props.input.source_id ? {
+              target_a_label: props.input.search,
+            } : {
+              a_label: props.input.search,
+            },
+          },
+          filter,
+        }
+      },
+      sort: props.input.source_id ? [
+        {'target_pagerank': {'order': 'desc'}},
+        {'target_id': {'order': 'asc'} },
+      ] : [
+        {'pagerank': {'order': 'desc'}},
+        {'id': {'order': 'asc'} },
+      ],
+      size: 10,
+      track_total_hits: false,
+    })
+    const items = props.input.source_id ?
+      searchRes.hits.hits.map(hit => ({ type: hit._source?.target_type, a_label: hit._source?.target_a_label }))
+      : searchRes.hits.hits.map(hit => ({ type: hit._source?.type, a_label: hit._source?.a_label }))
+    return items.filter((hit): hit is { type: string, a_label: string } => !!hit.type && !!hit.a_label)
+  })
 })
