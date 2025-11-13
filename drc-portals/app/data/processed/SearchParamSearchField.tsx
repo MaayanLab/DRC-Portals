@@ -9,12 +9,9 @@ export default function SearchParamSearchField(props: Omit<React.ComponentProps<
   const pathname = usePathname()
   const params = React.useMemo(() => parse_url({ pathname }), [pathname])
   if (
-    pathname === '/data'
-    || pathname === '/'
-    || pathname === '/data/graph'
-    || pathname === '/data/enrichment'
-    || pathname === '/data/cross'
-    || /\/data\/processed\/search\/[^\/]+\/[^\/]+$/.exec(pathname) !== null
+    pathname === '/'
+    || pathname === '/data'
+    || /(\/data)?(\/graph|\/enrichment|\/cross|\/processed\/search\/[^\/]+\/[^\/]+)$/.exec(pathname) !== null
   ) return null
   return (
     <SearchForm name={id} param={props.name}>
