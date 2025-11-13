@@ -81,7 +81,7 @@ export default async function Page(props: PageProps) {
   })
   if (searchRes.hits.total === 0 && !params.search && !searchParams?.facet) return null
   const entityLookupRes = await elasticsearch.search<EntityType>({
-    index: 'entity',
+    index: 'entity_v8_expanded',
     query: {
       ids: {
         values: Array.from(new Set([
@@ -90,7 +90,7 @@ export default async function Page(props: PageProps) {
             if (!hit_source) return []
             return Object.keys(hit_source).filter(k => k.startsWith('target_r_') && k !== 'target_r_dcc').map(k => hit_source[k])
           }),
-          ...Object.keys(item).filter(k => k.startsWith('r_') && k !== 'r_dcc').map(k => item[k]),
+          ...Object.keys(item).filter(k => /^r_(.+)_id$/.exec(k) !== null && k !== 'r_dcc_id').map(k => item[k]),
         ]))
       }
     },

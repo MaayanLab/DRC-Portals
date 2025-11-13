@@ -5,7 +5,7 @@ import { categoryLabel, create_url, EntityType, pluralize, TermAggType } from "@
 
 export default async function Summary({ include }: { include?: string[] }) {
   const summaryRes = await elasticsearch.search<EntityType, TermAggType<'types'>>({
-    index: 'entity',
+    index: 'entity_v8_expanded',
     size: 0,
     aggs: {
       types: {

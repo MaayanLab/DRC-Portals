@@ -25,7 +25,7 @@ export default router({
       }
     })
     const searchRes = await elasticsearch.search<M2MTargetType | EntityType>({
-      index: props.input.source_id ? 'm2m_target_expanded' : 'entity',
+      index: props.input.source_id ? 'm2m_target_expanded' : 'entity_v8_expanded',
       query: {
         bool: {
           filter,
@@ -78,14 +78,16 @@ export default router({
       )
     } else {
       facets.push(
-        'r_dcc',
-        'r_source', 'r_relation', 'r_target',
-        'r_disease', 'r_species', 'r_anatomy', 'r_gene', 'r_protein', 'r_compound', 'r_data_type', 'r_assay_type',
-        'r_file_format', 'r_ptm_type', 'r_ptm_subtype', 'r_ptm_site_type',
+        'r_dcc_id',
+        'r_source_type',
+        'r_target_type',
+        'r_source_id', 'r_relation_id', 'r_target_id',
+        'r_disease_id', 'r_species_id', 'r_anatomy_id', 'r_gene_id', 'r_protein_id', 'r_compound_id', 'r_data_type_id', 'r_assay_type_id',
+        'r_file_format_id', 'r_ptm_type_id', 'r_ptm_subtype_id', 'r_ptm_site_type_id',
       )
     }
     const searchRes = await elasticsearch.search<unknown, TermAggType<typeof facets[0]>>({
-      index: props.input.source_id ? 'm2m_target_expanded' : 'entity',
+      index: props.input.source_id ? 'm2m_target_expanded' : 'entity_v8_expanded',
       query: {
         bool: {
           filter,
@@ -96,7 +98,7 @@ export default router({
       rest_total_hits_as_int: true,
     })
     const entityLookupRes = await elasticsearch.search<EntityType>({
-      index: 'entity',
+      index: 'entity_v8_expanded',
       query: {
         ids: {
           values: Array.from(new Set([

@@ -1,6 +1,6 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, create_url, EntityType, humanBytesSize, itemDescription, itemLabel, linkify, titleCapitalize } from "@/app/data/processed/utils"
+import { categoryLabel, create_url, EntityType, facetLabel, humanBytesSize, itemDescription, itemLabel, linkify, titleCapitalize } from "@/app/data/processed/utils"
 import { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 import Link from "@/utils/link";
 import { Button } from "@mui/material";
@@ -50,11 +50,11 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
   const item = await getEntity(params)
   if (!item) notFound()
   const entityLookupRes = await elasticsearch.search<EntityType>({
-    index: 'entity',
+    index: 'entity_v8_expanded',
     query: {
       ids: {
         values: Array.from(new Set([
-          ...Object.keys(item).filter(k => k.startsWith('r_') && k !== 'r_dcc').map(k => item[k]),
+          ...Object.keys(item).filter(k => /^r_(.+)_id$/.exec(k) !== null && k !== 'r_dcc_id').map(k => item[k]),
         ]))
       }
     },
@@ -72,12 +72,13 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
       metadata={[
         ...Object.keys(item).toSorted().toReversed().flatMap(predicate => {
           if (item[predicate] === 'null') return []
-          const m = /^(a|r)_(.+)$/.exec(predicate)
+          const m = /^(a|r)_(.+?)(_(a|r)_(.+))?$/.exec(predicate)
           if (m === null) return []
+          if (m[3]) return []
           if (m[1] == 'a') {
             let value: string | React.ReactNode = item[predicate]
             if (!value) return []
-            if (`r_${m[2]}` in item) return []
+            if (`r_${m[2]}_id` in item) return []
             if (/_?(id_namespace|local_id)$/.exec(m[2]) != null) return []
             if (m[2] === 'label') return []
             if (m[2] === 'entrez') value = <a className="text-blue-600 cursor:pointer underline" href={`https://www.ncbi.nlm.nih.gov/gene/${item[predicate]}`} target="_blank" rel="noopener noreferrer">{item[predicate]}</a>
@@ -95,10 +96,10 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
               label: titleCapitalize(m[2].replaceAll('_', ' ')),
               value
             }]
-          } else if (m[1] === 'r') {
+          } else if (m[1] === 'r' && m[2].endsWith('_id')) {
             const neighbor = item[predicate] in entityLookup ? entityLookup[item[predicate]] : undefined
             return [{
-              label: titleCapitalize(m[2].replaceAll('_', ' ')),
+              label: facetLabel(m[2]),
               value: neighbor?.type ? <LinkedTypedNode href={create_url({ type: neighbor.type, slug: neighbor.slug })} type={neighbor.type} label={itemLabel(neighbor)} /> : item[predicate],
             }]
           }
