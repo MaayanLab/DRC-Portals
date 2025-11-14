@@ -18,11 +18,12 @@ import Icon from "@mdi/react"
 import { mdiArrowRight, mdiToolbox, mdiLaptop, mdiChatOutline } from '@mdi/js';
 
 import CFPrograms from "@/components/misc/CFPrograms"
-import { SearchForm, SearchField } from "./processed/SearchField";
+import { SearchForm, SearchField } from "@/app/data/processed/SearchField";
 import { BlurBig } from "@/components/styled/Blur"
-import Stats, { StatsFallback } from "./processed/Stats"
+import Summary from "@/app/data/processed/SummaryComponent"
 import { ResponsivePaper } from "../info/styled"
 import Tooltip from '@mui/material/Tooltip';
+import { create_url } from "@/app/data/processed/utils";
 
 
 
@@ -84,7 +85,7 @@ const tool_cards = [
   }
 ];
 
-export default async function Home({ searchParams }: { searchParams: { q?: string, error?: string } }) {
+export default async function Home({ searchParams }: { searchParams: { search?: string, error?: string } }) {
   return (
     <main className="text-center">
       <Grid container alignItems={"flex-start"} justifyContent={"center"}>
@@ -105,8 +106,8 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
               <Container maxWidth="lg" className="m-auto">
                 <Grid container spacing={2} alignItems={"center"}>
                   <Grid item xs={12}>
-                    <SearchForm action="/data/search">
-                    <Stack spacing={2} justifyContent={"center"} alignItems={"center"}>
+                    <SearchForm name="search" param="search">
+                      <Stack spacing={2} justifyContent={"center"} alignItems={"center"}>
                         <Typography color="secondary" className="text-center" variant="h1">CFDE DATA PORTAL</Typography>
                         <Typography color="secondary" className="text-center" sx={{ fontSize: 20 }} variant="body1">
                           Search Common Fund Programs'&nbsp;
@@ -115,7 +116,7 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
                             imgSrc="/img/C2M2_NEO4J_level0.jpg"
                             imgAlt="Crosscut Metadata (C2M2)"
                             text="The Crosscut Metadata Model (C2M2) is a flexible metadata standard for describing experimental resources in biomedicine and related fields. Click to find more about C2M2.">
-                            <Link href="/info/documentation/C2M2" key="Metadata" color="secondary" className="underline cursor-pointer secondary" target="_blank" rel="noopener noreferrer">
+                            <Link href="/data/documentation/C2M2" key="Metadata" color="secondary" className="underline cursor-pointer secondary" target="_blank" rel="noopener noreferrer">
                               Metadata
                             </Link>
                           </CustomTooltip>
@@ -132,29 +133,31 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
                         </Typography>
                         <Box>
                           <SearchField
-                            q={searchParams.q ?? ''}
+                            name="search"
+                            defaultValue={searchParams.search ?? ''}
                             error={searchParams.error}
                             InputProps={{
                               sx: {width:{xs: '270px', sm: '270px', md: '544px', lg: '544px', xl: '544px'} }
                             }}
+                            autocomplete={{}}
                           />
                         </Box>
                         <Typography variant="stats_sub" sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>
                           Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
                             {['STAT3', 'blood', 'dexamethasone'].map(example => (
-                              <Link key={example} href={`/data/search/${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
+                              <Link key={example} href={create_url({ search: example })} className="underline cursor-pointer">{example}</Link>
                             ))}
                           </Stack>
                         </Typography>
                         <Typography variant="stats_sub_small" sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
                           Try <Stack display="inline-flex" flexDirection="row" divider={<span>,&nbsp;</span>}>
                             {['STAT3', 'blood', 'dexamethasone'].map(example => (
-                              <Link key={example} href={`/data/search/${encodeURIComponent(example)}`} className="underline cursor-pointer">{example}</Link>
+                              <Link key={example} href={create_url({ search: example })} className="underline cursor-pointer">{example}</Link>
                             ))}
                           </Stack>
                         </Typography>
                         <div className="flex align-center space-x-10">
-                          <Link href="/data/search/help"><Button sx={{textTransform: 'uppercase'}} color="secondary">Learn More</Button></Link>
+                          <Link href="/data/processed/help"><Button sx={{textTransform: 'uppercase'}} color="secondary">Learn More</Button></Link>
                           <Button sx={{textTransform: 'uppercase'}} variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1}/>} type="submit">Search</Button>
                         </div>
                       </Stack>
@@ -178,11 +181,7 @@ export default async function Home({ searchParams }: { searchParams: { q?: strin
                         }}
                   className="flex"
             >
-              <Container maxWidth="lg" className="m-auto">
-                <Grid container spacing={6} justifyContent={"center"} alignItems={"flex-start"}>
-                  <React.Suspense fallback={<StatsFallback />}><Stats /></React.Suspense>
-                </Grid>
-              </Container>
+              <Summary include={['file', 'kg_assertion', 'gene', 'gene_set', 'compound']} />
             </Paper>
         </Grid>
         <Grid item xs={12} md={5} >

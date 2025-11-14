@@ -13,32 +13,10 @@ You must first start and migrate the database (see [DRC Portal Dev Guide](../drc
 # May have to get updated file/folders for migrations if files on S3 have a different set of columns (see ingest_common.py)
 
 # Be in the folder database
+python3 ingestion.py
 
-# Output to log files for cross-checking if needed
-
-python3 ingestion.py 2>&1 | tee log/log_ingestion.log
-
-# Did the temp fix to ensure MW GMT gets ingested, had to give this command
-# Replace only the first on a line
-#ingest]$ sed -i 's/Metabolomics_Workbench_Metabolites_2022/Metabolomics_Workbench_Metabolites_2022.gmt/' FileAssets.tsv
-
-# much slower, for production or when developing with those features, can be omitted until necessary
-python3 ingest_dcc_assets.py 2>&1 | tee log/log_ingest_dcc_assets.log
-
-python3 ingest_gmts.py 2>&1 | tee log/log_ingest_gmts.log
-
-#python3 ingest_c2m2_files.py
-
-# Some KG files were > 100MB (ExRNA, GTEx); it was suggested to not to ingest then, i.e., keep the limit of 100MB
-python3 ingest_kg.py 2>&1 | tee log/log_ingest_kg.log
-
-# Cleanup for keywords
-date_div() { echo "============= $(date) =============";}
-logf=log/log_sanitize_tables_for_keywords.log
-echo ${date_div} > ${logf};
-psql "$(python3 C2M2/dburl.py)" -a -f sanitize_tables_for_keywords.sql -L ${logf};
-echo ${date_div} >> ${logf};
-
+# ingest all processed data files into elasticsearch for the processed data search
+sh ingest_es.sh
 ```
 
 ## Ingesting new changes

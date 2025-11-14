@@ -193,7 +193,7 @@ export default async function FilesSubjectTableComponent({ searchParams, filterC
         }
 
 
-        const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace', 'md5', 'sha256', 'file_format', 'compression_format', 'assay_type', 'analysis_type', 'data_type']; // added md5 and sha256 to ignore columns
+        const filesSub_table_columnsToIgnore: string[] = ['id_namespace', 'project_id_namespace', 'file_id_namespace', 'subject_id_namespace', 'md5', 'sha256', 'file_format', 'compression_format', 'assay_type', 'analysis_type', 'data_type', 'searchable']; // added md5 and sha256 to ignore columns
         const {
             prunedData: fileSubPrunedData,
             columnNames: fileSubColNames,

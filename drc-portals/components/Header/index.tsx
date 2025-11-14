@@ -11,7 +11,6 @@ import {
   Box
 } from '@mui/material';
 
-import { DataComponent } from './DataComponent';
 import SearchParamSearchField from '@/app/data/processed/SearchParamSearchField'
 import { Logo } from '../styled/Logo'
 import { DRCDrawer } from './drawer';
@@ -76,7 +75,7 @@ const data_nav = [
   { title: "Use Cases", href: "/data/usecases" },
   { title: "Tools & Workflows", href: "/data/tools_and_workflows" },
   { title: "Submit", href: "/data/submit" },
-  { title: "Documentation", href: "/info/documentation" }
+  { title: "Documentation", href: "/data/documentation" }
 ]
 
 export default async function Header({ path }: { path: "/info" | "/data" }) {

@@ -1,5 +1,4 @@
 
-import {  useSanitizedSearchParams } from "@/app/data/processed/utils"
 import { SearchQueryComponent} from './SearchQueryComponent';
 import React, { Suspense } from 'react';
 import { redirect } from "next/navigation";

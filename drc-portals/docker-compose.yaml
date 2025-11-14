@@ -1,9 +1,8 @@
-version: '3.9'
 services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.22.0
+    image: maayanlab/drc-portal:0.23.5
     deploy:
       replicas: 3
       resources:
@@ -44,10 +43,11 @@ services:
       - TURL_CRED
       - GSC_DATABASE_URL=${PROD_GSC_DATABASE_URL}
       - MCP_API_KEY
+      - ELASTICSEARCH_URL=${PROD_ELASTICSEARCH_URL:-http://elastic:${ELASTICSEARCH_PASSWORD}@drc-portal-elasticsearch:9200}
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:0.20.3
+    image: maayanlab/drc-portal-dev:0.22.5-rc.8
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -83,6 +83,7 @@ services:
       - NEXT_PUBLIC_GSE
       - NEXT_PUBLIC_ENRICHR_URL
       - TURL_CRED
+      - ELASTICSEARCH_URL=${DEV_ELASTICSEARCH_URL:-http://elastic:${ELASTICSEARCH_PASSWORD}@drc-portal-elasticsearch:9200}
   drc-portal-worker:
     build:
       context: ..
@@ -119,6 +120,7 @@ services:
     environment:
       nginx_server_name: info.cfde.cloud
       nginx_proxy_00: /(.*) http://drc-portal-proxy/$$1
+      nginx_redirect_00: /documentation(/.*)? https://data.cfde.cloud/documentation$$1
 
   drc-portal-proxy:
     image: maayanlab/proxy:1.2.13
@@ -183,6 +185,35 @@ services:
       - 5432:5432
     volumes:
       - drc-portal-postgres-2:/var/lib/postgresql/data
+
+  drc-portal-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.1.5
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    deploy:
+      resources:
+        reservations:
+          cpus: '2.0'
+          memory: 3072M
+        limits:
+          memory: 6144M
+    environment:
+      - cluster.name=elastic
+      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
+      - discovery.type=single-node
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - bootstrap.memory_lock=true
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - ES_JAVA_OPTS=-Xms3g -Xmx3g
+    ports:
+      - 9200:9200
+    volumes:
+      - drc-portal-elasticsearch:/usr/share/elasticsearch/data
 
   drc-portal-backup:
     build: ../database/backup
@@ -252,7 +283,7 @@ services:
   drc-portal-mcp:
     build: ../cfde-mcp
     platform: linux/amd64
-    image: maayanlab/drc-portal-mcp:0.1.20
+    image: maayanlab/drc-portal-mcp:0.1.21
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -271,6 +302,11 @@ volumes:
       class: gp2
 
   drc-portal-postgres-2:
+    x-kubernetes:
+      size: 100Gi
+      class: gp2
+
+  drc-portal-elasticsearch:
     x-kubernetes:
       size: 100Gi
       class: gp2

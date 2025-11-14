@@ -2,6 +2,9 @@ import remarkGfm from "remark-gfm";
 import createMDX from "@next/mdx";
 
 process.env.NEXTAUTH_URL_INTERNAL = "http://localhost:3000/auth";
+const PUBLIC_URL = process.env.PUBLIC_URL
+if (!PUBLIC_URL) throw new Error("Please configure PUBLIC_URL");
+const NEXTAUTH_URL = process.env.NEXTAUTH_URL ?? `${PUBLIC_URL}/auth`
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -17,7 +20,8 @@ const nextConfig = {
     },
   },
   env: {
-    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    PUBLIC_URL,
+    NEXTAUTH_URL,
   },
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   async rewrites() {
@@ -53,12 +57,17 @@ const nextConfig = {
       {
         source: "/data/contribute/documentation",
         destination: "/data/submit",
-        permanent: true,
+        permanent: false,
       },
       {
         source: "/data/contribute/:path*",
         destination: "/data/submit/:path*",
-        permanent: true,
+        permanent: false,
+      },
+      {
+        source: "/data/search/:path*",
+        destination: "/data/processed/search/:path*",
+        permanent: false,
       },
       {
         has: [{ type: "host", value: "data.cfde.cloud" }],
@@ -88,6 +97,11 @@ const nextConfig = {
         has: [{ type: "host", value: "cfde.cloud" }],
         source: "/",
         destination: "https://info.cfde.cloud",
+        permanent: false,
+      },
+      {
+        source: "/info/documentation",
+        destination: "/data/documentation",
         permanent: false,
       },
     ];
