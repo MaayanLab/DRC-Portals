@@ -12,7 +12,7 @@ export interface ChartCxtMenuContextProps {
   updateTreeItem: (item: CxtMenuTree) => void;
   onItemEnter: (itemId: string) => void;
   onItemLeave: (itemId: string) => void;
-  onClose: (event: MouseEvent | TouchEvent) => void;
+  onClose: () => void;
 }
 
 export const ChartCxtMenuContext =
