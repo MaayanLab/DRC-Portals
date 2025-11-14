@@ -469,7 +469,6 @@ es POST /_reindex << EOF
 }
 EOF
 
-
 es PUT /_ingest/pipeline/m2m_${INDEX_VERSION}_expanded << EOF
 {
   "processors": [
@@ -485,6 +484,12 @@ es PUT /_ingest/pipeline/m2m_${INDEX_VERSION}_expanded << EOF
         "policy_name": "entity_${INDEX_VERSION}_lookup",
         "field": "target_id",
         "target_field": "target"
+      }
+    },
+    {
+      "drop": {
+        "description": "drop links with missing entities",
+        "if": "ctx?.source == null || ctx?.target == null"
       }
     },
     {
