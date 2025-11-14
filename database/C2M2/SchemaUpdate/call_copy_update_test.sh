@@ -59,6 +59,7 @@ scriptfile_for_copy_update_test="$1"
 scriptfile_for_update="$2" # script to run to make changes in the seelect tsv files: e.g., append_random_biofluid_to_bios_col_biof.sh
 schemaupdate_dir="$3" # ....../DRC-Portals/database/C2M2/SchemaUpdate
 onlyTest=0
+schema_json_file=C2M2_datapackage.json
 
 # Set below, onlyTest to 0 if want to copy and update the C2M2 files, 1 if already updated
 # Usually, 1 if only testing prepare_C2M2_submission.py (with updated master ontology files) and frictionless
@@ -66,10 +67,16 @@ if [[ $# -ge 4 ]]; then
 	onlyTest=$4
 fi
 
-ingest_c2m2s_parent_folder="${schemaupdate_dir}/.."
 if [[ $# -ge 5 ]]; then
-	ingest_c2m2s_parent_folder=$5
+	schema_json_file=$5
 fi
+
+# use "${schemaupdate_dir}/.." so that no need to make another copy of the C2M2 files from DCCs (and related files in ingest)
+ingest_c2m2s_parent_folder="${schemaupdate_dir}/.."
+if [[ $# -ge 6 ]]; then
+	ingest_c2m2s_parent_folder=$6
+fi
+
 
 curdir="$PWD"
 #ingest_c2m2s="${schemaupdate_dir}/ingest/c2m2s"
@@ -81,6 +88,7 @@ echo "schemaupdate_dir: $schemaupdate_dir";
 echo "onlyTest: ${onlyTest}";
 echo "ingest_c2m2s: $ingest_c2m2s";
 echo "curdir: $curdir";
+echo "schema_json_file: $schema_json_file";
 
 source_dirs=()
 
@@ -137,7 +145,8 @@ do
   vlogf="${tdir}/validation-logs"/validation_result-${dcc_name}.log
   echo "vlogf: ${vlogf}"
   # Execute the command
-  ${scriptfile_for_copy_update_test} "${dirx}" "${tdir}" "${vlogf}" "${scriptfile_for_update}" "${schemaupdate_dir}" "${onlyTest}"
+  ${scriptfile_for_copy_update_test} "${dirx}" "${tdir}" "${vlogf}" "${scriptfile_for_update}" \
+  "${schemaupdate_dir}" "${onlyTest}" "${schema_json_file}"
 done
 
 # An example of the command run in the for loop above
