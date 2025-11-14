@@ -10,6 +10,7 @@ export default function AppProgressProvider(props: React.PropsWithChildren<{}>) 
       color="#2D5986"
       options={{ showSpinner: false }}
       shallowRouting
+      disableSameURL
     >{props.children}</ProgressProvider>
   )
 }
