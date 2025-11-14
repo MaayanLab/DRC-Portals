@@ -11,6 +11,16 @@ export default function AppProgressProvider(props: React.PropsWithChildren<{}>) 
       options={{ showSpinner: false }}
       shallowRouting
       disableSameURL
+      targetPreprocessor={url => {
+        if (url.hostname === 'data.cfde.cloud' || url.hostname === 'info.cfde.cloud') {
+          const m = /^\/(info|data)(\/.+)?$/.exec(url.pathname)
+          if (m !== null) {
+            url.hostname = `${m[1]}.cfde.cloud`
+            url.pathname = m[2] || '/'
+          }
+        }
+        return url
+      }}
     >{props.children}</ProgressProvider>
   )
 }
