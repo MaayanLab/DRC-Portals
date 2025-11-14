@@ -20,24 +20,53 @@ export default function ListingPageLayoutClientSideFacets(props: React.PropsWith
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const params = React.useMemo(() => parse_url({ pathname, search: searchParams }), [pathname, searchParams])
-  const { data } = trpc.facet.useQuery({
+  const { data: rawData } = trpc.facet.useQuery({
     source_id: props.source_id,
     search: props.search ?? (params.entity_search || undefined),
     facet: [...(props.facets ?? []), ...searchParams.getAll('facet')],
   }, {staleTime: Infinity})
-  const aggregations = data?.aggregations ?? {}
-  const entityLookup = {...(props.entityLookup ?? {}), ...(data?.entityLookup ?? {})}
+  const [data, setData] = React.useState<{ current?: typeof rawData, previous?: typeof rawData }>({})
+  React.useEffect(() => {
+    if (rawData) {
+      setData(({ current: previous, previous: _ }) => ({
+        previous,
+        current: {
+          total: rawData.total,
+          entityLookup: {
+            ...(previous?.entityLookup ?? {}),
+            ...(rawData.entityLookup ?? {}),
+          },
+          aggregations: Object.fromEntries(
+            [...(new Set([...Object.keys(previous?.aggregations ?? {}), ...Object.keys(rawData.aggregations ?? {})]))]
+              .map((bucket) => {
+                const prev = Object.fromEntries(previous?.aggregations ? previous.aggregations[bucket].buckets.map(({ key, doc_count }) => [key, doc_count]) : [])
+                const curr = Object.fromEntries(rawData.aggregations ? rawData.aggregations[bucket].buckets.map(({ key, doc_count }) => [key, doc_count]) : [])
+                for (const k in prev) {
+                  if (!(k in curr)) curr[k] = 0
+                }
+                return [
+                  bucket,
+                  { buckets: Object.entries(curr).map(([key, doc_count]) => ({ key, doc_count })) }
+                ]
+              })
+          ),
+        },
+      }))
+    }
+  }, [rawData])
+  const aggregations = data.current?.aggregations ?? {}
+  const entityLookup = { ...(props.entityLookup ?? {}), ...(data.current?.entityLookup ?? {}) }
   return (
     <Grid item container justifyContent={"center"} spacing={2} style={{ overflow: 'hidden' }}>
       <Grid item container xs={12} spacing={2} flexDirection={"row-reverse"}>
-        <Grid item xs={12} md={3} sx={{ visibility: data?.total === 0 ? 'hidden' : 'visible' }}>
+        <Grid item xs={12} md={3} sx={{ visibility: data.current?.total === 0 ? 'hidden' : 'visible' }}>
           <Paper sx={{display: 'flex', flexDirection: 'column', background: "linear-gradient(180deg, #EDF0F8 0%, transparent 100%)", height: '100%', padding: "12px 24px", overflow: 'hidden' }} elevation={0}>
             <div className="flex flex-row align-middle justify-between border-b border-b-slate-400 mb-4">
               <Typography variant="h5">Results found</Typography>
-              <Typography variant="h5">{data?.total?.toLocaleString()}</Typography>
+              <Typography variant="h5">{data.current?.total?.toLocaleString()}</Typography>
             </div>
             <div className="flex flex-col text-lg">
-              {Object.keys(data?.aggregations ?? {}).length > 0 && <Button
+              {Object.keys(aggregations).length > 0 && <Button
                 sx={{textTransform: "uppercase"}}
                 color="primary"
                 variant="contained"
@@ -45,13 +74,15 @@ export default function ListingPageLayoutClientSideFacets(props: React.PropsWith
                 onClick={evt => {router.push(create_url({...params, facet: null}), { scroll: false })}}
               >Reset filters</Button>}
               <CollapseFilters>
-                {Object.keys(data?.aggregations ?? {}).map(facet => {
-                  if (aggregations[facet].buckets.length === 0) return null
+                {Object.entries(aggregations).map(([facet, { buckets }]) => {
+                  const selectedGroup = searchParams.getAll('facet').some(f => decodeURIComponent(f).startsWith(`${facet}:`))
+                  const nonZeroSize = buckets.filter(bucket => bucket.doc_count !== 0).length
+                  if (!selectedGroup && nonZeroSize <= 1) return null
                   return <div key={facet} className="mb-2">
                     <div className="font-bold">{facetLabel(facet)}</div>
                     <div className="flex flex-col">
                       <CollapseFilter>
-                        {aggregations[facet].buckets.map(filter => 
+                        {buckets.filter(filter => selectedGroup || filter.doc_count > 0).map(filter => 
                           <SearchFilter
                             key={`${filter.key}`}
                             id={`${facet}:"${filter.key}"`}
@@ -67,7 +98,7 @@ export default function ListingPageLayoutClientSideFacets(props: React.PropsWith
             </div>
           </Paper>
         </Grid>
-        <Grid item xs={12} md={data?.total === undefined ? 9 : data.total === 0 ? 12 : 9}>
+        <Grid item xs={12} md={data.current?.total === undefined ? 9 : data.current.total === 0 ? 12 : 9}>
           {props.children}
         </Grid>
       </Grid>

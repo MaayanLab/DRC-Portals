@@ -74,7 +74,7 @@ export default function SearchFilter(props: React.PropsWithChildren<{ id: string
         title={props.label}
         variant='body2'
         color={props.color ?? 'secondary'}
-      >&nbsp;({[props.filter_count, props.count].filter((c): c is number => !!c).map(c => c.toLocaleString()).join(' / ')})</Typography>
+      >&nbsp;({[props.filter_count, props.count].filter((c): c is number => c !== undefined).map(c => c.toLocaleString()).join(' / ')})</Typography>
     </Box>
   )
 }

@@ -78,7 +78,7 @@ export default router({
       )
     } else {
       facets.push(
-        'r_dcc',
+        'type', 'r_dcc',
         'r_source', 'r_relation', 'r_target',
         'r_disease', 'r_species', 'r_anatomy', 'r_gene', 'r_protein', 'r_compound', 'r_data_type', 'r_assay_type',
         'r_file_format', 'r_ptm_type', 'r_ptm_subtype', 'r_ptm_site_type',
