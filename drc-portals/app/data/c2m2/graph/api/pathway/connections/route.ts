@@ -17,7 +17,6 @@ import {
 } from "@/lib/neo4j/types";
 import {
   getSingleMatchConnectionQuery,
-  getMultiCallConnectionQuery,
   parsePathwayTree,
 } from "@/lib/neo4j/utils";
 
@@ -115,7 +114,6 @@ export async function POST(request: NextRequest) {
             nodeIdParam,
             true
           ),
-          getMultiCallConnectionQuery(treeParseResult, tree, node, nodeIdParam),
         ]);
         connectionQueryParams = {
           ...Object.fromEntries([[nodeIdParam, node.id]]),

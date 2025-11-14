@@ -22,7 +22,7 @@ import {
   PathwaySearchNode,
   PathwaySearchNodeData,
 } from "../interfaces/pathway-search";
-import { PathwaySearchElement } from "../types/pathway-search";
+import { PathwaySearchElement, PathwaySearchNodeDataProps } from "../types/pathway-search";
 
 import { getDccLink, getExternalLinkElement, getOntologyLink } from "./shared";
 import set_difference from "@/utils/set";
@@ -82,12 +82,7 @@ export const createTree = (elements: PathwaySearchElement[]): PathwayNode => {
     return {
       id: root.data.id,
       label: root.data.dbLabel,
-      props:
-        root.data.displayLabel === root.data.dbLabel
-          ? undefined
-          : {
-            name: root.data.displayLabel,
-          },
+      props: root.data.props,
       parentRelationship: undefined,
       children: [],
     };
@@ -109,12 +104,7 @@ export const createTree = (elements: PathwaySearchElement[]): PathwayNode => {
     return {
       id: root.data.id,
       label: root.data.dbLabel,
-      props:
-        root.data.displayLabel === root.data.dbLabel
-          ? undefined
-          : {
-            name: root.data.displayLabel,
-          },
+      props: root.data.props,
       parentRelationship:
         parentEdge === undefined
           ? undefined
@@ -379,3 +369,7 @@ export const getPropertyListFromNodeLabel = (nodeLabel: string) => {
     return [];
   }
 };
+
+export const updatePathwayNodeProps = <
+  K extends keyof PathwaySearchNodeDataProps
+>(item: PathwaySearchNodeDataProps | undefined, prop: K, values: NonNullable<PathwaySearchNodeDataProps[K]>): PathwaySearchNodeDataProps => ({ ...item, [prop]: values })

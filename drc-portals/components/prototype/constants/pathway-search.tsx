@@ -82,3 +82,26 @@ export const StyledDataCell = styled(StyledTableCell)(() => ({
 
 export const PATHWAY_SEARCH_DEFAULT_LIMIT = 10;
 export const PATHWAY_SEARCH_LIMIT_CHOICES = [10, 25, 50];
+
+
+export const stringTypeConfigs = {
+  name: {
+    type: "string" as const,
+  },
+  id: {
+    type: "string" as const,
+  }
+}
+
+// Another usage example:
+/*
+export const numberTypeConfigs = {
+  age_at_sampling: {
+    type: "number" as const,
+  }
+}
+*/
+export const propertyTypeConfigs = {
+  ...stringTypeConfigs,
+  // ...numberTypeConfigs
+};

@@ -58,6 +58,7 @@ export interface EdgeConnection {
 
 export interface TreeParseResult {
   patterns: string[];
+  filterMap: Map<string, string[]>;
   nodeIds: Set<string>;
   relIds: Set<string>;
   nodes: PathwayNode[];

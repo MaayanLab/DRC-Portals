@@ -8,6 +8,7 @@ import HelpIcon from '@mui/icons-material/Help';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import SearchIcon from "@mui/icons-material/Search";
+import StopIcon from '@mui/icons-material/Stop';
 import {
   Box,
   Button,
@@ -30,7 +31,6 @@ import {
 import {
   ChangeEvent,
   Fragment,
-  ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -38,7 +38,7 @@ import {
   useState,
 } from "react";
 
-import { ADMIN_LABELS, FILTER_LABELS, TERM_LABELS } from "@/lib/neo4j/constants";
+import { ADMIN_LABELS, FILTER_LABELS, NAME_FILTER_LABELS, TERM_LABELS } from "@/lib/neo4j/constants";
 import { NodeResult } from "@/lib/neo4j/types";
 
 import {
@@ -60,8 +60,8 @@ import {
   PathwaySearchNode,
 } from "../../interfaces/pathway-search";
 import { CustomToolbarFnFactory } from "../../types/cy";
-import { PathwaySearchElement } from "../../types/pathway-search";
-import { getRootFromElements, isPathwaySearchEdgeElement } from "../../utils/pathway-search";
+import { PathwaySearchElement, PropertyConfigs, PropertyValueType } from "../../types/pathway-search";
+import { getRootFromElements, isPathwaySearchEdgeElement, updatePathwayNodeProps } from "../../utils/pathway-search";
 
 import CytoscapeChart from "../CytoscapeChart/CytoscapeChart";
 import ChartCxtMenuItem from "../CytoscapeChart/ChartCxtMenuItem";
@@ -84,6 +84,7 @@ interface GraphPathwaySearchProps {
   onPruneConfirm: () => void;
   onPruneCancel: () => void;
   onReset: () => void;
+  onStopLoading: () => void;
   onDownload: () => void;
   onUpload: (files: ChangeEvent<HTMLInputElement>) => void;
   onCopyCypher: () => void;
@@ -103,6 +104,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     onPruneConfirm,
     onPruneCancel,
     onReset,
+    onStopLoading,
     onDownload,
     onUpload,
     onCopyCypher,
@@ -125,7 +127,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
             0,
             ...elements
               .filter(isPathwaySearchEdgeElement)
-              .map((edge) => edge.data.displayLabel.length)
+              .map((edge) => edge.data.type.length)
           ) + 40,
       },
     }),
@@ -216,18 +218,17 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
   );
 
   const handleNodeFilterChange = useCallback(
-    (value: string) => {
+    <K extends keyof PropertyConfigs>(value: PropertyValueType<PropertyConfigs[K]>, propName: K) => {
       if (selectedNode !== undefined) {
         const newSelectedNode: PathwaySearchNode = {
           classes: [...(selectedNode.classes || [])],
           data: {
             ...selectedNode.data,
-            displayLabel: value || selectedNode.data.dbLabel,
+            props: updatePathwayNodeProps(selectedNode.data.props, propName, value),
           },
         };
         setSelectedNode(newSelectedNode);
         onSelectedNodeChange(newSelectedNode, "update");
-        setShowFilters(false);
       }
     },
     [selectedNode, onSelectedNodeChange]
@@ -238,6 +239,10 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     onSelectedNodeChange(undefined, "update");
     onReset();
   }, [onSelectedNodeChange, onReset]);
+
+  const handleStopLoading = useCallback(() => {
+    onStopLoading();
+  }, [onStopLoading]);
 
   const handleFilterNodeSelected = (event: EventObjectNode) => {
     handleSelectedNodeChange(event.target.id(), event.cy);
@@ -299,9 +304,27 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
                 ? <IconButton aria-label="start-over" disabled onClick={handleReset}>
                   <RestartAltIcon />
                 </IconButton>
-                : <Tooltip title="Start Over" arrow>
+                : <Tooltip title="Start Over" arrow placement="left">
                   <IconButton aria-label="start-over" onClick={handleReset}>
                     <RestartAltIcon />
+                  </IconButton>
+                </Tooltip>
+            }
+
+          </Fragment>
+        );
+      },
+      () => {
+        return (
+          <Fragment key="pathway-search-chart-toolbar-stop-loading">
+            {
+              loadingNodes.length === 0
+                ? <IconButton aria-label="stop-loading" disabled onClick={handleStopLoading}>
+                  <StopIcon />
+                </IconButton>
+                : <Tooltip title="Stop Loading" arrow placement="left">
+                  <IconButton aria-label="stop-loading" onClick={handleStopLoading}>
+                    <StopIcon />
                   </IconButton>
                 </Tooltip>
             }
@@ -312,7 +335,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       () => (
         <Divider
           key="pathway-search-chart-toolbar-divider-0"
-          orientation="vertical"
+          orientation="horizontal"
           variant="middle"
           flexItem
         />
@@ -320,7 +343,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       () => {
         return (
           <Fragment key="pathway-search-chart-toolbar-cypher-query">
-            <Tooltip title="Copy Cypher Query" arrow>
+            <Tooltip title="Copy Cypher Query" arrow placement="left">
               <IconButton aria-label="cypher-query" onClick={onCopyCypher}>
                 <ContentCopyIcon />
               </IconButton>
@@ -331,7 +354,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       () => {
         return (
           <Fragment key="pathway-search-chart-toolbar-download-pathway">
-            <Tooltip title="Download Pathway" arrow>
+            <Tooltip title="Download Pathway" arrow placement="left">
               <IconButton aria-label="download-pathway" onClick={onDownload}>
                 <FileDownloadIcon />
               </IconButton>
@@ -342,7 +365,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       () => {
         return (
           <Fragment key="pathway-search-chart-toolbar-upload-pathway">
-            <Tooltip title="Upload Pathway" arrow>
+            <Tooltip title="Upload Pathway" arrow placement="left">
               <IconButton aria-label="upload-pathway" component="label">
                 <FileUploadIcon />
                 <VisuallyHiddenInput
@@ -364,7 +387,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       () => (
         <Divider
           key="pathway-search-chart-toolbar-divider-1"
-          orientation="vertical"
+          orientation="horizontal"
           variant="middle"
           flexItem
         />
@@ -372,7 +395,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       () => {
         return (
           <Fragment key="pathway-search-chart-toolbar-help">
-            <Tooltip title="Help" arrow>
+            <Tooltip title="Help" arrow placement="left">
               <Link href="/data/graph/help" target="_blank">
                 <IconButton aria-label="pathway-help" component="label">
                   <HelpIcon />
@@ -590,7 +613,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         elements={elements}
         layout={layout}
         stylesheet={PATHWAY_SEARCH_STYLESHEET}
-        cxtMenuEnabled={true}
+        cxtMenuEnabled={loadingNodes.length === 0} // Turn off the cxt menu while the parent is loading results
         tooltipEnabled={false}
         hoverCxtMenuEnabled={false}
         toolbarPosition={{ top: 10, right: 10 }}

@@ -15,8 +15,12 @@ export const fetchNodeByIdAndLabels = (
     },
   });
 
-export const fetchCVTerms = (query: string, fetchProps?: RequestInit) =>
-  fetch(`${GRAPH_API_PREFIX}/terms?q=${query}`, {
+export const fetchCVTerms = (
+  query: string,
+  skip: number,
+  fetchProps?: RequestInit
+) =>
+  fetch(`${GRAPH_API_PREFIX}/terms?q=${query}&skip=${skip}`, {
     ...fetchProps,
     method: "GET",
     headers: {
@@ -80,6 +84,8 @@ export const fetchPathwayNodeOptions = (
   filter: string | null,
   nodeId: string,
   tree: string,
+  skip?: number,
+  limit?: number,
   fetchProps?: RequestInit
 ) =>
   fetch(`${GRAPH_API_PREFIX}/pathway/terms`, {
@@ -88,5 +94,5 @@ export const fetchPathwayNodeOptions = (
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ filter, nodeId, tree }),
+    body: JSON.stringify({ filter, nodeId, tree, skip, limit }),
   });

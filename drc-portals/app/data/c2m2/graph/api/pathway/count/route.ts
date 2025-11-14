@@ -9,7 +9,7 @@ import {
   sessionExecuteReadOne,
 } from "@/lib/neo4j/driver";
 import { PathwayNode, TreeParseResult } from "@/lib/neo4j/types";
-import { getMultiCallCountsQuery, parsePathwayTree } from "@/lib/neo4j/utils";
+import { parsePathwayTree } from "@/lib/neo4j/utils";
 
 interface CountsQueryRecord {
   total: number;
@@ -52,7 +52,6 @@ export async function POST(request: NextRequest) {
     const querySessions: [string, Session][] = [
       [getSingleMatchCountsQuery(treeParseResult, true), getSession(driver)],
       [getSingleMatchCountsQuery(treeParseResult), getSession(driver)],
-      [getMultiCallCountsQuery(tree), getSession(driver)],
     ];
     const pathwaySearchResultCount = await Promise.race(
       querySessions.map(([query, session]) =>

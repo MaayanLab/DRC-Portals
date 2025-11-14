@@ -45,8 +45,11 @@ export default function ChartToolbar(cmpProps: ChartToolbarProps) {
     <Paper
       sx={{
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
         color: "text.secondary",
+        maxHeight: "480px",
+        overflow: "auto",
         "& svg": {
           borderRadius: 1,
         },
@@ -55,20 +58,20 @@ export default function ChartToolbar(cmpProps: ChartToolbarProps) {
       {customTools === undefined ? null : (
         <>
           {[...customTools.map((factoryFn) => factoryFn(cyRef, layout))]}
-          <Divider orientation="vertical" variant="middle" flexItem />
+          <Divider orientation="horizontal" variant="middle" flexItem />
         </>
       )}
-      <Tooltip title="Zoom In" arrow>
+      <Tooltip title="Zoom In" arrow placement="left">
         <IconButton aria-label="zoom-in" onClick={() => handleZoom(false)}>
           <ZoomInIcon />
         </IconButton>
       </Tooltip>
-      <Tooltip title="Zoom Out" arrow>
+      <Tooltip title="Zoom Out" arrow placement="left">
         <IconButton aria-label="zoom-out" onClick={() => handleZoom(true)}>
           <ZoomOutIcon />
         </IconButton>
       </Tooltip>
-      <Tooltip title="Fit Graph" arrow>
+      <Tooltip title="Fit Graph" arrow placement="left">
         <IconButton aria-label="fit-graph" onClick={handleFit}>
           <FitScreenIcon />
         </IconButton>

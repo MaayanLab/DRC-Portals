@@ -28,7 +28,7 @@ To follow this guide you will need to install Python on your machine. If Python 
 
 ### Postgres
 
-You will also need the `psql` command line tool in order to export data from the C2M2 database. `psql` is included as part of a Postgres installation. If you don't have Postgres installed on your machine, you can find information on how to do so [here](https://www.postgresql.org/docs/current/tutorial-install.html). Of course, if you are installing to a remote machine, be sure to ask a system admin for guidance or help if you run into any issues!
+You will also need the `psql` command line tool in order to export data from the C2M2 database. `psql` is included as part of a Postgres installation. If you don't have Postgres installed on your machine, you can find information on how to do so [on this documentation page](https://www.postgresql.org/docs/current/tutorial-install.html). Of course, if you are installing to a remote machine, be sure to ask a system admin for guidance or help if you run into any issues!
 
 ### Docker
 
@@ -141,7 +141,7 @@ Once the load process is complete, you may stop the container. You can do so by 
 docker-compose -f docker-compose.load.yaml down
 ```
 
-There are two docker-compose files specifically for local development and production, `docker-compose.dev.yaml` and `docker-compose.prod.yaml` respectively. They both contain several configurations which should always be enabled, e.g. transaction timeouts and maximum memory. The production compose file has several more configurations related to enabling SSL. You can start the services described in either by running:
+There are two docker-compose files specifically for local development and production, `docker-compose.dev.yaml` and `docker-compose.prod.yaml` respectively. They both contain several configurations which should always be enabled, e.g. transaction timeouts and maximum memory. The production compose file has several more configurations related to enabling SSL, as well as enforcing that all databases are **_readonly_**. You can start the services described in either by running:
 
 ```bash
 docker-compose -f <filename> up -d
@@ -178,7 +178,7 @@ The next step is to generate the certs for the first time. Run the following com
 sudo certbot certonly
 ```
 
-When prompted to specify an authentication option, choose option 1 (create a temporary webserver on port 80). Then, when prompted to provide the domain name(s), provide the domain you've registered and and created DNS records for.
+When prompted to specify an authentication option, choose option 1 (create a temporary webserver on port 80). Then, when prompted to provide the domain name(s), provide the domain you've registered and created DNS records for.
 
 Note that by choosing option 1 above, you _must_ open port 80 on the host for the above to succeed. If port 80 is not open, certbot will not be able to complete the certificate registration! Verify that the host does not have a firewall on port 80 if you are encountering any issues generating the certificate, as this is a common issue.
 

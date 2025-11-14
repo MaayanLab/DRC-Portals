@@ -1,7 +1,7 @@
 "use client";
 
-import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
-import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
+import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
+import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 import {
   ClickAwayListener,
   IconButton,
@@ -127,6 +127,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     useState<NodeJS.Timeout | null>(null);
   const [closeNodeCxtTimerId, setCloseNodeCxtTimerId] =
     useState<NodeJS.Timeout | null>(null);
+  const [longTouchHeld, setLongTouchHeld] = useState(false);
 
   const handleContextMenuClose = () => {
     setContextMenuOpen(false);
@@ -278,6 +279,102 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
     [canvasCxtMenuItems]
   );
 
+  const handleCtrlTap = useCallback((event: EventObject) => {
+    if (event.originalEvent.ctrlKey) {
+      handleCxtTap(event);
+    }
+  }, [handleCxtTap]);
+
+  const handleNodeCtrlTap = useCallback(
+    (event: EventObject) => {
+      if (event.originalEvent.ctrlKey) {
+        openNodeCxt(event);
+      }
+    },
+    [openNodeCxt]
+  );
+
+
+  const handleEdgeCtrlTap = useCallback(
+    (event: EventObject) => {
+      if (event.originalEvent.ctrlKey) {
+        openEdgeCxt(event);
+      }
+    },
+    [openEdgeCxt]
+  );
+
+  const handleCanvasCtrlTap = useCallback(
+    (event: EventObject) => {
+      if (event.originalEvent.ctrlKey) {
+        openCanvasCxt(event);
+      }
+    },
+    [openCanvasCxt]
+  );
+
+  const handleLongTap = (event: EventObject) => {
+    hideTooltip();
+    cxtTapHandleSelectState(event);
+
+    let x: number;
+    let y: number;
+    // Cytoscape.js explicitly types originalEvent as a MouseEvent, even though it *can* also be a TouchEvent
+    // @ts-ignore
+    const targetTouches = event.originalEvent.targetTouches;
+
+    if (targetTouches !== undefined && targetTouches.length > 0) {
+      setLongTouchHeld(true);
+
+      // @ts-ignore
+      x = targetTouches[0].clientX;
+      // @ts-ignore
+      y = targetTouches[0].clientY;
+    } else {
+      x = event.originalEvent.clientX;
+      y = event.originalEvent.clientY;
+    }
+
+    contextMenuPosRef.current = {
+      x,
+      y,
+    };
+  }
+
+  const handleNodeTapEnd = useCallback(
+    (event: EventObject) => {
+      // If this is true then the user is on a touch device and triggered a taphold
+      if (longTouchHeld) {
+        openNodeCxt(event);
+      }
+      setLongTouchHeld(false);
+    },
+    [longTouchHeld, openNodeCxt]
+  );
+
+
+  const handleEdgeTapEnd = useCallback(
+    (event: EventObject) => {
+      // If this is true then the user is on a touch device and triggered a taphold
+      if (longTouchHeld) {
+        openEdgeCxt(event);
+      }
+      setLongTouchHeld(false);
+    },
+    [longTouchHeld, openEdgeCxt]
+  );
+
+  const handleCanvasTapEnd = useCallback(
+    (event: EventObject) => {
+      // If this is true then the user is on a touch device and triggered a taphold
+      if (longTouchHeld) {
+        openCanvasCxt(event);
+      }
+      setLongTouchHeld(false);
+    },
+    [longTouchHeld, openCanvasCxt]
+  );
+
   const clearCloseNodeCxtTimer = useCallback(() => {
     if (closeNodeCxtTimerId !== null) {
       clearTimeout(closeNodeCxtTimerId);
@@ -324,6 +421,22 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       { event: "mouseout", target: "edge", callback: handleBlurEdge },
       { event: "grab", target: "node", callback: handleGrabNode },
       { event: "drag", target: "node", callback: handleDragNode },
+      { event: "tap", callback: handleCtrlTap }, // Shared tap behavior
+      ...(cxtMenuEnabled
+        ? [
+          { event: "tap", callback: handleCanvasCtrlTap }, // Canvas specific tap behavior
+          { event: "tap", target: "node", callback: handleNodeCtrlTap },
+          { event: "tap", target: "edge", callback: handleEdgeCtrlTap },
+        ]
+        : []),
+      { event: "taphold", callback: handleLongTap }, // Shared taphold behavior
+      ...(cxtMenuEnabled
+        ? [
+          { event: "tapend", callback: handleCanvasTapEnd }, // Canvas specific taphold behavior
+          { event: "tapend", target: "node", callback: handleNodeTapEnd },
+          { event: "tapend", target: "edge", callback: handleEdgeTapEnd },
+        ]
+        : []),
       { event: "cxttap", callback: handleCxtTap }, // Shared cxttap behavior
       ...(cxtMenuEnabled
         ? [
@@ -359,6 +472,13 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       openCanvasCxt,
       openNodeCxt,
       openEdgeCxt,
+      handleCtrlTap,
+      handleCanvasCtrlTap,
+      handleNodeCtrlTap,
+      handleEdgeCtrlTap,
+      handleNodeTapEnd,
+      handleEdgeTapEnd,
+      handleCanvasTapEnd
     ]
   );
 
@@ -431,7 +551,10 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
         onClose={handleContextMenuClose}
       ></ChartCxtMenu>
       {toolbarPosition === undefined ? null : (
-        <WidgetContainer key="cy-chart-toolbar" sx={{ ...toolbarPosition }}>
+        <WidgetContainer key="cy-chart-toolbar" sx={{
+          ...toolbarPosition,
+          flexDirection: "column",
+        }}>
           <Tooltip
             open={showToolbarHiddenTooltip}
             title={toolbarHidden ? "Show Toolbar" : "Hide Toolbar"}
@@ -440,12 +563,13 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
             onMouseLeave={() => setShowToolbarHiddenTooltip(false)}
             TransitionProps={{ exit: false }}
             arrow
+            placement="left"
           >
-            <IconButton onClick={handleHideToolbarBtnClicked}>
+            <IconButton sx={{ height: "40px", width: "40px" }} onClick={handleHideToolbarBtnClicked}>
               {toolbarHidden ? (
-                <KeyboardDoubleArrowLeftIcon />
+                <KeyboardDoubleArrowDownIcon />
               ) : (
-                <KeyboardDoubleArrowRightIcon />
+                <KeyboardDoubleArrowUpIcon />
               )}
             </IconButton>
           </Tooltip>

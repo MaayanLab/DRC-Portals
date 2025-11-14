@@ -19,48 +19,41 @@ export const getTermsCypher = () => `
       YIELD node AS s, score
       WITH s, score
       ORDER BY score DESC
-      LIMIT $limit
       MATCH (s)<-[:HAS_SYNONYM]-(cvTerm)
       RETURN s.name AS synonym, cvTerm AS cvTerm
+
       UNION ALL
+
+      CALL db.index.fulltext.queryNodes('synonymIdx', $substring)
+      YIELD node AS s, score
+      WITH s, score
+      ORDER BY score DESC
+      MATCH (s)<-[:HAS_SYNONYM]-(cvTerm)
+      RETURN s.name AS synonym, cvTerm AS cvTerm
+
+      UNION ALL
+
       CALL db.index.fulltext.queryNodes('synonymIdx', $fuzzy)
       YIELD node AS s, score
       WITH s, score
       ORDER BY score DESC
-      LIMIT $limit
       MATCH (s)<-[:HAS_SYNONYM]-(cvTerm)
       RETURN s.name AS synonym, cvTerm AS cvTerm
     }
     RETURN DISTINCT collect(synonym)[0] AS synonym, ${createNodeReprStr(
       "cvTerm"
     )} AS cvTerm
+    SKIP $skip
     LIMIT $limit
   `;
 
 export const filterTermBySynonyms = (nodeId: string) => `
-    CALL {
-      WITH ${nodeId}
-      MATCH (s)<-[:HAS_SYNONYM]-(${nodeId})
-      WHERE s.name = $phrase
-      RETURN ${nodeId} AS term
-      LIMIT $limit
-
-      UNION ALL
-
-      WITH ${nodeId}
-      MATCH (s)<-[:HAS_SYNONYM]-(${nodeId})
-      WHERE s.name =~ $substring
-      RETURN ${nodeId} AS term
-      LIMIT $limit
-
-      UNION ALL
-
-      WITH ${nodeId}
-      MATCH (s)<-[:HAS_SYNONYM]-(${nodeId})
-      WHERE apoc.text.fuzzyMatch($phrase, s.name)
-      RETURN ${nodeId} AS term
-      LIMIT $limit
-    }
+    WITH ${nodeId}
+    MATCH (s)<-[:HAS_SYNONYM]-(${nodeId})
+    WHERE
+      s.name = $phrase OR
+      s.name =~ $substring OR
+      apoc.text.fuzzyMatch($phrase, s.name)
   `;
 
 export const getTermsFromLabelCypher = (label: string) => `
@@ -162,6 +155,9 @@ export const getSingleMatchCountsQuery = (
     "MATCH",
     `${treeParseResult.patterns.join(",\n")}`,
     ...usingJoinStmts,
+    ...(treeParseResult.filterMap.size > 0
+      ? ["WHERE", Array.from(treeParseResult.filterMap.values()).join(" AND ")]
+      : []),
     "RETURN",
     "{\n\t",
     Array.from(treeParseResult.nodeIds)
@@ -188,6 +184,9 @@ export const createPathwaySearchAllPathsCypher = (
     "MATCH",
     `\t${treeParseResult.patterns.join(",\n\t")}`,
     ...usingJoinStmts,
+    ...(treeParseResult.filterMap.size > 0
+      ? ["WHERE", Array.from(treeParseResult.filterMap.values()).join(" AND ")]
+      : []),
     "WITH *",
     // Need to order/paginate before aliasing the results to the return values. In other words: "First order *all* the results by this node
     // and property, then paginate the results, then map that page into the final result." If we did the ordering/pagination *after* the
@@ -225,6 +224,9 @@ export const createUpperPageBoundCypher = (
     "MATCH",
     `\t${treeParseResult.patterns.join(",\n\t")}`,
     ...usingJoinStmts,
+    ...(treeParseResult.filterMap.size > 0
+      ? ["WHERE", Array.from(treeParseResult.filterMap.values()).join(" AND ")]
+      : []),
     "WITH *",
     "SKIP $skip",
     "LIMIT ($maxSiblings - (($skip / $limit) - $lowerPageBound)) * $limit",

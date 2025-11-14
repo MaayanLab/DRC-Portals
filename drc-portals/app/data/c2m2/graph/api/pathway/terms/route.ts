@@ -1,26 +1,33 @@
 import { NextRequest } from "next/server";
 
-import { TERM_LABELS } from "@/lib/neo4j/constants";
+import { NAME_FILTER_LABELS } from "@/lib/neo4j/constants";
 import { filterTermBySynonyms } from "@/lib/neo4j/cypher";
 import { executeRead, getDriver } from "@/lib/neo4j/driver";
 import { PathwayNode, TreeParseResult } from "@/lib/neo4j/types";
 import {
   escapeCypherString,
-  getOptimizedMatches,
-  isValidLucene,
+  getTermMatchBaseQuery,
   parsePathwayTree,
 } from "@/lib/neo4j/utils";
 
-const PATHWAY_TERMS_LIMIT = 10;
+const PATHWAY_TERMS_LIMIT = 15;
+const MAX_ALLOWABLE_LIMIT = 1000;
 
 // TODO: Would be awesome if we could somehow guarantee that the ids passed in for a given pathway will be exactly the same every time
 // that pathway is sent in the request. This would allow us to leverage the Neo4j query cache much more effectively.
 export async function POST(request: NextRequest) {
-  const body: { filter: string | null; nodeId: string; tree: string } =
-    await request.json();
+  const body: {
+    filter: string | null;
+    nodeId: string;
+    tree: string;
+    skip?: number;
+    limit?: number;
+  } = await request.json();
   let tree: PathwayNode;
   let treeParseResult: TreeParseResult;
   let nodeLabel: string;
+  const skip = body.skip;
+  const limit = body.limit || PATHWAY_TERMS_LIMIT;
 
   if (body === null) {
     return Response.json(
@@ -28,6 +35,15 @@ export async function POST(request: NextRequest) {
         error: "Request body is empty.",
       },
       { status: 400 }
+    );
+  }
+
+  if (limit > MAX_ALLOWABLE_LIMIT) {
+    return Response.json(
+      {
+        error: `Requested limit is greater than the maximum of ${MAX_ALLOWABLE_LIMIT}.`,
+      },
+      { status: 422 }
     );
   }
 
@@ -70,49 +86,56 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (!NAME_FILTER_LABELS.has(nodeLabel)) {
+    return Response.json(
+      {
+        message: `Cannot filter node with label ${nodeLabel} on name property.`,
+      },
+      { status: 422 }
+    );
+  }
+
   try {
-    const queryStmts = getOptimizedMatches(treeParseResult, body.nodeId);
+    const queryStmts = getTermMatchBaseQuery(treeParseResult, body.nodeId);
     const escapedNodeId = escapeCypherString(body.nodeId);
     const query = [...queryStmts];
     const driver = getDriver();
     let result;
 
-    if (body.filter && TERM_LABELS.includes(nodeLabel)) {
-      const phrase = body.filter;
-      const substring = `.*${body.filter}.*`;
+    const phrase = body.filter;
+    const substring = `.*${body.filter}.*`;
 
+    if (phrase) {
       query.push(
-        ...[
-          filterTermBySynonyms(escapedNodeId),
-          `RETURN DISTINCT term.name AS name`,
-          `ORDER BY size(name) ASC`,
-          "LIMIT $limit",
-        ]
+        filterTermBySynonyms(escapedNodeId),
+        `WITH DISTINCT ${escapedNodeId}.name AS name, collect(s.name)[0] AS synonym`
       );
-      result = await executeRead<{ name: string }>(driver, query.join("\n"), {
-        phrase,
-        substring,
-        limit: PATHWAY_TERMS_LIMIT,
-      });
     } else {
       query.push(
-        ...[
-          ...(body.filter === null
-            ? []
-            : [`WHERE lower(${escapedNodeId}.name) CONTAINS lower($filter)`]),
-          `RETURN DISTINCT ${escapedNodeId}.name AS name`,
-          "ORDER BY size(name) ASC",
-          "LIMIT $limit",
-        ]
+        `WITH DISTINCT ${escapedNodeId}.name AS name, NULL AS synonym`
       );
-      result = await executeRead<{ name: string }>(driver, query.join("\n"), {
-        filter: body.filter,
-        limit: PATHWAY_TERMS_LIMIT,
-      });
     }
 
+    query.push(
+      "RETURN name, synonym",
+      phrase ? "ORDER BY toLower(synonym)" : "ORDER BY toLower(name) ASC",
+      `${skip === undefined ? "// " : ""}SKIP $skip`,
+      "LIMIT $limit"
+    );
+    result = await executeRead<{ name: string; synonym: string | null }>(
+      driver,
+      query.join("\n"),
+      {
+        phrase,
+        substring,
+        limit,
+        skip,
+      }
+    );
+
     return Response.json(
-      result.map((record) => record.toObject().name, { status: 200 })
+      result.map((record) => record.toObject()),
+      { status: 200 }
     );
   } catch (error) {
     return Response.json(

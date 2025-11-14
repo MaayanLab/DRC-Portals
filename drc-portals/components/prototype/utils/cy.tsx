@@ -20,7 +20,7 @@ import { CSSProperties, Fragment, ReactNode } from "react";
 import {
   BIOSAMPLE_RELATED_LABELS,
   FILE_RELATED_LABELS,
-  FILTER_LABELS,
+  NAME_FILTER_LABELS,
   SUBJECT_RELATED_LABELS,
   TERM_LABELS,
 } from "@/lib/neo4j/constants";
@@ -119,7 +119,7 @@ export const createCytoscapeElements = (
       } else {
         if (!seenNodes.has(element.uuid)) {
           const nodeLabel = element.labels[0];
-          const usePropForLabel = FILTER_LABELS.has(nodeLabel);
+          const usePropForLabel = NAME_FILTER_LABELS.has(nodeLabel);
           nodes.push(createCytoscapeNode(element, [], usePropForLabel));
           seenNodes.add(element.uuid);
         }
@@ -238,7 +238,7 @@ export const createNodeTooltip = (
     const tooltipBorderColor =
       nodeLabels.length === 1
         ? ENTITY_STYLES_MAP.get(NODE_CLASS_MAP.get(nodeLabels[0]) || "")
-            ?.backgroundColor
+          ?.backgroundColor
         : "#fff";
 
     return (
@@ -426,7 +426,7 @@ export const downloadChartData = (
 
   return (
     <Fragment key={key}>
-      <Tooltip title={title} arrow>
+      <Tooltip title={title} arrow placement="left">
         <IconButton aria-label="download-data" onClick={action}>
           <FileDownloadIcon />
         </IconButton>
@@ -449,7 +449,7 @@ export const downloadChartPNG = (
 
   return (
     <Fragment key={key}>
-      <Tooltip title={title} arrow>
+      <Tooltip title={title} arrow placement="left">
         <IconButton aria-label="download-png" onClick={action}>
           <PhotoCameraIcon />
         </IconButton>
