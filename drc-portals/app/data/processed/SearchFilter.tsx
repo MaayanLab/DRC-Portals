@@ -3,7 +3,7 @@
 import React from 'react'
 import { Button } from "@mui/material";
 import { Checkbox, Typography } from '@mui/material'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from '@/utils/navigation'
 import { Box } from '@mui/system';
 
 export function CollapseFilter(props: React.PropsWithChildren<{}>) {
