@@ -558,11 +558,8 @@ export default function GraphPathway() {
   return (
     <Box sx={{
       height: "640px",
-      width: "80vw",
-      marginLeft: "calc((-80vw + 100%) / 2)",
-      marginRight: "calc((-80vw + 100%) / 2)",
+      width: "100%",
       position: "relative",
-      overflow: "hidden",
     }}>
       {showResults && tree !== undefined ? (
         <GraphPathwayResults

@@ -72,12 +72,9 @@ export default function GraphHome() {
     <Paper
       sx={{
         boxShadow: "none",
-        width: "100vw",
+        width: "100%",
         minHeight: 560,
-        marginLeft: "calc((-100vw + 100%) / 2)",
-        marginRight: "calc((-100vw + 100%) / 2)",
         position: "relative",
-        overflow: "hidden",
       }}
       className="flex"
     >
