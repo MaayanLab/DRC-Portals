@@ -1,16 +1,22 @@
 #!/bin/sh
 
 ELASTICSEARCH_URL=$(dotenv -f ../drc-portals/.env get ELASTICSEARCH_URL)
-INDEX_VERSION=v1
+INDEX_VERSION=v8
 
-es() {
+es_put() {
   method=$1
   path=$2
   curl -H'Content-Type: application/json' -X${method} ${ELASTICSEARCH_URL}${path} -d @-
 }
 
+es() {
+  method=$1
+  path=$2
+  curl -H'Content-Type: application/json' -X${method} ${ELASTICSEARCH_URL}${path}
+}
+
 # create index for entity
-es PUT /entity_${INDEX_VERSION} << EOF
+es_put PUT /entity_${INDEX_VERSION} << EOF
 {
   "settings": {
     "analysis": {
@@ -71,7 +77,7 @@ es PUT /entity_${INDEX_VERSION} << EOF
 EOF
 
 # create index for m2m
-es PUT /m2m_${INDEX_VERSION} << EOF
+es_put PUT /m2m_${INDEX_VERSION} << EOF
 {
   "mappings": {
     "properties": {
@@ -83,16 +89,16 @@ es PUT /m2m_${INDEX_VERSION} << EOF
 }
 EOF
 
-es POST /_aliases << EOF
+es_put POST /_aliases << EOF
 {"actions": [{ "remove": { "index": "*", "alias": "entity_staging" } }]}
 EOF
-es POST /_aliases << EOF
+es_put POST /_aliases << EOF
 {"actions": [{ "add": { "index": "entity_${INDEX_VERSION}", "alias": "entity_staging" } }]}
 EOF
-es POST /_aliases << EOF
+es_put POST /_aliases << EOF
 {"actions": [{ "remove": { "index": "*", "alias": "m2m_staging" } }]}
 EOF
-es POST /_aliases << EOF
+es_put POST /_aliases << EOF
 {"actions": [{ "add": { "index": "m2m_${INDEX_VERSION}", "alias": "m2m_staging" } }]}
 EOF
 
@@ -102,7 +108,7 @@ EOF
 ../.venv/bin/python ingest_c2m2_files.py
 ../.venv/bin/python ingest_kg.py
 
-es POST /_aliases << EOF
+es_put POST /_aliases << EOF
 {
   "actions": [
     { "remove": { "index": "entity_${INDEX_VERSION}", "alias": "entity_staging" } },
@@ -112,15 +118,15 @@ es POST /_aliases << EOF
 EOF
 
 # sanity checks
-es POST /entity_${INDEX_VERSION}/_search << EOF
+es_put POST /entity_${INDEX_VERSION}/_search << EOF
 {"query":{"match_all":{}}, "size":10,"sort":[{"pagerank":{"order": "desc"}}]}
 EOF
-es POST /m2m_${INDEX_VERSION}/_search << EOF
+es_put POST /m2m_${INDEX_VERSION}_expanded/_search << EOF
 {"query":{"match_all":{}}, "size":10}
 EOF
 
 # provide a way to get entity from id
-es PUT /_enrich/policy/entity_${INDEX_VERSION}_lookup << EOF
+es_put PUT /_enrich/policy/entity_${INDEX_VERSION}_lookup << EOF
 {
   "match": {
     "indices": "entity_${INDEX_VERSION}",
@@ -129,7 +135,7 @@ es PUT /_enrich/policy/entity_${INDEX_VERSION}_lookup << EOF
   }
 }
 EOF
-echo "" | es POST /_enrich/policy/entity_${INDEX_VERSION}_lookup/_execute
+es_put POST /_enrich/policy/entity_${INDEX_VERSION}_lookup/_execute
 
 # Here we go from
 # {
@@ -149,7 +155,7 @@ echo "" | es POST /_enrich/policy/entity_${INDEX_VERSION}_lookup/_execute
 #   r_predicate2_a_label: "someotherlabel",
 #   r_predicate1_r_predicate3: "onehoprelationship",
 # }
-echo "" | es GET "/entity_${INDEX_VERSION}/_field_caps?fields=r_*" | jq -rc '{
+es GET "/entity_${INDEX_VERSION}/_field_caps?fields=r_*" | jq -rc '{
   "processors": [
     .fields|keys|.[]|{"enrich":{
       "policy_name": "entity_" + $INDEX_VERSION + "_lookup",
@@ -176,10 +182,10 @@ echo "" | es GET "/entity_${INDEX_VERSION}/_field_caps?fields=r_*" | jq -rc '{
       ctx.remove(entry.getKey());
     }
   }
-" | es PUT /_ingest/pipeline/entity_${INDEX_VERSION}_expanded
+" | es_put PUT /_ingest/pipeline/entity_${INDEX_VERSION}_expanded
 
 # create index for entity_expanded
-es PUT /entity_${INDEX_VERSION}_expanded << EOF
+es_put PUT /entity_${INDEX_VERSION}_expanded << EOF
 {
   "settings": {
     "analysis": {
@@ -291,7 +297,7 @@ es PUT /entity_${INDEX_VERSION}_expanded << EOF
 }
 EOF
 
-es POST /_reindex << EOF
+es_put POST /_reindex << EOF
 {
   "source": {
     "index": "entity_${INDEX_VERSION}"
@@ -304,7 +310,7 @@ es POST /_reindex << EOF
 EOF
 
 # provide a way to get entity from id
-es PUT /_enrich/policy/entity_${INDEX_VERSION}_expanded_lookup << EOF
+es_put PUT /_enrich/policy/entity_${INDEX_VERSION}_expanded_lookup << EOF
 {
   "match": {
     "indices": "entity_${INDEX_VERSION}_expanded",
@@ -313,10 +319,10 @@ es PUT /_enrich/policy/entity_${INDEX_VERSION}_expanded_lookup << EOF
   }
 }
 EOF
-echo "" | es POST /_enrich/policy/entity_${INDEX_VERSION}_expanded_lookup/_execute
+es_put POST /_enrich/policy/entity_${INDEX_VERSION}_expanded_lookup/_execute
 
 # expand target_id into full target entity
-es PUT /_ingest/pipeline/m2m_${INDEX_VERSION}_target_expanded << EOF
+es_put PUT /_ingest/pipeline/m2m_${INDEX_VERSION}_target_expanded << EOF
 {
   "processors": [
     {
@@ -343,7 +349,7 @@ es PUT /_ingest/pipeline/m2m_${INDEX_VERSION}_target_expanded << EOF
 }
 EOF
 # create index for m2m
-es PUT /m2m_${INDEX_VERSION}_target_expanded << EOF
+es_put PUT /m2m_${INDEX_VERSION}_target_expanded << EOF
 {
   "settings": {
     "analysis": {
@@ -457,7 +463,7 @@ es PUT /m2m_${INDEX_VERSION}_target_expanded << EOF
 }
 EOF
 
-es POST /_reindex << EOF
+es_put POST /_reindex << EOF
 {
   "source": {
     "index": "m2m_${INDEX_VERSION}"
@@ -469,7 +475,7 @@ es POST /_reindex << EOF
 }
 EOF
 
-es PUT /_ingest/pipeline/m2m_${INDEX_VERSION}_expanded << EOF
+es_put PUT /_ingest/pipeline/m2m_${INDEX_VERSION}_expanded << EOF
 {
   "processors": [
     {
@@ -525,7 +531,7 @@ es PUT /_ingest/pipeline/m2m_${INDEX_VERSION}_expanded << EOF
 EOF
 
 # create index for m2m
-es PUT /m2m_${INDEX_VERSION}_expanded << EOF
+es_put PUT /m2m_${INDEX_VERSION}_expanded << EOF
 {
   "settings": {
     "analysis": {
@@ -617,7 +623,7 @@ es PUT /m2m_${INDEX_VERSION}_expanded << EOF
 }
 EOF
 
-es POST /_reindex << EOF
+es_put POST /_reindex << EOF
 {
   "source": {
     "index": "m2m_${INDEX_VERSION}"
@@ -630,17 +636,17 @@ es POST /_reindex << EOF
 EOF
 
 # remove aliases if they exist
-es POST /_aliases << EOF
+es_put POST /_aliases << EOF
 {"actions": [{ "remove": { "index": "*", "alias": "entity" } }]}
 EOF
-es POST /_aliases << EOF
+es_put POST /_aliases << EOF
 {"actions": [{ "remove": { "index": "*", "alias": "entity_expanded" } }]}
 EOF
-es POST /_aliases << EOF
+es_put POST /_aliases << EOF
 {"actions": [{ "remove": { "index": "*", "alias": "m2m_target_expanded" } }]}
 EOF
 # update this version to production
-es POST /_aliases << EOF
+es_put POST /_aliases << EOF
 {
   "actions": [
     { "add": { "index": "entity_${INDEX_VERSION}", "alias": "entity" } },
@@ -651,10 +657,10 @@ es POST /_aliases << EOF
 EOF
 
 # get current indexes
-# echo "" | es GET /_cat/indices?v
-# echo "" | es GET /_aliases
+# es GET /_cat/indices?v
+# es GET /_aliases
 
 # delete old index
-# echo "" | es DELETE /entity_${INDEX_VERSION}
-# echo "" | es DELETE /m2m_${INDEX_VERSION}
-# echo "" | es DELETE /m2m_target_expanded_${INDEX_VERSION}
+# es DELETE /entity_${INDEX_VERSION}
+# es DELETE /m2m_${INDEX_VERSION}_expanded
+# es DELETE /m2m_target_expanded_${INDEX_VERSION}
