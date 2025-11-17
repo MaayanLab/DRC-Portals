@@ -496,14 +496,27 @@ es PUT /_ingest/pipeline/m2m_${INDEX_VERSION}_expanded << EOF
       "script": {
         "lang": "painless",
         "source": "
+          String encodeBase64(long value, int width, String alphabet) {
+              int base = 64;
+              String sb = '';
+              for (int i = 0; i < width; i++) {
+                  int digit = (int)(value % base);
+                  sb = alphabet.charAt(digit) + sb;
+                  value = value / base;
+              }
+              return sb;
+          }
+          String alphabet = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
           for (entry in ctx.source.entrySet()) {
             ctx['source_' + entry.getKey()] = entry.getValue();
           }
           ctx.remove('source');
+          ctx['source_pagerank_id'] = encodeBase64(ctx.source_pagerank, 4, alphabet) + ':' + ctx.source_id;
           for (entry in ctx.target.entrySet()) {
             ctx['target_' + entry.getKey()] = entry.getValue();
           }
           ctx.remove('target');
+          ctx['target_pagerank_id'] = encodeBase64(ctx.target_pagerank, 4, alphabet) + ':' + ctx.target_id;
         "
       }
     }
@@ -541,10 +554,12 @@ es PUT /m2m_${INDEX_VERSION}_expanded << EOF
       "source_type": {"type": "keyword"},
       "source_slug": {"type": "keyword"},
       "source_pagerank": {"type": "long"},
+      "source_pagerank_id": {"type": "keyword"},
       "target_id": {"type": "keyword"},
       "target_type": {"type": "keyword"},
       "target_slug": {"type": "keyword"},
-      "target_pagerank": {"type": "long"}
+      "target_pagerank": {"type": "long"},
+      "target_pagerank_id": {"type": "keyword"}
     },
     "dynamic_templates": [
       {
