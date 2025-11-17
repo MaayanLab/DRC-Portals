@@ -134,7 +134,13 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
           <Box sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
             <List component={Paper}>
               <SearchablePagedTableCellContext.Provider value={{ component: 'div' }}>
-                {props.rows.map((row, i) => (
+                {props.rows.length === 0 ? <ListItem>
+                    <Grid container justifyContent={"flex-start"} alignItems={"center"}>
+                      <Grid item xs={12} textAlign={"center"}>
+                        {props.loading ? <>Loading results...</> : <>No results satisfy the query and filters</>}
+                      </Grid>
+                    </Grid>
+                  </ListItem> : props.rows.map((row, i) => (
                   <React.Fragment key={i}>
                     <ListItem>
                       <Grid container justifyContent={"flex-start"} alignItems={"center"}>

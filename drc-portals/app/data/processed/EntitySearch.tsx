@@ -8,6 +8,7 @@ import { ensure_array, groupby } from '@/utils/array';
 import { esDCCs } from '@/app/data/processed/dccs';
 import { DRSCartButton, FetchDRSCartButton } from '@/app/data/processed/cart/DRSCartButton';
 import FormPagination from '@/app/data/processed/FormPagination';
+import { FancyTab } from '@/components/misc/FancyTabs';
 
 type PageProps = { params: Promise<{ type?: string, search?: string, search_type?: string } & Record<string, string>>, searchParams?: Promise<{ [key: string]: string[] | string }> }
 
@@ -83,61 +84,64 @@ export default async function Page(props: PageProps) {
     ...Object.entries(await esDCCs),
   ])
   return (
-    <SearchablePagedTable
-      tableHeader={
-        params.type && <SearchablePagedTableHeader
-          label={categoryLabel(params.type)}
-          search_name="type_search"
-          search={params?.search ?? ''}
-          autocomplete={{
-            type: params.type,
-            facet: ensure_array(searchParams?.facet),
-          }}
-        />
-      }
-      columns={[
-        <>&nbsp;</>,
-        <>Label</>,
-        <>Description</>,
-        <>&nbsp;</>,
-      ]}
-      rows={searchRes.hits.hits.map((hit) => {
-        if (!hit._source) return []
-        const href = create_url({ type: hit._source.type, slug: hit._source.slug })
-        return [
-          <SearchablePagedTableCellIcon href={href} src={itemIcon(hit._source, entityLookup)} alt={categoryLabel(hit._source.type)} />,
-          <SearchablePagedTableCell><LinkedTypedNode href={href} type={hit._source.type} label={itemLabel(hit._source)} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,
-          <SearchablePagedTableCell sx={{maxWidth: 'unset'}}><Description description={itemDescription(hit._source, entityLookup)} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,
-          hit._source.a_access_url && <SearchablePagedTableCell><DRSCartButton access_url={hit._source.a_access_url} responsive /></SearchablePagedTableCell>,
-        ]
-      }) ?? []}
-      tableFooter={!!searchRes.aggregations?.files.doc_count &&
-        <div className="flex flex-row justify-end">
-          <FetchDRSCartButton
-            search={params.search}
-            facet={[
-              ...ensure_array(params.type).map(type => type ? `type:"${type}"` : undefined),
-              ...ensure_array(params.search_type).map(type => type ? `type:"${type}"` : undefined),
-              ...ensure_array(searchParams?.facet),
-              '_exists_:a_access_url',
-            ]}
-            count={searchRes.aggregations.files.doc_count}
+    <>
+      {params.type && searchRes.hits.total === 0 && <FancyTab id={params.type} label={<>{categoryLabel(params.type)}<br />0</>} priority={0} />}
+      <SearchablePagedTable
+        tableHeader={
+          params.type && <SearchablePagedTableHeader
+            label={categoryLabel(params.type)}
+            search_name="type_search"
+            search={params?.search ?? ''}
+            autocomplete={{
+              type: params.type,
+              facet: ensure_array(searchParams?.facet),
+            }}
           />
-        </div>
-      }
-      tablePagination={
-        <FormPagination
-          cursor={searchParams?.cursor as string}
-          reverse={searchParams?.reverse !== undefined}
-          display_per_page={display_per_page}
-          page={Number(searchParams?.page || 1)}
-          total={Number(searchRes.hits.total)}
-          cursors={[
-            searchRes.hits.hits.length && searchRes.hits.hits[0].sort ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[0].sort)) : undefined,
-            searchRes.hits.hits.length && searchRes.hits.hits[searchRes.hits.hits.length-1] ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[searchRes.hits.hits.length-1].sort)) : undefined,
-          ]}
-        />
-      }
-    />
+        }
+        columns={[
+          <>&nbsp;</>,
+          <>Label</>,
+          <>Description</>,
+          <>&nbsp;</>,
+        ]}
+        rows={searchRes.hits.hits.map((hit) => {
+          if (!hit._source) return []
+          const href = create_url({ type: hit._source.type, slug: hit._source.slug })
+          return [
+            <SearchablePagedTableCellIcon href={href} src={itemIcon(hit._source, entityLookup)} alt={categoryLabel(hit._source.type)} />,
+            <SearchablePagedTableCell><LinkedTypedNode href={href} type={hit._source.type} label={itemLabel(hit._source)} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,
+            <SearchablePagedTableCell sx={{maxWidth: 'unset'}}><Description description={itemDescription(hit._source, entityLookup)} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,
+            hit._source.a_access_url && <SearchablePagedTableCell><DRSCartButton access_url={hit._source.a_access_url} responsive /></SearchablePagedTableCell>,
+          ]
+        }) ?? []}
+        tableFooter={!!searchRes.aggregations?.files.doc_count &&
+          <div className="flex flex-row justify-end">
+            <FetchDRSCartButton
+              search={params.search}
+              facet={[
+                ...ensure_array(params.type).map(type => type ? `type:"${type}"` : undefined),
+                ...ensure_array(params.search_type).map(type => type ? `type:"${type}"` : undefined),
+                ...ensure_array(searchParams?.facet),
+                '_exists_:a_access_url',
+              ]}
+              count={searchRes.aggregations.files.doc_count}
+            />
+          </div>
+        }
+        tablePagination={
+          <FormPagination
+            cursor={searchParams?.cursor as string}
+            reverse={searchParams?.reverse !== undefined}
+            display_per_page={display_per_page}
+            page={Number(searchParams?.page || 1)}
+            total={Number(searchRes.hits.total)}
+            cursors={[
+              searchRes.hits.hits.length && searchRes.hits.hits[0].sort ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[0].sort)) : undefined,
+              searchRes.hits.hits.length && searchRes.hits.hits[searchRes.hits.hits.length-1] ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[searchRes.hits.hits.length-1].sort)) : undefined,
+            ]}
+          />
+        }
+      />
+    </>
   )
 }
