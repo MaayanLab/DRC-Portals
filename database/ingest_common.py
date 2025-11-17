@@ -219,7 +219,8 @@ def pdp_helper():
         doc_as_upsert=True,
       ))
       return id
-    def upsert_m2o(target_id, predicate, source_id):
+    def upsert_m2o(target_id, predicate, source_id, inv_predicate=None):
+      if inv_predicate is None: inv_predicate = f"inv_{predicate}"
       if target_id not in m2o: m2o[target_id] = {}
       assert predicate not in m2o[target_id] or m2o[target_id][predicate] == source_id
       m2o[target_id][predicate] = source_id
@@ -233,8 +234,8 @@ def pdp_helper():
       es.put(dict(
         _op_type='update',
         _index='m2m_staging',
-        _id=f"{source_id}:{predicate}:{target_id}",
-        doc=dict(source_id=source_id, predicate=predicate, target_id=target_id),
+        _id=f"{source_id}:{inv_predicate}:{target_id}",
+        doc=dict(source_id=source_id, predicate=f"{inv_predicate}", target_id=target_id),
         doc_as_upsert=True,
       ))
       # es.put(dict(
@@ -246,7 +247,8 @@ def pdp_helper():
       #   scripted_upsert=True,
       # ))
       pagerank[source_id] = pagerank.get(source_id, 0) + 1
-    def upsert_m2m(source_id, predicate, target_id):
+    def upsert_m2m(source_id, predicate, target_id, inv_predicate=None):
+      if inv_predicate is None: inv_predicate = f"inv_{predicate}"
       es.put(dict(
         _op_type='update',
         _index='m2m_staging',
@@ -266,8 +268,8 @@ def pdp_helper():
       es.put(dict(
         _op_type='update',
         _index='m2m_staging',
-        _id=f"{target_id}:inv_{predicate}:{source_id}",
-        doc=dict(source_id=target_id, predicate=f"inv_{predicate}", target_id=source_id),
+        _id=f"{target_id}:{inv_predicate}:{source_id}",
+        doc=dict(source_id=target_id, predicate=inv_predicate, target_id=source_id),
         doc_as_upsert=True,
       ))
       # es.put(dict(
