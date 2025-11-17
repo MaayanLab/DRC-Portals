@@ -25,7 +25,7 @@ export default router({
       }
     })
     const searchRes = await elasticsearch.search<M2MTargetType | EntityType>({
-      index: props.input.source_id ? 'm2m_target_expanded' : 'entity_v8_expanded',
+      index: props.input.source_id ? 'm2m_target_expanded' : 'm2m_v8_expanded_pagerankid',
       query: {
         bool: {
           filter,
@@ -35,8 +35,7 @@ export default router({
         {'target_pagerank': {'order': 'desc'}},
         {'target_id': {'order': 'asc'} },
       ] : [
-        {'pagerank': {'order': 'desc'}},
-        {'id': {'order': 'asc'} },
+        {'source_pagerank_id': {'order': 'desc'}}
       ],
       size: limit,
       search_after: props.input.cursor ? JSON.parse(props.input.cursor) : undefined,
@@ -78,16 +77,15 @@ export default router({
       )
     } else {
       facets.push(
-        'r_dcc_id',
-        'r_source_type',
-        'r_target_type',
-        'r_source_id', 'r_relation_id', 'r_target_id',
-        'r_disease_id', 'r_species_id', 'r_anatomy_id', 'r_gene_id', 'r_protein_id', 'r_compound_id', 'r_data_type_id', 'r_assay_type_id',
-        'r_file_format_id', 'r_ptm_type_id', 'r_ptm_subtype_id', 'r_ptm_site_type_id',
+        'source_r_dcc',
+        'source_type',
+        // 'source_r_source', 'source_r_relation', 'source_r_target',
+        // 'source_r_disease', 'source_r_species', 'source_r_anatomy', 'source_r_gene', 'source_r_protein', 'source_r_compound', 'source_r_data_type', 'source_r_assay_type',
+        // 'source_r_file_format', 'source_r_ptm_type', 'source_r_ptm_subtype', 'source_r_ptm_site_type',
       )
     }
     const searchRes = await elasticsearch.search<unknown, TermAggType<typeof facets[0]>>({
-      index: props.input.source_id ? 'm2m_target_expanded' : 'entity_v8_expanded',
+      index: props.input.source_id ? 'm2m_target_expanded' : 'm2m_v8_expanded_pagerankid',
       query: {
         bool: {
           filter,

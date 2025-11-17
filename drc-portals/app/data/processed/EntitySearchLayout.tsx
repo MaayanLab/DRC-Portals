@@ -3,7 +3,7 @@ import SearchTabs from "@/app/data/processed/SearchTabs";
 import { redirect } from "next/navigation";
 import { FancyTab } from "@/components/misc/FancyTabs";
 import { Metadata, ResolvingMetadata } from "next";
-import { categoryLabel, create_url, EntityType, TermAggType } from "./utils";
+import { CardinalityAggType, categoryLabel, create_url, EntityType, M2MExpandedType, TermAggType } from "./utils";
 import elasticsearch from "@/lib/elasticsearch";
 import { estypes } from "@elastic/elasticsearch";
 
@@ -28,17 +28,25 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
   if (!params.search) redirect('/data')
   const filter: estypes.QueryDslQueryContainer[] = []
   if (params.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
-  const searchRes = await elasticsearch.search<EntityType, TermAggType<'types' | 'dccs'>>({
-    index: 'entity_v8_expanded',
+  const searchRes = await elasticsearch.search<M2MExpandedType, CardinalityAggType<'total' | 'files'> & TermAggType<'types' | 'dccs'>>({
+    index: 'm2m_v8_expanded_pagerankid',
     query: {
       bool: {
         filter,
       },
     },
+    collapse: {
+      field: 'source_pagerank_id',
+    },
     aggs: {
+      total: {
+        cardinality: {
+          field: 'source_pagerank_id',
+        },
+      },
       types: {
         terms: {
-          field: 'type',
+          field: 'source_type',
           size: 1000,
         },
       },

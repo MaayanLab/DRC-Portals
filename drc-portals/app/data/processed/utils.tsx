@@ -24,10 +24,39 @@ export type M2MTargetType = {
   target_a_description: string,
 } & Record<string, string>
 
+export type M2MExpandedType = {
+  source_id: string,
+  source_type: string,
+  source_slug: string,
+  source_pagerank: string,
+  source_a_label: string,
+  source_a_description: string,
+  predicate: string,
+  target_id: string,
+  target_type: string,
+  target_slug: string,
+  target_pagerank: string,
+  target_a_label: string,
+  target_a_description: string,
+} & Record<string, string>
+
+export function m2m_expanded_source(record: M2MExpandedType) {
+  return Object.fromEntries(
+    Object.entries(record).flatMap(([k, v]) => {
+      const m = /^source_(.+)$/.exec(k)
+      if (m === null) return []
+      return [[m[1], v]]
+    })
+  ) as EntityType
+}
+
 export type TermAggType<K extends string> = Record<K, {
   buckets: { key: string, doc_count: number }[]
 }>
 
+export type CardinalityAggType<K extends string> = Record<K, {
+  value: number
+}>
 export type FilterAggType<K extends string> = Record<K, {
   doc_count: number
 }>
@@ -108,7 +137,7 @@ export function predicateLabel(type: string) {
 }
 
 export function facetLabel(facet: string) {
-  if (facet.startsWith('target_')) facet = facet.substring('target_'.length)
+  // if (facet.startsWith('target_')) facet = facet.substring('target_'.length)
   if (facet.startsWith('r_')) facet = facet.substring('r_'.length)
   if (facet.endsWith('_id')) facet = facet.substring(0, facet.length-'_id'.length)
   return predicateLabel(facet.replaceAll('_',' '))
