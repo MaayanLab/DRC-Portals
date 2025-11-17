@@ -19,12 +19,11 @@ export function SearchForm({ children, name, param = "search" }: React.PropsWith
       const formData = new FormData(evt.currentTarget)
       const params = parse_url()
       const value = formData.get(name)
+      for (const k in params) {
+        if ((k === 'type' || k === 'search_type') && params[k] !== 'c2m2') continue
+        params[k] = null
+      }
       params[param] = value !== null ? value.toString() : null
-      params['page'] = null
-      params['cursor'] = null
-      params['reverse'] = null
-      params['facet'] = null
-      params['error'] = null
       router.push(create_url(params))
     }}>
       {children}

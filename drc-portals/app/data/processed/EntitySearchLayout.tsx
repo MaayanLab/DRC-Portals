@@ -1,11 +1,12 @@
 import React from "react";
 import SearchTabs from "@/app/data/processed/SearchTabs";
 import { redirect } from "next/navigation";
-import { FancyTab } from "@/components/misc/FancyTabs";
+import { FancyTab, FancyTabPlaceholder } from "@/components/misc/FancyTabs";
 import { Metadata, ResolvingMetadata } from "next";
 import { categoryLabel, create_url, EntityType, TermAggType } from "./utils";
 import elasticsearch from "@/lib/elasticsearch";
 import { estypes } from "@elastic/elasticsearch";
+import { SearchQueryComponentTab as C2M2SearchQueryComponentTab } from '@/app/data/c2m2/search/SearchQueryComponent'
 
 export async function generateMetadata(props: { params: Promise<{ search: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params
@@ -49,9 +50,14 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
   if (!searchRes.hits.total) redirect(create_url({ search: params.search , error: 'No results matching search' }))
   return (
     <SearchTabs>
+      <FancyTabPlaceholder id="c2m2" label={<>Cross-Cut Metadata Model</>} priority={Infinity}>
+        <React.Suspense>
+          <C2M2SearchQueryComponentTab search={params.search} />
+        </React.Suspense>
+      </FancyTabPlaceholder>
       <FancyTab
         id={""}
-        label={<>All<br />{Number(searchRes.hits.total).toLocaleString()}</>}
+        label={<>Processed Data<br />{Number(searchRes.hits.total).toLocaleString()}</>}
         priority={Number(searchRes.hits.total)}
       />
       {searchRes.aggregations?.types.buckets.map((filter) =>

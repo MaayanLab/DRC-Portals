@@ -12,21 +12,8 @@ export default function SearchParamSearchField(props: Omit<React.ComponentProps<
   if (
     pathname === '/'
     || pathname === '/data'
-    || /^(\/data)?(\/graph|\/enrichment|\/cross|\/processed\/search\/[^\/]+\/[^\/]+)$/.exec(pathname) !== null
+    || /^(\/data)?(\/graph|\/enrichment|\/cross|\/processed\/search\/[^\/]+\/(?!c2m2)[^\/]+)$/.exec(pathname) !== null
   ) return null
-  if (/^(\/data)?\/c2m2/.exec(pathname) !== null) {
-    return (
-      <C2M2SearchForm>
-        <C2M2SearchField
-          {...props}
-          defaultValue={params.search ?? ''}
-          InputProps={{
-            sx: {width:{xs: '200px', sm: '200px', md: '270px', lg: '270px', xl: '270px'} }
-          }}
-        />
-      </C2M2SearchForm>
-    )
-  }
   return (
     <SearchForm name={id} param={props.name}>
       <SearchField
