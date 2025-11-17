@@ -28,9 +28,9 @@ export default function ListingPageLayoutClientSideFacets(props: React.PropsWith
   const aggregations = data?.aggregations ?? {}
   const entityLookup = {...(props.entityLookup ?? {}), ...(data?.entityLookup ?? {})}
   return (
-    <Grid item container justifyContent={"center"} spacing={2} style={{ overflow: 'hidden' }}>
+    <Grid item container spacing={2} style={{ overflow: 'hidden' }}>
       <Grid item container xs={12} spacing={2} flexDirection={"row-reverse"}>
-        <Grid item xs={12} md={3} sx={{ visibility: data?.total === 0 ? 'hidden' : 'visible' }}>
+        <Grid item xs={12} md={3} sx={{ visibility: data?.total === 0 ? 'hidden' : 'visible', display: data?.total === 0 ? 'none' : 'block' }}>
           <Paper sx={{display: 'flex', flexDirection: 'column', background: "linear-gradient(180deg, #EDF0F8 0%, transparent 100%)", height: '100%', padding: "12px 24px", overflow: 'hidden' }} elevation={0}>
             <div className="flex flex-row align-middle justify-between border-b border-b-slate-400 mb-4">
               <Typography variant="h5">Results found</Typography>
