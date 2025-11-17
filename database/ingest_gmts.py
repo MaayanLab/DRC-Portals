@@ -62,10 +62,10 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
               ensembl=gene,
               entrez=gene_entrez[gene],
             ), slug=gene)
-            helper.upsert_m2m(entity_id, xmt_set_type, set_id)
+            helper.upsert_m2m(set_id, xmt_type, entity_id)
         else:
           for entity in set_entities:
             entity_id = helper.upsert_entity(xmt_type, dict(
               label=entity,
             ), pk=label_ident(entity))
-            helper.upsert_m2m(entity_id, xmt_set_type, set_id)
+            helper.upsert_m2m(set_id, xmt_type, entity_id)

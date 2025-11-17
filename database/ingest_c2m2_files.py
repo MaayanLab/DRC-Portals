@@ -194,7 +194,7 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
                 {k: v for k, v in zip(fk['reference']['fields'], local_key)},
                 pk=':'.join(local_key),
               ) if len(local_key) > 1 else cv_lookup[local_key[0]]
-              helper.upsert_m2m(source_id, predicate, target_id)
+              helper.upsert_m2m(source_id, predicate, target_id, rc_name)
             else:
               # the other cv_references are m2o connections
               target_id = cv_lookup[v]
@@ -215,7 +215,7 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
           # add the edge between the source and the target
           try:
             if edge_type == 'm2m':
-              helper.upsert_m2m(source_id, predicate, target_id)
+              helper.upsert_m2m(source_id, predicate, target_id, rc_name)
             elif edge_type == 'm2o':
               helper.upsert_m2o(source_id, predicate, target_id)
             elif edge_type == 'o2m':
