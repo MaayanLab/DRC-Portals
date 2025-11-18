@@ -19,6 +19,8 @@ OUTPUT_FILE="${folder}"/"biosample_protein.tsv"
 # The array of protein IDs to be appended to the three data rows
 col_protein=("A0A023PZB3" "A0A023PZF2" "A0A0B4KFD8")
 
+# CV/ontology rows to protein.tsv should be added in the calling program by cfde-c2m2 prepare
+
 # --- Temporary Files ---
 TEMP_COLS_1_2=$(mktemp)
 TEMP_PROTEIN_COL=$(mktemp)
@@ -38,6 +40,8 @@ function cleanup {
 #    - cut -f 1,2: Selects the first and second fields (columns), using the default tab delimiter.
 echo "-> Extracting first 2 columns of first 4 rows into a temp file..."
 head -4 "$INPUT_FILE" | cut -f 1,2 > "$TEMP_COLS_1_2"
+# Update column name
+sed -i '1c\biosample_id_namespace\tbiosample_local_id' "$TEMP_COLS_1_2"
 
 # Get the actual number of lines extracted (header + available data rows)
 TOTAL_LINES=$(wc -l < "$TEMP_COLS_1_2")

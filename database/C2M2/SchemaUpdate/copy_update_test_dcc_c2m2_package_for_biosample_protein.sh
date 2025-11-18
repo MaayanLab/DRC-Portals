@@ -26,7 +26,7 @@ else
 fi
 
 if [[ $# -lt 7 ]]; then
-	schema_json_file=C2M2_datapackage.json
+	schema_json_file="C2M2_datapackage.json"
 else
 	schema_json_file=$7
 fi
@@ -38,7 +38,7 @@ curdir="$PWD"
 schema_json_file_default=C2M2_datapackage.json
 main_target_file=biosample_protein.tsv
 
-copy_sdir_to_tdir=0
+copy_sdir_to_tdir=1
 
 if [[ "$onlyTest" == "0" ]]; then
 	echo "onlyTest = ${onlyTest}, copy, update and test will be performed";
@@ -144,5 +144,5 @@ fi
 echo "---------- Tried to validate C2M2 package using the cfde-c2m2 tool/package ----------";
 cd "${curdir}"
 
-echo "              --------------------- Script $0: Completed ---------------------"
+echo "              --------------------- Script $0: Completed, tdir: ${tdir} ---------------------"
 #------------------------------------------------------------------------------------

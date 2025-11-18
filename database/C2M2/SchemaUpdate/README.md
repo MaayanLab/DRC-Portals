@@ -98,10 +98,11 @@ schema_json_file=C2M2_datapackage_wi_biosample_protein.json
 scriptfile_for_copy_update_test=copy_test_dcc_c2m2_package_generic.sh
 scriptfile_for_update=donothing.sh
 #
-logf_base=schema_update_test_add_biosample_protein
 ALT_HOME="/mnt/share/mano" # or "${HOME}", set as needed
 SchemaUpdateFolder="${HOME}/DRC/DRC-Portals/database/C2M2/SchemaUpdate"
-C2M2_sub_folder="${ALT_HOME}/CFDE/C2M2_sub"
+logf_base=${SchemaUpdateFolder}/${logdir}/schema_update_test_generic
+#C2M2_sub_folder="${ALT_HOME}/CFDE/C2M2_sub"
+C2M2_sub_folder="${ALT_HOME}/CFDE/C2M2_allin1"
 cd "$SchemaUpdateFolder"
 # Copy only the sh scripts that are needed, else, you may overwrite an updated sh file in the target dirrectory
 #cp *.sh "$C2M2_sub_folder"/.
@@ -120,9 +121,9 @@ schema_json_file=C2M2_datapackage_wi_biosample_protein.json
 scriptfile_for_copy_update_test=copy_update_test_dcc_c2m2_package_for_biosample_protein.sh
 scriptfile_for_update=create_random_biosample_protein.sh
 #
-logf_base=schema_update_test_add_biosample_protein
 ALT_HOME="/mnt/share/mano" # or "${HOME}", set as needed
 SchemaUpdateFolder="${HOME}/DRC/DRC-Portals/database/C2M2/SchemaUpdate"
+logf_base=${SchemaUpdateFolder}/${logdir}/schema_update_test_add_biosample_protein
 #C2M2_sub_folder="${ALT_HOME}/CFDE/C2M2_sub"
 C2M2_sub_folder="${ALT_HOME}/CFDE/C2M2_allin1"
 cd "$SchemaUpdateFolder"
