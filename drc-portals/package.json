@@ -1,6 +1,6 @@
 {
   "name": "drc-portals",
-  "version": "0.23.11",
+  "version": "0.23.12",
   "private": true,
   "scripts": {
     "dev": "next dev",
