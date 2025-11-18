@@ -13,6 +13,7 @@ import { Grid,
   Button, 
   Paper, 
   Box,
+  Badge,
  } from '@mui/material'
 import Icon from "@mdi/react"
 import { mdiArrowRight, mdiToolbox, mdiLaptop, mdiChatOutline } from '@mdi/js';
@@ -131,6 +132,7 @@ export default async function Home({ searchParams }: { searchParams: { search?: 
                         </Typography>
                         <div className="flex align-center space-x-10">
                           <Link href="/data/processed/help"><Button sx={{textTransform: 'uppercase'}} color="secondary">Learn More</Button></Link>
+                          <Link title="Try the new C2M2 graph query interface" href="/data/graph" className="pr-[36px]"><Badge badgeContent="NEW" color="error"><Button sx={{textTransform: 'uppercase'}} color="secondary">Graph Search</Button></Badge></Link>
                           <Button sx={{textTransform: 'uppercase'}} variant="contained" color="primary" endIcon={<Icon path={mdiArrowRight} size={1}/>} type="submit">Search</Button>
                         </div>
                       </Stack>
