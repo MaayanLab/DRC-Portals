@@ -14,9 +14,10 @@ export default router({
     facet: z.string().array().optional(),
     cursor: z.string().optional(),
   })).mutation(async (props) => {
+    const must: estypes.QueryDslQueryContainer[] = []
     const filter: estypes.QueryDslQueryContainer[] = []
-    if (props.input.source_id) filter.push({ query_string: { query: `+source_id:"${props.input.source_id}"` } })
-    if (props.input.search) filter.push({ simple_query_string: { query: props.input.search, default_operator: 'AND' } })
+    if (props.input.source_id) filter.push({ query_string: { query: `source_id:"${props.input.source_id}"` } })
+    if (props.input.search) must.push({ simple_query_string: { query: props.input.search, default_operator: 'AND' } })
     if (props.input.facet?.length) filter.push({
       query_string: {
         query: Object.entries(groupby(
@@ -25,10 +26,23 @@ export default router({
       }
     })
     const searchRes = await elasticsearch.search<M2MTargetType | EntityType>({
-      index: props.input.source_id ? 'm2m_target_expanded' : 'entity_v8_expanded',
+      index: props.input.source_id ? 'm2m_v9_target_expanded' : 'entity_v9_expanded',
       query: {
-        bool: {
-          filter,
+        function_score: {
+          query: {
+            bool: {
+              must,
+              filter,
+            },
+          },
+          functions: [
+            {
+              field_value_factor: {
+                field: 'pagerank',
+              }
+            }
+          ],
+          boost_mode: "multiply"
         },
       },
       sort: props.input.source_id ? [
@@ -58,8 +72,8 @@ export default router({
     facet: z.string().array().optional(),
   })).query(async (props) => {
     const filter: estypes.QueryDslQueryContainer[] = []
-    if (props.input.source_id) filter.push({ query_string: { query: `+source_id:"${props.input.source_id}"` } })
-    if (props.input.search) filter.push({ simple_query_string: { query: props.input.search, default_operator: 'AND' } })
+    if (props.input.source_id) filter.push({ query_string: { query: `source_id:"${props.input.source_id}"` } })
+    if (props.input.search) filter.push({ simple_query_string: { query: props.input.search, fields: ['a_*^5', 'targets.target_a_*'], default_operator: 'AND' } })
     if (props.input.facet?.length) filter.push({
       query_string: {
         query: Object.entries(groupby(
@@ -85,7 +99,7 @@ export default router({
       )
     }
     const searchRes = await elasticsearch.search<unknown, TermAggType<typeof facets[0]>>({
-      index: props.input.source_id ? 'm2m_target_expanded' : 'entity_v8_expanded',
+      index: props.input.source_id ? 'm2m_v9_target_expanded' : 'entity_v9_expanded',
       query: {
         bool: {
           filter,
@@ -96,7 +110,7 @@ export default router({
       rest_total_hits_as_int: true,
     })
     const entityLookupRes = await elasticsearch.search<EntityType>({
-      index: 'entity_v8_expanded',
+      index: 'entity_v9',
       query: {
         ids: {
           values: Array.from(new Set([
@@ -136,25 +150,37 @@ export default router({
       }
     })
     const searchRes = await elasticsearch.search<M2MTargetType | EntityType>({
-      index: props.input.source_id ? 'm2m_target_expanded' : 'entity',
+      index: props.input.source_id ? 'm2m_v9_target_expanded' : 'entity_v9',
       query: {
-        bool: {
-          must: {
-            match_phrase_prefix: props.input.source_id ? {
-              target_a_label: props.input.search,
-            } : {
-              a_label: props.input.search,
+        function_score: {
+          query: {
+            bool: {
+              must: {
+                match_phrase_prefix: props.input.source_id ? {
+                  target_a_label: props.input.search,
+                } : {
+                  a_label: props.input.search,
+                },
+              },
+              filter,
             },
           },
-          filter,
-        }
+          functions: [
+            {
+              field_value_factor: {
+                field: props.input.source_id ? 'target_pagerank' : 'pagerank',
+              }
+            }
+          ],
+          boost_mode: "multiply"
+        },
       },
       sort: props.input.source_id ? [
-        {'target_pagerank': {'order': 'desc'}},
-        {'target_id': {'order': 'asc'} },
+        {'_score': {'order': 'desc'}},
+        {'id': {'order': 'desc'} },
       ] : [
-        {'pagerank': {'order': 'desc'}},
-        {'id': {'order': 'asc'} },
+        {'_score': {'order': 'desc'}},
+        {'id': {'order': 'desc'} },
       ],
       size: 10,
       track_total_hits: false,

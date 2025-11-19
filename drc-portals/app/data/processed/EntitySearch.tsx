@@ -20,8 +20,9 @@ export default async function Page(props: PageProps) {
     const v = searchParams[k]
     searchParams[k] = Array.isArray(v) ? v.map(decodeURIComponent) : decodeURIComponent(v)
   }
+  const must: estypes.QueryDslQueryContainer[] = []
   const filter: estypes.QueryDslQueryContainer[] = []
-  if (params.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
+  if (params.search) must.push({ simple_query_string: { query: params.search, fields: ['a_*^5', 'targets.target_a_*'], default_operator: 'AND' } })
   if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) {
     filter.push({
       query_string: {
@@ -33,13 +34,26 @@ export default async function Page(props: PageProps) {
   }
   if (params.type) filter.push({ query_string: { query: `+type:"${params.type}"` } })
   if (params.search_type) filter.push({ query_string: { query: `+type:"${params.search_type}"` } })
-  if (filter.length === 0) redirect('/data')
+  if (must.length === 0 && filter.length === 0) redirect('/data')
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<EntityType, FilterAggType<'files'>>({
-    index: 'entity_v8_expanded',
+    index: 'entity_v9_expanded',
     query: {
-      bool: {
-        filter,
+      function_score: {
+        query: {
+          bool: {
+            must,
+            filter,
+          },
+        },
+        functions: [
+          {
+            field_value_factor: {
+              field: 'pagerank',
+            }
+          }
+        ],
+        boost_mode: "multiply"
       },
     },
     aggs: {
@@ -50,12 +64,13 @@ export default async function Page(props: PageProps) {
       },
     },
     sort: searchParams?.reverse === undefined ? [
-      {'pagerank': {'order': 'desc'}},
-      {'id': {'order': 'asc'} },
-    ] :  [
-      {'pagerank': {'order': 'asc'}},
+      {'_score': {'order': 'desc'}},
       {'id': {'order': 'desc'} },
+    ] :  [
+      {'_score': {'order': 'asc'}},
+      {'id': {'order': 'asc'} },
     ],
+    track_scores: true,
     search_after: searchParams?.cursor ? JSON.parse(searchParams.cursor as string) : undefined,
     size: display_per_page,
     rest_total_hits_as_int: true,
@@ -64,14 +79,14 @@ export default async function Page(props: PageProps) {
     searchRes.hits.hits.reverse()
   }
   const entityLookupRes = await elasticsearch.search<EntityType>({
-    index: 'entity',
+    index: 'entity_v9',
     query: {
       ids: {
         values: Array.from(new Set([
           ...searchRes.hits.hits.flatMap((item) => {
             const item_source = item._source
             if (!item_source) return []
-            return Object.keys(item_source).filter(k => /^r_(.+)_id$/.exec(k) !== null && k !== 'r_dcc_id').map(k => item_source[k])
+            return Object.keys(item_source).filter(k => k.startsWith('r_') && k !== 'r_dcc').map(k => item_source[k])
           })
         ]))
       }

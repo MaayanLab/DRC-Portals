@@ -28,9 +28,9 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
   for (const k in params) params[k] = decodeURIComponent(params[k])
   if (!params.search) redirect('/data')
   const filter: estypes.QueryDslQueryContainer[] = []
-  if (params.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
+  if (params.search) filter.push({ simple_query_string: { query: params.search, fields: ['a_*^5', 'targets.target_a_*'], default_operator: 'AND' } })
   const searchRes = await elasticsearch.search<EntityType, TermAggType<'types' | 'dccs'>>({
-    index: 'entity_v8_expanded',
+    index: 'entity_v9_expanded',
     query: {
       bool: {
         filter,
@@ -50,11 +50,11 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
   if (!searchRes.hits.total) redirect(create_url({ search: params.search , error: 'No results matching search' }))
   return (
     <SearchTabs>
-      <FancyTabPlaceholder id="c2m2" label={<>Cross-Cut Metadata Model</>} priority={Infinity}>
+      {/* <FancyTabPlaceholder id="c2m2" label={<>Cross-Cut Metadata Model</>} priority={Infinity}>
         <React.Suspense>
           <C2M2SearchQueryComponentTab search={params.search} />
         </React.Suspense>
-      </FancyTabPlaceholder>
+      </FancyTabPlaceholder> */}
       <FancyTab
         id={""}
         label={<>Processed Data<br />{Number(searchRes.hits.total).toLocaleString()}</>}

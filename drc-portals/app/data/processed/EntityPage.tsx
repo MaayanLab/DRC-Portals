@@ -55,7 +55,7 @@ export default async function Page(props: PageProps) {
   }
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<M2MTargetType, FilterAggType<'files'>>({
-    index: 'm2m_target_expanded',
+    index: 'm2m_v9_target_expanded',
     query: {
       bool: {
         filter,
@@ -81,7 +81,7 @@ export default async function Page(props: PageProps) {
   })
   if (searchRes.hits.total === 0 && !params.search && !searchParams?.facet) return null
   const entityLookupRes = await elasticsearch.search<EntityType>({
-    index: 'entity_v8_expanded',
+    index: 'entity_v9_expanded',
     query: {
       ids: {
         values: Array.from(new Set([

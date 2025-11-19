@@ -21,7 +21,7 @@ export async function getPrismaDCC(short_label?: string) {
 
 export const esDCCs = singleton('esDCCs', async () => {
   const dccs = await elasticsearch.search<EntityType>({
-    index: 'entity_v8_expanded',
+    index: 'entity_v9_expanded',
     query: {
       bool: {
         filter: {

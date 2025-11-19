@@ -50,7 +50,7 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
   const item = await getEntity(params)
   if (!item) notFound()
   const entityLookupRes = await elasticsearch.search<EntityType>({
-    index: 'entity_v8_expanded',
+    index: 'entity_v9_expanded',
     query: {
       ids: {
         values: Array.from(new Set([
