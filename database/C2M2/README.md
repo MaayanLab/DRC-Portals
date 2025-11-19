@@ -297,7 +297,7 @@ date_div >> ${logf};
 # It is better to do direct ingest into the public schema, but others such as _4dn, metabolomics, etc. (DCC-name specific schema which have metadata only from that DCC) and c2m2 (which has metadata from all the DCCs) can be copied over to the other DB.
 #host1=sc-cfdedb.sdsc.edu; host2=localhost; dbname=drc; sch=Metabolomics;
 #host1=localhost; host2=sc-cfdedb.sdsc.edu; dbname=drc; sch=c2m2;
-host1=localhost; host2=sc-cfdedb.sdsc.edu; port1 = 5434; port2 = 5432; dbname=drc; sch=c2m2;
+host1=localhost; host2=sc-cfdedb.sdsc.edu; port1=5434; port2=5432; dbname=drc; sch=c2m2;
 # Example of 
 ymd=$(date +%y%m%d);
 logf=${logdir}/main_pg_dump_log_${ymd}.log

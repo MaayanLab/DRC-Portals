@@ -14,30 +14,50 @@ You must first start and migrate the database (see [DRC Portal Dev Guide](../drc
 
 # Be in the folder database
 
+# Aux function
+date_div() { echo "============= $(date) =============";}
+ymd=$(date +%y%m%d);
+
 # Output to log files for cross-checking if needed
 
-python3 ingestion.py 2>&1 | tee log/log_ingestion.log
+logf=log/log_ingestion_${ymd}.log
+echo ${date_div} > ${logf};
+python3 ingestion.py 2>&1 | tee -a ${logf}
+echo ${date_div} >> ${logf};
 
 # Did the temp fix to ensure MW GMT gets ingested, had to give this command
 # Replace only the first on a line
 #ingest]$ sed -i 's/Metabolomics_Workbench_Metabolites_2022/Metabolomics_Workbench_Metabolites_2022.gmt/' FileAssets.tsv
 
 # much slower, for production or when developing with those features, can be omitted until necessary
-python3 ingest_dcc_assets.py 2>&1 | tee log/log_ingest_dcc_assets.log
+logf=log/log_ingest_dcc_assets_${ymd}.log
+echo ${date_div} > ${logf};
+python3 ingest_dcc_assets.py 2>&1 | tee -a ${logf}
+echo ${date_div} >> ${logf};
 
-python3 ingest_gmts.py 2>&1 | tee log/log_ingest_gmts.log
+logf=log/log_ingest_gmts_${ymd}.log
+echo ${date_div} > ${logf};
+python3 ingest_gmts.py 2>&1 | tee -a ${logf}
+echo ${date_div} >> ${logf};
 
 #python3 ingest_c2m2_files.py
 
 # Some KG files were > 100MB (ExRNA, GTEx); it was suggested to not to ingest then, i.e., keep the limit of 100MB
-python3 ingest_kg.py 2>&1 | tee log/log_ingest_kg.log
+logf=log/log_ingest_kg_${ymd}.log
+echo ${date_div} > ${logf};
+python3 ingest_kg.py 2>&1 | tee -a ${logf}
+echo ${date_div} >> ${logf};
 
 # Cleanup for keywords
-date_div() { echo "============= $(date) =============";}
-logf=log/log_sanitize_tables_for_keywords.log
+logf=log/log_sanitize_tables_for_keywords_${ymd}.log
 echo ${date_div} > ${logf};
 psql "$(python3 C2M2/dburl.py)" -a -f sanitize_tables_for_keywords.sql -L ${logf};
 echo ${date_div} >> ${logf};
+
+# For quick comparison across two servers, print size of tables and visually compare then check row counts on specific tables
+# Example
+# psql -t -A -F'|' -h localhost -v ON_ERROR_STOP=1 -U drc -d drc -p 5434 -c "\dt+ public.*" | awk -F'|' '{print $2, $7}'
+# psql -t -A -F'|' -h localhost -v ON_ERROR_STOP=1 -U drc -d drc -p 5434 -c "\dt+ public.*" | awk -F'|' '{print $2, $7}'
 
 ```
 
