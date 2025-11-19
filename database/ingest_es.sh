@@ -259,7 +259,8 @@ es_put PUT /_ingest/pipeline/entity_${INDEX_VERSION}_expanded << EOF
         "policy_name": "m2m_${INDEX_VERSION}_target_expanded_lookup",
         "field": "id",
         "target_field": "targets",
-        "max_matches": 128
+        "max_matches": 128,
+        "ignore_missing": true
       }
     }
   ]
