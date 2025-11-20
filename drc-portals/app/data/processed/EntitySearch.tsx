@@ -1,7 +1,7 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
 import { estypes } from '@elastic/elasticsearch'
-import { categoryLabel, create_url, EntityType, FilterAggType, itemDescription, itemIcon, itemLabel, TermAggType } from "@/app/data/processed/utils"
+import { categoryLabel, create_url, EntityType, FilterAggType, itemDescription, itemIcon, itemLabel, lookupFromEntity, TermAggType } from "@/app/data/processed/utils"
 import SearchablePagedTable, { SearchablePagedTableCell, SearchablePagedTableCellIcon, LinkedTypedNode, Description, SearchablePagedTableHeader } from "@/app/data/processed/SearchablePagedTable";
 import { redirect } from 'next/navigation';
 import { ensure_array, groupby } from '@/utils/array';
@@ -22,7 +22,7 @@ export default async function Page(props: PageProps) {
   }
   const must: estypes.QueryDslQueryContainer[] = []
   const filter: estypes.QueryDslQueryContainer[] = []
-  if (params.search) must.push({ simple_query_string: { query: params.search, fields: ['a_*^5', 'targets.target_a_*'], default_operator: 'AND' } })
+  if (params.search) must.push({ simple_query_string: { query: params.search, fields: ['a_label^10', 'a_*^5', 'r_*_a_*'], default_operator: 'AND' } })
   if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) {
     filter.push({
       query_string: {
@@ -50,6 +50,7 @@ export default async function Page(props: PageProps) {
           {
             field_value_factor: {
               field: 'pagerank',
+              missing: 1,
             }
           }
         ],
@@ -70,7 +71,6 @@ export default async function Page(props: PageProps) {
       {'_score': {'order': 'asc'}},
       {'id': {'order': 'asc'} },
     ],
-    track_scores: true,
     search_after: searchParams?.cursor ? JSON.parse(searchParams.cursor as string) : undefined,
     size: display_per_page,
     rest_total_hits_as_int: true,
@@ -78,24 +78,8 @@ export default async function Page(props: PageProps) {
   if (searchParams?.reverse !== undefined) {
     searchRes.hits.hits.reverse()
   }
-  const entityLookupRes = await elasticsearch.search<EntityType>({
-    index: 'entity_v9',
-    query: {
-      ids: {
-        values: Array.from(new Set([
-          ...searchRes.hits.hits.flatMap((item) => {
-            const item_source = item._source
-            if (!item_source) return []
-            return Object.keys(item_source).filter(k => k.startsWith('r_') && k !== 'r_dcc').map(k => item_source[k])
-          })
-        ]))
-      }
-    },
-    size: 100,
-  })
   const entityLookup = Object.fromEntries([
-    ...searchRes.hits.hits.map((hit) => [hit._id, hit._source]),
-    ...entityLookupRes.hits.hits.map((hit) => [hit._id, hit._source]),
+    ...searchRes.hits.hits.flatMap((hit) => lookupFromEntity(hit._source as EntityType)),
     ...Object.entries(await esDCCs),
   ])
   return (
@@ -121,12 +105,13 @@ export default async function Page(props: PageProps) {
         ]}
         rows={searchRes.hits.hits.map((hit) => {
           if (!hit._source) return []
-          const href = create_url({ type: hit._source.type, slug: hit._source.slug })
+          const hit_source = hit._source
+          const href = create_url({ type: hit_source.type, slug: hit_source.slug })
           return [
-            <SearchablePagedTableCellIcon href={href} src={itemIcon(hit._source, entityLookup)} alt={categoryLabel(hit._source.type)} />,
-            <SearchablePagedTableCell><LinkedTypedNode href={href} type={hit._source.type} label={itemLabel(hit._source)} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,
-            <SearchablePagedTableCell sx={{maxWidth: 'unset'}}><Description description={itemDescription(hit._source, entityLookup)} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,
-            hit._source.a_access_url && <SearchablePagedTableCell><DRSCartButton access_url={hit._source.a_access_url} responsive /></SearchablePagedTableCell>,
+            <SearchablePagedTableCellIcon href={href} src={itemIcon(hit_source, entityLookup)} alt={categoryLabel(hit_source.type)} />,
+            <SearchablePagedTableCell><LinkedTypedNode href={href} type={hit_source.type} label={itemLabel(hit_source)} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,
+            <SearchablePagedTableCell sx={{maxWidth: 'unset'}}><Description description={itemDescription(hit_source, entityLookup)} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,
+            hit_source.a_access_url && <SearchablePagedTableCell><DRSCartButton access_url={hit._source.a_access_url} responsive /></SearchablePagedTableCell>,
           ]
         }) ?? []}
         tableFooter={!!searchRes.aggregations?.files.doc_count &&

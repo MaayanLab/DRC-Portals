@@ -1,6 +1,6 @@
 import { procedure, router } from '@/lib/trpc'
 import elasticsearch from "@/lib/elasticsearch"
-import { EntityType, M2MTargetType, TermAggType } from '@/app/data/processed/utils'
+import { EntityType, M2MTargetType, targetEntityFromM2M, TermAggType } from '@/app/data/processed/utils'
 import { estypes } from '@elastic/elasticsearch'
 import { z } from 'zod'
 import { groupby } from '@/utils/array'
@@ -26,7 +26,7 @@ export default router({
       }
     })
     const searchRes = await elasticsearch.search<M2MTargetType | EntityType>({
-      index: props.input.source_id ? 'm2m_v9_target_expanded' : 'entity_v9_expanded',
+      index: props.input.source_id ? 'm2m_expanded_target_expanded' : 'entity_expanded',
       query: {
         function_score: {
           query: {
@@ -38,7 +38,8 @@ export default router({
           functions: [
             {
               field_value_factor: {
-                field: 'pagerank',
+                field: props.input.source_id ? 'target_pagerank' : 'pagerank',
+                missing: 1,
               }
             }
           ],
@@ -46,10 +47,10 @@ export default router({
         },
       },
       sort: props.input.source_id ? [
-        {'target_pagerank': {'order': 'desc'}},
+        {'_score': {'order': 'desc'}},
         {'target_id': {'order': 'asc'} },
       ] : [
-        {'pagerank': {'order': 'desc'}},
+        {'_score': {'order': 'desc'}},
         {'id': {'order': 'asc'} },
       ],
       size: limit,
@@ -58,7 +59,7 @@ export default router({
     })
     const next = searchRes.hits.hits.length === limit ? JSON.stringify(searchRes.hits.hits[searchRes.hits.hits.length-1].sort) : undefined
     const items = props.input.source_id ?
-      searchRes.hits.hits.map(hit => Object.fromEntries(Object.entries(hit._source as M2MTargetType).flatMap(([k,v]) => k.startsWith('target_') ? [[k.substring('target_'.length), v]] : [])))
+      searchRes.hits.hits.map(hit => targetEntityFromM2M(hit._source as M2MTargetType))
       : searchRes.hits.hits.map(hit => hit._source)
     return {
       items,
@@ -73,7 +74,7 @@ export default router({
   })).query(async (props) => {
     const filter: estypes.QueryDslQueryContainer[] = []
     if (props.input.source_id) filter.push({ query_string: { query: `source_id:"${props.input.source_id}"` } })
-    if (props.input.search) filter.push({ simple_query_string: { query: props.input.search, fields: ['a_*^5', 'targets.target_a_*'], default_operator: 'AND' } })
+    if (props.input.search) filter.push({ simple_query_string: { query: props.input.search, fields: props.input.source_id ? ['target_a_label^10', 'target_a_*^5', 'target_r_*_a_*'] : ['a_label^10', 'a_*^5', 'r_*_a_*'], default_operator: 'AND' } })
     if (props.input.facet?.length) filter.push({
       query_string: {
         query: Object.entries(groupby(
@@ -84,22 +85,23 @@ export default router({
     let facets: string[] = []
     if (props.input.source_id) {
       facets.push(
-        'target_type', 'target_predicate',
-        'target_r_dcc', 'target_r_project',
-        'target_r_source', 'target_r_relation', 'target_r_target',
-        'target_r_disease', 'target_r_species', 'target_r_anatomy', 'target_r_gene', 'target_r_protein', 'target_r_compound', 'target_r_data_type', 'target_r_assay_type',
-        'target_r_file_format', 'target_r_ptm_type', 'target_r_ptm_subtype', 'target_r_ptm_site_type',
+        'predicate',
+        'target_type',
+        'target_r_dcc_id', 'target_r_project_id',
+        'target_r_source_id', 'target_r_relation_id', 'target_r_target_id',
+        'target_r_disease_id', 'target_r_species_id', 'target_r_anatomy_id', 'target_r_gene_id', 'target_r_protein_id', 'target_r_compound_id', 'target_r_data_type_id', 'target_r_assay_type_id',
+        'target_r_file_format_id', 'target_r_ptm_type_id', 'target_r_ptm_subtype_id', 'target_r_ptm_site_type_id',
       )
     } else {
       facets.push(
-        'type', 'r_dcc',
-        'r_source', 'r_relation', 'r_target',
-        'r_disease', 'r_species', 'r_anatomy', 'r_gene', 'r_protein', 'r_compound', 'r_data_type', 'r_assay_type',
-        'r_file_format', 'r_ptm_type', 'r_ptm_subtype', 'r_ptm_site_type',
+        'type', 'r_dcc_id',
+        'r_source_id', 'r_relation_id', 'r_target_id',
+        'r_disease_id', 'r_species_id', 'r_anatomy_id', 'r_gene_id', 'r_protein_id', 'r_compound_id', 'r_data_type_id', 'r_assay_type_id',
+        'r_file_format_id', 'r_ptm_type_id', 'r_ptm_subtype_id', 'r_ptm_site_type_id',
       )
     }
     const searchRes = await elasticsearch.search<unknown, TermAggType<typeof facets[0]>>({
-      index: props.input.source_id ? 'm2m_v9_target_expanded' : 'entity_v9_expanded',
+      index: props.input.source_id ? 'm2m_expanded_target_expanded' : 'entity_expanded',
       query: {
         bool: {
           filter,
@@ -110,12 +112,12 @@ export default router({
       rest_total_hits_as_int: true,
     })
     const entityLookupRes = await elasticsearch.search<EntityType>({
-      index: 'entity_v9',
+      index: 'entity',
       query: {
         ids: {
           values: Array.from(new Set([
             ...facets.flatMap(facet => {
-              if (facet === 'r_dcc') return []
+              if (facet === 'r_dcc_id') return []
               const agg = searchRes.aggregations
               if (!agg) return []
               return agg[facet].buckets.map(filter => filter.key)
@@ -150,7 +152,7 @@ export default router({
       }
     })
     const searchRes = await elasticsearch.search<M2MTargetType | EntityType>({
-      index: props.input.source_id ? 'm2m_v9_target_expanded' : 'entity_v9',
+      index: props.input.source_id ? 'm2m_target_expanded' : 'entity',
       query: {
         function_score: {
           query: {
@@ -169,6 +171,7 @@ export default router({
             {
               field_value_factor: {
                 field: props.input.source_id ? 'target_pagerank' : 'pagerank',
+                missing: 1,
               }
             }
           ],
@@ -177,7 +180,7 @@ export default router({
       },
       sort: props.input.source_id ? [
         {'_score': {'order': 'desc'}},
-        {'id': {'order': 'desc'} },
+        {'target_id': {'order': 'desc'} },
       ] : [
         {'_score': {'order': 'desc'}},
         {'id': {'order': 'desc'} },

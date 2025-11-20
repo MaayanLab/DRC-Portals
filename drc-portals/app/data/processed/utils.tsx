@@ -128,6 +128,24 @@ export function categoryLabel(type: string) {
   else return entity_type_map[type] ?? titleCapitalize(type.replaceAll('_',' '))
 }
 
+export function targetEntityFromM2M(item: M2MTargetType) {
+  return Object.fromEntries(Object.entries(item).flatMap(([k,v]) => {
+    const m = /^target_(.+)$/.exec(k)
+    if (!m) return []
+    return [[m[1], v] as const]
+  })) as EntityType
+}
+export function lookupFromEntity(item: EntityType) {
+  const predicate_entity: Record<string, EntityType> = {'': item}
+  for (const k in item) {
+    const m = /^r_(.+?)_(id|type|slug|pagerank|a_.+)$/.exec(k)
+    if (!m) continue
+    if (!(m[1] in predicate_entity)) predicate_entity[m[1]] = {} as EntityType
+    predicate_entity[m[1]][m[2]] = item[k]
+  }
+  return Object.values(predicate_entity).map(entity => [entity.id, entity] as const)
+}
+
 export function itemIcon(item: EntityType, lookup?: Record<string, EntityType>) {
   if (lookup && item.r_dcc && item.r_dcc in lookup) {
     const dcc = lookup[item.r_dcc]
@@ -158,17 +176,20 @@ export function humanBytesSize(size: number) {
 }
 
 export function itemDescription(item: EntityType, lookup?: Record<string, EntityType>) {
-  if (item['type'] === 'file') return `A${item.a_size_in_bytes ? ` ${humanBytesSize(Number(item.a_size_in_bytes))}` : ''} file${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''}${item.a_assay_type ? ` produced from ${item.a_assay_type}` : ''} as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
-  if (item['type'] === 'biosample') return `A biosample${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
-  if (item['type'] === 'subject') return `A subject${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
-  if (item['type'] === 'dcc_asset') return `A contributed ${item.a_filetype}${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''}`
-  if (item['type'] === 'dcc') return `The ${item.a_label} data coordinating center`
+  let description: string
+  if (item['type'] === 'file') description = `A${item.a_size_in_bytes ? ` ${humanBytesSize(Number(item.a_size_in_bytes))}` : ''} file${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''}${item.a_assay_type ? ` produced from ${item.a_assay_type}` : ''} as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
+  if (item['type'] === 'biosample') description = `A biosample${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
+  if (item['type'] === 'subject') description = `A subject${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
+  if (item['type'] === 'dcc_asset') description = `A contributed ${item.a_filetype}${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''}`
+  if (item['type'] === 'dcc') description = `The ${item.a_label} data coordinating center`
   if (item.a_description) {
-    if (item.a_description.length > 100) return `${item.a_description.slice(0, 100)}...`
-    return `${item.a_description}`
+    if (item.a_description.length > 100) description = `${item.a_description.slice(0, 100)}...`
+    description = `${item.a_description}`
   } else {
-    return `A ${categoryLabel(item.type)}${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''}`
+    description = `A ${categoryLabel(item.type)}${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''}`
   }
+  description += `(${item.pagerank})`
+  return description
 }
 
 export function linkify(value: string) {

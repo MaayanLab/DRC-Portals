@@ -50,7 +50,7 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
   const item = await getEntity(params)
   if (!item) notFound()
   const entityLookupRes = await elasticsearch.search<EntityType>({
-    index: 'entity_v9_expanded',
+    index: 'entity_expanded',
     query: {
       ids: {
         values: Array.from(new Set([
@@ -72,7 +72,7 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
       metadata={[
         ...Object.keys(item).toSorted().toReversed().flatMap(predicate => {
           if (item[predicate] === 'null') return []
-          const m = /^(a|r)_(.+?)(_(a|r)_(.+))?$/.exec(predicate)
+          const m = /^(a|r)_(.+?)(_a_(.+))?$/.exec(predicate)
           if (m === null) return []
           if (m[3]) return []
           if (m[1] == 'a') {

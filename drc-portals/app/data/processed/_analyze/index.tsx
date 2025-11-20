@@ -17,7 +17,7 @@ import elasticsearch from '@/lib/elasticsearch';
 
 const getGeneSet = React.cache(async (id: string) => {
   const searchRes = await elasticsearch.search<M2MTargetType>({
-    index: 'm2m_v9_target_expanded',
+    index: 'm2m_target_expanded',
     query: {
       query_string: {
         query: `+source_id:"${id}" +target_type:gene`,

@@ -21,12 +21,12 @@ export async function getPrismaDCC(short_label?: string) {
 
 export const esDCCs = singleton('esDCCs', async () => {
   const dccs = await elasticsearch.search<EntityType>({
-    index: 'entity_v9_expanded',
+    index: 'entity',
     query: {
       bool: {
         filter: {
           query_string: {
-            query: '+type:dcc',
+            query: 'type:dcc',
           }
         }
       },
