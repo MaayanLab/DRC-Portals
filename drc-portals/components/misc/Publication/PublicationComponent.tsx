@@ -1,7 +1,7 @@
 "use client"
 import { useMemo, useState } from "react";
 import Link from "@/utils/link";
-import { Button, Divider, Grid } from "@mui/material";
+import { Button, Divider, Grid, Stack, Tooltip, Typography } from "@mui/material";
 import { Prisma } from "@prisma/client";
 import ExportCitation from "./ExportCitation";
 import Filters from "./Filters";
@@ -98,8 +98,18 @@ export default function PublicationComponent({ publications }: { publications: P
                 <>
                     <div key={i} className="mb-2 space-x-1">
                         <>
-                            <PublicationCitation publication={pub} searchTerm={searchTerm} />
-                            <div className="flex space-x-1 items-center justify-end">
+                            <Tooltip title={pub.title}>
+                                <Link target="_blank" rel="noopener noreferrer" href={pub.pmid ? `https://pubmed.ncbi.nlm.nih.gov/${pub.pmid}/`: `https://doi.org/${pub.doi}`}>
+                                    <Typography color="secondary" variant={"subtitle1"} sx={{overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", maxWidth: "fit-content", display: "block"}}>
+                                        <b>{pub.title}</b>
+                                    </Typography>
+                                </Link>
+                            </Tooltip>
+                            <Stack direction="row" justifyContent="space-between" alignItems={"center"}>
+                                <Typography variant={"subtitle2"} sx={{color: "rgb(99,99,99)"}}>
+                                    {pub.authors.split(",")[0]} | {pub.journal} | Published: {pub.year}
+                                </Typography>    
+                                <div>
                                 { pub.pmid && 
                                     <Link target="_blank" rel="noopener noreferrer" href={`https://pubmed.ncbi.nlm.nih.gov/${pub.pmid}/`}>
                                         <Button color="secondary">PubMed</Button>
@@ -120,6 +130,12 @@ export default function PublicationComponent({ publications }: { publications: P
                                 }
 
                             </div>
+                            </Stack>
+                            {/* <Typography variant={"subtitle2"} sx={{color: "rgb(99,99,99)"}}>
+                                {pub.authors.split(",")[0]} | {pub.journal} | Published: {pub.year}
+                            </Typography> */}
+                            {/* <PublicationCitation publication={pub} searchTerm={searchTerm} /> */}
+                            
                             {/* Keywords */}
                             
                         </>

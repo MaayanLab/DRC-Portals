@@ -26,7 +26,7 @@ export default async function Home() {
     orderBy: {
       year: "desc"
     },
-    take: 5
+    take: 9
   })
 
   return (
