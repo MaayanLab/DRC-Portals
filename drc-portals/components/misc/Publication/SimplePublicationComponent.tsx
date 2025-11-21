@@ -20,7 +20,7 @@ export default function SimplePublicationComponent({publications, variant='capti
                             </Link>
                         </Tooltip>
                         <Typography variant={variant} sx={{color: "rgb(99,99,99)"}}>
-                            {pub.authors.split(",")[0]} | {pub.journal} | Published: {pub.year}
+                            {pub.authors.split(",")[0]} et al. | {pub.journal} | Published: {pub.year}
                         </Typography>
                     </div>
                 ))}

@@ -107,7 +107,7 @@ export default function PublicationComponent({ publications }: { publications: P
                             </Tooltip>
                             <Stack direction="row" justifyContent="space-between" alignItems={"center"}>
                                 <Typography variant={"subtitle2"} sx={{color: "rgb(99,99,99)"}}>
-                                    {pub.authors.split(",")[0]} | {pub.journal} | Published: {pub.year}
+                                    {pub.authors.split(",")[0]} et al. | {pub.journal} | Published: {pub.year}
                                 </Typography>    
                                 <div>
                                 { pub.pmid && 
