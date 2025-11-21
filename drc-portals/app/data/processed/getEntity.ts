@@ -4,7 +4,7 @@ import { EntityType } from './utils';
 
 export const getEntity = React.cache(async (params: { type: string, slug: string }) => {
   const itemRes = await elasticsearch.search<EntityType>({
-    index: 'entity_expanded',
+    index: 'entity_v11_nested_expanded',
       query: {
         bool: {
           must: [

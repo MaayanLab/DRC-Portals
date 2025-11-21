@@ -22,7 +22,16 @@ export default async function Page(props: PageProps) {
   }
   const must: estypes.QueryDslQueryContainer[] = []
   const filter: estypes.QueryDslQueryContainer[] = []
-  if (params.search) must.push({ simple_query_string: { query: params.search, fields: ['a_label^10', 'a_*^5', 'r_*_a_*'], default_operator: 'AND' } })
+  if (params.search) {
+    must.push({
+      bool: {
+        should: [
+          { simple_query_string: { query: params.search, fields: ['a_label^10', 'a_*^5'], default_operator: 'AND' } },
+          { nested: { path: 'r.target', query: { simple_query_string: { query: params.search, fields: ['r.target.a_*'], default_operator: 'AND' } } } }
+        ],
+      }
+    })
+  }
   if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) {
     filter.push({
       query_string: {
@@ -37,7 +46,7 @@ export default async function Page(props: PageProps) {
   if (must.length === 0 && filter.length === 0) redirect('/data')
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<EntityType, FilterAggType<'files'>>({
-    index: 'entity_expanded',
+    index: 'entity_v11_nested_expanded',
     query: {
       function_score: {
         query: {

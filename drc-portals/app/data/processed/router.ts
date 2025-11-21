@@ -4,6 +4,7 @@ import { EntityType, M2MTargetType, targetEntityFromM2M, TermAggType } from '@/a
 import { estypes } from '@elastic/elasticsearch'
 import { z } from 'zod'
 import { groupby } from '@/utils/array'
+import { safeAsync } from '@/utils/safe'
 
 const limit = 100
 
@@ -17,7 +18,20 @@ export default router({
     const must: estypes.QueryDslQueryContainer[] = []
     const filter: estypes.QueryDslQueryContainer[] = []
     if (props.input.source_id) filter.push({ query_string: { query: `source_id:"${props.input.source_id}"` } })
-    if (props.input.search) must.push({ simple_query_string: { query: props.input.search, default_operator: 'AND' } })
+    if (props.input.search) {
+      if (props.input.source_id) {
+        must.push({ nested: { path: 'target', query: { simple_query_string: { query: props.input.search, fields: ['target.a_label^10', 'target.a_*^5'], default_operator: 'AND' } } } })
+      } else {
+        must.push({
+          bool: {
+            should: [
+              { simple_query_string: { query: props.input.search, fields: ['a_label^10', 'a_*^5'], default_operator: 'AND' } },
+              { nested: { path: 'r.target', query: { simple_query_string: { query: props.input.search, fields: ['r.target.a_*'], default_operator: 'AND' } } } }
+            ],
+          }
+        })
+      }
+    }
     if (props.input.facet?.length) filter.push({
       query_string: {
         query: Object.entries(groupby(
@@ -26,7 +40,7 @@ export default router({
       }
     })
     const searchRes = await elasticsearch.search<M2MTargetType | EntityType>({
-      index: props.input.source_id ? 'm2m_target_expanded' : 'entity_expanded',
+      index: props.input.source_id ? 'm2m_v11_nested_target_expanded' : 'entity_v11_nested_expanded',
       query: {
         function_score: {
           query: {
@@ -38,7 +52,7 @@ export default router({
           functions: [
             {
               field_value_factor: {
-                field: props.input.source_id ? 'target_pagerank' : 'pagerank',
+                field: props.input.source_id ? 'target.pagerank' : 'pagerank',
                 missing: 1,
               }
             }
@@ -74,7 +88,20 @@ export default router({
   })).query(async (props) => {
     const filter: estypes.QueryDslQueryContainer[] = []
     if (props.input.source_id) filter.push({ query_string: { query: `source_id:"${props.input.source_id}"` } })
-    if (props.input.search) filter.push({ simple_query_string: { query: props.input.search, fields: props.input.source_id ? ['target_a_label^10', 'target_a_*^5', 'target_r_*_a_*'] : ['a_label^10', 'a_*^5', 'r_*_a_*'], default_operator: 'AND' } })
+    if (props.input.search) {
+      if (props.input.source_id) {
+        filter.push({ nested: { path: 'target', query: { simple_query_string: { query: props.input.search, fields: ['target.a_label^10', 'target.a_*^5'], default_operator: 'AND' } } } })
+      } else {
+        filter.push({
+          bool: {
+            should: [
+              { simple_query_string: { query: props.input.search, fields: ['a_label^10', 'a_*^5'], default_operator: 'AND' } },
+              { nested: { path: 'r.target', query: { simple_query_string: { query: props.input.search, fields: ['r.target.a_*'], default_operator: 'AND' } } } }
+            ],
+          }
+        })
+      }
+    }
     if (props.input.facet?.length) filter.push({
       query_string: {
         query: Object.entries(groupby(
@@ -82,45 +109,56 @@ export default router({
         )).map(([_, F]) => `(${F.join(' OR ')})`).join(' AND '),
       }
     })
-    let facets: string[] = []
+    const aggs: Record<string, estypes.AggregationsAggregationContainer> = {}
     if (props.input.source_id) {
-      facets.push(
-        'predicate',
-        'target_type',
-        'target_r_dcc_id', 'target_r_project_id',
-        'target_r_source_id', 'target_r_relation_id', 'target_r_target_id',
-        'target_r_disease_id', 'target_r_species_id', 'target_r_anatomy_id', 'target_r_gene_id', 'target_r_protein_id', 'target_r_compound_id', 'target_r_data_type_id', 'target_r_assay_type_id',
-        'target_r_file_format_id', 'target_r_ptm_type_id', 'target_r_ptm_subtype_id', 'target_r_ptm_site_type_id',
-      )
+      aggs['predicate'] = { terms: { field: 'predicate', size: 20 } }
+      aggs['target.type'] = { terms: { field: 'target.type', size: 20 } }
+        // 'target.r_dcc', 'target.r_project',
+        // 'target.r_source', 'target.r_relation', 'target.r_target',
+        // 'target.r_disease', 'target.r_species', 'target.r_anatomy', 'target.r_gene', 'target.r_protein', 'target.r_compound', 'target.r_data_type', 'target.r_assay_type',
+        // 'target.r_file_format', 'target.r_ptm_type', 'target.r_ptm_subtype', 'target.r_ptm_site_type',
     } else {
-      facets.push(
-        'type', 'r_dcc_id',
-        'r_source_id', 'r_relation_id', 'r_target_id',
-        'r_disease_id', 'r_species_id', 'r_anatomy_id', 'r_gene_id', 'r_protein_id', 'r_compound_id', 'r_data_type_id', 'r_assay_type_id',
-        'r_file_format_id', 'r_ptm_type_id', 'r_ptm_subtype_id', 'r_ptm_site_type_id',
-      )
+      aggs['type'] = { terms: { field: 'type', size: 20 } }
+      aggs['r.predicate'] = { terms: { field: 'r.predicate', size: 20 } }
+      aggs['r.target.id'] = { nested: { path: 'r.target' }, aggs: { 'r.target.id': { terms: { field: 'r.target.id' } } } }
+        // 'type', 'r_dcc',
+        // 'r_source', 'r_relation', 'r_target',
+        // 'r_disease', 'r_species', 'r_anatomy', 'r_gene', 'r_protein', 'r_compound', 'r_data_type', 'r_assay_type',
+        // 'r_file_format', 'r_ptm_type', 'r_ptm_subtype', 'r_ptm_site_type',
     }
-    const searchRes = await elasticsearch.search<unknown, TermAggType<typeof facets[0]>>({
-      index: props.input.source_id ? 'm2m_target_expanded' : 'entity_expanded',
+    const { data: searchRes, error } = await safeAsync(() => elasticsearch.search<unknown, TermAggType<string>>({
+      index: props.input.source_id ? 'm2m_v11_nested_target_expanded' : 'entity_v11_nested_expanded',
       query: {
         bool: {
           filter,
         },
       },
-      aggs: Object.fromEntries(facets.map(facet => [facet, { terms: { field: facet as string, size: 20 } }])),
+      aggs,
       size: 0,
       rest_total_hits_as_int: true,
-    })
+    }))
+    if (error || !searchRes) {
+      console.error(error)
+      throw new Error()
+    }
+    console.log(JSON.stringify(searchRes.aggregations))
+    const aggregationsSimplified: Record<string, {buckets:{
+        key: string;
+        doc_count: number;
+    }[]}> = Object.fromEntries(Object.entries(searchRes.aggregations).flatMap(([k,v]) => {
+      if ('buckets' in v) return [[k,v]]
+      else if ('buckets' in v[k]) return [[k, v[k]]]
+      else return []
+    }))
+    console.log(aggregationsSimplified)
     const entityLookupRes = await elasticsearch.search<EntityType>({
-      index: 'entity',
+      index: 'entity_v11',
       query: {
         ids: {
           values: Array.from(new Set([
-            ...facets.flatMap(facet => {
-              if (facet === 'r_dcc_id') return []
-              const agg = searchRes.aggregations
-              if (!agg) return []
-              return agg[facet].buckets.map(filter => filter.key)
+            ...Object.entries(aggregationsSimplified).flatMap(([facet, { buckets }]) => {
+              if (facet === 'r_dcc') return []
+              else return buckets.map(filter => filter.key)
             }),
           ]))
         }
@@ -132,7 +170,7 @@ export default router({
     ])
     return {
       total: searchRes.hits.total,
-      aggregations: searchRes.aggregations,
+      aggregations: aggregationsSimplified,
       entityLookup,
     }
   }),
@@ -152,14 +190,14 @@ export default router({
       }
     })
     const searchRes = await elasticsearch.search<M2MTargetType | EntityType>({
-      index: props.input.source_id ? 'm2m_target_expanded' : 'entity',
+      index: props.input.source_id ? 'm2m_v11_nested_target_expanded' : 'entity',
       query: {
         function_score: {
           query: {
             bool: {
               must: {
                 match_phrase_prefix: props.input.source_id ? {
-                  target_a_label: props.input.search,
+                  'target.a_label': props.input.search,
                 } : {
                   a_label: props.input.search,
                 },
@@ -170,7 +208,7 @@ export default router({
           functions: [
             {
               field_value_factor: {
-                field: props.input.source_id ? 'target_pagerank' : 'pagerank',
+                field: props.input.source_id ? 'target.pagerank' : 'pagerank',
                 missing: 1,
               }
             }

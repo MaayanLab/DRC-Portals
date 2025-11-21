@@ -28,9 +28,18 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
   for (const k in params) params[k] = decodeURIComponent(params[k])
   if (!params.search) redirect('/data')
   const filter: estypes.QueryDslQueryContainer[] = []
-  if (params.search) filter.push({ simple_query_string: { query: params.search, fields: ['a_label^10', 'a_*^5', 'r_*_a_*'], default_operator: 'AND' } })
+  if (params.search) {
+    filter.push({
+      bool: {
+        should: [
+          { simple_query_string: { query: params.search, fields: ['a_label^10', 'a_*^5'], default_operator: 'AND' } },
+          { nested: { path: 'r.target', query: { simple_query_string: { query: params.search, fields: ['r.target.a_*'], default_operator: 'AND' } } } }
+        ],
+      }
+    })
+  }
   const searchRes = await elasticsearch.search<EntityType, TermAggType<'types' | 'dccs'>>({
-    index: 'entity_expanded',
+    index: 'entity_v11_nested_expanded',
     query: {
       bool: {
         filter,

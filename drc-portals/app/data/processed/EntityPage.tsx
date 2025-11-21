@@ -44,7 +44,7 @@ export default async function Page(props: PageProps) {
   const must: estypes.QueryDslQueryContainer[] = []
   const filter: estypes.QueryDslQueryContainer[] = []
   filter.push({ query_string: { query: `+source_id:"${item.id}"` } })
-  if (params?.search) must.push({ simple_query_string: { query: params.search, fields: ['target_a_label^10', 'target_a_*^5', 'target_r_*_a_*'], default_operator: 'AND' } })
+  if (params?.search) must.push({ simple_query_string: { query: params.search, fields: ['target.a_label^10', 'target.a_*^5'], default_operator: 'AND' } })
   if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) {
     filter.push({
       query_string: {
@@ -56,7 +56,7 @@ export default async function Page(props: PageProps) {
   }
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<M2MTargetType, FilterAggType<'files'>>({
-    index: 'm2m_target_expanded',
+    index: 'm2m_v11_nested_target_expanded',
     query: {
       function_score: {
         query: {
@@ -68,7 +68,7 @@ export default async function Page(props: PageProps) {
         functions: [
           {
             field_value_factor: {
-              field: 'target_pagerank',
+              field: 'target.pagerank',
               missing: 1,
             }
           }
@@ -79,16 +79,16 @@ export default async function Page(props: PageProps) {
     aggs: {
       files: {
         filter: {
-          exists: { field: 'target_a_access_url' }
+          exists: { field: 'target.a_access_url' }
         },
       },
     },
     sort: searchParams?.reverse === undefined ? [
       {'_score': {'order': 'desc'}},
-      {'target_id': {'order': 'desc'} },
+      {'target.id': {'order': 'desc'} },
     ] :  [
       {'_score': {'order': 'asc'}},
-      {'target_id': {'order': 'desc'} },
+      {'target.id': {'order': 'desc'} },
     ],
     search_after: searchParams?.cursor ? JSON.parse(searchParams.cursor as string) : undefined,
     size: display_per_page,
