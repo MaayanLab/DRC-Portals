@@ -26,7 +26,7 @@ export default router({
       }
     })
     const searchRes = await elasticsearch.search<M2MTargetType | EntityType>({
-      index: props.input.source_id ? 'm2m_expanded_target_expanded' : 'entity_expanded',
+      index: props.input.source_id ? 'm2m_target_expanded' : 'entity_expanded',
       query: {
         function_score: {
           query: {
@@ -43,7 +43,7 @@ export default router({
               }
             }
           ],
-          boost_mode: "multiply"
+          boost_mode: "sum"
         },
       },
       sort: props.input.source_id ? [
@@ -101,7 +101,7 @@ export default router({
       )
     }
     const searchRes = await elasticsearch.search<unknown, TermAggType<typeof facets[0]>>({
-      index: props.input.source_id ? 'm2m_expanded_target_expanded' : 'entity_expanded',
+      index: props.input.source_id ? 'm2m_target_expanded' : 'entity_expanded',
       query: {
         bool: {
           filter,
@@ -175,7 +175,7 @@ export default router({
               }
             }
           ],
-          boost_mode: "multiply"
+          boost_mode: "sum"
         },
       },
       sort: props.input.source_id ? [

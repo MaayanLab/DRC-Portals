@@ -37,7 +37,7 @@ export default async function Page(props: PageProps) {
   if (must.length === 0 && filter.length === 0) redirect('/data')
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<EntityType, FilterAggType<'files'>>({
-    index: 'entity_v9_expanded',
+    index: 'entity_expanded',
     query: {
       function_score: {
         query: {
@@ -54,7 +54,7 @@ export default async function Page(props: PageProps) {
             }
           }
         ],
-        boost_mode: "multiply"
+        boost_mode: "sum"
       },
     },
     aggs: {

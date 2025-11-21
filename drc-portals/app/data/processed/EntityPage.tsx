@@ -56,7 +56,7 @@ export default async function Page(props: PageProps) {
   }
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<M2MTargetType, FilterAggType<'files'>>({
-    index: 'm2m_expanded_target_expanded',
+    index: 'm2m_target_expanded',
     query: {
       function_score: {
         query: {
@@ -73,7 +73,7 @@ export default async function Page(props: PageProps) {
             }
           }
         ],
-        boost_mode: "multiply"
+        boost_mode: "sum"
       },
     },
     aggs: {
@@ -85,10 +85,10 @@ export default async function Page(props: PageProps) {
     },
     sort: searchParams?.reverse === undefined ? [
       {'_score': {'order': 'desc'}},
-      {'id': {'order': 'desc'} },
+      {'target_id': {'order': 'desc'} },
     ] :  [
       {'_score': {'order': 'asc'}},
-      {'id': {'order': 'desc'} },
+      {'target_id': {'order': 'desc'} },
     ],
     search_after: searchParams?.cursor ? JSON.parse(searchParams.cursor as string) : undefined,
     size: display_per_page,
