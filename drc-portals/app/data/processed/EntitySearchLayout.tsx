@@ -7,6 +7,7 @@ import { categoryLabel, create_url, EntityType, TermAggType } from "./utils";
 import elasticsearch from "@/lib/elasticsearch";
 import { estypes } from "@elastic/elasticsearch";
 import { SearchQueryComponentTab as C2M2SearchQueryComponentTab } from '@/app/data/c2m2/search/SearchQueryComponent'
+import { safeAsync } from "@/utils/safe";
 
 export async function generateMetadata(props: { params: Promise<{ search: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params
@@ -29,7 +30,7 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
   if (!params.search) redirect('/data')
   const filter: estypes.QueryDslQueryContainer[] = []
   if (params.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
-  const searchRes = await elasticsearch.search<EntityType, TermAggType<'types' | 'dccs'>>({
+  const { data: searchRes, error } = await safeAsync(() => elasticsearch.search<EntityType, TermAggType<'types' | 'dccs'>>({
     index: 'entity',
     query: {
       bool: {
@@ -46,8 +47,12 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
     },
     size: 0,
     rest_total_hits_as_int: true,
-  })
-  if (!searchRes.hits.total) redirect(create_url({ search: params.search , error: 'No results matching search' }))
+  }))
+  if (error) {
+    console.error(error)
+    return redirect(create_url({ search: params.search , error: 'Something went wrong' }))
+  }
+  if (!searchRes?.hits.total) redirect(create_url({ search: params.search, error: 'No results matching search' }))
   return (
     <SearchTabs>
       <FancyTabPlaceholder id="c2m2" label={<>Cross-Cut Metadata Model</>} priority={Infinity}>
