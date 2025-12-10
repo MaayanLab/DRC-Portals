@@ -92,6 +92,12 @@ export default async function ServerCarousel () {
           icon: "https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/GSE-screenshot.png",
           url: "https://gse.cfde.cloud/"
         },
+        {
+          name: "7th Annual Bio-IT FAIR Data Hackathon: Call for Project Pitches",
+          description: "Submit a pitch for a project that integrates CFDE Data and Tools for the seventh annual Bio-IT FAIR Data Hackathon",
+          icon: "https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/BioITHackathon2026.png",
+          url: "https://orausurvey.orau.org/n/BioITPitch.aspx"
+        },
         // {
         //     name: "Reproductive Toxicity Knowledge Graph (ReproTox-KG)",
         //     description: "CFDE Toxicology Partnership",
