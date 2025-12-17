@@ -1198,3 +1198,9 @@ model substance {
 
   @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_substance_idx_searchable", type: Gin)
 }
+
+model ts_stat_ffl_cmp {
+  word               String   @id
+  ndoc               Int?
+  percentage_of_rows Decimal? @db.Decimal
+}
