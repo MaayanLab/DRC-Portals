@@ -12,7 +12,7 @@ export default function ChatPage() {
       </Grid>
       <Grid item xs={12}>
         <Typography variant="subtitle1" sx={{ml:3, mt:2, mb: 2}}>
-          The CFDE Workbench Assistant (CWAS) utilizes the OpenAI Assistants API with registered
+          The CFDE Workbench AI Assistant utilizes the OpenAI Response API with registered
           workflows implemented in the{" "}
           <Link
             href={"https://playbook-workflow-builder.cloud/"}

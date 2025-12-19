@@ -1,0 +1,46 @@
+import Button from "@mui/material/Button";
+import { mdiArrowLeft } from "@mdi/js";
+import Icon from "@mdi/react";
+import Link from "@/utils/link";
+
+<div className="my-4">
+
+# Search Help
+
+## Introduction
+
+The CFDE C2M2 Graph Query Interface lets you explore CFDE datasets through an intuitive visual graph search powered by Neo4j—no query language knowledge required.
+
+You can view an interactive version of the C2M2 Graph Schema [here](/data/graph/schema).
+
+## Quick Start Tips
+
+### __1. Start with a Keyword__
+
+Enter a keyword (e.g., human, blood, asthma, RNA-seq, TP53, aspirin) to search ontology-encoded metadata, such as species, anatomy, disease/phenotype, gene, compound, and assay, to discover entities like Subject, Biosample, and File.
+
+![Menu Options](/img/graph/GQI_carousel_1.png)
+
+### __2. Build as You Explore__
+
+Use node menu options (point the cursor/mouse to a node) — __Expand__ (to explore related entities), __Filter__ (to narrow by values), and __Prune__ (to trim paths) — to build your query one step at a time.
+
+![Menu Options](/img/graph/GQI_docs_streamlined.png)
+
+### __3. View & Download__
+
+See results in __Tabular__ or __Network View__, and export them as JSON to share, revisit, or analyze further.
+
+![Tabular View](/img/graph/GQI_docs_tabular_view.png)
+
+<Link href="/data/graph">
+  <Button
+    sx={{textTransform: "uppercase"}}
+    color="primary"
+    variant="contained"
+    startIcon={<Icon path={mdiArrowLeft} size={1} />}>
+      BACK TO SEARCH
+  </Button>
+</Link>
+
+</div>

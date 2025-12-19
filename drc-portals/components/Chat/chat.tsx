@@ -3,7 +3,7 @@ import React from "react";
 import Message from "./message";
 import Communicator from "./Communicator";
 import ChatExample from "./chatExample";
-import { getFunctionInput, getFunctionText } from "./utils/constants";
+import ReactMarkdown from 'react-markdown'
 
 // input forms
 import GeneInput from "./Inputs/geneInput";
@@ -12,6 +12,8 @@ import GlycanInput from "./Inputs/glycanInput";
 import PhenotypeInput from "./Inputs/phenotypeInput";
 import { Input } from "@mui/material";
 import DccIcons from "./dccIcons";
+import remarkGfm from "remark-gfm"
+import {  PRenderer } from '@/components/misc/ReactMarkdownRenderers'
 
 type content = {
   text: {
@@ -20,23 +22,23 @@ type content = {
   };
 };
 
-type message = {
-  id: string;
-  object: string;
-  thread_id: string;
-  role: string;
-  content: content[];
-  file_ids: string[];
-  assistant_id: string | null;
-  run_id: string | null;
-  metadata: any;
-};
+// type message = {
+//   id: string;
+//   [key: string]: string;
+//   thread_id: string;
+//   role: string;
+//   content: content[];
+//   file_ids: string[];
+//   assistant_id: string | null;
+//   run_id: string | null;
+//   metadata: any;
+// };
 
 interface ResponseData {
-  messages: message[] | null;
-  threadId: string | null;
-  functionCall: any | null;
-  error: string | null;
+  id: string;
+  output: Array<{[key: string]: any}>;
+  output_text: string;
+  error?: string
 }
 
 let processMapper: Record<string, any> = {
@@ -47,8 +49,8 @@ let processMapper: Record<string, any> = {
 };
 
 export default function Chat() {
-  const [threadId, setThreadId] = React.useState<string | null>(null);
   const [query, setQuery] = React.useState("");
+  const [prevResponseId, setPrevResponseId] = React.useState<string | null>(null)
   const [chat, setChat] = React.useState({
     waitingForReply: false,
     messages: [] as {
@@ -67,27 +69,27 @@ export default function Chat() {
     [chat]
   );
 
-  const trigger = React.useCallback(
-    async (arg0: { body: { message: string } }) => {
-      const options = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query: arg0.body.message,
-          threadId: threadId,
-        }),
-      };
-      const res = await fetch(`/chat/assistant`, options);
-      const data: ResponseData = await res.json();
-      if (!threadId) {
-        setThreadId(data.threadId);
-      }
-      return data;
-    },
-    [threadId]
-  );
+  // const trigger = React.useCallback(
+  //   async (arg0: { body: { message: string } }) => {
+  //     const options = {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         query: arg0.body.message,
+  //         threadId: threadId,
+  //       }),
+  //     };
+  //     const res = await fetch(`/chat/assistant`, options);
+  //     const data: ResponseData = await res.json();
+  //     if (!threadId) {
+  //       setThreadId(data.threadId);
+  //     }
+  //     return data;
+  //   },
+  //   [threadId]
+  // );
 
   const submit = React.useCallback(
     async (message: {
@@ -103,55 +105,39 @@ export default function Chat() {
         messages: [...cc.messages, message],
       }));
       setQuery(() => "");
-
-      var results: any;
-
-      if (!threadId) {
-        results = await trigger({
-          body: {
-            message: message.content,
-          },
-        });
-      } else {
-        const options = {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            query: message.content,
-            threadId: threadId,
-          }),
-        };
-        const res = await fetch(`/chat/assistant`, options);
-        const data: ResponseData = await res.json();
-        results = data;
+      const payload: {[key:string]: string} = {
+        query: message.content,
       }
-      var newMessage: {
+      if (prevResponseId) payload['response_id'] = prevResponseId
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      };
+      const res = await fetch(`/chat/response`, options);
+      const data: ResponseData = await res.json();
+      let newMessage: {
         role: string;
         content: string;
         output: null | string;
         args: null | any;
       };
-      if (results.functionCall) {
-        const toolName =
-          results.functionCall.submit_tool_outputs.tool_calls[0].function.name;
-        const toolArgs = JSON.parse(
-          results.functionCall.submit_tool_outputs.tool_calls[0].function
-            .arguments
-        );
-        const inputType = getFunctionInput(toolName);
-        const processText = getFunctionText(toolName);
+      const results = data["output"];        
+      if (!data) {
         newMessage = {
           role: "bot",
-          content: processText,
-          output: inputType,
-          args: { process: toolName, ...toolArgs },
+          content:
+            "The CFDE Workbench AI Assistant is taking longer than usual to respond. We apologize for the inconvenience, please try again later.",
+          output: null,
+          args: null,
         };
-      } else if (results.error) {
+      } else if (data.error) {
         newMessage = {
           role: "bot",
-          content: results.error,
+          content:
+            data.error,
           output: null,
           args: null,
         };
@@ -159,20 +145,44 @@ export default function Chat() {
         newMessage = {
           role: "bot",
           content:
-            "The assistant is taking longer than usual to respond. We appologize for the inconvenience, please try again later.",
+            "The CFDE Workbench AI Assistant is having some issues. We apologize for the inconvenience, please try again later.",
           output: null,
           args: null,
         };
-      } else {
-        newMessage = {
-          role: "bot",
-          content: results.messages[0].content[0].text.value.replace(
-            /\【.*?\】/g,
-            ""
-          ),
-          output: null,
-          args: null,
-        };
+      }  else {
+        let mcp_val = results.filter(r=>r["type"]==="mcp_call")[0] || {}
+        const mcp_output = JSON.parse(mcp_val["output"] || '{}')
+        const output_text = data.output_text
+        if (mcp_output.function) {
+          const {function:toolName, inputType, output_text:outtxt, ...toolArgs} = mcp_output
+          // const toolName = function
+          const processText = output_text
+          newMessage = {
+            role: "bot",
+            content: processText,
+            output: inputType,
+            args: { process: toolName, ...toolArgs },
+          };
+        } else if (mcp_output.error) {
+          newMessage = {
+            role: "bot",
+            content: output_text,
+            output: null,
+            args: null,
+          };
+        } else {
+          newMessage = {
+            role: "bot",
+            content: output_text.replace(
+              /\【.*?\】/g,
+              ""
+            ),
+            output: null,
+            args: null,
+          };
+        }
+        if (newMessage.args) setPrevResponseId(null)
+        else setPrevResponseId(data["id"])
       }
 
       setChat((cc: any) => {
@@ -184,7 +194,7 @@ export default function Chat() {
           };
       });
     },
-    [chat, threadId, trigger]
+    [chat, prevResponseId]
   );
 
   return (
@@ -192,7 +202,7 @@ export default function Chat() {
       <div className={"border border-neutral-700 rounded-xl pt-3 pb-2"}>
         <Message role="welcome" key={"welcome"}>
           <p>
-            I&apos;m CWAS, an AI-powered chat assistant interface designed to provide information about the CFDE and help you
+            I&apos;m the CFDE Workbench AI Assistant, an AI-powered chat assistant interface designed to provide information about the CFDE and help you
             access and execute tools created by CFDE DCCs. Please start by
             asking your CFDE or DCC related question of interest, and I&apos;ll try my best to help
             you answer it.
@@ -201,9 +211,18 @@ export default function Chat() {
         {chat.messages.flatMap((message, i) => {
           const Component = processMapper[message.output || ""];
           return (
-            <>
+            <React.Fragment key={i}>
               <Message role={message.role} key={i.toString() + "message"}>
-                <p style={{ whiteSpace: "pre-line" }}>{message.content}</p>
+                {/* <p style={{ whiteSpace: "pre-line" }}>{message.content}</p> */}
+                <ReactMarkdown 
+                    skipHtml
+                    remarkPlugins={[remarkGfm]}
+                    components={{ 
+                        p: PRenderer,
+                    }}
+                    className="[&_*]:text-white">
+                      {message.content}
+                </ReactMarkdown>
               </Message>
 
               {message.output ? (
@@ -213,7 +232,7 @@ export default function Chat() {
               ) : (
                 <></>
               )}
-            </>
+            </React.Fragment>
           );
         })}
         {chat.waitingForReply ? (

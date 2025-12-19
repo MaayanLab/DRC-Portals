@@ -59,6 +59,8 @@ echo ${date_div} >> ${logf};
 # psql -t -A -F'|' -h localhost -v ON_ERROR_STOP=1 -U drc -d drc -p 5434 -c "\dt+ public.*" | awk -F'|' '{print $2, $7}'
 # psql -t -A -F'|' -h localhost -v ON_ERROR_STOP=1 -U drc -d drc -p 5434 -c "\dt+ public.*" | awk -F'|' '{print $2, $7}'
 
+# ingest all processed data files into elasticsearch for the processed data search
+sh ingest_es.sh
 ```
 
 ## Ingesting new changes

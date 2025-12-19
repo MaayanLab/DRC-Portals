@@ -1,5 +1,4 @@
 import prisma from "@/lib/prisma/c2m2";
-import { format_description } from "@/app/data/processed/utils"
 import { MetadataItem, getDCCIcon, getdccCFlink, generateRecordInfoColnamesString, generateFilterQueryStringForRecordInfo } from "@/app/data/c2m2/utils"
 import LandingPageLayout from "@/app/data/c2m2/LandingPageLayout";
 import Link from "@/utils/link";
@@ -24,6 +23,11 @@ const file_count_limit_col = file_count_limit; // 500000;
 const maxTblCount = 100000;
 
 type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
+
+function format_description(description: string) {
+  if (description === 'TODO') return null
+  else return description
+}
 
 export async function RecordInfoQueryComponent(props: PageProps) {
   const searchParams = useSanitizedSearchParams(props);

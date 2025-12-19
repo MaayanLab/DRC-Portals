@@ -1,9 +1,8 @@
-version: '3.9'
 services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.20.0
+    image: maayanlab/drc-portal:0.23.16
     deploy:
       replicas: 3
       resources:
@@ -35,14 +34,20 @@ services:
       - OPENAI_API_KEY
       - NEXT_PUBLIC_GA_MEASUREMENT_ID
       - ASSISTANT_ID
+      - NEO4J_URL
+      - GRAPH_C2M2_DBNAME
+      - GRAPH_C2M2_READER_USERNAME
+      - GRAPH_C2M2_READER_PASSWORD
       - NEXT_PUBLIC_GSE
       - NEXT_PUBLIC_ENRICHR_URL
       - TURL_CRED
       - GSC_DATABASE_URL=${PROD_GSC_DATABASE_URL}
+      - MCP_API_KEY
+      - ELASTICSEARCH_URL=${PROD_ELASTICSEARCH_URL:-http://elastic:${ELASTICSEARCH_PASSWORD}@drc-portal-elasticsearch:9200}
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:0.20.1
+    image: maayanlab/drc-portal-dev:0.22.5-rc.8
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -78,12 +83,13 @@ services:
       - NEXT_PUBLIC_GSE
       - NEXT_PUBLIC_ENRICHR_URL
       - TURL_CRED
+      - ELASTICSEARCH_URL=${DEV_ELASTICSEARCH_URL:-http://elastic:${ELASTICSEARCH_PASSWORD}@drc-portal-elasticsearch:9200}
   drc-portal-worker:
     build:
       context: ..
       dockerfile: worker/Dockerfile
     platform: linux/amd64
-    image: maayanlab/drc-portal-worker:0.19.3
+    image: maayanlab/drc-portal-worker:0.20.0
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     environment:
@@ -102,6 +108,7 @@ services:
     environment:
       nginx_server_name: data.cfde.cloud
       nginx_proxy_00: /(.*) http://drc-portal-proxy/$$1
+      nginx_buffering: 0
 
   drc-portal-info-proxy:
     image: maayanlab/proxy:1.2.13
@@ -114,6 +121,8 @@ services:
     environment:
       nginx_server_name: info.cfde.cloud
       nginx_proxy_00: /(.*) http://drc-portal-proxy/$$1
+      nginx_redirect_00: /documentation(/.*)? https://data.cfde.cloud/documentation$$1
+      nginx_buffering: 0
 
   drc-portal-proxy:
     image: maayanlab/proxy:1.2.13
@@ -124,7 +133,8 @@ services:
         nginx.ingress.kubernetes.io/enable-cors: 'true'
         nginx.ingress.kubernetes.io/cors-allow-headers: 'DNT,Keep-Alive,User-Agent,Accept,X-CSRF-Token,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,next-router-state-tree,next-router-prefetch,next-url,rsc,'
         nginx.ingress.kubernetes.io/cors-allow-origin: https://data.cfde.cloud, https://info.cfde.cloud, https://cfde.cloud
-        nginx.ingress.kubernetes.io/proxy-buffer-size: '16k'
+        # nginx.ingress.kubernetes.io/proxy-buffer-size: '16k'
+        nginx.ingress.kubernetes.io/proxy-buffering: "off"
     ports:
       - 80:80
     environment:
@@ -178,6 +188,35 @@ services:
       - 5432:5432
     volumes:
       - drc-portal-postgres-2:/var/lib/postgresql/data
+
+  drc-portal-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.1.5
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    deploy:
+      resources:
+        reservations:
+          cpus: '2.0'
+          memory: 3072M
+        limits:
+          memory: 6144M
+    environment:
+      - cluster.name=elastic
+      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
+      - discovery.type=single-node
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - bootstrap.memory_lock=true
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - ES_JAVA_OPTS=-Xms3g -Xmx3g
+    ports:
+      - 9200:9200
+    volumes:
+      - drc-portal-elasticsearch:/usr/share/elasticsearch/data
 
   drc-portal-backup:
     build: ../database/backup
@@ -245,9 +284,9 @@ services:
   #     replicas: 0
 
   drc-portal-mcp:
-    build: ../mcp
+    build: ../cfde-mcp
     platform: linux/amd64
-    image: maayanlab/drc-portal-mcp:0.0.7
+    image: maayanlab/drc-portal-mcp:0.1.21
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -266,6 +305,11 @@ volumes:
       class: gp2
 
   drc-portal-postgres-2:
+    x-kubernetes:
+      size: 100Gi
+      class: gp2
+
+  drc-portal-elasticsearch:
     x-kubernetes:
       size: 100Gi
       class: gp2

@@ -1,15 +1,26 @@
 import pandas as pd
 import os
+import functools
 import psycopg2
 import pathlib
 import csv
+import time
 import contextlib
 import tempfile
 import urllib.request
+import queue
+import threading
+import traceback
+import typing as t
 from urllib.parse import urlparse, unquote
 from dotenv import load_dotenv
 from uuid import UUID, uuid5
+from datetime import datetime
+from tqdm.auto import tqdm
+import itertools
 import json
+import elasticsearch, elasticsearch.helpers
+
 
 uuid0 = UUID('00000000-0000-0000-0000-000000000000')
 def quote(col): return f'"{col}"'
@@ -23,6 +34,7 @@ class TableHelper:
     self.add_columns = add_columns
   @contextlib.contextmanager
   def writer(self):
+    connection = pg_connect()
     with tempfile.TemporaryDirectory() as tmpdir:
       path = pathlib.Path(tmpdir)/(self.tablename+'.tsv')
       with path.open('w') as fw:
@@ -72,23 +84,213 @@ if DATABASE_URL == None:
   load_dotenv('../../drc-portals/.env') # for fair assessment 
   load_dotenv()
   DATABASE_URL = os.getenv("DATABASE_URL")
-result = urlparse(DATABASE_URL)
-username = result.username
-password = unquote(result.password)
-database = result.path[1:]
-hostname = result.hostname
-port = result.port
 
-##### Line below is for debug only, always keep commented otherwise
-#####print(f"username: {username}, password: {password}, database: {database}, hostname: {hostname}")
+@functools.cache
+def pg_connect():
+  result = urlparse(DATABASE_URL)
+  username = result.username
+  password = unquote(result.password)
+  database = result.path[1:]
+  hostname = result.hostname
+  port = result.port
 
-connection = psycopg2.connect(
-    database = database,
-    user = username,
-    password = password,
-    host = hostname,
-    port = port
-)
+  ##### Line below is for debug only, always keep commented otherwise
+  #####print(f"username: {username}, password: {password}, database: {database}, hostname: {hostname}")
+
+  connection = psycopg2.connect(
+      database = database,
+      user = username,
+      password = password,
+      host = hostname,
+      port = port
+  )
+  return connection
+
+#%%
+@functools.cache
+def es_connect():
+  return elasticsearch.Elasticsearch(os.getenv('ELASTICSEARCH_URL'), retry_on_timeout=True)
+
+#%%
+class ExEncoder(json.JSONEncoder):
+  def default(self, o):
+    import decimal
+    if isinstance(o, decimal.Decimal):
+      return str(o)
+    elif isinstance(o, datetime):
+      return o.isoformat()
+    elif isinstance(o, UUID):
+      return str(o)
+    return super(ExEncoder, self).default(o)
+
+def maybe_json_dumps(v):
+  if type(v) == str: return v
+  else: return json.dumps(v, sort_keys=True, cls=ExEncoder)
+
+@functools.lru_cache()
+def stemmer():
+  import nltk; nltk.download('punkt_tab')
+  from nltk.stem.porter import PorterStemmer
+  return PorterStemmer()
+
+def label_ident(k):
+  ps = stemmer()
+  from nltk.tokenize import word_tokenize
+  return ' '.join([ps.stem(word) for word in word_tokenize(k)])
+
+def es_bulk_insert(Q: queue.Queue):
+  consume, items = itertools.tee(iter(Q.get, None))
+  retries = 0
+  reconnects = 0
+  with tqdm(desc='Ingesting...') as pbar:
+    while True:
+      try:
+        for (success, info), item in zip(elasticsearch.helpers.parallel_bulk(es_connect(), consume, max_chunk_bytes=10*1024*1024, raise_on_exception=False, raise_on_error=False, thread_count=6), items):
+          Q.task_done()
+          if success:
+            pbar.update(1)
+          else:
+            retries += 1
+            Q.put(item)
+            if info.get('update', {}).get('error', {}).get('type') != 'version_conflict_engine_exception':
+              print(f"\nwarning: {item=}, {info=}\n")
+            pbar.set_description(f"Ingesting {retries} retries {reconnects} reconnects...")
+      except KeyboardInterrupt:
+        raise
+      except Exception:
+        traceback.print_exc()
+        reconnects += 1
+        pbar.set_description(f"Ingesting {retries} retries {reconnects} reconnects...")
+        time.sleep(1)
+        continue
+      else:
+        break
+
+@contextlib.contextmanager
+def es_helper():
+  Q = queue.Queue(1_000_000)
+  bulk_insert_thread = threading.Thread(target=es_bulk_insert, args=(Q,))
+  bulk_insert_thread.start()
+  try:
+    yield Q
+  finally:
+    Q.put(None)
+    bulk_insert_thread.join()
+
+@contextlib.contextmanager
+def pdp_helper():
+  with es_helper() as es:
+    resolved_ids = set()
+    registered_ids = set()
+    pagerank = {}
+    m2o = {}
+    def resolve_entity_id(type: str, attributes: dict, slug: t.Optional[str]=None, pk: t.Optional[str]=None):
+      assert type
+      identity = dict(type=type)
+      if slug is not None: identity['slug'] = slug
+      elif pk is not None: identity['pk'] = pk
+      else: identity.update(attributes)
+      id = str(uuid5(uuid0, maybe_json_dumps(identity)))
+      resolved_ids.add((type, id, slug, pk))
+      return id
+    def upsert_entity(type: str, attributes: dict, slug: t.Optional[str]=None, pk: t.Optional[str]=None):
+      '''
+      type: the entity type
+      attributes: all entity attributes (searchable)
+      slug: a human readable type-unique id for the entity id
+      pk: a type-unique string for building the entity id
+      '''
+      attributes = {f"a_{k}": maybe_json_dumps(v) for k, v in attributes.items() if v is not None}
+      assert 'a_label' in attributes
+      id = resolve_entity_id(type, attributes, slug=slug, pk=pk)
+      entity = dict(
+        id=id,
+        type=type,
+        slug=slug or id,
+        pagerank=0,
+        **attributes,
+      )
+      registered_ids.add((type, id, slug, pk))
+      es.put(dict(
+        _op_type='update',
+        _index='entity_staging',
+        _id=id,
+        doc=entity,
+        doc_as_upsert=True,
+      ))
+      return id
+    def upsert_m2o(target_id, predicate, source_id):
+      if target_id not in m2o: m2o[target_id] = {}
+      assert predicate not in m2o[target_id] or m2o[target_id][predicate] == source_id
+      m2o[target_id][predicate] = source_id
+      es.put(dict(
+        _op_type='update',
+        _index='entity_staging',
+        _id=target_id,
+        doc={f"r_{predicate}": source_id},
+        doc_as_upsert=True,
+      ))
+      es.put(dict(
+        _op_type='update',
+        _index='m2m_staging',
+        _id=f"{source_id}:{predicate}:{target_id}",
+        doc=dict(source_id=source_id, predicate=predicate, target_id=target_id),
+        doc_as_upsert=True,
+      ))
+      # es.put(dict(
+      #   _op_type='update',
+      #   _index='entity_staging',
+      #   _id=source_id,
+      #   script=dict(source='if (ctx._source.pagerank == null) {ctx._source.pagerank = 0;} ctx._source.pagerank += 1;', lang='painless', params=dict()),
+      #   upsert=dict(id=source_id, pagerank=0),
+      #   scripted_upsert=True,
+      # ))
+      pagerank[source_id] = pagerank.get(source_id, 0) + 1
+    def upsert_m2m(source_id, predicate, target_id):
+      es.put(dict(
+        _op_type='update',
+        _index='m2m_staging',
+        _id=f"{source_id}:{predicate}:{target_id}",
+        doc=dict(source_id=source_id, predicate=predicate, target_id=target_id),
+        doc_as_upsert=True,
+      ))
+      # es.put(dict(
+      #   _op_type='update',
+      #   _index='entity_staging',
+      #   _id=source_id,
+      #   script=dict(source='if (ctx._source.pagerank == null) {ctx._source.pagerank = 0;} ctx._source.pagerank += 1;', lang='painless', params=dict()),
+      #   upsert=dict(id=source_id, pagerank=0),
+      #   scripted_upsert=True,
+      # ))
+      pagerank[source_id] = pagerank.get(source_id, 0) + 1
+      es.put(dict(
+        _op_type='update',
+        _index='m2m_staging',
+        _id=f"{target_id}:inv_{predicate}:{source_id}",
+        doc=dict(source_id=target_id, predicate=f"inv_{predicate}", target_id=source_id),
+        doc_as_upsert=True,
+      ))
+      # es.put(dict(
+      #   _op_type='update',
+      #   _index='entity_staging',
+      #   _id=target_id,
+      #   script=dict(source='if (ctx._source.pagerank == null) {ctx._source.pagerank = 0;} ctx._source.pagerank += 1;', lang='painless', params=dict()),
+      #   upsert=dict(id=source_id, pagerank=0),
+      #   scripted_upsert=True,
+      # ))
+      pagerank[target_id] = pagerank.get(target_id, 0) + 1
+    #
+    yield type('pdp', tuple(), dict(upsert_m2o=upsert_m2o, upsert_m2m=upsert_m2m, upsert_entity=upsert_entity, resolve_entity_id=resolve_entity_id))
+    for source_id, pagerank in pagerank.items():
+      es.put(dict(
+        _op_type='update',
+        _index='entity_staging',
+        _id=source_id,
+        script=dict(source='if (ctx._source.pagerank == null) {ctx._source.pagerank = 0;} ctx._source.pagerank += params.pagerank;', lang='painless', params=dict(pagerank=pagerank)),
+        upsert=dict(id=source_id, pagerank=pagerank),
+        scripted_upsert=True,
+      ))
+    assert registered_ids >= resolved_ids, f"Never registered {resolved_ids-registered_ids=}"
 
 #%%
 # Fetch assets to ingest
@@ -141,8 +343,7 @@ def current_dcc_assets():
     right=pd.read_csv(dcc_assets_path(), sep='\t'),
     right_on='link',
     how='inner',
-  )
-  dcc_assets['dcc_short_label'] = dcc_assets['link'].apply(lambda link: link.split('/')[3])
+  ).merge(pd.read_csv(dcc_path(), sep='\t'), left_on='dcc_id', right_on='id', suffixes=('asset_', 'dcc_'))
   #dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted']]
   if require_dccapproved:
     dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted'] & dcc_assets['dccapproved'] & dcc_assets['drcapproved'] ]
@@ -158,13 +359,12 @@ def current_code_assets():
     right=pd.read_csv(dcc_assets_path(), sep='\t'),
     right_on='link',
     how='inner',
-  )
+  ).merge(pd.read_csv(dcc_path(), sep='\t'), left_on='dcc_id', right_on='id', suffixes=('asset_', 'dcc_'))
   if require_dccapproved:
     dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted'] & dcc_assets['dccapproved'] & dcc_assets['drcapproved'] ]
   else:
     # Without DCC approval
     dcc_assets = dcc_assets[dcc_assets['current'] & ~dcc_assets['deleted'] & dcc_assets['drcapproved'] ]
-  print(dcc_assets)
   return dcc_assets
 
 #%%

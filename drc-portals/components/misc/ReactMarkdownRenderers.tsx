@@ -75,6 +75,14 @@ export function PRenderer(props: any) {
   )
 }
 
+export function PRendererWhite(props: any) {
+  return (
+    <Typography variant={"subtitle2"} color={"white"} sx={{marginBottom: 2, textAlign: "justify"}}>
+      {props.children}
+    </Typography>
+  )
+}
+
 export function PRendererNarrow(props: any) {
   return (
     <Typography variant={"subtitle2"} sx={{marginBottom: 2, textAlign: "justify", width: 233}}>

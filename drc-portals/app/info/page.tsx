@@ -19,14 +19,14 @@ import { BlurSmall } from "@/components/styled/Blur"
 import prisma from "@/lib/prisma"
 import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent"
 import { ResponsivePaper } from "./styled"
-import InteractiveNav from "@/components/InteractiveNav"
+import CFDEWheel from "cfde-wheel"
 
 export default async function Home() {
   const publications = await prisma.publication.findMany({
     orderBy: {
       year: "desc"
     },
-    take: 5
+    take: 9
   })
 
   return (
@@ -73,7 +73,7 @@ export default async function Home() {
                       <Stack spacing={2}>
                         <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}} variant="subtitle1">CFDE NAVIGATION WHEEL</Typography>
                         <div style={{marginLeft: 40}}>
-                          <InteractiveNav/>
+                          <CFDEWheel button={true}/>
                         </div>
                         <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">ABOUT THE WORKBENCH</Typography>
                         <Box sx={{width: 233}}>
@@ -190,7 +190,7 @@ export default async function Home() {
                     </Typography>
                   </Grid>
                   <Grid item>
-                    <Link href="/info/documentation">
+                    <Link href="/data/documentation">
                       <Button variant="contained" sx={{borderRadius: 2}} color="primary">Find Out More</Button>
                     </Link>
                   </Grid>
@@ -225,7 +225,7 @@ export default async function Home() {
                     </Typography>
                   </Grid>
                   <Grid item>
-                    <Link href="/info/documentation">
+                    <Link href="/data/documentation">
                       <Button variant="contained" sx={{borderRadius: 2}} color="primary">Find Out More</Button>
                     </Link>
                   </Grid>
