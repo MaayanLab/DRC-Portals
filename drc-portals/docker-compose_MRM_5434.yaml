@@ -23,6 +23,7 @@ services:
       - S3_BUCKET
       - S3_REGION
       - OPENAI_API_KEY
+      - ELASTICSEARCH_URL=${PROD_ELASTICSEARCH_URL:-http://elastic:${ELASTICSEARCH_PASSWORD}@drc-portal-elasticsearch:9200}
 
   drc-portal-data-proxy:
     image: maayanlab/proxy:1.2.9
@@ -147,15 +148,49 @@ services:
 #      - name: drc-portal-postgres34-dshm
 #        mountPath: /dev/shm
 
+  drc-portal-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.1.5
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    deploy:
+      resources:
+        reservations:
+          cpus: '2.0'
+          memory: 6144M
+        limits:
+          memory: 12288M
+    environment:
+      - cluster.name=elastic
+      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
+      - discovery.type=single-node
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - bootstrap.memory_lock=true
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - ES_JAVA_OPTS=-Xms3g -Xmx3g
+    ports:
+      - 9200:9200
+    volumes:
+      - drc-portal-elasticsearch:/usr/share/elasticsearch/data
+
 volumes:
   drc-portal-postgres34:
     x-kubernetes:
-      size: 100Gi
+      size: 120Gi
       class: gp2
 
   drc-portal-postgres34-2:
     x-kubernetes:
-      size: 100Gi
+      size: 120Gi
+      class: gp2
+
+  drc-portal-elasticsearch:
+    x-kubernetes:
+      size: 120Gi
       class: gp2
 
 x-kubernetes:
