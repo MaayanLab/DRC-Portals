@@ -184,8 +184,8 @@ es_put PUT /m2m_${INDEX_VERSION}_nested_target_expanded << EOF
           "type": {"type": "keyword"},
           "slug": {"type": "keyword"},
           "pagerank": {"type": "long"}
-        },
-      },
+        }
+      }
     },
     "dynamic_templates": [
       {
