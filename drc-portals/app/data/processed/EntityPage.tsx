@@ -63,7 +63,7 @@ export default async function Page(props: PageProps) {
   }
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<M2MTargetType, FilterAggType<'files'>>({
-    index: 'm2m_v11_nested_target_expanded',
+    index: 'm2m_v11_nested_expanded_target_expanded',
     query: {
       function_score: {
         query: {

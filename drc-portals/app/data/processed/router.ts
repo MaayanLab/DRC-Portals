@@ -40,7 +40,7 @@ export default router({
       }
     })
     const searchRes = await elasticsearch.search<M2MTargetType | EntityType>({
-      index: props.input.source_id ? 'm2m_v11_nested_target_expanded' : 'entity_v11_nested_expanded',
+      index: props.input.source_id ? 'm2m_v11_nested_expanded_target_expanded' : 'entity_v11_nested_expanded',
       query: {
         function_score: {
           query: {
@@ -113,6 +113,8 @@ export default router({
     if (props.input.source_id) {
       aggs['predicate'] = { terms: { field: 'predicate', size: 20 } }
       aggs['target.type'] = { nested: { path: 'target' }, aggs: { 'target.type': { terms: { field: 'target.type', size: 20 } } } }
+      aggs['target.r.predicate'] = { nested: { path: 'target' }, aggs: { 'target.r.predicate': { terms: { field: 'target.r.predicate', size: 20 } } } }
+      aggs['target.r.target.id'] = { nested: { path: 'target.r.target' }, aggs: { 'target.r.target.id': { terms: { field: 'target.r.target.id', size: 20 } } } }
         // 'target.r_dcc', 'target.r_project',
         // 'target.r_source', 'target.r_relation', 'target.r_target',
         // 'target.r_disease', 'target.r_species', 'target.r_anatomy', 'target.r_gene', 'target.r_protein', 'target.r_compound', 'target.r_data_type', 'target.r_assay_type',
@@ -127,7 +129,7 @@ export default router({
         // 'r_file_format', 'r_ptm_type', 'r_ptm_subtype', 'r_ptm_site_type',
     }
     const { data: searchRes, error } = await safeAsync(() => elasticsearch.search<unknown, TermAggType<string>>({
-      index: props.input.source_id ? 'm2m_v11_nested_target_expanded' : 'entity_v11_nested_expanded',
+      index: props.input.source_id ? 'm2m_v11_nested_expanded_target_expanded' : 'entity_v11_nested_expanded',
       query: {
         bool: {
           filter,
@@ -190,7 +192,7 @@ export default router({
       }
     })
     const searchRes = await elasticsearch.search<M2MTargetType | EntityType>({
-      index: props.input.source_id ? 'm2m_v11_nested_target_expanded' : 'entity',
+      index: props.input.source_id ? 'm2m_v11_nested_expanded_target_expanded' : 'entity',
       query: {
         function_score: {
           query: {
