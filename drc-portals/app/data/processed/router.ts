@@ -112,7 +112,7 @@ export default router({
     const aggs: Record<string, estypes.AggregationsAggregationContainer> = {}
     if (props.input.source_id) {
       aggs['predicate'] = { terms: { field: 'predicate', size: 20 } }
-      aggs['target.type'] = { terms: { field: 'target.type', size: 20 } }
+      aggs['target.type'] = { nested: { path: 'target' }, aggs: { 'target.type': { terms: { field: 'target.type', size: 20 } } } }
         // 'target.r_dcc', 'target.r_project',
         // 'target.r_source', 'target.r_relation', 'target.r_target',
         // 'target.r_disease', 'target.r_species', 'target.r_anatomy', 'target.r_gene', 'target.r_protein', 'target.r_compound', 'target.r_data_type', 'target.r_assay_type',

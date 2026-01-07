@@ -44,13 +44,20 @@ export default async function Page(props: PageProps) {
   const must: estypes.QueryDslQueryContainer[] = []
   const filter: estypes.QueryDslQueryContainer[] = []
   filter.push({ query_string: { query: `+source_id:"${item.id}"` } })
-  if (params?.search) must.push({ simple_query_string: { query: params.search, fields: ['target.a_label^10', 'target.a_*^5'], default_operator: 'AND' } })
+  if (params?.search) {
+    must.push({ nested: { path: 'target', query: { simple_query_string: { query: params.search, fields: ['target.a_label^10', 'target.a_*^5'], default_operator: 'AND' } } } })
+  }
   if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) {
     filter.push({
-      query_string: {
-        query: Object.entries(groupby(
-          ensure_array(searchParams.facet).filter(f => !!f), f => f.substring(0, f.indexOf(':'))
-        )).map(([_, F]) => `(${F.join(' OR ')})`).join(' AND '),
+      nested: {
+        path: 'target',
+        query: {
+          query_string: {
+            query: Object.entries(groupby(
+              ensure_array(searchParams.facet).filter(f => !!f), f => f.substring(0, f.indexOf(':'))
+            )).map(([_, F]) => `(${F.join(' OR ')})`).join(' AND '),
+          }
+        }
       }
     })
   }
@@ -85,10 +92,10 @@ export default async function Page(props: PageProps) {
     },
     sort: searchParams?.reverse === undefined ? [
       {'_score': {'order': 'desc'}},
-      {'target.id': {'order': 'desc'} },
+      {'target_id': {'order': 'desc'} },
     ] :  [
       {'_score': {'order': 'asc'}},
-      {'target.id': {'order': 'desc'} },
+      {'target_id': {'order': 'desc'} },
     ],
     search_after: searchParams?.cursor ? JSON.parse(searchParams.cursor as string) : undefined,
     size: display_per_page,

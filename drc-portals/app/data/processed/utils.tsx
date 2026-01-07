@@ -18,10 +18,13 @@ export type M2MTargetType = {
   source_id: string,
   predicate: string,
   target_id: string,
-  target_slug: string,
-  target_pagerank: string,
-  target_a_label: string,
-  target_a_description: string,
+  target: {
+    id: string,
+    slug: string,
+    pagerank: string,
+    a_label: string,
+    a_description: string,
+  }
 } & Record<string, string>
 
 export type TermAggType<K extends string> = Record<K, {
@@ -129,11 +132,7 @@ export function categoryLabel(type: string) {
 }
 
 export function targetEntityFromM2M(item: M2MTargetType) {
-  return Object.fromEntries(Object.entries(item).flatMap(([k,v]) => {
-    const m = /^target_(.+)$/.exec(k)
-    if (!m) return []
-    return [[m[1], v] as const]
-  })) as EntityType
+  return item.target as EntityType
 }
 export function lookupFromEntity(item: EntityType) {
   const predicate_entity: Record<string, EntityType> = {'': item}
