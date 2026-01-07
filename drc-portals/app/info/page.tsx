@@ -83,7 +83,7 @@ export default async function Home() {
                         <div className="flex justify-start">
                           <div>
                             <Button color="tertiary" sx={{backgroundColor: "#eaedf6", color: "#2D5986"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                              <Link target="_blank" rel="noopener noreferrer" href={"https://www.biorxiv.org/content/10.1101/2025.02.04.636535v1"}>
+                              <Link target="_blank" rel="noopener noreferrer" href={"https://www.sciencedirect.com/science/article/pii/S0022283626000045"}>
                                 <Typography variant="caption"><b>READ PAPER</b></Typography>
                               </Link>
                             </Button>
