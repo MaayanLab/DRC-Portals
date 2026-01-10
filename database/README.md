@@ -24,7 +24,11 @@ skip_py_scripts=1
 if [[ "$skip_py_scripts" -eq 1 ]]; then
   echo "Skipping Python scripts here as they will be run in ingest_es.sh"
   # ingest all processed data files into elasticsearch for the processed data search
-  sh ingest_es.sh
+  #sh ingest_es.sh
+  logf=log/log_ingest_es_${ymd}.log
+  echo ${date_div} > ${logf};
+  sh ingest_es.sh 2>&1 | tee -a ${logf}
+  echo ${date_div} >> ${logf};
 else
   echo "Running Python scripts here"
 
