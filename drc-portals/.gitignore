@@ -44,6 +44,3 @@ current/
 
 # log for dropping many tables from the public schema
 log_drop_drc_public_tables.log
-
-# installed python venv
-.venv
