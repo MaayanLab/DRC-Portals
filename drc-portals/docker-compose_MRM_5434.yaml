@@ -173,7 +173,7 @@ services:
       #- bootstrap.memory_lock=true
       # For rootless docker
       - bootstrap.memory_lock=false
-      # To dead with http/https issue (only for dev environment): added: - xpack.security.enabled=true & - http.ssl.enabled=false
+      # To deal with http/https issue (only for dev environment): added: - xpack.security.enabled=true & - http.ssl.enabled=false
       #- xpack.security.enabled=true
       - xpack.security.http.ssl.enabled=false
       - xpack.security.transport.ssl.enabled=false
