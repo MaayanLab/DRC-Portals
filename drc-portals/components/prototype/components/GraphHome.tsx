@@ -158,6 +158,17 @@ export default function GraphHome() {
                   Quickstart Guide
                 </Button>
               </Link>
+
+              <Link href="https://youtu.be/7r8eztqPxq0">
+                <Button
+                  sx={{ textTransform: "uppercase" }}
+                  color="secondary"
+                >
+                  Video Tutorial
+                </Button>
+              </Link>
+
+              
               <Link href="/info/documentation/gqi">
                 <Button
                   sx={{ textTransform: "uppercase" }}
