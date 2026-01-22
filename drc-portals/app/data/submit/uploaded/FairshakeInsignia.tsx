@@ -2,7 +2,7 @@
  * Credit to Daniel J.B Clarke -- https://github.com/MaayanLab/FAIRshakeInsignia/blob/master/src/index.js 
  */
 import tippy from 'tippy.js'
-var d3 = require('d3')
+import * as d3 from 'd3'
 import 'tippy.js/dist/tippy.css'; // optional for styling
 
 
@@ -102,11 +102,11 @@ function build_svg(container: any, scores: any, settings: any) {
   var color = settings.color !== undefined ? settings.color :
     d3.scaleLinear()
       .domain([0, 1])
-      .interpolate(d3.interpolateRgb)
+      .interpolate(d3.interpolateRgb as any)
       .range([
         d3.rgb(255, 0, 0),
         d3.rgb(0, 0, 255),
-      ])
+      ] as any)
 
   var svg = settings.svg !== undefined ? settings.svg :
     d3.select(container)
