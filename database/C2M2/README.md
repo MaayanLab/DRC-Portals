@@ -277,9 +277,17 @@ date_div >> ${logf};
 #date_div >> ${logf};
 
 # To create additional indexes on some tables for faster query
+# ChatGPT suggests: for indexing use gin with gin_trgm_ops as in: USING gin(colname gin_trgm_ops);
+# This can be applied to columns of ffl tables as well.
 logf=${logdir}/log_c2m2_other_indexes.log
 date_div >> ${logf};
 psql "$(python3 dburl.py)" -a -f c2m2_other_indexes.sql -o ${logf}
+date_div >> ${logf};
+
+#---------- To find the words that appear in lot of rows/records
+logf=${logdir}/log_run_stat_on_ffl_cmp.log
+date_div >> ${logf};
+psql "$(python3 dburl.py)" -a -f run_stat_on_ffl_cmp.sql -o ${logf}
 date_div >> ${logf};
 
 #-------------------------------------------------------------------------------------------------------
@@ -289,7 +297,7 @@ date_div >> ${logf};
 # It is better to do direct ingest into the public schema, but others such as _4dn, metabolomics, etc. (DCC-name specific schema which have metadata only from that DCC) and c2m2 (which has metadata from all the DCCs) can be copied over to the other DB.
 #host1=sc-cfdedb.sdsc.edu; host2=localhost; dbname=drc; sch=Metabolomics;
 #host1=localhost; host2=sc-cfdedb.sdsc.edu; dbname=drc; sch=c2m2;
-host1=localhost; host2=sc-cfdedb.sdsc.edu; port1 = 5434; port2 = 5432; dbname=drc; sch=c2m2;
+host1=localhost; host2=sc-cfdedb.sdsc.edu; port1=5434; port2=5432; dbname=drc; sch=c2m2;
 # Example of 
 ymd=$(date +%y%m%d);
 logf=${logdir}/main_pg_dump_log_${ymd}.log
@@ -319,7 +327,7 @@ This step is necessary if DB/table schema has been changed.
 To fetch the current database schema and update your Prisma schema, use the following command:
 
 ```bash
-npx prisma db pull --schema=prisma/c2m2/schema.prisma --url "postgresql://drc:drcpass@localhost:5433/drc?schema=c2m2"
+npx prisma db pull --schema=prisma/c2m2/schema.prisma --url "postgresql://drc:drcpass@localhost:5434/drc?schema=c2m2"
 ```
 This command will:
 	•	Fetch the database schema from the PostgreSQL database.

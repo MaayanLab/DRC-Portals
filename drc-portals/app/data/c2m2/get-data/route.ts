@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma/c2m2';
 import SQL from '@/lib/prisma/raw'; // Import SQL
 import { generateFilterClauseFromtParam, generateFilterStringsForURL, generateSelectColumnsStringModified, generateOrderByString } from '../utils';
+import { generate_qWITHt_FTQS } from '@/app/data/c2m2/utils';
+import { generateFilterStringsForURL_INCtINq_SQLraw } from '../utils';
 import { main_table } from '../search/SearchQueryComponent';
+
+const maxTblCount = 100000;
 
 export async function POST(request: Request) {
   try {
@@ -22,6 +26,11 @@ export async function POST(request: Request) {
     const filterClause = generateFilterClauseFromtParam(t, "allres_full"); // Adjust tablename as needed
     const FilterStringsForURL = generateFilterStringsForURL();
     const selectColumns = generateSelectColumnsStringModified("allres_full");
+
+    // generateFilterStringsForURL_INCtINq_SQLraw results in speed-up by a factor of 2-200
+    const FilterStringsForURL_INCtINq_SQLraw = generateFilterStringsForURL_INCtINq_SQLraw('allres'); // can use it or not (set to '')
+    const qWITHt_FTQS = generate_qWITHt_FTQS(q, t);
+    console.log("qWITHt_FTQS = " + qWITHt_FTQS);
 
     const orderByClause = generateOrderByString();
 
@@ -78,17 +87,20 @@ export async function POST(request: Request) {
     WITH 
     allres AS (
       SELECT DISTINCT
-          ts_rank_cd(searchable, websearch_to_tsquery('english', ${queryParam})) AS rank,
+          /* original: ts_rank_cd(searchable, websearch_to_tsquery('english', ${queryParam})) AS rank, */
+          ts_rank_cd(searchable, websearch_to_tsquery('english', ${qWITHt_FTQS})) AS rank,
           ${SQL.raw(selectColumns)}
       FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} AS allres_full 
-      WHERE searchable @@ websearch_to_tsquery('english', ${queryParam})
+      /* original: WHERE searchable @@ websearch_to_tsquery('english', ${queryParam}) */
+      WHERE searchable @@ websearch_to_tsquery('english', ${qWITHt_FTQS})
           ${!filterClause.isEmpty() ? SQL.template`AND ${filterClause}` : SQL.empty()}
       ORDER BY ${SQL.raw(orderByClause)}
+      limit ${maxTblCount}
   ),
       allres_filtered_count AS (SELECT count(*)::int as filtered_count FROM allres),
       allres_filtered AS (
         SELECT allres.*,
-        concat_ws('', '/data/c2m2/search/record_info?q=', ${queryParam}, '&t=', 'dcc_name:', allres.dcc_name,
+        concat_ws('', '/data/c2m2/search/record_info?q=', ${queryParam}, ${FilterStringsForURL_INCtINq_SQLraw}, '&t=', 'dcc_name:', allres.dcc_name,
         ${SQL.raw(FilterStringsForURL)}
       ) AS record_info_url
         FROM allres
@@ -99,7 +111,8 @@ export async function POST(request: Request) {
     `.toPrismaSql());
 
     console.log("route.ts results");
-    console.log(results);
+    //console.log(results); // May be long array of json objects
+    console.log("results[0]: ", results?.records_full[0] ?? []);
 
     return NextResponse.json(results);
   } catch (error) {
