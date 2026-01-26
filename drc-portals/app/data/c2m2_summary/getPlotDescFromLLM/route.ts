@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
+import singleton from '@/lib/singleton';
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
-const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+const ai = singleton('gemini-ai-client',  () => {
+  try {
+    return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+  } catch (e) {
+    return
+  }
+});
 
 export async function POST(req: NextRequest) {
   console.log("In getPlotDescFromLLM");
+  if (!ai) return NextResponse.json({ error: 'Gemini access is not currently available.' }, { status: 500 });
   try {
     const { prompt } = await req.json();
 

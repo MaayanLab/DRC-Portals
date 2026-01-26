@@ -84,13 +84,13 @@ export default function ReverseSearchL1000(props: any) {
     }
 
     const layout: PlotParams['layout'] = {
-        title: `${gene} Scatter Plot`,
+        title: { text: `${gene} Scatter Plot` },
         autosize: true,
         margin: {
             pad: 4
         },
-        xaxis: { title: 'Abs(CD-Coefficeint)', automargin: true },
-        yaxis: { title: 'Log2(Fold Change)', automargin: true },
+        xaxis: { title: { text: 'Abs(CD-Coefficeint)' }, automargin: true },
+        yaxis: { title: { text: 'Log2(Fold Change)' }, automargin: true },
         plot_bgcolor: "transparent",
         paper_bgcolor: "transparent",
         font: {

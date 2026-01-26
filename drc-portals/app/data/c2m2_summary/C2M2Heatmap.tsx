@@ -59,9 +59,9 @@ const C2M2Heatmap: React.FC<C2M2HeatmapProps> = ({ xLabels, yLabels, z }) => {
         <Plot
           data={[trace as any]} // ✅ Only cast at render time
           layout={{
-            title: 'C2M2 Heatmap',
-            xaxis: { title: '', automargin: true },
-            yaxis: { title: '', automargin: true },
+            title: { text: 'C2M2 Heatmap' },
+            xaxis: { title: { text: '' }, automargin: true },
+            yaxis: { title: { text: '' }, automargin: true },
             margin: { t: 50, l: 150, r: 50, b: 100 },
             autosize: false,
           }}
