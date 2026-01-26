@@ -3,7 +3,6 @@ import pathlib
 
 #inside_C2M2_SchemaUpdate = 0; # set it to 0 if inside C2M2 (SchemaUpdate is a subfolder inside C2M2)
 from set_inside_C2M2_SchemaUpdate import inside_C2M2_SchemaUpdate
-from set_actually_read_tables import actually_read_tables
 
 if(inside_C2M2_SchemaUpdate==1):
     sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent))
@@ -31,32 +30,25 @@ import gc
 import urllib.parse
 from dotenv import load_dotenv
 
-# To only download DccAssets.tsv and not actually ingest, set:
-# actually_ingest_tables = 0
-# actually_read_tables = 0
-
-
 # debug
 debug = 1
-actually_create_schema = 0
-# actually_read_tables = 0 # imported # do not set here
-actually_ingest_tables = 0
-write_empty_tsvs = 1
+actually_create_schema = 1
+actually_ingest_tables = 1
+write_empty_tsvs = 0
 add_missing_columns_for_SchemaUpdate = 1
-exit_after_creating_empty_tsvs = 1
+exit_after_creating_empty_tsvs = 0
 
 fkeycon_include_on_delete_cascade_str = " ON DELETE CASCADE" # or ""
 
 add_searchable_column = 1
 index_searchable = 1
 searchable_colname = "searchable"
-varchar_gin_trgm_ops_str="gin_trgm_ops" # or ""
 # Define the exclusion patterns, if none, put some junk string so that no columns excluded
 #searchable_col_exclude_pattern = r'id_namespace$|local_id$|persistent_id$|creation_time|access_url|size_in_bytes' #r'^project_|_id$|temp'
 # Need to be able to exlcude records with keywords in IDs as well, so include those columns
 searchable_col_exclude_pattern = r'id_namespace$|creation_time|size_in_bytes' #r'^project_|_id$|temp'
 
-actually_ingest_tables = actually_create_schema * actually_read_tables * actually_ingest_tables
+actually_ingest_tables = actually_create_schema * actually_ingest_tables
 
 newline = '\n'
 tabchar = '\t'
@@ -88,7 +80,7 @@ if(debug> 1):
     print(f"Printed debug info on DB");
 
 # PostgreSQL connection details
-database_name = c2m2_database_url.path.lstrip('/') # c2m2_database_url.path is /drc, don't want the / part, so fixed here
+database_name = 'drc'; # c2m2_database_url.path.lstrip('/') # c2m2_database_url.path is /drc, don't want the / part, so fixed here
 user = c2m2_database_url.username # "drc"
 password = urllib.parse.unquote(c2m2_database_url.password); # "drcpass"
 host = c2m2_database_url.hostname # "localhost"
@@ -127,7 +119,7 @@ if(debug> 0): print(f"------------ dcc_short_labels:{dcc_short_labels}")
 
 # Load C2M2 schema from JSON file
 c2m2Schema = 'C2M2_datapackage.json'
-#c2m2Schema = 'C2M2_datapackage_biofluid.json'
+#c2m2Schema = 'C2M2_datapackage_file_access_url.json'
 #c2m2Schema = 'C2M2_datapackage_PTM.json'
 # Create a Package from the JSON file
 package = FLPackage(c2m2Schema)
@@ -234,7 +226,7 @@ def gen_searchable_index_query(schema_name, table_name, searchable_colname, debu
     sidx_str1 = f"DO $${newline}BEGIN{newline}{tabchar}DROP INDEX IF EXISTS {index_name_str};"
     sidx_str2 = f"{tabchar}IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = '{schema_name}' AND tablename = '{table_name}' "
     sidx_str3 = f"{tabchar}AND indexname = '{index_name_str}') THEN"
-    sidx_str4 = f"{tabchar}{tabchar}CREATE INDEX {index_name_str} ON {schema_name}.{table_name} USING gin({searchable_colname} {varchar_gin_trgm_ops_str});"
+    sidx_str4 = f"{tabchar}{tabchar}CREATE INDEX {index_name_str} ON {schema_name}.{table_name} USING gin({searchable_colname});"
     sidx_str5 = f"{tabchar}END IF;{newline}END $$;"
     searchable_index_query = f"{sidx_str1}{newline}{sidx_str2}{newline}{sidx_str3}{newline}{sidx_str4}{newline}{sidx_str5}";
     return searchable_index_query
@@ -452,11 +444,6 @@ for dummy_x in [1]:
         # Reset all values in table_exists_dict to all 0
         table_exists_dict = {key: 0 for key in table_exists_dict}
 
-        ###############
-        if(actually_read_tables == 0):
-            print("Not going to read and ingest tables");
-            continue
-        
         ###############################################################################################
         for table in c2m2_extract_path.rglob('*.tsv'):
             t01 = time.time();

@@ -50,6 +50,8 @@ END $$;
 --- Create additional indexes for columns used in the where clause
 --- CREATE INDEX idx_columns ON table_name (column1, column2);
 --- /* These additional indexes don't seem to help with search much
+--- # ChatGPT suggests: for indexing use gin with gin_trgm_ops as in: USING gin(colname gin_trgm_ops);
+--- # This can be applied to columns of ffl tables as well.
 DO $$ 
 BEGIN
     DROP INDEX IF EXISTS ffl_biosample_collection_idx_many_cols;
@@ -63,6 +65,196 @@ BEGIN
         subject_race_name, subject_sex_name, subject_ethnicity_name, phenotype_name, ptm_site_type_name, ptm_type_name, ptm_subtype_name);
     END IF;
 END $$;
+
+
+-------------------------------------------------------
+--- column-wise indexes
+--- Enable pg_trgm extension for trigram-based indexing
+--- CREATE EXTENSION IF NOT EXISTS pg_trgm;
+-- Drop existing indexes if they already exist
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_dcc_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_project_local_id_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_dcc_abbreviation_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_project_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_disease_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_ncbi_taxonomy_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_anatomy_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_biofluid_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_gene_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_protein_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_compound_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_data_type_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_assay_type_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_file_format_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_analysis_type_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_subject_race_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_subject_sex_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_subject_ethnicity_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_phenotype_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_ptm_site_type_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_ptm_type_name_gin_idx;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_ptm_subtype_name_gin_idx;
+
+-- Create new GIN trigram indexes for ILIKE-friendly text search
+CREATE INDEX ffl_biosample_collection_dcc_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(dcc_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_project_local_id_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(project_local_id gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_dcc_abbreviation_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(dcc_abbreviation gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_project_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(project_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_disease_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(disease_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_ncbi_taxonomy_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(ncbi_taxonomy_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_anatomy_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(anatomy_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_biofluid_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(biofluid_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_gene_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(gene_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_protein_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(protein_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_compound_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(compound_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_data_type_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(data_type_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_assay_type_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(assay_type_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_file_format_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(file_format_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_analysis_type_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(analysis_type_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_subject_race_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(subject_race_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_subject_sex_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(subject_sex_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_subject_ethnicity_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(subject_ethnicity_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_phenotype_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(phenotype_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_ptm_site_type_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(ptm_site_type_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_ptm_type_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(ptm_type_name gin_trgm_ops);
+
+CREATE INDEX ffl_biosample_collection_ptm_subtype_name_gin_idx 
+    ON c2m2.ffl_biosample_collection USING gin(ptm_subtype_name gin_trgm_ops);
+-------------------------------------------------------
+
+-- ============================================================
+-- BTREE Indexes for: c2m2.ffl_biosample_collection
+-- Purpose: Accelerate ORDER BY and equality (=) lookups
+-- Safe to use alongside GIN(trigram) indexes
+-- ============================================================
+
+-- Drop existing BTREE indexes if they exist
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_dcc_name_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_project_local_id_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_disease_name_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_ncbi_taxonomy_name_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_anatomy_name_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_biofluid_name_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_gene_name_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_protein_name_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_compound_name_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_data_type_name_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_assay_type_name_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_file_format_name_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_analysis_type_name_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_subject_race_name_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_subject_sex_name_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_subject_ethnicity_name_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_phenotype_name_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_ptm_site_type_name_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_ptm_type_name_btree;
+DROP INDEX IF EXISTS c2m2.ffl_biosample_collection_idx_ptm_subtype_name_btree;
+
+-- Create BTREE indexes (for ORDER BY and equality queries)
+CREATE INDEX ffl_biosample_collection_idx_dcc_name_btree
+  ON c2m2.ffl_biosample_collection (dcc_name);
+
+CREATE INDEX ffl_biosample_collection_idx_project_local_id_btree
+  ON c2m2.ffl_biosample_collection (project_local_id);
+
+CREATE INDEX ffl_biosample_collection_idx_disease_name_btree
+  ON c2m2.ffl_biosample_collection (disease_name);
+
+CREATE INDEX ffl_biosample_collection_idx_ncbi_taxonomy_name_btree
+  ON c2m2.ffl_biosample_collection (ncbi_taxonomy_name);
+
+CREATE INDEX ffl_biosample_collection_idx_anatomy_name_btree
+  ON c2m2.ffl_biosample_collection (anatomy_name);
+
+CREATE INDEX ffl_biosample_collection_idx_biofluid_name_btree
+  ON c2m2.ffl_biosample_collection (biofluid_name);
+
+CREATE INDEX ffl_biosample_collection_idx_gene_name_btree
+  ON c2m2.ffl_biosample_collection (gene_name);
+
+CREATE INDEX ffl_biosample_collection_idx_protein_name_btree
+  ON c2m2.ffl_biosample_collection (protein_name);
+
+CREATE INDEX ffl_biosample_collection_idx_compound_name_btree
+  ON c2m2.ffl_biosample_collection (compound_name);
+
+CREATE INDEX ffl_biosample_collection_idx_data_type_name_btree
+  ON c2m2.ffl_biosample_collection (data_type_name);
+
+CREATE INDEX ffl_biosample_collection_idx_assay_type_name_btree
+  ON c2m2.ffl_biosample_collection (assay_type_name);
+
+CREATE INDEX ffl_biosample_collection_idx_file_format_name_btree
+  ON c2m2.ffl_biosample_collection (file_format_name);
+
+CREATE INDEX ffl_biosample_collection_idx_analysis_type_name_btree
+  ON c2m2.ffl_biosample_collection (analysis_type_name);
+
+CREATE INDEX ffl_biosample_collection_idx_subject_race_name_btree
+  ON c2m2.ffl_biosample_collection (subject_race_name);
+
+CREATE INDEX ffl_biosample_collection_idx_subject_sex_name_btree
+  ON c2m2.ffl_biosample_collection (subject_sex_name);
+
+CREATE INDEX ffl_biosample_collection_idx_subject_ethnicity_name_btree
+  ON c2m2.ffl_biosample_collection (subject_ethnicity_name);
+
+CREATE INDEX ffl_biosample_collection_idx_phenotype_name_btree
+  ON c2m2.ffl_biosample_collection (phenotype_name);
+
+CREATE INDEX ffl_biosample_collection_idx_ptm_site_type_name_btree
+  ON c2m2.ffl_biosample_collection (ptm_site_type_name);
+
+CREATE INDEX ffl_biosample_collection_idx_ptm_type_name_btree
+  ON c2m2.ffl_biosample_collection (ptm_type_name);
+
+CREATE INDEX ffl_biosample_collection_idx_ptm_subtype_name_btree
+  ON c2m2.ffl_biosample_collection (ptm_subtype_name);
+
+-- Update planner statistics
+VACUUM ANALYZE c2m2.ffl_biosample_collection;
+-- ============================================================
 
 set max_parallel_workers to 0;
 

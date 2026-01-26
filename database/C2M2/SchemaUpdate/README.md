@@ -11,6 +11,12 @@ env_file_name=.env
 logdir=log
 mkdir -p ${logdir}
 
+# To quickly check if json file is loading correctly
+# In R
+#x=read_json('C2M2_datapackage_wi_biosample_protein.json'); length(x$resources)
+#fn=character(58); for(i in 1:58){fn[i] = x$resources[i][[1]]$path;}
+#ind=match("biosample_protein.tsv", fn); x$resources[ind][[1]]
+
 # Use this file to record the commands that need to be executed for updating one or more schema-related files
 # Some generic syntax examples
 python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/populateC2M2FromS3_${ymd}.log; ${python_cmd} PrepUpdateTSVs_populateC2M2FromS3.py 2>&1 | tee ${logf}
@@ -87,17 +93,45 @@ cd "$SchemaUpdateFolder"
 
 #----- Generic
 #---------- Just copy and test (no update to DCC C2M2 package); for any changes in master ontology files, etc
-logf_base=schema_update_test_other_changes
+# Most likely, only the lines for schema_json_file, scriptfile_for_copy_update_test and scriptfile_for_update need to be updated
+schema_json_file=C2M2_datapackage_wi_biosample_protein.json
+scriptfile_for_copy_update_test=copy_test_dcc_c2m2_package_generic.sh
+scriptfile_for_update=donothing.sh
+#
 ALT_HOME="/mnt/share/mano" # or "${HOME}", set as needed
 SchemaUpdateFolder="${HOME}/DRC/DRC-Portals/database/C2M2/SchemaUpdate"
-C2M2_sub_folder="${ALT_HOME}/CFDE/C2M2_sub"
+logf_base=${SchemaUpdateFolder}/${logdir}/schema_update_test_generic
+#C2M2_sub_folder="${ALT_HOME}/CFDE/C2M2_sub"
+C2M2_sub_folder="${ALT_HOME}/CFDE/C2M2_allin1"
 cd "$SchemaUpdateFolder"
 # Copy only the sh scripts that are needed, else, you may overwrite an updated sh file in the target dirrectory
 #cp *.sh "$C2M2_sub_folder"/.
-cp call_copy_update_test.sh copy_test_dcc_c2m2_package_generic.sh donothing.sh "$C2M2_sub_folder"/.
+cp call_copy_update_test.sh "${scriptfile_for_copy_update_test}" "${scriptfile_for_update}" "$C2M2_sub_folder"/.
 cd "$C2M2_sub_folder"
-./call_copy_update_test.sh ./copy_test_dcc_c2m2_package_generic.sh \
-donothing.sh "$SchemaUpdateFolder" 2 2>&1 | tee "${logf_base}.log"
+./call_copy_update_test.sh ./"${scriptfile_for_copy_update_test}" ./"${scriptfile_for_update}" "$SchemaUpdateFolder" 2 ${schema_json_file} 2>&1 | tee "${logf_base}.log"
+# In the log file, exclude lines related to persistent_id being attached to more than one row/file
+cp "${logf_base}.log" "${logf_base}_org.log"
+grep -v 'is attached to' "${logf_base}_org.log" > "${logf_base}.log"
+# To get back to SchemaUpdateFolder
+cd "$SchemaUpdateFolder"
+
+#----- For adding biosample_protein.tsv
+# Most likely, only the lines for schema_json_file, scriptfile_for_copy_update_test and scriptfile_for_update need to be updated
+schema_json_file=C2M2_datapackage_wi_biosample_protein.json
+scriptfile_for_copy_update_test=copy_update_test_dcc_c2m2_package_for_biosample_protein.sh
+scriptfile_for_update=create_random_biosample_protein.sh
+#
+ALT_HOME="/mnt/share/mano" # or "${HOME}", set as needed
+SchemaUpdateFolder="${HOME}/DRC/DRC-Portals/database/C2M2/SchemaUpdate"
+logf_base=${SchemaUpdateFolder}/${logdir}/schema_update_test_add_biosample_protein
+#C2M2_sub_folder="${ALT_HOME}/CFDE/C2M2_sub"
+C2M2_sub_folder="${ALT_HOME}/CFDE/C2M2_allin1"
+cd "$SchemaUpdateFolder"
+# Copy only the sh scripts that are needed, else, you may overwrite an updated sh file in the target dirrectory
+#cp *.sh "$C2M2_sub_folder"/.
+cp call_copy_update_test.sh "${scriptfile_for_copy_update_test}" "${scriptfile_for_update}" "$C2M2_sub_folder"/.
+cd "$C2M2_sub_folder"
+./call_copy_update_test.sh ./"${scriptfile_for_copy_update_test}" ./"${scriptfile_for_update}" "$SchemaUpdateFolder" 0 ${schema_json_file} 2>&1 | tee "${logf_base}.log"
 # In the log file, exclude lines related to persistent_id being attached to more than one row/file
 cp "${logf_base}.log" "${logf_base}_org.log"
 grep -v 'is attached to' "${logf_base}_org.log" > "${logf_base}.log"

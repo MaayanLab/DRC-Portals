@@ -23,6 +23,7 @@ services:
       - S3_BUCKET
       - S3_REGION
       - OPENAI_API_KEY
+      - ELASTICSEARCH_URL=${PROD_ELASTICSEARCH_URL:-http://elastic:${ELASTICSEARCH_PASSWORD}@drc-portal-elasticsearch_MRM:9200}
 
   drc-portal-data-proxy:
     image: maayanlab/proxy:1.2.9
@@ -147,16 +148,67 @@ services:
 #      - name: drc-portal-postgres34-dshm
 #        mountPath: /dev/shm
 
+  drc-portal-elasticsearch_MRM:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.1.5
+    container_name: drc-portal-elasticsearch_MRM
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+    # comment ulimits block for rootless docker
+    #ulimits:
+      #memlock:
+        #soft: -1
+        #hard: -1
+    deploy:
+      resources:
+        reservations:
+          cpus: '2.0'
+          memory: 6144M
+        limits:
+          memory: 12288M
+    environment:
+      - cluster.name=elastic
+      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
+      - discovery.type=single-node
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      #- bootstrap.memory_lock=true
+      # For rootless docker
+      - bootstrap.memory_lock=false
+      # To deal with http/https issue (only for dev environment): added: - xpack.security.enabled=true & - http.ssl.enabled=false
+      #- xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - ES_JAVA_OPTS=-Xms3g -Xmx3g
+    # Delete or comment the user line in production
+    #user: "${MY_UID_in_elasticsearch}:${MY_GID_in_elasticsearch}"
+    ports:
+      - 9200:9200
+    volumes:
+      # For volume to be at the non-standard location, specify direct bind mount
+      - drc-portal-elasticsearch:/usr/share/elasticsearch/data
+      #- /mnt/share/${USER}/docker/appdata:/usr/share/elasticsearch/data
+
 volumes:
   drc-portal-postgres34:
     x-kubernetes:
-      size: 100Gi
+      size: 120Gi
       class: gp2
 
   drc-portal-postgres34-2:
     x-kubernetes:
-      size: 100Gi
+      size: 120Gi
       class: gp2
+
+  drc-portal-elasticsearch:
+    x-kubernetes:
+      size: 150Gi
+      class: gp2
+    # For volume to be at the non-standard location, specify driver and driver_opts
+    # For the standard location, comment the driver and driver_opts block
+    #driver: local    
+    #driver_opts:
+    #  type: none
+    #  o: bind
+    #  device: /mnt/share/${USER}/docker/appdata
 
 x-kubernetes:
   name: drc-portal
