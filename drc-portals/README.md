@@ -64,10 +64,14 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 ## Production Deployment to Kubernetes
 
 ```bash
+# install our kubernetes deployment helper kube-compose
+uv tool install kube-compose
+
 # configure .env
-# initiall install
-helm repo add maayanlab https://maayanlab.github.io/helm-charts
-helm install drc-portal maayanlab/docker-compose -f <(docker-compose config)
+# compare what will be in production to what is currently up in production
+kube-compose diff
+# actually deploy
+kube-compose up
 ```
 
 ## Releasing
@@ -82,8 +86,8 @@ git add . && git commit -m $VERSION && git tag v$VERSION
 git push && git push --tags
 
 # update production (note that we have this in a drc namespace in prod)
-helm upgrade -n drc drc-portal maayanlab/docker-compose -f <(docker-compose config)
+kube-compose up
 
 # broke something? rollback with
-helm rollback -n drc drc-portal <CURRENT_REVISION_NUMBER-1>
+kube-compose rollback
 ```
