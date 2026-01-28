@@ -224,11 +224,18 @@ def pdp_helper():
       if target_id not in m2o: m2o[target_id] = {}
       assert predicate not in m2o[target_id] or m2o[target_id][predicate] == source_id
       m2o[target_id][predicate] = source_id
+      # es.put(dict(
+      #   _op_type='update',
+      #   _index='entity_staging',
+      #   _id=target_id,
+      #   doc={f"r_{predicate}": source_id},
+      #   doc_as_upsert=True,
+      # ))
       es.put(dict(
         _op_type='update',
-        _index='entity_staging',
-        _id=target_id,
-        doc={f"r_{predicate}": source_id},
+        _index='m2m_staging',
+        _id=f"{target_id}:{predicate}:{source_id}",
+        doc=dict(source_id=target_id, predicate=f"{predicate}", target_id=source_id),
         doc_as_upsert=True,
       ))
       es.put(dict(

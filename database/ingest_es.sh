@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ELASTICSEARCH_URL=$(dotenv -f ../drc-portals/.env get ELASTICSEARCH_URL)
-INDEX_VERSION=v11
+INDEX_VERSION=v12
 
 es() {
   method=$1; shift
@@ -57,15 +57,6 @@ es_put PUT /entity_${INDEX_VERSION} << EOF
                 "ignore_above": 256
               }
             }
-          }
-        }
-      },
-      {
-        "relationships": {
-          "match_mapping_type": "string",
-          "match": "r_*",
-          "mapping": {
-            "type": "keyword"
           }
         }
       }
@@ -203,15 +194,6 @@ es_put PUT /m2m_${INDEX_VERSION}_nested_target_expanded << EOF
             }
           }
         }
-      },
-      {
-        "target_relationships": {
-          "match_mapping_type": "string",
-          "match": "target.r_*",
-          "mapping": {
-            "type": "keyword"
-          }
-        }
       }
     ]
   }
@@ -343,16 +325,7 @@ es_put PUT /entity_${INDEX_VERSION}_nested_expanded << EOF
             }
           }
         }
-      },
-      {
-        "relationships": {
-          "match_mapping_type": "string",
-          "match": "r_*",
-          "mapping": {
-            "type": "keyword"
-          }
-        }
-      },
+      }
       {
         "target_attributes": {
           "match_mapping_type": "string",
@@ -366,15 +339,6 @@ es_put PUT /entity_${INDEX_VERSION}_nested_expanded << EOF
                 "ignore_above": 256
               }
             }
-          }
-        }
-      },
-      {
-        "target_relationships": {
-          "match_mapping_type": "string",
-          "match": "r.target.r_*",
-          "mapping": {
-            "type": "keyword"
           }
         }
       }
@@ -488,16 +452,7 @@ es_put PUT /m2m_${INDEX_VERSION}_nested_expanded_target_expanded << EOF
             }
           }
         }
-      },
-      {
-        "relationships": {
-          "match_mapping_type": "string",
-          "match": "target.r_*",
-          "mapping": {
-            "type": "keyword"
-          }
-        }
-      },
+      }
       {
         "target_attributes": {
           "match_mapping_type": "string",
@@ -511,15 +466,6 @@ es_put PUT /m2m_${INDEX_VERSION}_nested_expanded_target_expanded << EOF
                 "ignore_above": 256
               }
             }
-          }
-        }
-      },
-      {
-        "target_relationships": {
-          "match_mapping_type": "string",
-          "match": "target.r.target.r_*",
-          "mapping": {
-            "type": "keyword"
           }
         }
       }
