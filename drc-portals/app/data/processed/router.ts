@@ -121,8 +121,19 @@ export default router({
         // 'target.r_file_format', 'target.r_ptm_type', 'target.r_ptm_subtype', 'target.r_ptm_site_type',
     } else {
       aggs['type'] = { terms: { field: 'type', size: 20 } }
-      aggs['r.predicate'] = { terms: { field: 'r.predicate', size: 20 } }
-      aggs['r.target.id'] = { nested: { path: 'r.target' }, aggs: { 'r.target.id': { terms: { field: 'r.target.id' } } } }
+      // aggs['r.predicate'] = { terms: { field: 'r.predicate', size: 20 } }
+      // aggs['r.target.id'] = { nested: { path: 'r.target' }, aggs: { 'r.target.id': { terms: { field: 'r.target.id' } } } }
+      aggs['disease'] = { nested: { path: 'r.target' }, aggs: { 'disease': { filter: { term: { 'r.target.type': 'disease' } }, aggs: { 'disease': { terms: { field: 'r.target.id' } } } } } }
+      aggs['anatomy'] = { nested: { path: 'r.target' }, aggs: { 'anatomy': { filter: { term: { 'r.target.type': 'anatomy' } }, aggs: { 'anatomy': { terms: { field: 'r.target.id' } } } } } }
+      aggs['gene'] = { nested: { path: 'r.target' }, aggs: { 'gene': { filter: { term: { 'r.target.type': 'gene' } }, aggs: { 'gene': { terms: { field: 'r.target.id' } } } } } }
+      aggs['compound'] = { nested: { path: 'r.target' }, aggs: { 'compound': { filter: { term: { 'r.target.type': 'compound' } }, aggs: { 'compound': { terms: { field: 'r.target.id' } } } } } }
+      aggs['data_type'] = { nested: { path: 'r.target' }, aggs: { 'data_type': { filter: { term: { 'r.target.type': 'data_type' } }, aggs: { 'data_type': { terms: { field: 'r.target.id' } } } } } }
+      aggs['assay_type'] = { nested: { path: 'r.target' }, aggs: { 'assay_type': { filter: { term: { 'r.target.type': 'assay_type' } }, aggs: { 'assay_type': { terms: { field: 'r.target.id' } } } } } }
+      aggs['file_format'] = { nested: { path: 'r.target' }, aggs: { 'file_format': { filter: { term: { 'r.target.type': 'file_format' } }, aggs: { 'file_format': { terms: { field: 'r.target.id' } } } } } }
+      aggs['dcc'] = { nested: { path: 'r.target' }, aggs: { 'dcc': { filter: { term: { 'r.target.type': 'dcc' } }, aggs: { 'file_format': { terms: { field: 'r.target.id' } } } } } }
+      aggs['ptm_type'] = { nested: { path: 'r.target' }, aggs: { 'ptm_type': { filter: { term: { 'r.target.type': 'ptm_type' } }, aggs: { 'file_format': { terms: { field: 'r.target.id' } } } } } }
+      aggs['ptm_subtype'] = { nested: { path: 'r.target' }, aggs: { 'ptm_subtype': { filter: { term: { 'r.target.type': 'ptm_subtype' } }, aggs: { 'file_format': { terms: { field: 'r.target.id' } } } } } }
+      aggs['ptm_sitetype'] = { nested: { path: 'r.target' }, aggs: { 'ptm_sitetype': { filter: { term: { 'r.target.type': 'ptm_sitetype' } }, aggs: { 'file_format': { terms: { field: 'r.target.id' } } } } } }
         // 'type', 'r_dcc',
         // 'r_source', 'r_relation', 'r_target',
         // 'r_disease', 'r_species', 'r_anatomy', 'r_gene', 'r_protein', 'r_compound', 'r_data_type', 'r_assay_type',
@@ -150,6 +161,7 @@ export default router({
     }[]}> = Object.fromEntries(Object.entries(searchRes.aggregations).flatMap(([k,v]) => {
       if ('buckets' in v) return [[k,v]]
       else if ('buckets' in v[k]) return [[k, v[k]]]
+      else if (k in v[k]) return [[k, v[k][k]]]
       else return []
     }))
     console.log(aggregationsSimplified)
