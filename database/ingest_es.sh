@@ -101,10 +101,10 @@ es_put POST /_aliases << EOF
 EOF
 
 # actually ingest data (can happen in parallel)
-../.venv/bin/python ingest_dcc_assets.py
-../.venv/bin/python ingest_gmts.py
-../.venv/bin/python ingest_c2m2_files.py
-../.venv/bin/python ingest_kg.py
+uv run ingest_dcc_assets.py
+uv run ingest_gmts.py
+uv run ingest_c2m2_files.py
+uv run ingest_kg.py
 
 es_put POST /_aliases << EOF
 {
