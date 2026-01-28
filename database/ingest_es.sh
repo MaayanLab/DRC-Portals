@@ -97,6 +97,9 @@ uv run ingest_gmts.py
 uv run ingest_c2m2_files.py
 uv run ingest_kg.py
 
+# after the above (not parallel)
+uv run pagerank.py
+
 es_put POST /_aliases << EOF
 {
   "actions": [
