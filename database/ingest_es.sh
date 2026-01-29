@@ -109,12 +109,9 @@ es_put POST /_aliases << EOF
 }
 EOF
 
-# sanity checks
-(es_put POST /entity_${INDEX_VERSION}_nested_expanded/_search|jq '.') << EOF
+# sanity check
+(es_put POST /entity_${INDEX_VERSION}/_search|jq '.') << EOF
 {"query":{"match_all":{}}, "size":1,"sort":[{"pagerank":{"order": "asc"}}]}
-EOF
-(es_put POST /m2m_${INDEX_VERSION}/_search|jq '.') << EOF
-{"query":{"match_all":{}}, "size":10}
 EOF
 
 # provide a way to get entity from id
@@ -215,6 +212,10 @@ es_put POST /_reindex << EOF
 }
 EOF
 
+(es_put POST /entity_${INDEX_VERSION}_nested_target_expanded/_search|jq '.') << EOF
+{"query":{"match_all":{}}, "size":1,"sort":[{"pagerank":{"order": "asc"}}]}
+EOF
+
 es_put PUT /_enrich/policy/m2m_${INDEX_VERSION}_nested_target_expanded_lookup << EOF
 {
   "match": {
@@ -228,18 +229,12 @@ EOF
 
 es POST /_enrich/policy/m2m_${INDEX_VERSION}_nested_target_expanded_lookup/_execute
 
-es GET "/entity_${INDEX_VERSION}/_field_caps?fields=r_*" | jq -rc '{
+es_put PUT /_ingest/pipeline/entity_${INDEX_VERSION}_nested_expanded << EOF
+{
   "processors": [
-    .fields|keys|.[]|{"enrich":{
-      "policy_name": "entity_" + $INDEX_VERSION + "_lookup",
-      "field": .,
-      "target_field": "l_" + .[2:],
-      "if": "ctx." + . + " != null"
-    }}
-  ] + [
     {
       "enrich": {
-        "policy_name": "m2m_" + $INDEX_VERSION + "_nested_target_expanded_lookup",
+        "policy_name": "m2m_${INDEX_VERSION}_nested_target_expanded_lookup",
         "field": "id",
         "target_field": "r",
         "max_matches": 128,
@@ -249,25 +244,26 @@ es GET "/entity_${INDEX_VERSION}/_field_caps?fields=r_*" | jq -rc '{
     {
       "script": {
         "lang": "painless",
-        "source": $source
+        "source": "
+          if (ctx.r == null) {
+            ctx.r = [];
+          }
+          List ctxEntrySet = new ArrayList(ctx.entrySet());
+          for (entry in ctxEntrySet) {
+            if (entry.getKey().startsWith('l_')) {
+              Map value = [:];
+              value['predicate'] = entry.getKey().substring(2);
+              value['target'] = entry.getValue();
+              ctx.r.add(value);
+              ctx.remove(entry.getKey());
+            }
+          }
+        "
       }
     }
   ]
-}' --arg INDEX_VERSION $INDEX_VERSION --arg source "
-  if (ctx.r == null) {
-    ctx.r = [];
-  }
-  List ctxEntrySet = new ArrayList(ctx.entrySet());
-  for (entry in ctxEntrySet) {
-    if (entry.getKey().startsWith('l_')) {
-      Map value = [:];
-      value['predicate'] = entry.getKey().substring(2);
-      value['target'] = entry.getValue();
-      ctx.r.add(value);
-      ctx.remove(entry.getKey());
-    }
-  }
-" | es_put PUT /_ingest/pipeline/entity_${INDEX_VERSION}_nested_expanded
+}
+EOF
 
 es_put PUT /entity_${INDEX_VERSION}_nested_expanded << EOF
 {
