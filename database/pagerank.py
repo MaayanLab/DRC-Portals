@@ -1,5 +1,5 @@
 from tqdm.auto import tqdm
-from ingest_common import es_connect
+from ingest_common import es_connect, es_helper
 
 es = es_connect()
 
@@ -14,7 +14,7 @@ with es_helper() as es_bulk:
         'aggs': {
           'pagerank': {
             'composite': {
-              'size': 65536,
+              'size': 10000,
               'sources': [
                 { 'target_id': { 'terms': { 'field': 'target_id' } } }
               ]
@@ -24,10 +24,9 @@ with es_helper() as es_bulk:
       }
       if after_key: req['aggs']['pagerank']['composite']['after'] = after_key
       res = es.search(**req)
-      after_key = res['aggregations']['pagerank']['after_key']
+      after_key = res['aggregations']['pagerank'].get('after_key')
       if after_key is None: break
       for bucket in res['aggregations']['pagerank']['buckets']:
-        pagerank[] = bucket['doc_count']
         es_bulk.put(dict(
           _op_type='update',
           _index='entity_staging',
