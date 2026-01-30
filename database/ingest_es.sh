@@ -219,10 +219,10 @@ EOF
 es_put PUT /_enrich/policy/m2m_${INDEX_VERSION}_nested_target_expanded_lookup << EOF
 {
   "match": {
-    "indices": "m2m_${INDEX_VERSION}_target_expanded",
+    "indices": "m2m_${INDEX_VERSION}_nested_target_expanded",
     "match_field": "source_id",
     "enrich_fields": ["predicate", "target"],
-    "query": {"query_string": {"query":"-predicate:inv_*"}}
+    "query": {"query_string": {"query":"-predicate:inv_* -predicate:m2m_*"}}
   }
 }
 EOF
