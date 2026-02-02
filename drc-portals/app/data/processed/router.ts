@@ -62,8 +62,8 @@ export default router({
     })
     const next = searchRes.hits.hits.length === limit ? JSON.stringify(searchRes.hits.hits[searchRes.hits.hits.length-1].sort) : undefined
     const items = props.input.source_id ?
-      searchRes.hits.hits.map(hit => Object.fromEntries(Object.entries(hit._source as M2MExpandedTargetType).flatMap(([k,v]) => k.startsWith('target_') ? [[k.substring('target_'.length), v]] : [])))
-      : searchRes.hits.hits.map(hit => hit._source)
+      searchRes.hits.hits.map(hit => (hit._source as M2MExpandedTargetType).target)
+      : searchRes.hits.hits.map(hit => (hit._source as EntityExpandedType))
     return {
       items,
       total: searchRes.hits.total,
