@@ -47,7 +47,7 @@ services:
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:0.23.20-rc.2
+    image: maayanlab/drc-portal-dev:0.24.0-rc.1
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -217,6 +217,36 @@ services:
       - 9200:9200
     volumes:
       - drc-portal-elasticsearch:/usr/share/elasticsearch/data
+
+  drc-portal-elasticsearch-2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.1.5
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    deploy:
+      resources:
+        reservations:
+          cpus: '2.0'
+          memory: 3072M
+        limits:
+          memory: 6144M
+    environment:
+      - cluster.name=elastic
+      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
+      - discovery.type=single-node
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - bootstrap.memory_lock=true
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - ES_JAVA_OPTS=-Xms3g -Xmx3g
+      - reindex.remote.whitelist=drc-portal-elasticsearch:9200
+    ports:
+      - 9201:9200
+    volumes:
+      - ./elasticsearch:/usr/share/elasticsearch/data
 
   drc-portal-backup:
     build: ../database/backup
