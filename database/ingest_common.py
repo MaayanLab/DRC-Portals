@@ -182,7 +182,6 @@ def pdp_helper():
   with es_helper() as es:
     resolved_ids = set()
     registered_ids = set()
-    pagerank = {}
     m2o = {}
     def resolve_entity_id(type: str, attributes: dict, slug: t.Optional[str]=None, pk: t.Optional[str]=None):
       assert type
@@ -207,7 +206,7 @@ def pdp_helper():
         id=id,
         type=type,
         slug=slug or id,
-        pagerank=0,
+        pagerank=1,
         **attributes,
       )
       registered_ids.add((type, id, slug, pk))
@@ -237,14 +236,13 @@ def pdp_helper():
         doc=dict(source_id=source_id, predicate=predicate, target_id=target_id),
         doc_as_upsert=True,
       ))
-      # es.put(dict(
-      #   _op_type='update',
-      #   _index='entity_staging',
-      #   _id=source_id,
-      #   script=dict(source='if (ctx._source.pagerank == null) {ctx._source.pagerank = 0;} ctx._source.pagerank += 1;', lang='painless', params=dict()),
-      #   upsert=dict(id=source_id, pagerank=0),
-      #   scripted_upsert=True,
-      # ))
+      es.put(dict(
+        _op_type='update',
+        _index='m2m_staging',
+        _id=f"{source_id}:inv_{predicate}:{target_id}",
+        doc=dict(source_id=source_id, predicate=f"inv_{predicate}", target_id=target_id),
+        doc_as_upsert=True,
+      ))
       pagerank[source_id] = pagerank.get(source_id, 0) + 1
     def upsert_m2m(source_id, predicate, target_id):
       es.put(dict(
@@ -254,15 +252,6 @@ def pdp_helper():
         doc=dict(source_id=source_id, predicate=predicate, target_id=target_id),
         doc_as_upsert=True,
       ))
-      # es.put(dict(
-      #   _op_type='update',
-      #   _index='entity_staging',
-      #   _id=source_id,
-      #   script=dict(source='if (ctx._source.pagerank == null) {ctx._source.pagerank = 0;} ctx._source.pagerank += 1;', lang='painless', params=dict()),
-      #   upsert=dict(id=source_id, pagerank=0),
-      #   scripted_upsert=True,
-      # ))
-      pagerank[source_id] = pagerank.get(source_id, 0) + 1
       es.put(dict(
         _op_type='update',
         _index='m2m_staging',
@@ -270,26 +259,8 @@ def pdp_helper():
         doc=dict(source_id=target_id, predicate=f"inv_{predicate}", target_id=source_id),
         doc_as_upsert=True,
       ))
-      # es.put(dict(
-      #   _op_type='update',
-      #   _index='entity_staging',
-      #   _id=target_id,
-      #   script=dict(source='if (ctx._source.pagerank == null) {ctx._source.pagerank = 0;} ctx._source.pagerank += 1;', lang='painless', params=dict()),
-      #   upsert=dict(id=source_id, pagerank=0),
-      #   scripted_upsert=True,
-      # ))
-      pagerank[target_id] = pagerank.get(target_id, 0) + 1
     #
     yield type('pdp', tuple(), dict(upsert_m2o=upsert_m2o, upsert_m2m=upsert_m2m, upsert_entity=upsert_entity, resolve_entity_id=resolve_entity_id))
-    for source_id, pagerank in pagerank.items():
-      es.put(dict(
-        _op_type='update',
-        _index='entity_staging',
-        _id=source_id,
-        script=dict(source='if (ctx._source.pagerank == null) {ctx._source.pagerank = 0;} ctx._source.pagerank += params.pagerank;', lang='painless', params=dict(pagerank=pagerank)),
-        upsert=dict(id=source_id, pagerank=pagerank),
-        scripted_upsert=True,
-      ))
     assert registered_ids >= resolved_ids, f"Never registered {resolved_ids-registered_ids=}"
 
 #%%

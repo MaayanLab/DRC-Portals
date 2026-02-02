@@ -20,7 +20,7 @@ export function SearchForm({ children, name, param = "search" }: React.PropsWith
       const params = parse_url()
       const value = formData.get(name)
       for (const k in params) {
-        if ((k === 'type' || k === 'search_type') && params[k] !== 'c2m2') continue
+        if ((k === 'slug' || k === 'type' || k === 'search_type') && params[k] !== 'c2m2') continue
         params[k] = null
       }
       params[param] = value !== null ? value.toString() : null

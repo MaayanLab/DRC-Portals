@@ -4,26 +4,17 @@ ELASTICSEARCH_URL=$(dotenv -f ../drc-portals/.env get ELASTICSEARCH_URL)
 INDEX_VERSION=v1
 
 es() {
-  method=$1
-  path=$2
-  curl -H'Content-Type: application/json' -X${method} ${ELASTICSEARCH_URL}${path} -d @-
+  method=$1; shift
+  path=$1; shift
+  curl -H'Content-Type: application/json' -X${method} ${ELASTICSEARCH_URL}${path} $@
 }
 
-es_transform_execute() {
-  transform=$1
-  es POST /_transform/${transform}/_start
-  while true; do
-    STATUS="$(es GET /_transform/${transform}/_stats | jq -r '.transforms[0].state')"
-    printf "$STATUS\r"
-    if [[ "$STATUS" == "stopped" ]]; then
-      break
-    fi
-    sleep 1
-  done
+es_put() {
+  es $@ -d @-
 }
 
 # create index for entity
-es PUT /entity_${INDEX_VERSION} << EOF
+es_put PUT /entity_${INDEX_VERSION} << EOF
 {
   "settings": {
     "analysis": {
@@ -83,7 +74,7 @@ es PUT /entity_${INDEX_VERSION} << EOF
 }
 EOF
 
-es POST /_aliases << EOF
+es_put POST /_aliases << EOF
 {
   "actions": [
     { "remove": { "index": "*", "alias": "entity_staging" } }
@@ -91,7 +82,7 @@ es POST /_aliases << EOF
 }
 EOF
 
-es POST /_aliases << EOF
+es_put POST /_aliases << EOF
 {
   "actions": [
     { "add": { "index": "entity_${INDEX_VERSION}", "alias": "entity_staging" } }
@@ -100,7 +91,7 @@ es POST /_aliases << EOF
 EOF
 
 # create index for m2m
-es PUT /m2m_${INDEX_VERSION} << EOF
+es_put PUT /m2m_${INDEX_VERSION} << EOF
 {
   "mappings": {
     "properties": {
@@ -112,7 +103,7 @@ es PUT /m2m_${INDEX_VERSION} << EOF
 }
 EOF
 
-es POST /_aliases << EOF
+es_put POST /_aliases << EOF
 {
   "actions": [
     { "remove": { "index": "*", "alias": "m2m_staging" } }
@@ -120,7 +111,7 @@ es POST /_aliases << EOF
 }
 EOF
 
-es POST /_aliases << EOF
+es_put POST /_aliases << EOF
 {
   "actions": [
     { "add": { "index": "m2m_${INDEX_VERSION}", "alias": "m2m_staging" } }
@@ -129,64 +120,175 @@ es POST /_aliases << EOF
 EOF
 
 # actually ingest data (can happen in parallel)
-../.venv/bin/python ingest_dcc_assets.py
-../.venv/bin/python ingest_gmts.py
-../.venv/bin/python ingest_c2m2_files.py
-../.venv/bin/python ingest_kg.py
+uv run ingest_dcc_assets.py
+uv run ingest_gmts.py
+uv run ingest_c2m2_files.py
+uv run ingest_kg.py
+
+# compute pagerank
+uv run pagerank.py
 
 # sanity checks
-es POST /entity_staging/_search << EOF
+es_put POST /entity_staging/_search << EOF
 {"query":{"match_all":{}}, "size":10,"sort":[{"pagerank":{"order": "desc"}}]}
 EOF
-es POST /m2m_staging/_search << EOF
+es_put POST /m2m_staging/_search << EOF
 {"query":{"match_all":{}}, "size":10}
 EOF
 
 # provide a way to get entity from id
-es PUT /_enrich/policy/entity_lookup << EOF
+es_put PUT /_enrich/policy/entity_${INDEX_VERSION}_lookup << EOF
 {
   "match": {
-    "indices": "entity_staging",
+    "indices": "entity_${INDEX_VERSION}",
     "match_field": "id",
-    "enrich_fields": ["id", "slug", "type", "pagerank", "a_*", "r_*"]
+    "enrich_fields": ["*"]
+  }
+}
+EOF
+es POST /_enrich/policy/entity_${INDEX_VERSION}_lookup/_execute
+
+# enrich all r_* fields
+es GET "/entity_${INDEX_VERSION}/_field_caps?fields=r_*" | jq -rc '{
+  "processors": [
+    .fields|keys|.[]|{"enrich":{
+      "policy_name": "entity_" + $INDEX_VERSION + "_lookup",
+      "field": .,
+      "target_field": .,
+      "if": "ctx." + . + " != null"
+    }}
+  ]
+}' --arg INDEX_VERSION $INDEX_VERSION | es_put PUT /_ingest/pipeline/entity_${INDEX_VERSION}_expanded
+
+es_put PUT /entity_${INDEX_VERSION}_expanded << EOF
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "custom_analyzer": {
+          "tokenizer": "custom_tokenizer",
+          "filter": [
+            "lowercase",
+            "asciifolding"
+          ]
+        }
+      },
+      "tokenizer": {
+        "custom_tokenizer": {
+          "type": "simple_pattern_split",
+          "pattern": "[^a-zA-Z0-9']",
+          "lowercase": true
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": {"type": "keyword"},
+      "type": {"type": "keyword"},
+      "slug": {"type": "keyword"},
+      "pagerank": {"type": "long"}
+    },
+    "dynamic_templates": [
+      {
+        "attributes": {
+          "match_mapping_type": "string",
+          "path_match": "a_*",
+          "mapping": {
+            "type": "text",
+            "analyzer": "custom_analyzer",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      },
+      {
+        "relationships": {
+          "match_mapping_type": "object",
+          "path_match": "r_*",
+          "mapping": {
+            "properties": {
+              "id": {"type": "keyword"},
+              "type": {"type": "keyword"},
+              "slug": {"type": "keyword"},
+              "pagerank": {"type": "long"}
+            }
+          }
+        }
+      },
+      {
+        "relationship_attributes": {
+          "match_mapping_type": "string",
+          "path_match": "r_*.a_*",
+          "mapping": {
+            "type": "text",
+            "analyzer": "custom_analyzer",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      },
+      {
+        "relationship_relationships": {
+          "match_mapping_type": "string",
+          "path_match": "r_*.r_*",
+          "mapping": {
+            "type": "keyword"
+          }
+        }
+      }
+    ]
   }
 }
 EOF
 
-echo "" | es POST /_enrich/policy/entity_lookup/_execute
+es_put POST /_reindex << EOF
+{
+  "source": {
+    "index": "entity_${INDEX_VERSION}"
+  },
+  "dest": {
+    "index": "entity_${INDEX_VERSION}_expanded",
+    "pipeline": "entity_${INDEX_VERSION}_expanded"
+  }
+}
+EOF
 
-# expand target_id into full target entity
-es PUT /_ingest/pipeline/m2m_expanded_target << EOF
+# add enriched r_ fields to m2m_expanded
+es_put PUT /_enrich/policy/entity_${INDEX_VERSION}_expanded_lookup << EOF
+{
+  "match": {
+    "indices": "entity_${INDEX_VERSION}_expanded",
+    "match_field": "id",
+    "enrich_fields": ["*"]
+  }
+}
+EOF
+es POST /_enrich/policy/entity_${INDEX_VERSION}_expanded_lookup/_execute
+
+es_put PUT /_ingest/pipeline/m2m_${INDEX_VERSION}_expanded_target_expanded << EOF
 {
   "processors": [
     {
       "enrich": {
-        "policy_name": "entity_lookup",
+        "policy_name": "entity_${INDEX_VERSION}_expanded_lookup",
         "field": "target_id",
         "target_field": "target"
-      }
-    },
-    {
-      "script": {
-        "lang": "painless",
-        "source": "
-          if (ctx.target != null) {
-            for (entry in ctx.target.entrySet()) {
-              ctx['target_' + entry.getKey()] = entry.getValue();
-            }
-            ctx.remove('target');
-          }
-        "
       }
     }
   ]
 }
 EOF
 
-# actually build the new index
-
-# create index for m2m
-es PUT /m2m_target_expanded_${INDEX_VERSION} << EOF
+es_put PUT /m2m_${INDEX_VERSION}_expanded_target_expanded << EOF
 {
   "settings": {
     "analysis": {
@@ -213,15 +315,20 @@ es PUT /m2m_target_expanded_${INDEX_VERSION} << EOF
       "source_id": {"type": "keyword"},
       "predicate": {"type": "keyword"},
       "target_id": {"type": "keyword"},
-      "target_type": {"type": "keyword"},
-      "target_slug": {"type": "keyword"},
-      "target_pagerank": {"type": "long"}
+      "target": {
+        "properties": {
+          "id": {"type": "keyword"},
+          "type": {"type": "keyword"},
+          "slug": {"type": "keyword"},
+          "pagerank": {"type": "long"}
+        }
+      }
     },
     "dynamic_templates": [
       {
         "attributes": {
           "match_mapping_type": "string",
-          "match": "target_a_*",
+          "path_match": "target.a_*",
           "mapping": {
             "type": "text",
             "analyzer": "custom_analyzer",
@@ -236,8 +343,38 @@ es PUT /m2m_target_expanded_${INDEX_VERSION} << EOF
       },
       {
         "relationships": {
+          "match_mapping_type": "object",
+          "path_match": "target.r_*",
+          "mapping": {
+            "properties": {
+              "id": {"type": "keyword"},
+              "type": {"type": "keyword"},
+              "slug": {"type": "keyword"},
+              "pagerank": {"type": "long"}
+            }
+          }
+        }
+      },
+      {
+        "relationship_attributes": {
           "match_mapping_type": "string",
-          "match": "target_r_*",
+          "path_match": "target.r_*.a_*",
+          "mapping": {
+            "type": "text",
+            "analyzer": "custom_analyzer",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      },
+      {
+        "relationship_relationships": {
+          "match_mapping_type": "string",
+          "path_match": "target.r_*.r_*",
           "mapping": {
             "type": "keyword"
           }
@@ -248,20 +385,20 @@ es PUT /m2m_target_expanded_${INDEX_VERSION} << EOF
 }
 EOF
 
-es POST /_reindex << EOF
+es_put POST /_reindex << EOF
 {
   "source": {
-    "index": "m2m_staging"
+    "index": "m2m_${INDEX_VERSION}"
   },
   "dest": {
-    "index": "m2m_target_expanded_${INDEX_VERSION}",
-    "pipeline": "m2m_expanded_target"
+    "index": "m2m_${INDEX_VERSION}_expanded_target_expanded",
+    "pipeline": "m2m_${INDEX_VERSION}_expanded_target_expanded"
   }
 }
 EOF
 
 # no longer staging
-es POST /_aliases << EOF
+es_put POST /_aliases << EOF
 {
   "actions": [
     { "remove": { "index": "entity_${INDEX_VERSION}", "alias": "entity_staging" } },
@@ -269,38 +406,39 @@ es POST /_aliases << EOF
   ]
 }
 EOF
-# remove existing entity aliases if they exist
-es POST /_aliases << EOF
+# remove existing entity_expanded aliases if they exist
+es_put POST /_aliases << EOF
 {
   "actions": [
-    { "remove": { "index": "*", "alias": "entity" } }
+    { "remove": { "index": "*", "alias": "entity_expanded" } }
   ]
 }
 EOF
-# remove existing m2m_target_expanded aliases if they exist
-es POST /_aliases << EOF
+# remove existing m2m_expanded_target_expanded aliases if they exist
+es_put POST /_aliases << EOF
 {
   "actions": [
-    { "remove": { "index": "*", "alias": "m2m_target_expanded" } }
+    { "remove": { "index": "*", "alias": "m2m_expanded_target_expanded" } }
   ]
 }
 EOF
 
 # update this version to production
-es POST /_aliases << EOF
+es_put POST /_aliases << EOF
 {
   "actions": [
-    { "add": { "index": "entity_${INDEX_VERSION}", "alias": "entity" } },
-    { "add": { "index": "m2m_target_expanded_${INDEX_VERSION}", "alias": "m2m_target_expanded" } }
+    { "add": { "index": "entity_${INDEX_VERSION}_expanded", "alias": "entity_expanded" } },
+    { "add": { "index": "m2m_${INDEX_VERSION}_expanded_target_expanded", "alias": "m2m_expanded_target_expanded" } }
   ]
 }
 EOF
 
 # get current indexes
-# echo "" | es GET /_cat/indices?v
-# echo "" | es GET /_aliases
+# es GET /_cat/indices?v
+# es GET /_aliases
 
 # delete old index
-# echo "" | es DELETE /entity_${INDEX_VERSION}
-# echo "" | es DELETE /m2m_${INDEX_VERSION}
-# echo "" | es DELETE /m2m_target_expanded_${INDEX_VERSION}
+# es DELETE /entity_${INDEX_VERSION}
+# es DELETE /entity_${INDEX_VERSION}_expanded
+# es DELETE /m2m_${INDEX_VERSION}
+# es DELETE /m2m_${INDEX_VERSION}_expanded_target_expanded

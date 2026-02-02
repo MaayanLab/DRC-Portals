@@ -5,6 +5,10 @@ import GeneIcon from '@/public/img/icons/gene.png'
 import DrugIcon from '@/public/img/icons/drug.png'
 import { ReadonlyURLSearchParams } from 'next/navigation'
 
+type WithPrefix<Prefix extends string, T> = {
+  [K in keyof T as `${Prefix}${string & K}`]: T[K];
+};
+
 export type EntityType = {
   id: string,
   type: string,
@@ -12,17 +16,29 @@ export type EntityType = {
   pagerank: string,
   a_label: string,
   a_description: string,
-} & Record<string, string>
+} & WithPrefix<'a_', Record<string, string>>
+
+export type EntityExpandedType = {
+  id: string,
+  type: string,
+  slug: string,
+  pagerank: string,
+  a_label: string,
+  a_description: string,
+} & WithPrefix<'a_', Record<string, string>> & WithPrefix<'r_', Record<string, EntityType>>
 
 export type M2MTargetType = {
   source_id: string,
   predicate: string,
   target_id: string,
-  target_slug: string,
-  target_pagerank: string,
-  target_a_label: string,
-  target_a_description: string,
-} & Record<string, string>
+} & WithPrefix<'target_', EntityType>
+
+export type M2MExpandedTargetType = {
+  source_id: string,
+  predicate: string,
+  target_id: string,
+  target: EntityExpandedType,
+}
 
 export type TermAggType<K extends string> = Record<K, {
   buckets: { key: string, doc_count: number }[]
@@ -108,8 +124,9 @@ export function predicateLabel(type: string) {
 }
 
 export function facetLabel(facet: string) {
-  if (facet.startsWith('target_')) facet = facet.substring('target_'.length)
+  if (facet.startsWith('target.')) facet = facet.substring('target.'.length)
   if (facet.startsWith('r_')) facet = facet.substring('r_'.length)
+  if (facet.endsWith('.id')) facet = facet.substring(0, facet.length-'.id'.length)
   return predicateLabel(facet.replaceAll('_',' '))
 }
 
@@ -127,9 +144,9 @@ export function categoryLabel(type: string) {
   else return entity_type_map[type] ?? titleCapitalize(type.replaceAll('_',' '))
 }
 
-export function itemIcon(item: EntityType, lookup?: Record<string, EntityType>) {
-  if (lookup && item.r_dcc && item.r_dcc in lookup) {
-    const dcc = lookup[item.r_dcc]
+export function itemIcon(item: EntityExpandedType, lookup?: Record<string, EntityExpandedType>) {
+  if (lookup && item.r_dcc && item.r_dcc.id in lookup) {
+    const dcc = lookup[item.r_dcc.id]
     return dcc.a_icon
   } else if (lookup && item.type === 'dcc' && item.id in lookup) {
     const dcc = lookup[item.id]
@@ -144,8 +161,8 @@ export function itemIcon(item: EntityType, lookup?: Record<string, EntityType>) 
     return KGNode
   }
 }
-export function itemLabel(item: EntityType) {
-  return item.a_label.replaceAll('_', ' ')
+export function itemLabel(item: EntityExpandedType) {
+  return item.a_label?.replaceAll('_', ' ')
 }
 
 export function humanBytesSize(size: number) {
@@ -156,17 +173,17 @@ export function humanBytesSize(size: number) {
   return `${(size/1e12).toPrecision(3)} TB`
 }
 
-export function itemDescription(item: EntityType, lookup?: Record<string, EntityType>) {
-  if (item['type'] === 'file') return `A${item.a_size_in_bytes ? ` ${humanBytesSize(Number(item.a_size_in_bytes))}` : ''} file${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''}${item.a_assay_type ? ` produced from ${item.a_assay_type}` : ''} as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
-  if (item['type'] === 'biosample') return `A biosample${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
-  if (item['type'] === 'subject') return `A subject${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
-  if (item['type'] === 'dcc_asset') return `A contributed ${item.a_filetype}${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''}`
+export function itemDescription(item: EntityExpandedType, lookup?: Record<string, EntityExpandedType>) {
+  if (item['type'] === 'file') return `A${item.a_size_in_bytes ? ` ${humanBytesSize(Number(item.a_size_in_bytes))}` : ''} file${lookup && item.r_dcc && item.r_dcc.id in lookup ? ` from ${lookup[item.r_dcc.id].a_label}` : ''}${item.a_assay_type ? ` produced from ${item.a_assay_type}` : ''} as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
+  if (item['type'] === 'biosample') return `A biosample${lookup && item.r_dcc && item.r_dcc.id in lookup ? ` from ${lookup[item.r_dcc.id].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
+  if (item['type'] === 'subject') return `A subject${lookup && item.r_dcc && item.r_dcc.id in lookup ? ` from ${lookup[item.r_dcc.id].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
+  if (item['type'] === 'dcc_asset') return `A contributed ${item.a_filetype}${lookup && item.r_dcc && item.r_dcc.id in lookup ? ` from ${lookup[item.r_dcc.id].a_label}` : ''}`
   if (item['type'] === 'dcc') return `The ${item.a_label} data coordinating center`
   if (item.a_description) {
     if (item.a_description.length > 100) return `${item.a_description.slice(0, 100)}...`
     return `${item.a_description}`
   } else {
-    return `A ${categoryLabel(item.type)}${lookup && item.r_dcc && item.r_dcc in lookup ? ` from ${lookup[item.r_dcc].a_label}` : ''}`
+    return `A ${categoryLabel(item.type)}${lookup && item.r_dcc && item.r_dcc.id in lookup ? ` from ${lookup[item.r_dcc.id].a_label}` : ''}`
   }
 }
 

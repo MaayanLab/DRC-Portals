@@ -1,8 +1,8 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, EntityType, FilterAggType, itemDescription, itemIcon, itemLabel, M2MTargetType, TermAggType } from "@/app/data/processed/utils"
+import { categoryLabel, EntityExpandedType, FilterAggType, itemDescription, itemIcon, itemLabel, M2MExpandedTargetType, TermAggType } from "@/app/data/processed/utils"
 import SearchablePagedTable, { SearchablePagedTableCell, SearchablePagedTableCellIcon, LinkedTypedNode, Description, SearchablePagedTableHeader } from "@/app/data/processed/SearchablePagedTable";
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { create_url } from '@/app/data/processed/utils';
 import { ensure_array, groupby } from '@/utils/array';
 import { FetchDRSCartButton, DRSCartButton } from '@/app/data/processed/cart/DRSCartButton';
@@ -41,9 +41,10 @@ export default async function Page(props: PageProps) {
   }
   const item = await getEntity(params)
   if (!item) notFound()
+  const must: estypes.QueryDslQueryContainer[] = []
   const filter: estypes.QueryDslQueryContainer[] = []
   filter.push({ query_string: { query: `+source_id:"${item.id}"` } })
-  if (params?.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
+  if (params.search) must.push({ simple_query_string: { query: params.search, fields: ['target.a_label^10', 'target.a_*^5', 'target.r_*.a_*'], default_operator: 'AND' } })
   if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) {
     filter.push({
       query_string: {
@@ -53,26 +54,41 @@ export default async function Page(props: PageProps) {
       }
     })
   }
+  if (must.length+filter.length === 0) redirect('/data')
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
-  const searchRes = await elasticsearch.search<M2MTargetType, FilterAggType<'files'>>({
-    index: 'm2m_target_expanded',
+  const searchRes = await elasticsearch.search<M2MExpandedTargetType, FilterAggType<'files'>>({
+    index: 'm2m_expanded_target_expanded',
     query: {
-      bool: {
-        filter,
+      function_score: {
+        query: {
+          bool: {
+            must,
+            filter,
+          },
+        },
+        functions: [
+          {
+            field_value_factor: {
+              field: 'pagerank',
+              missing: 1,
+            }
+          }
+        ],
+        boost_mode: "sum",
       },
     },
     aggs: {
       files: {
         filter: {
-          exists: { field: 'target_a_access_url' }
+          exists: { field: 'target.a_access_url' }
         },
       },
     },
     sort: searchParams?.reverse === undefined ? [
-      {'target_pagerank': {'order': 'desc'}},
+      {'_score': {'order': 'desc'}},
       {'target_id': {'order': 'asc'} },
     ] :  [
-      {'target_pagerank': {'order': 'asc'}},
+      {'_score': {'order': 'asc'}},
       {'target_id': {'order': 'desc'} },
     ],
     search_after: searchParams?.cursor ? JSON.parse(searchParams.cursor as string) : undefined,
@@ -80,30 +96,30 @@ export default async function Page(props: PageProps) {
     rest_total_hits_as_int: true,
   })
   if (searchRes.hits.total === 0 && !params.search && !searchParams?.facet) return null
-  const entityLookupRes = await elasticsearch.search<EntityType>({
-    index: 'entity',
+  const entityLookupRes = await elasticsearch.search<EntityExpandedType>({
+    index: 'entity_v8.1_expanded',
     query: {
       ids: {
         values: Array.from(new Set([
           ...searchRes.hits.hits.flatMap((hit) => {
-            const hit_source = hit._source
-            if (!hit_source) return []
-            return Object.keys(hit_source).filter(k => k.startsWith('target_r_') && k !== 'target_r_dcc').map(k => hit_source[k])
+            const hit_source_target = hit._source?.target
+            if (!hit_source_target) return []
+            return Object.keys(hit_source_target).filter(k => k.startsWith('r_') && k !== 'r_dcc').map(k => hit_source_target[k as `r_${string}`].id)
           }),
-          ...Object.keys(item).filter(k => k.startsWith('r_') && k !== 'r_dcc').map(k => item[k]),
+          ...Object.keys(item).filter(k => k.startsWith('r_') && k !== 'r_dcc').map(k => item[k as `r_${string}`].id),
         ]))
       }
     },
     size: 100,
   })
-  const entityLookup: Record<string, EntityType> = Object.fromEntries([
+  const entityLookup: Record<string, EntityExpandedType> = Object.fromEntries([
     [item.id, item],
     ...searchRes.hits.hits.flatMap((hit) => {
       const hit_source = hit._source
       if (!hit_source) return []
-      return [[hit_source.target_id, Object.fromEntries(Object.entries(hit_source).flatMap(([k,v]) => k.startsWith('target_') ? [[k.substring('target_'.length), v]] : []))]]
+      return [[hit_source.target_id, hit_source.target]]
     }),
-    ...entityLookupRes.hits.hits.filter((hit): hit is typeof hit & {_source: EntityType} => !!hit._source).map((hit) => [hit._id, hit._source]),
+    ...entityLookupRes.hits.hits.filter((hit): hit is typeof hit & {_source: EntityExpandedType} => !!hit._source).map((hit) => [hit._id, hit._source]),
     ...Object.entries(await esDCCs),
   ])
   return (
@@ -126,14 +142,14 @@ export default async function Page(props: PageProps) {
         <>&nbsp;</>,
       ]}
       rows={searchRes.hits.hits.map((hit) => {
-        const hit_source = hit._source
-        if (!hit_source) return []
-        const href = create_url({ type: hit_source.target_type, slug: hit_source.target_slug})
+        const hit_source_target = hit._source?.target
+        if (!hit_source_target?.type) return []
+        const href = create_url({ type: hit_source_target.type, slug: hit_source_target.slug})
         return [
-          <SearchablePagedTableCellIcon href={href} src={itemIcon(entityLookup[hit_source.target_id], entityLookup)} alt={categoryLabel(hit_source.target_type)} />,
-          <SearchablePagedTableCell><LinkedTypedNode href={href} type={hit_source.target_type} label={itemLabel(entityLookup[hit_source.target_id])} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,
-          <SearchablePagedTableCell sx={{maxWidth: 'unset'}}><Description description={itemDescription(entityLookup[hit_source.target_id], entityLookup)} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,
-          hit_source.target_a_access_url && <SearchablePagedTableCell><DRSCartButton access_url={hit_source.target_a_access_url} responsive /></SearchablePagedTableCell>,
+          <SearchablePagedTableCellIcon href={href} src={itemIcon(entityLookup[hit_source_target.id], entityLookup)} alt={categoryLabel(hit_source_target.type)} />,
+          <SearchablePagedTableCell><LinkedTypedNode href={href} type={hit_source_target.type} label={itemLabel(entityLookup[hit_source_target.id])} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,
+          <SearchablePagedTableCell sx={{maxWidth: 'unset'}}><Description description={itemDescription(entityLookup[hit_source_target.id], entityLookup)} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,
+          hit_source_target.a_access_url && <SearchablePagedTableCell><DRSCartButton access_url={hit_source_target.a_access_url} responsive /></SearchablePagedTableCell>,
         ]
       })}
       tableFooter={!!searchRes.aggregations?.files.doc_count &&
