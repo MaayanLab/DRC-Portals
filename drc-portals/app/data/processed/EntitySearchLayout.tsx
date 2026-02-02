@@ -55,11 +55,11 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
   if (!searchRes?.hits.total) redirect(create_url({ search: params.search, error: 'No results matching search' }))
   return (
     <SearchTabs>
-      <FancyTabPlaceholder id="c2m2" label={<>Cross-Cut Metadata Model</>} priority={Infinity}>
+      {/* <FancyTabPlaceholder id="c2m2" label={<>Cross-Cut Metadata Model</>} priority={Infinity}>
         <React.Suspense>
           <C2M2SearchQueryComponentTab search={params.search} />
         </React.Suspense>
-      </FancyTabPlaceholder>
+      </FancyTabPlaceholder> */}
       <FancyTab
         id={""}
         label={<>Processed Data<br />{Number(searchRes.hits.total).toLocaleString()}</>}
