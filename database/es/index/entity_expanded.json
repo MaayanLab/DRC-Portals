@@ -1,0 +1,87 @@
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "custom_analyzer": {
+          "tokenizer": "custom_tokenizer",
+          "filter": [
+            "lowercase",
+            "asciifolding"
+          ]
+        }
+      },
+      "tokenizer": {
+        "custom_tokenizer": {
+          "type": "simple_pattern_split",
+          "pattern": "[^a-zA-Z0-9']",
+          "lowercase": true
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": {"type": "keyword"},
+      "type": {"type": "keyword"},
+      "slug": {"type": "keyword"},
+      "pagerank": {"type": "long"}
+    },
+    "dynamic_templates": [
+      {
+        "attributes": {
+          "match_mapping_type": "string",
+          "path_match": "a_*",
+          "mapping": {
+            "type": "text",
+            "analyzer": "custom_analyzer",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      },
+      {
+        "relationships": {
+          "match_mapping_type": "object",
+          "path_match": "r_*",
+          "mapping": {
+            "properties": {
+              "id": {"type": "keyword"},
+              "type": {"type": "keyword"},
+              "slug": {"type": "keyword"},
+              "pagerank": {"type": "long"}
+            }
+          }
+        }
+      },
+      {
+        "relationship_attributes": {
+          "match_mapping_type": "string",
+          "path_match": "r_*.a_*",
+          "mapping": {
+            "type": "text",
+            "analyzer": "custom_analyzer",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      },
+      {
+        "relationship_relationships": {
+          "match_mapping_type": "string",
+          "path_match": "r_*.r_*",
+          "mapping": {
+            "type": "keyword"
+          }
+        }
+      }
+    ]
+  }
+}

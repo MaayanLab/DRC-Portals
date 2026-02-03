@@ -13,113 +13,42 @@ es_put() {
   es $@ -d @-
 }
 
+es_open_index() {
+  INDEX=$1; shift
+  es_put PUT "/${INDEX}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
+}
+
+es_close_index() {
+  INDEX=$1; shift
+  es_put PUT "/${INDEX}/_settings" <<< '{"index":{"refresh_interval":"1s"}}'
+}
+
 # create index for entity
-es_put PUT /entity_${INDEX_VERSION} << EOF
-{
-  "settings": {
-    "analysis": {
-      "analyzer": {
-        "custom_analyzer": {
-          "tokenizer": "custom_tokenizer",
-          "filter": [
-            "lowercase",
-            "asciifolding"
-          ]
-        }
-      },
-      "tokenizer": {
-        "custom_tokenizer": {
-          "type": "simple_pattern_split",
-          "pattern": "[^a-zA-Z0-9']",
-          "lowercase": true
-        }
-      }
-    }
-  },
-  "mappings": {
-    "properties": {
-      "id": {"type": "keyword"},
-      "type": {"type": "keyword"},
-      "slug": {"type": "keyword"},
-      "pagerank": {"type": "long"}
-    },
-    "dynamic_templates": [
-      {
-        "attributes": {
-          "match_mapping_type": "string",
-          "match": "a_*",
-          "mapping": {
-            "type": "text",
-            "analyzer": "custom_analyzer",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
-            }
-          }
-        }
-      },
-      {
-        "relationships": {
-          "match_mapping_type": "string",
-          "match": "r_*",
-          "mapping": {
-            "type": "keyword"
-          }
-        }
-      }
-    ]
-  }
-}
+es_put PUT /entity_${INDEX_VERSION} < es/index/entity.json
+
+es_put POST /_aliases << EOF
+{ "actions": [{ "remove": { "index": "*", "alias": "entity_staging" } }] }
 EOF
 
 es_put POST /_aliases << EOF
-{
-  "actions": [
-    { "remove": { "index": "*", "alias": "entity_staging" } }
-  ]
-}
-EOF
-
-es_put POST /_aliases << EOF
-{
-  "actions": [
-    { "add": { "index": "entity_${INDEX_VERSION}", "alias": "entity_staging" } }
-  ]
-}
+{ "actions": [{ "add": { "index": "entity_${INDEX_VERSION}", "alias": "entity_staging" } }] }
 EOF
 
 # create index for m2m
-es_put PUT /m2m_${INDEX_VERSION} << EOF
-{
-  "mappings": {
-    "properties": {
-      "source_id": {"type": "keyword"},
-      "predicate": {"type": "keyword"},
-      "target_id": {"type": "keyword"}
-    }
-  }
-}
+es_put PUT /m2m_${INDEX_VERSION} < es/index/m2m.json
+
+es_put POST /_aliases << EOF
+{ "actions": [{ "remove": { "index": "*", "alias": "m2m_staging" } }] }
 EOF
 
 es_put POST /_aliases << EOF
-{
-  "actions": [
-    { "remove": { "index": "*", "alias": "m2m_staging" } }
-  ]
-}
-EOF
-
-es_put POST /_aliases << EOF
-{
-  "actions": [
-    { "add": { "index": "m2m_${INDEX_VERSION}", "alias": "m2m_staging" } }
-  ]
-}
+{ "actions": [{ "add": { "index": "m2m_${INDEX_VERSION}", "alias": "m2m_staging" } }] }
 EOF
 
 # actually ingest data (can happen in parallel)
+es_open_index entity_staging
+es_open_index m2m_staging
+
 uv run ingest_dcc_assets.py
 uv run ingest_gmts.py
 uv run ingest_c2m2_files.py
@@ -160,97 +89,9 @@ es GET "/entity_${INDEX_VERSION}/_field_caps?fields=r_*" | jq -rc '{
   ]
 }' --arg INDEX_VERSION $INDEX_VERSION | es_put PUT /_ingest/pipeline/entity_${INDEX_VERSION}_expanded
 
-es_put PUT /entity_${INDEX_VERSION}_expanded << EOF
-{
-  "settings": {
-    "analysis": {
-      "analyzer": {
-        "custom_analyzer": {
-          "tokenizer": "custom_tokenizer",
-          "filter": [
-            "lowercase",
-            "asciifolding"
-          ]
-        }
-      },
-      "tokenizer": {
-        "custom_tokenizer": {
-          "type": "simple_pattern_split",
-          "pattern": "[^a-zA-Z0-9']",
-          "lowercase": true
-        }
-      }
-    }
-  },
-  "mappings": {
-    "properties": {
-      "id": {"type": "keyword"},
-      "type": {"type": "keyword"},
-      "slug": {"type": "keyword"},
-      "pagerank": {"type": "long"}
-    },
-    "dynamic_templates": [
-      {
-        "attributes": {
-          "match_mapping_type": "string",
-          "path_match": "a_*",
-          "mapping": {
-            "type": "text",
-            "analyzer": "custom_analyzer",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
-            }
-          }
-        }
-      },
-      {
-        "relationships": {
-          "match_mapping_type": "object",
-          "path_match": "r_*",
-          "mapping": {
-            "properties": {
-              "id": {"type": "keyword"},
-              "type": {"type": "keyword"},
-              "slug": {"type": "keyword"},
-              "pagerank": {"type": "long"}
-            }
-          }
-        }
-      },
-      {
-        "relationship_attributes": {
-          "match_mapping_type": "string",
-          "path_match": "r_*.a_*",
-          "mapping": {
-            "type": "text",
-            "analyzer": "custom_analyzer",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
-            }
-          }
-        }
-      },
-      {
-        "relationship_relationships": {
-          "match_mapping_type": "string",
-          "path_match": "r_*.r_*",
-          "mapping": {
-            "type": "keyword"
-          }
-        }
-      }
-    ]
-  }
-}
-EOF
+es_put PUT /entity_${INDEX_VERSION}_expanded < es/index/entity_expanded.json
 
-es_put POST /_reindex << EOF
+es_put POST "/_reindex?slices=12" << EOF
 {
   "source": {
     "index": "entity_${INDEX_VERSION}"
@@ -288,102 +129,7 @@ es_put PUT /_ingest/pipeline/m2m_${INDEX_VERSION}_expanded_target_expanded << EO
 }
 EOF
 
-es_put PUT /m2m_${INDEX_VERSION}_expanded_target_expanded << EOF
-{
-  "settings": {
-    "analysis": {
-      "analyzer": {
-        "custom_analyzer": {
-          "tokenizer": "custom_tokenizer",
-          "filter": [
-            "lowercase",
-            "asciifolding"
-          ]
-        }
-      },
-      "tokenizer": {
-        "custom_tokenizer": {
-          "type": "simple_pattern_split",
-          "pattern": "[^a-zA-Z0-9']",
-          "lowercase": true
-        }
-      }
-    }
-  },
-  "mappings": {
-    "properties": {
-      "source_id": {"type": "keyword"},
-      "predicate": {"type": "keyword"},
-      "target_id": {"type": "keyword"},
-      "target": {
-        "properties": {
-          "id": {"type": "keyword"},
-          "type": {"type": "keyword"},
-          "slug": {"type": "keyword"},
-          "pagerank": {"type": "long"}
-        }
-      }
-    },
-    "dynamic_templates": [
-      {
-        "attributes": {
-          "match_mapping_type": "string",
-          "path_match": "target.a_*",
-          "mapping": {
-            "type": "text",
-            "analyzer": "custom_analyzer",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
-            }
-          }
-        }
-      },
-      {
-        "relationships": {
-          "match_mapping_type": "object",
-          "path_match": "target.r_*",
-          "mapping": {
-            "properties": {
-              "id": {"type": "keyword"},
-              "type": {"type": "keyword"},
-              "slug": {"type": "keyword"},
-              "pagerank": {"type": "long"}
-            }
-          }
-        }
-      },
-      {
-        "relationship_attributes": {
-          "match_mapping_type": "string",
-          "path_match": "target.r_*.a_*",
-          "mapping": {
-            "type": "text",
-            "analyzer": "custom_analyzer",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
-            }
-          }
-        }
-      },
-      {
-        "relationship_relationships": {
-          "match_mapping_type": "string",
-          "path_match": "target.r_*.r_*",
-          "mapping": {
-            "type": "keyword"
-          }
-        }
-      }
-    ]
-  }
-}
-EOF
+es_put PUT /m2m_${INDEX_VERSION}_expanded_target_expanded < es/index/m2m_expanded_target_expanded.json
 
 es_put POST /_reindex << EOF
 {
