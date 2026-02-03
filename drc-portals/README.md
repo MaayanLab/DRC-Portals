@@ -8,6 +8,8 @@ cp .env.example .env
 #  (NOTE: If you're running another postgres database on your system, you should turn it off as the ports will conflict)
 # This step is not needed if ingesting into the DB on the UCSD DB server as that DB is not in a container
 docker-compose up -d drc-portal-postgres
+# (advanced) if running elasticsearch locally
+docker compose up -d drc-portal-elasticsearch
 # install node modules
 npm i
 # initialize prisma
