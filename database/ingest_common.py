@@ -232,13 +232,6 @@ def pdp_helper():
       es.put(dict(
         _op_type='update',
         _index='m2m_staging',
-        _id=f"{source_id}:{predicate}:{target_id}",
-        doc=dict(source_id=source_id, predicate=predicate, target_id=target_id),
-        doc_as_upsert=True,
-      ))
-      es.put(dict(
-        _op_type='update',
-        _index='m2m_staging',
         _id=f"{source_id}:inv_{predicate}:{target_id}",
         doc=dict(source_id=source_id, predicate=f"inv_{predicate}", target_id=target_id),
         doc_as_upsert=True,
