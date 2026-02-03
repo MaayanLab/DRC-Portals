@@ -1,6 +1,5 @@
 import React from 'react'
-import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, create_url, EntityExpandedType, humanBytesSize, itemDescription, itemLabel, linkify, titleCapitalize } from "@/app/data/processed/utils"
+import { categoryLabel, create_url, EntityType, humanBytesSize, itemDescription, itemLabel, linkify, titleCapitalize } from "@/app/data/processed/utils"
 import { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 import Link from "@/utils/link";
 import { Button } from "@mui/material";
@@ -49,20 +48,16 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
   for (const k in props.params) params[k] = decodeURIComponent(params[k])
   const item = await getEntity(params)
   if (!item) notFound()
-  const entityLookupRes = await elasticsearch.search<EntityExpandedType>({
-    index: 'entity_expanded',
-    query: {
-      ids: {
-        values: Array.from(new Set([
-          ...Object.keys(item).filter(k => k.startsWith('r_') && k !== 'r_dcc').map(k => item[k as `r_${string}`].id),
-        ]))
-      }
-    },
-    size: 100,
-  })
-  const entityLookup: Record<string, EntityExpandedType> = Object.fromEntries([
+    
+  const entityLookup: Record<string, EntityType> = Object.fromEntries([
     [item.id, item],
-    ...entityLookupRes.hits.hits.filter((hit): hit is typeof hit & {_source: EntityExpandedType} => !!hit._source).map((hit) => [hit._id, hit._source]),
+    ...Object.entries(item).flatMap(([key, value]) => {
+      if (key.startsWith('r_')) {
+        return [[(value as EntityType).id, value as EntityType]]
+      } else {
+        return []
+      }
+    }),
     ...Object.entries(await esDCCs),
   ])
   return (

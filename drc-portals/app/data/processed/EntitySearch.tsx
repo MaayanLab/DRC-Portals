@@ -1,7 +1,7 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
 import { estypes } from '@elastic/elasticsearch'
-import { categoryLabel, create_url, EntityExpandedType, FilterAggType, itemDescription, itemIcon, itemLabel } from "@/app/data/processed/utils"
+import { categoryLabel, create_url, EntityExpandedType, EntityType, FilterAggType, itemDescription, itemIcon, itemLabel, predicateLabel } from "@/app/data/processed/utils"
 import SearchablePagedTable, { SearchablePagedTableCell, SearchablePagedTableCellIcon, LinkedTypedNode, Description, SearchablePagedTableHeader } from "@/app/data/processed/SearchablePagedTable";
 import { redirect } from 'next/navigation';
 import { ensure_array, groupby } from '@/utils/array';
@@ -78,24 +78,17 @@ export default async function Page(props: PageProps) {
   if (searchParams?.reverse !== undefined) {
     searchRes.hits.hits.reverse()
   }
-  const entityLookupRes = await elasticsearch.search<EntityExpandedType>({
-    index: 'entity_v8.1_expanded',
-    query: {
-      ids: {
-        values: Array.from(new Set([
-          ...searchRes.hits.hits.flatMap((item) => {
-            const item_source = item._source
-            if (!item_source) return []
-            return Object.keys(item_source).filter(k => k.startsWith('r_') && k !== 'r_dcc').map(k => item_source[k as `r_${string}`].id)
-          })
-        ]))
-      }
-    },
-    size: 100,
-  })
-  const entityLookup = Object.fromEntries([
-    ...searchRes.hits.hits.map((hit) => [hit._id, hit._source]),
-    ...entityLookupRes.hits.hits.map((hit) => [hit._id, hit._source]),
+  const entityLookup: Record<string, EntityType> = Object.fromEntries([
+    ...searchRes.hits.hits.flatMap((hit) => [
+      [hit._id, hit._source],
+      ...Object.entries(hit._source as EntityExpandedType).flatMap(([key, value]) => {
+        if (key.startsWith('r_')) {
+          return [[(value as EntityType).id, value as EntityType]]
+        } else {
+          return []
+        }
+      }),
+    ]),
     ...Object.entries(await esDCCs),
   ])
   return (

@@ -1,6 +1,6 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, EntityExpandedType, FilterAggType, itemDescription, itemIcon, itemLabel, M2MExpandedTargetType, TermAggType } from "@/app/data/processed/utils"
+import { categoryLabel, EntityExpandedType, EntityType, FilterAggType, itemDescription, itemIcon, itemLabel, M2MExpandedTargetType, TermAggType } from "@/app/data/processed/utils"
 import SearchablePagedTable, { SearchablePagedTableCell, SearchablePagedTableCellIcon, LinkedTypedNode, Description, SearchablePagedTableHeader } from "@/app/data/processed/SearchablePagedTable";
 import { notFound, redirect } from 'next/navigation';
 import { create_url } from '@/app/data/processed/utils';
@@ -96,30 +96,18 @@ export default async function Page(props: PageProps) {
     rest_total_hits_as_int: true,
   })
   if (searchRes.hits.total === 0 && !params.search && !searchParams?.facet) return null
-  const entityLookupRes = await elasticsearch.search<EntityExpandedType>({
-    index: 'entity_v8.1_expanded',
-    query: {
-      ids: {
-        values: Array.from(new Set([
-          ...searchRes.hits.hits.flatMap((hit) => {
-            const hit_source_target = hit._source?.target
-            if (!hit_source_target) return []
-            return Object.keys(hit_source_target).filter(k => k.startsWith('r_') && k !== 'r_dcc').map(k => hit_source_target[k as `r_${string}`].id)
-          }),
-          ...Object.keys(item).filter(k => k.startsWith('r_') && k !== 'r_dcc').map(k => item[k as `r_${string}`].id),
-        ]))
-      }
-    },
-    size: 100,
-  })
-  const entityLookup: Record<string, EntityExpandedType> = Object.fromEntries([
+  const entityLookup: Record<string, EntityType> = Object.fromEntries([
     [item.id, item],
-    ...searchRes.hits.hits.flatMap((hit) => {
-      const hit_source = hit._source
-      if (!hit_source) return []
-      return [[hit_source.target_id, hit_source.target]]
-    }),
-    ...entityLookupRes.hits.hits.filter((hit): hit is typeof hit & {_source: EntityExpandedType} => !!hit._source).map((hit) => [hit._id, hit._source]),
+    ...searchRes.hits.hits.flatMap((hit) => [
+      [hit._source?.target.id, hit._source?.target],
+      ...Object.entries(hit._source?.target as EntityExpandedType).flatMap(([key, value]) => {
+        if (key.startsWith('r_')) {
+          return [[(value as EntityType).id, value as EntityType]]
+        } else {
+          return []
+        }
+      }),
+    ]),
     ...Object.entries(await esDCCs),
   ])
   return (

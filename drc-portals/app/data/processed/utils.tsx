@@ -144,7 +144,7 @@ export function categoryLabel(type: string) {
   else return entity_type_map[type] ?? titleCapitalize(type.replaceAll('_',' '))
 }
 
-export function itemIcon(item: EntityExpandedType, lookup?: Record<string, EntityExpandedType>) {
+export function itemIcon(item: EntityExpandedType, lookup?: Record<string, EntityType>) {
   if (lookup && item.r_dcc && item.r_dcc.id in lookup) {
     const dcc = lookup[item.r_dcc.id]
     return dcc.a_icon
@@ -173,7 +173,7 @@ export function humanBytesSize(size: number) {
   return `${(size/1e12).toPrecision(3)} TB`
 }
 
-export function itemDescription(item: EntityExpandedType, lookup?: Record<string, EntityExpandedType>) {
+export function itemDescription(item: EntityExpandedType, lookup?: Record<string, EntityType>) {
   if (item['type'] === 'file') return `A${item.a_size_in_bytes ? ` ${humanBytesSize(Number(item.a_size_in_bytes))}` : ''} file${lookup && item.r_dcc && item.r_dcc.id in lookup ? ` from ${lookup[item.r_dcc.id].a_label}` : ''}${item.a_assay_type ? ` produced from ${item.a_assay_type}` : ''} as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
   if (item['type'] === 'biosample') return `A biosample${lookup && item.r_dcc && item.r_dcc.id in lookup ? ` from ${lookup[item.r_dcc.id].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
   if (item['type'] === 'subject') return `A subject${lookup && item.r_dcc && item.r_dcc.id in lookup ? ` from ${lookup[item.r_dcc.id].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
