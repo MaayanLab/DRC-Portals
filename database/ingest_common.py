@@ -243,7 +243,6 @@ def pdp_helper():
         doc=dict(source_id=source_id, predicate=f"inv_{predicate}", target_id=target_id),
         doc_as_upsert=True,
       ))
-      pagerank[source_id] = pagerank.get(source_id, 0) + 1
     def upsert_m2m(source_id, predicate, target_id):
       es.put(dict(
         _op_type='update',
