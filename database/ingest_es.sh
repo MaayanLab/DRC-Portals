@@ -13,18 +13,9 @@ es_put() {
   es $@ -d @-
 }
 
-es_open_index() {
-  INDEX=$1; shift
-  es_put PUT "/${INDEX}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
-}
-
-es_close_index() {
-  INDEX=$1; shift
-  es_put PUT "/${INDEX}/_settings" <<< '{"index":{"refresh_interval":"1s"}}'
-}
-
 # create index for entity
 es_put PUT /entity_${INDEX_VERSION} < es/index/entity.json
+es_put PUT "/entity_${INDEX_VERSION}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
 
 es_put POST /_aliases << EOF
 { "actions": [{ "remove": { "index": "*", "alias": "entity_staging" } }] }
@@ -35,7 +26,9 @@ es_put POST /_aliases << EOF
 EOF
 
 # create index for m2m
+es_put GET /m2m_${INDEX_VERSION}
 es_put PUT /m2m_${INDEX_VERSION} < es/index/m2m.json
+es_put PUT "/m2m_${INDEX_VERSION}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
 
 es_put POST /_aliases << EOF
 { "actions": [{ "remove": { "index": "*", "alias": "m2m_staging" } }] }
@@ -45,17 +38,20 @@ es_put POST /_aliases << EOF
 { "actions": [{ "add": { "index": "m2m_${INDEX_VERSION}", "alias": "m2m_staging" } }] }
 EOF
 
-# actually ingest data (can happen in parallel)
-es_open_index entity_staging
-es_open_index m2m_staging
 
+# actually ingest data (can happen in parallel)
 uv run ingest_dcc_assets.py
 uv run ingest_gmts.py
 uv run ingest_c2m2_files.py
 uv run ingest_kg.py
 
+es POST "/entity_${INDEX_VERSION}/_refresh"
+es POST "/m2m_${INDEX_VERSION}/_refresh"
+
 # compute pagerank
 uv run pagerank.py
+
+es POST "/entity_${INDEX_VERSION}/_refresh"
 
 # sanity checks
 es_put POST /entity_staging/_search << EOF
@@ -90,18 +86,21 @@ es GET "/entity_${INDEX_VERSION}/_field_caps?fields=r_*" | jq -rc '{
 }' --arg INDEX_VERSION $INDEX_VERSION | es_put PUT /_ingest/pipeline/entity_${INDEX_VERSION}_expanded
 
 es_put PUT /entity_${INDEX_VERSION}_expanded < es/index/entity_expanded.json
+es_put PUT "/entity_${INDEX_VERSION}_expanded/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
 
-es_put POST "/_reindex?slices=12" << EOF
+es_put POST "/_reindex?slices=auto" << EOF
 {
   "source": {
     "index": "entity_${INDEX_VERSION}"
   },
   "dest": {
-    "index": "entity_${INDEX_VERSION}_expanded",
-    "pipeline": "entity_${INDEX_VERSION}_expanded"
+    "pipeline": "entity_${INDEX_VERSION}_expanded",
+    "index": "entity_${INDEX_VERSION}_expanded"
   }
 }
 EOF
+
+es POST "/entity_/_refresh"${INDEX_VERSION}_expanded
 
 # add enriched r_ fields to m2m_expanded
 es_put PUT /_enrich/policy/entity_${INDEX_VERSION}_expanded_lookup << EOF
@@ -130,18 +129,21 @@ es_put PUT /_ingest/pipeline/m2m_${INDEX_VERSION}_expanded_target_expanded << EO
 EOF
 
 es_put PUT /m2m_${INDEX_VERSION}_expanded_target_expanded < es/index/m2m_expanded_target_expanded.json
+es_put PUT "/m2m_${INDEX_VERSION}_expanded_target_expanded/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
 
-es_put POST /_reindex << EOF
+es_put POST "/_reindex?slices=auto" << EOF
 {
   "source": {
     "index": "m2m_${INDEX_VERSION}"
   },
   "dest": {
-    "index": "m2m_${INDEX_VERSION}_expanded_target_expanded",
-    "pipeline": "m2m_${INDEX_VERSION}_expanded_target_expanded"
+    "pipeline": "m2m_${INDEX_VERSION}_expanded_target_expanded",
+    "index": "m2m_${INDEX_VERSION}_expanded_target_expanded"
   }
 }
 EOF
+
+es POST "/m2m_/_refresh"${INDEX_VERSION}_expanded_target_expanded
 
 # no longer staging
 es_put POST /_aliases << EOF
