@@ -25,8 +25,7 @@ with es_helper() as es_bulk:
       if after_key: req['aggs']['pagerank']['composite']['after'] = after_key
       res = es.search(**req)
       after_key = res['aggregations']['pagerank'].get('after_key')
-      if after_key is None: break
-      for bucket in res['aggregations']['pagerank']['buckets']:
+      for bucket in res['aggregations']['pagerank'].get('buckets', []):
         es_bulk.put(dict(
           _op_type='update',
           _index='entity_staging',
@@ -35,3 +34,4 @@ with es_helper() as es_bulk:
           doc_as_upsert=True,
         ))
         pbar.update(1)
+      if after_key is None: break
