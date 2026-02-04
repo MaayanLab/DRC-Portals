@@ -1,6 +1,6 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
-import { categoryLabel, EntityExpandedType, EntityType, FilterAggType, itemDescription, itemIcon, itemLabel, M2MExpandedTargetType, TermAggType } from "@/app/data/processed/utils"
+import { categoryLabel, EntityExpandedType, EntityType, FilterAggType, itemDescription, itemIcon, itemLabel } from "@/app/data/processed/utils"
 import SearchablePagedTable, { SearchablePagedTableCell, SearchablePagedTableCellIcon, LinkedTypedNode, Description, SearchablePagedTableHeader } from "@/app/data/processed/SearchablePagedTable";
 import { notFound, redirect } from 'next/navigation';
 import { create_url } from '@/app/data/processed/utils';
@@ -43,8 +43,8 @@ export default async function Page(props: PageProps) {
   if (!item) notFound()
   const must: estypes.QueryDslQueryContainer[] = []
   const filter: estypes.QueryDslQueryContainer[] = []
-  filter.push({ query_string: { query: `+source_id:"${item.id}"` } })
-  if (params.search) must.push({ simple_query_string: { query: params.search, fields: ['target.a_label^10', 'target.a_*^5', 'target.r_*.a_*'], default_operator: 'AND' } })
+  filter.push({ simple_query_string: { query: `"${item.id}"`, fields: ['r_*.id', 'r_*.r_*', 'm2m_*'] } })
+  if (params.search) must.push({ simple_query_string: { query: params.search, fields: ['a_label^10', 'a_*^5', 'r_*.a_*'], default_operator: 'AND' } })
   if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) {
     filter.push({
       query_string: {
@@ -56,8 +56,8 @@ export default async function Page(props: PageProps) {
   }
   if (must.length+filter.length === 0) redirect('/data')
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
-  const searchRes = await elasticsearch.search<M2MExpandedTargetType, FilterAggType<'files'>>({
-    index: 'm2m_expanded_target_expanded',
+  const searchRes = await elasticsearch.search<EntityExpandedType, FilterAggType<'files'>>({
+    index: 'entity_expanded',
     query: {
       function_score: {
         query: {
@@ -80,16 +80,16 @@ export default async function Page(props: PageProps) {
     aggs: {
       files: {
         filter: {
-          exists: { field: 'target.a_access_url' }
+          exists: { field: 'a_access_url' }
         },
       },
     },
     sort: searchParams?.reverse === undefined ? [
       {'_score': {'order': 'desc'}},
-      {'target_id': {'order': 'asc'} },
+      {'id': {'order': 'asc'} },
     ] :  [
       {'_score': {'order': 'asc'}},
-      {'target_id': {'order': 'desc'} },
+      {'id': {'order': 'desc'} },
     ],
     search_after: searchParams?.cursor ? JSON.parse(searchParams.cursor as string) : undefined,
     size: display_per_page,
@@ -98,16 +98,16 @@ export default async function Page(props: PageProps) {
   if (searchRes.hits.total === 0 && !params.search && !searchParams?.facet) return null
   const entityLookup: Record<string, EntityType> = Object.fromEntries([
     [item.id, item],
-    ...searchRes.hits.hits.flatMap((hit) => [
-      [hit._source?.target.id, hit._source?.target],
-      ...Object.entries(hit._source?.target as EntityExpandedType).flatMap(([key, value]) => {
+    ...searchRes.hits.hits.flatMap((hit) => hit._source ? [
+      [hit._source?.id, hit._source],
+      ...Object.entries(hit._source).flatMap(([key, value]) => {
         if (key.startsWith('r_')) {
           return [[(value as EntityType).id, value as EntityType]]
         } else {
           return []
         }
       }),
-    ]),
+    ] : []),
     ...Object.entries(await esDCCs),
   ])
   return (
@@ -130,7 +130,7 @@ export default async function Page(props: PageProps) {
         <>&nbsp;</>,
       ]}
       rows={searchRes.hits.hits.map((hit) => {
-        const hit_source_target = hit._source?.target
+        const hit_source_target = hit._source
         if (!hit_source_target?.type) return []
         const href = create_url({ type: hit_source_target.type, slug: hit_source_target.slug})
         return [
@@ -147,7 +147,7 @@ export default async function Page(props: PageProps) {
             search={params.search}
             facet={[
               ...ensure_array(searchParams?.facet),
-              '_exists_:target_a_access_url',
+              '_exists_:a_access_url',
             ]}
             count={searchRes.aggregations.files.doc_count}
           />

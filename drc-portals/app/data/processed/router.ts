@@ -1,6 +1,6 @@
 import { procedure, router } from '@/lib/trpc'
 import elasticsearch from "@/lib/elasticsearch"
-import { EntityExpandedType, M2MExpandedTargetType, TermAggType } from '@/app/data/processed/utils'
+import { EntityExpandedType, TermAggType } from '@/app/data/processed/utils'
 import { estypes } from '@elastic/elasticsearch'
 import { z } from 'zod'
 import { groupby } from '@/utils/array'
@@ -16,11 +16,8 @@ export default router({
   })).mutation(async (props) => {
     const must: estypes.QueryDslQueryContainer[] = []
     const filter: estypes.QueryDslQueryContainer[] = []
-    if (props.input.source_id) filter.push({ query_string: { query: `+source_id:"${props.input.source_id}"` } })
-    if (props.input.search) {
-      if (props.input.source_id) must.push({ simple_query_string: { query: props.input.search, fields: ['target.a_label^10', 'target.a_*^5', 'target.r_*.a_*'], default_operator: 'AND' } })
-      else must.push({ simple_query_string: { query: props.input.search, fields: ['a_label^10', 'a_*^5', 'r_*.a_*'], default_operator: 'AND' } })
-    }
+    if (props.input.source_id) filter.push({ query_string: { query: `${props.input.source_id}`, fields: ['r_*.id', 'r_*.r_*', 'm2m_*'] } })
+    if (props.input.search) must.push({ simple_query_string: { query: props.input.search, fields: ['a_label^10', 'a_*^5', 'r_*.a_*'], default_operator: 'AND' } })
     if (props.input.facet?.length) filter.push({
       query_string: {
         query: Object.entries(groupby(
@@ -28,8 +25,8 @@ export default router({
         )).map(([_, F]) => `(${F.join(' OR ')})`).join(' AND '),
       }
     })
-    const searchRes = await elasticsearch.search<M2MExpandedTargetType | EntityExpandedType>({
-      index: props.input.source_id ? 'm2m_expanded_target_expanded' : 'entity_expanded',
+    const searchRes = await elasticsearch.search<EntityExpandedType>({
+      index: 'entity_expanded',
       query: {
         function_score: {
           query: {
@@ -41,7 +38,7 @@ export default router({
           functions: [
             {
               field_value_factor: {
-                field: props.input.source_id ? 'target.pagerank' : 'pagerank',
+                field: 'pagerank',
                 missing: 1,
               }
             }
@@ -49,10 +46,7 @@ export default router({
           boost_mode: "sum"
         },
       },
-      sort: props.input.source_id ? [
-        {'_score': {'order': 'desc'}},
-        {'target_id': {'order': 'asc'} },
-      ] : [
+      sort: [
         {'_score': {'order': 'desc'}},
         {'id': {'order': 'asc'} },
       ],
@@ -61,9 +55,7 @@ export default router({
       rest_total_hits_as_int: true,
     })
     const next = searchRes.hits.hits.length === limit ? JSON.stringify(searchRes.hits.hits[searchRes.hits.hits.length-1].sort) : undefined
-    const items = props.input.source_id ?
-      searchRes.hits.hits.map(hit => (hit._source as M2MExpandedTargetType).target)
-      : searchRes.hits.hits.map(hit => (hit._source as EntityExpandedType))
+    const items = searchRes.hits.hits.filter((hit): hit is typeof hit & { _source: EntityExpandedType } => !!hit._source)
     return {
       items,
       total: searchRes.hits.total,
@@ -76,11 +68,8 @@ export default router({
     facet: z.string().array().optional(),
   })).query(async (props) => {
     const filter: estypes.QueryDslQueryContainer[] = []
-    if (props.input.source_id) filter.push({ query_string: { query: `+source_id:"${props.input.source_id}"` } })
-    if (props.input.search) {
-      if (props.input.source_id) filter.push({ simple_query_string: { query: props.input.search, fields: ['target.a_label^10', 'target.a_*^5', 'target.r_*.a_*'], default_operator: 'AND' } })
-      else filter.push({ simple_query_string: { query: props.input.search, fields: ['a_label^10', 'a_*^5', 'r_*.a_*'], default_operator: 'AND' } })
-    }
+    if (props.input.source_id) filter.push({ simple_query_string: { query: `"${props.input.source_id}"`, fields: ['r_*.id', 'r_*.r_*', 'm2m_*'] } })
+    if (props.input.search) filter.push({ simple_query_string: { query: props.input.search, fields: ['a_label^10', 'a_*^5', 'r_*.a_*'], default_operator: 'AND' } })
     if (props.input.facet?.length) filter.push({
       query_string: {
         query: Object.entries(groupby(
@@ -89,25 +78,15 @@ export default router({
       }
     })
     let facets: string[] = []
-    if (props.input.source_id) {
-      facets.push(
-        'target.type',
-        'target.r_disease.id', 'target.r_species.id', 'target.r_anatomy.id', 'target.r_gene.id', 'target.r_protein.id', 'target.r_compound.id', 'target.r_data_type.id', 'target.r_assay_type.id',
-        'target.r_file_format.id', 'target.r_ptm_type.id', 'target.r_ptm_subtype.id', 'target.r_ptm_site_type.id',
-        'target.r_project.id', 'target.r_dcc.id',
-        'target.r_source.id', 'target.r_relation.id', 'target.r_target.id',
-      )
-    } else {
-      facets.push(
-        'type',
-        'r_disease.id', 'r_species.id', 'r_anatomy.id', 'r_gene.id', 'r_protein.id', 'r_compound.id', 'r_data_type.id', 'r_assay_type.id',
-        'r_file_format.id', 'r_ptm_type.id', 'r_ptm_subtype.id', 'r_ptm_site_type.id',
-        'r_project.id', 'r_dcc.id',
-        'r_source.id', 'r_relation.id', 'r_target.id',
-      )
-    }
-    const searchRes = await elasticsearch.search<M2MExpandedTargetType | EntityExpandedType, TermAggType<typeof facets[0]>>({
-      index: props.input.source_id ? 'm2m_expanded_target_expanded' : 'entity_expanded',
+    facets.push(
+      'type',
+      'r_disease.id', 'r_species.id', 'r_anatomy.id', 'r_gene.id', 'r_protein.id', 'r_compound.id', 'r_data_type.id', 'r_assay_type.id',
+      'r_file_format.id', 'r_ptm_type.id', 'r_ptm_subtype.id', 'r_ptm_site_type.id',
+      'r_project.id', 'r_dcc.id',
+      'r_source.id', 'r_relation.id', 'r_target.id',
+    )
+    const searchRes = await elasticsearch.search<EntityExpandedType, TermAggType<typeof facets[0]>>({
+      index: 'entity_expanded',
       query: {
         bool: {
           filter,
@@ -148,8 +127,9 @@ export default router({
     facet: z.string().array().optional(),
   })).query(async (props) => {
     if (props.input.search.length < 3) return []
+    const must: estypes.QueryDslQueryContainer[] = []
     const filter: estypes.QueryDslQueryContainer[] = []
-    if (props.input.source_id) filter.push({ query_string: { query: `+source_id:"${props.input.source_id}"` } })
+    if (props.input.source_id) filter.push({ query_string: { query: `"${props.input.source_id}"`, fields: ['r_*.id', 'r_*.r_*', 'm2m_*'] } })
     if (props.input.facet?.length) filter.push({
       query_string: {
         query: Object.entries(groupby(
@@ -157,26 +137,21 @@ export default router({
         )).map(([_, F]) => `(${F.join(' OR ')})`).join(' AND '),
       }
     })
-    const searchRes = await elasticsearch.search<M2MExpandedTargetType | EntityExpandedType>({
-      index: props.input.source_id ? 'm2m_expanded_target_expanded' : 'entity_expanded',
+    must.push({ match_phrase_prefix: { a_label: props.input.search } })
+    const searchRes = await elasticsearch.search<EntityExpandedType>({
+      index: 'entity_expanded',
       query: {
         function_score: {
           query: {
             bool: {
-              must: {
-                match_phrase_prefix: props.input.source_id ? {
-                  target_a_label: props.input.search,
-                } : {
-                  a_label: props.input.search,
-                },
-              },
+              must,
               filter,
             }
           },
           functions: [
             {
               field_value_factor: {
-                field: props.input.source_id ? 'target.pagerank' : 'pagerank',
+                field: 'pagerank',
                 missing: 1,
               }
             }
@@ -184,19 +159,14 @@ export default router({
           boost_mode: "sum"
         },
       },
-      sort: props.input.source_id ? [
-        {'_score': {'order': 'desc'}},
-        {'target_id': {'order': 'asc'} },
-      ] : [
+      sort: [
         {'_score': {'order': 'desc'}},
         {'id': {'order': 'asc'} },
       ],
       size: 10,
       track_total_hits: false,
     })
-    const items = props.input.source_id ?
-      searchRes.hits.hits.map(hit => ({ type: (hit._source as M2MExpandedTargetType)?.target.type, a_label: (hit._source as M2MExpandedTargetType)?.target.a_label }))
-      : searchRes.hits.hits.map(hit => ({ type: (hit._source as EntityExpandedType)?.type, a_label: (hit._source as EntityExpandedType)?.a_label }))
+    const items = searchRes.hits.hits.map(hit => ({ type: hit._source?.type, a_label: hit._source?.a_label }))
     return items.filter((hit): hit is { type: string, a_label: string } => !!hit.type && !!hit.a_label)
   })
 })

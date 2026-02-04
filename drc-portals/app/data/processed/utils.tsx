@@ -25,20 +25,7 @@ export type EntityExpandedType = {
   pagerank: string,
   a_label: string,
   a_description: string,
-} & WithPrefix<'a_', Record<string, string>> & WithPrefix<'r_', Record<string, EntityType>>
-
-export type M2MTargetType = {
-  source_id: string,
-  predicate: string,
-  target_id: string,
-} & WithPrefix<'target_', EntityType>
-
-export type M2MExpandedTargetType = {
-  source_id: string,
-  predicate: string,
-  target_id: string,
-  target: EntityExpandedType,
-}
+} & WithPrefix<'a_', Record<string, string>> & WithPrefix<'r_', Record<string, EntityType>> & WithPrefix<'m2m_', Record<string, string>>
 
 export type TermAggType<K extends string> = Record<K, {
   buckets: { key: string, doc_count: number }[]

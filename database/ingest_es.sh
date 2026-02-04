@@ -55,98 +55,28 @@ es POST "/entity_${INDEX_VERSION}/_refresh"
 
 # sanity checks
 es_put POST /entity_staging/_search << EOF
-{"query":{"match_all":{}}, "size":10,"sort":[{"pagerank":{"order": "desc"}}]}
+{"query":{"match_all":{}}, "size":1,"sort":[{"pagerank":{"order": "desc"}}]}
 EOF
 es_put POST /m2m_staging/_search << EOF
 {"query":{"match_all":{}}, "size":10}
 EOF
 
-# provide a way to get entity from id
-es_put PUT /_enrich/policy/entity_${INDEX_VERSION}_lookup << EOF
-{
-  "match": {
-    "indices": "entity_${INDEX_VERSION}",
-    "match_field": "id",
-    "enrich_fields": ["*"]
-  }
-}
-EOF
-es POST /_enrich/policy/entity_${INDEX_VERSION}_lookup/_execute
-
-# enrich all r_* fields
-es GET "/entity_${INDEX_VERSION}/_field_caps?fields=r_*" | jq -rc '{
-  "processors": [
-    .fields|keys|.[]|{"enrich":{
-      "policy_name": "entity_" + $INDEX_VERSION + "_lookup",
-      "field": .,
-      "target_field": .,
-      "if": "ctx." + . + " != null"
-    }}
-  ]
-}' --arg INDEX_VERSION $INDEX_VERSION | es_put PUT /_ingest/pipeline/entity_${INDEX_VERSION}_expanded
-
 es_put PUT /entity_${INDEX_VERSION}_expanded < es/index/entity_expanded.json
 es_put PUT "/entity_${INDEX_VERSION}_expanded/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
+es_put POST /_aliases << EOF
+{"actions": [{ "add": { "index": "entity_${INDEX_VERSION}_expanded", "alias": "entity_expanded" } }]}
+EOF
+uv run add_m2o_and_m2m.py
 
-es_put POST "/_reindex?slices=auto" << EOF
-{
-  "source": {
-    "index": "entity_${INDEX_VERSION}"
-  },
-  "dest": {
-    "pipeline": "entity_${INDEX_VERSION}_expanded",
-    "index": "entity_${INDEX_VERSION}_expanded"
-  }
-}
+es POST "/entity_${INDEX_VERSION}_expanded/_refresh"
+es_put POST /entity_expanded/_search << EOF | jq '.'
+{"query":{"bool":{"must":{"exists":{"field":"m2m_gene_set"}}}}, "size":1,"sort":[{"pagerank":{"order": "desc"}}]}
 EOF
 
-es POST "/entity_/_refresh"${INDEX_VERSION}_expanded
 
-# compute m2m
-uv run add_m2m.py
-
-# add enriched r_ fields to m2m_expanded
-es_put PUT /_enrich/policy/entity_${INDEX_VERSION}_expanded_lookup << EOF
-{
-  "match": {
-    "indices": "entity_${INDEX_VERSION}_expanded",
-    "match_field": "id",
-    "enrich_fields": ["*"]
-  }
-}
+es_put POST /m2m_staging/_search << EOF | jq '.'
+{"query":{"bool":{"filter":{"term":{"source_id":"0359d849-1bd1-51ba-93a0-597ecbce4037"}}}}, "size":1}
 EOF
-es POST /_enrich/policy/entity_${INDEX_VERSION}_expanded_lookup/_execute
-
-es_put PUT /_ingest/pipeline/m2m_${INDEX_VERSION}_expanded_target_expanded << EOF
-{
-  "processors": [
-    {
-      "enrich": {
-        "policy_name": "entity_${INDEX_VERSION}_expanded_lookup",
-        "field": "target_id",
-        "target_field": "target"
-      }
-    }
-  ]
-}
-EOF
-
-es_put PUT /m2m_${INDEX_VERSION}_expanded_target_expanded < es/index/m2m_expanded_target_expanded.json
-es_put PUT "/m2m_${INDEX_VERSION}_expanded_target_expanded/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
-
-es_put POST "/_reindex?slices=auto" << EOF
-{
-  "source": {
-    "index": "m2m_${INDEX_VERSION}"
-  },
-  "dest": {
-    "pipeline": "m2m_${INDEX_VERSION}_expanded_target_expanded",
-    "index": "m2m_${INDEX_VERSION}_expanded_target_expanded"
-  }
-}
-EOF
-
-es POST "/m2m_/_refresh"${INDEX_VERSION}_expanded_target_expanded
 
 # no longer staging
 es_put POST /_aliases << EOF
@@ -159,11 +89,7 @@ es_put POST /_aliases << EOF
 EOF
 # remove existing entity_expanded aliases if they exist
 es_put POST /_aliases << EOF
-{
-  "actions": [
-    { "remove": { "index": "*", "alias": "entity_expanded" } }
-  ]
-}
+{"actions": [{ "remove": { "index": "*", "alias": "entity_expanded" } }]}
 EOF
 # remove existing m2m_expanded_target_expanded aliases if they exist
 es_put POST /_aliases << EOF
