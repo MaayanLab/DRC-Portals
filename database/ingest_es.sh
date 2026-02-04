@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ELASTICSEARCH_URL=$(dotenv -f ../drc-portals/.env get ELASTICSEARCH_URL)
-INDEX_VERSION=v1
+INDEX_VERSION=v14
 
 es() {
   method=$1; shift
@@ -101,6 +101,9 @@ es_put POST "/_reindex?slices=auto" << EOF
 EOF
 
 es POST "/entity_/_refresh"${INDEX_VERSION}_expanded
+
+# compute m2m
+uv run add_m2m.py
 
 # add enriched r_ fields to m2m_expanded
 es_put PUT /_enrich/policy/entity_${INDEX_VERSION}_expanded_lookup << EOF

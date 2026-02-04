@@ -81,6 +81,21 @@
             "type": "keyword"
           }
         }
+      },
+      {
+        "m2m": {
+          "match_mapping_type": "object",
+          "path_match": "m2m_*",
+          "mapping": {
+            "properties": {
+              "id": {"type": "keyword"},
+              "type": {"type": "keyword"},
+              "slug": {"type": "keyword"},
+              "a": {"type": "text",
+                    "analyzer": "custom_analyzer"}
+            }
+          }
+        }
       }
     ]
   }
