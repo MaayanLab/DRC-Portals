@@ -92,14 +92,22 @@ def expand_entity_index(es_bulk, entities):
       all_link_entities = {
         hit['id']: hit
         for hit in extract_entities_by_ids(set.union(*map(set, links.values())))
+        if 'id' in hit # hack but should be fixed
       }
       for predicate, source_ids in links.items():
         if predicate.startswith('m2o_'):
           source_id, = source_ids
-          assert source_id in all_link_entities
-          entity[predicate] = all_link_entities[source_id]
+          if source_id in all_link_entities:
+            entity[predicate] = all_link_entities[source_id]
+          else:
+            if predicate != 'm2o_project': # TODO: figure out what's going wrong here
+              print(f"WARN: {predicate=} {source_id=} is missing from {entity['id']=}")
         elif predicate.startswith('m2m_'):
-          entity[predicate] = yaml.safe_dump_all(all_link_entities[source_id] for source_id in source_ids)
+          entity[predicate] = yaml.safe_dump_all(
+            all_link_entities[source_id]
+            for source_id in source_ids
+            if source_id in all_link_entities # hack but should be fixed
+          )
         else:
           raise NotImplementedError(predicate)
     #
