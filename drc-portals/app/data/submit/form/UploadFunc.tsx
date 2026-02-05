@@ -9,7 +9,7 @@ import {
 } from "@aws-sdk/s3-request-presigner";
 import type { FileAsset, User, } from '@prisma/client'
 import { render } from '@react-email/render';
-import { AssetSubmitReceiptEmail, DCCApproverUploadEmail } from '../Email';
+import { AssetSubmitReceiptEmail, DCCSubmitterErrorEmail, DCCApproverUploadEmail } from '../Email';
 
 import nodemailer from 'nodemailer'
 import { queue_fairshake } from '@/tasks/fairshake';
@@ -18,7 +18,7 @@ import { DCCAssetWithFileAsset } from './S3UploadForm';
 
 async function verifyUser({ dcc }: { dcc?: string } = {}) {
     const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit//form")
+    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
     if (!(session.user.role === 'ADMIN' || session.user.role === 'UPLOADER' || session.user.role === 'DRC_APPROVER' || session.user.role === 'DCC_APPROVER')) throw new Error('not authorized')
     if (dcc && !session.user.dccs.includes(dcc)) throw new Error('not authorized')
 }
@@ -127,7 +127,7 @@ export const findFileAsset = async(filetype: string, formDcc: string, filename: 
 
 export const saveChecksumDb = async (checksumHash: string, filename: string, filesize: number, filetype: string, formDcc: string, archive: DCCAssetWithFileAsset[]) => {
     const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit//form")
+    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
     if (!((session.user.role === 'UPLOADER') || (session.user.role === 'ADMIN') || (session.user.role === 'DRC_APPROVER') || (session.user.role === 'DCC_APPROVER'))) throw new Error('not an admin')
     if (!session.user.email) throw new Error('User email missing')
     let dcc = await prisma.dCC.findFirst({
@@ -200,7 +200,7 @@ export const saveChecksumDb = async (checksumHash: string, filename: string, fil
     })
     await queue_fairshake({ link })
     const receipt = await sendUploadReceipt(session.user, savedUpload);
-    const dccApproverAlert = await sendDCCApproverEmail(session.user, formDcc, savedUpload)
+    // const dccApproverAlert = await sendDCCApproverEmail(session.user, formDcc, savedUpload)
     // const drcApproverAlert = await sendDRCApproverEmail(user, formDcc, savedUpload);
 
     const file_assets = await prisma.dccAsset.findMany({
@@ -236,9 +236,26 @@ export async function sendUploadReceipt(user: { name?: string | null, email?: st
     }
 }
 
-export async function sendDCCApproverEmail(user: { name?: string | null, email?: string | null }, dcc: string, assetInfo: { fileAsset: FileAsset | null }) {
-    const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
+export async function sendDCCSubmitterErrorEmail(submitter: { email: string }, dcc: string, assetInfo: { fileAsset: FileAsset | null, log: string }) {
+    const emailHtml = await render(<DCCSubmitterErrorEmail uploaderName={submitter.email} assetName={assetInfo.fileAsset ? assetInfo.fileAsset?.filename : ''} />);
+    if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
+    const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
+    const transporter = nodemailer.createTransport(server)
+    transporter.sendMail({
+        from: from,
+        to: submitter.email,
+        subject: 'CFDE WORKBENCH Portal Submitted Asset Failed Validation',
+        html: emailHtml,
+        attachments: [
+            {
+                filename: 'assessment-log.txt',
+                content: assetInfo.log,
+            }
+        ],
+    })
+}
+
+export async function sendDCCApproverEmail(submitter: { email: string | null }, dcc: string, assetInfo: { fileAsset: FileAsset | null }) {
     const DCCApproversList = await prisma.dCC.findFirst({
         where: {
             short_label: dcc
@@ -254,7 +271,7 @@ export async function sendDCCApproverEmail(user: { name?: string | null, email?:
     const approvers = DCCApproversList ? DCCApproversList.Users : []
     if (approvers.length > 0) {
         for (let approver of approvers) {
-            const emailHtml = await render(<DCCApproverUploadEmail uploaderName={user.email ? user.email : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.fileAsset ? assetInfo.fileAsset?.filename : ''}/>);
+            const emailHtml = await render(<DCCApproverUploadEmail uploaderName={submitter.email ? submitter.email : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.fileAsset ? assetInfo.fileAsset?.filename : ''}/>);
             if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
             const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
             const transporter = nodemailer.createTransport(server)
