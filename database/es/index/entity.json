@@ -42,15 +42,6 @@
             }
           }
         }
-      },
-      {
-        "relationships": {
-          "match_mapping_type": "string",
-          "match": "r_*",
-          "mapping": {
-            "type": "keyword"
-          }
-        }
       }
     ]
   }

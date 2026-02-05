@@ -51,7 +51,7 @@
       {
         "relationships": {
           "match_mapping_type": "object",
-          "path_match": "r_*",
+          "path_match": "m2o_*",
           "mapping": {
             "properties": {
               "id": {"type": "keyword"},
@@ -63,9 +63,9 @@
         }
       },
       {
-        "relationship_attributes": {
+        "m2o": {
           "match_mapping_type": "string",
-          "path_match": "r_*.a_*",
+          "path_match": "m2o_*.a_*",
           "mapping": {
             "type": "text",
             "analyzer": "custom_analyzer",
@@ -75,15 +75,6 @@
                 "ignore_above": 256
               }
             }
-          }
-        }
-      },
-      {
-        "relationship_relationships": {
-          "match_mapping_type": "string",
-          "path_match": "r_*.r_*",
-          "mapping": {
-            "type": "keyword"
           }
         }
       },

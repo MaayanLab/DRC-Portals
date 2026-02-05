@@ -16,8 +16,8 @@ export default router({
   })).mutation(async (props) => {
     const must: estypes.QueryDslQueryContainer[] = []
     const filter: estypes.QueryDslQueryContainer[] = []
-    if (props.input.source_id) filter.push({ query_string: { query: `${props.input.source_id}`, fields: ['r_*.id', 'r_*.r_*', 'm2m_*'] } })
-    if (props.input.search) must.push({ simple_query_string: { query: props.input.search, fields: ['a_label^10', 'a_*^5', 'r_*.a_*'], default_operator: 'AND' } })
+    if (props.input.source_id) filter.push({ query_string: { query: `${props.input.source_id}`, fields: ['m2o_*.id', 'm2m_*'] } })
+    if (props.input.search) must.push({ simple_query_string: { query: props.input.search, fields: ['a_label^10', 'a_*^5', 'm2o_*.a_*'], default_operator: 'AND' } })
     if (props.input.facet?.length) filter.push({
       query_string: {
         query: Object.entries(groupby(
@@ -68,8 +68,8 @@ export default router({
     facet: z.string().array().optional(),
   })).query(async (props) => {
     const filter: estypes.QueryDslQueryContainer[] = []
-    if (props.input.source_id) filter.push({ simple_query_string: { query: `"${props.input.source_id}"`, fields: ['r_*.id', 'r_*.r_*', 'm2m_*'] } })
-    if (props.input.search) filter.push({ simple_query_string: { query: props.input.search, fields: ['a_label^10', 'a_*^5', 'r_*.a_*'], default_operator: 'AND' } })
+    if (props.input.source_id) filter.push({ simple_query_string: { query: `"${props.input.source_id}"`, fields: ['m2o_*.id', 'm2m_*'] } })
+    if (props.input.search) filter.push({ simple_query_string: { query: props.input.search, fields: ['a_label^10', 'a_*^5', 'm2o_*.a_*'], default_operator: 'AND' } })
     if (props.input.facet?.length) filter.push({
       query_string: {
         query: Object.entries(groupby(
@@ -80,10 +80,10 @@ export default router({
     let facets: string[] = []
     facets.push(
       'type',
-      'r_disease.id', 'r_species.id', 'r_anatomy.id', 'r_gene.id', 'r_protein.id', 'r_compound.id', 'r_data_type.id', 'r_assay_type.id',
-      'r_file_format.id', 'r_ptm_type.id', 'r_ptm_subtype.id', 'r_ptm_site_type.id',
-      'r_project.id', 'r_dcc.id',
-      'r_source.id', 'r_relation.id', 'r_target.id',
+      'm2o_disease.id', 'm2o_species.id', 'm2o_anatomy.id', 'm2o_gene.id', 'm2o_protein.id', 'm2o_compound.id', 'm2o_data_type.id', 'm2o_assay_type.id',
+      'm2o_file_format.id', 'm2o_ptm_type.id', 'm2o_ptm_subtype.id', 'm2o_ptm_site_type.id',
+      'm2o_project.id', 'm2o_dcc.id',
+      'm2o_source.id', 'm2o_relation.id', 'm2o_target.id',
     )
     const searchRes = await elasticsearch.search<EntityExpandedType, TermAggType<typeof facets[0]>>({
       index: 'entity_expanded',
@@ -102,7 +102,7 @@ export default router({
         ids: {
           values: Array.from(new Set([
             ...facets.flatMap(facet => {
-              if (facet === 'r_dcc.id') return []
+              if (facet === 'm2o_dcc.id') return []
               const agg = searchRes.aggregations
               if (!agg) return []
               return agg[facet].buckets.map(filter => filter.key)
@@ -129,7 +129,7 @@ export default router({
     if (props.input.search.length < 3) return []
     const must: estypes.QueryDslQueryContainer[] = []
     const filter: estypes.QueryDslQueryContainer[] = []
-    if (props.input.source_id) filter.push({ query_string: { query: `"${props.input.source_id}"`, fields: ['r_*.id', 'r_*.r_*', 'm2m_*'] } })
+    if (props.input.source_id) filter.push({ query_string: { query: `"${props.input.source_id}"`, fields: ['m2o_*.id', 'm2m_*'] } })
     if (props.input.facet?.length) filter.push({
       query_string: {
         query: Object.entries(groupby(

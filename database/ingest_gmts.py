@@ -1,7 +1,8 @@
 #%%
+import concurrent.futures
 from tqdm.auto import tqdm
 
-from ingest_common import ingest_path, current_dcc_assets, pdp_helper, label_ident
+from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
 from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_descriptions
 
 #%%
@@ -13,8 +14,8 @@ dcc_assets = current_dcc_assets()
 gmts = dcc_assets[((dcc_assets['filetype'] == 'XMT') & (dcc_assets['filename'].str.endswith('.gmt')))]
 gmts_path = ingest_path / 'gmts'
 
-for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs...'):
-  if 'l1000_cp' in gmt['filename']: continue
+def ingest_gmt(es_bulk, gmt):
+  if 'l1000_cp' in gmt['filename']: return
   gmt_path = gmts_path/gmt['short_label']/gmt['filename']
   gmt_path.parent.mkdir(parents=True, exist_ok=True)
   if not gmt_path.exists():
@@ -31,7 +32,7 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
   else:
     raise NotImplementedError(gmt_path.suffix)
   #
-  with pdp_helper() as helper:
+  with pdp_helper(es_bulk) as helper:
     dcc_id = helper.upsert_entity('dcc', dict(
       label=gmt['short_label']
     ), slug=gmt['short_label'])
@@ -69,3 +70,11 @@ for _, gmt in tqdm(gmts.iterrows(), total=gmts.shape[0], desc='Processing GMTs..
               label=entity,
             ), pk=label_ident(entity))
             helper.upsert_m2m(entity_id, xmt_set_type, set_id)
+
+with es_helper() as es_bulk:
+  with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+    for fut in tqdm(concurrent.futures.as_completed((
+      pool.submit(ingest_gmt, es_bulk, gmt)
+      for _, gmt in gmts.iterrows()
+    )), total=gmts.shape[0], desc='Processing GMTs...'):
+      fut.result()

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ELASTICSEARCH_URL=$(dotenv -f ../drc-portals/.env get ELASTICSEARCH_URL)
-INDEX_VERSION=v14
+INDEX_VERSION=v17
 
 es() {
   method=$1; shift
@@ -26,7 +26,6 @@ es_put POST /_aliases << EOF
 EOF
 
 # create index for m2m
-es_put GET /m2m_${INDEX_VERSION}
 es_put PUT /m2m_${INDEX_VERSION} < es/index/m2m.json
 es_put PUT "/m2m_${INDEX_VERSION}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
 
@@ -45,69 +44,38 @@ uv run ingest_gmts.py
 uv run ingest_c2m2_files.py
 uv run ingest_kg.py
 
-es POST "/entity_${INDEX_VERSION}/_refresh"
-es POST "/m2m_${INDEX_VERSION}/_refresh"
+es POST "/entity_staging/_refresh"
+es POST "/m2m_staging/_refresh"
 
 # compute pagerank
 uv run pagerank.py
 
-es POST "/entity_${INDEX_VERSION}/_refresh"
-
-# sanity checks
-es_put POST /entity_staging/_search << EOF
-{"query":{"match_all":{}}, "size":1,"sort":[{"pagerank":{"order": "desc"}}]}
-EOF
-es_put POST /m2m_staging/_search << EOF
-{"query":{"match_all":{}}, "size":10}
-EOF
+es POST "/entity_staging/_refresh"
 
 es_put PUT /entity_${INDEX_VERSION}_expanded < es/index/entity_expanded.json
 es_put PUT "/entity_${INDEX_VERSION}_expanded/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
+
+es_put POST /_aliases << EOF
+{"actions": [{ "remove": { "index": "*", "alias": "entity_expanded" } }]}
+EOF
 es_put POST /_aliases << EOF
 {"actions": [{ "add": { "index": "entity_${INDEX_VERSION}_expanded", "alias": "entity_expanded" } }]}
 EOF
+
 uv run add_m2o_and_m2m.py
 
 es POST "/entity_${INDEX_VERSION}_expanded/_refresh"
-es_put POST /entity_expanded/_search << EOF | jq '.'
-{"query":{"bool":{"must":{"exists":{"field":"m2m_gene_set"}}}}, "size":1,"sort":[{"pagerank":{"order": "desc"}}]}
+
+es_put POST "/entity_${INDEX_VERSION}_expanded/_search" << EOF
+{ "query": { "match_all": {} }, "size": 1 }
 EOF
 
-
-es_put POST /m2m_staging/_search << EOF | jq '.'
-{"query":{"bool":{"filter":{"term":{"source_id":"0359d849-1bd1-51ba-93a0-597ecbce4037"}}}}, "size":1}
-EOF
-
-# no longer staging
-es_put POST /_aliases << EOF
-{
-  "actions": [
-    { "remove": { "index": "entity_${INDEX_VERSION}", "alias": "entity_staging" } },
-    { "remove": { "index": "m2m_${INDEX_VERSION}", "alias": "m2m_staging" } }
-  ]
-}
-EOF
 # remove existing entity_expanded aliases if they exist
 es_put POST /_aliases << EOF
 {"actions": [{ "remove": { "index": "*", "alias": "entity_expanded" } }]}
 EOF
-# remove existing m2m_expanded_target_expanded aliases if they exist
 es_put POST /_aliases << EOF
-{
-  "actions": [
-    { "remove": { "index": "*", "alias": "m2m_expanded_target_expanded" } }
-  ]
-}
-EOF
-
-# update this version to production
-es_put POST /_aliases << EOF
-{
-  "actions": [
-    { "add": { "index": "entity_${INDEX_VERSION}_expanded", "alias": "entity_expanded" } },
-    { "add": { "index": "m2m_${INDEX_VERSION}_expanded_target_expanded", "alias": "m2m_expanded_target_expanded" } }
-  ]
-}
+{"actions": [{ "add": { "index": "entity_${INDEX_VERSION}_expanded", "alias": "entity_expanded" } }]}
 EOF
 
 # get current indexes
@@ -116,6 +84,5 @@ EOF
 
 # delete old index
 # es DELETE /entity_${INDEX_VERSION}
-# es DELETE /entity_${INDEX_VERSION}_expanded
 # es DELETE /m2m_${INDEX_VERSION}
-# es DELETE /m2m_${INDEX_VERSION}_expanded_target_expanded
+# es DELETE /entity_${INDEX_VERSION}_expanded

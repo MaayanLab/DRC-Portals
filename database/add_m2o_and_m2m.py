@@ -57,7 +57,7 @@ def extract_m2m_values(source_id):
     'query': { 'bool': {
       'filter': [
         { 'term': { 'source_id': source_id } },
-        { 'regexp': { 'predicate': 'm2m_.*' } },
+        { 'regexp': { 'predicate': '(m2m|m2o)_.*' } },
       ],
     } },
     'sort': [{'predicate': 'asc'}, {'target_id': 'asc'}]
@@ -87,17 +87,21 @@ def extract_m2m_values(source_id):
 
 def expand_entity_index(es_bulk, entities):
   for entity in entities:
-    m2o = { key: source_id for key, source_id in entity.items() if key.startswith('r_') }
-    m2m = { predicate: source_ids for predicate, source_ids in extract_m2m_values(entity['id'])}
-    all_link_ids = set.union(set(m2o.values()), *map(set, m2m.values()))
-    all_link_entities = { hit['id']: hit for hit in extract_entities_by_ids(all_link_ids) }
-    for predicate, source_id in m2o.items():
-      if source_id in all_link_entities:
-        entity[predicate] = all_link_entities[source_id]
-      else:
-        del entity[predicate]
-    for predicate, source_ids in m2m.items():
-      entity[predicate] = yaml.safe_dump_all(all_link_entities[source_id] for source_id in source_ids if source_id in all_link_entities)
+    links = { predicate: source_ids for predicate, source_ids in extract_m2m_values(entity['id'])}
+    if links:
+      all_link_entities = {
+        hit['id']: hit
+        for hit in extract_entities_by_ids(set.union(*map(set, links.values())))
+      }
+      for predicate, source_ids in links.items():
+        if predicate.startswith('m2o_'):
+          source_id, = source_ids
+          assert source_id in all_link_entities
+          entity[predicate] = all_link_entities[source_id]
+        elif predicate.startswith('m2m_'):
+          entity[predicate] = yaml.safe_dump_all(all_link_entities[source_id] for source_id in source_ids)
+        else:
+          raise NotImplementedError(predicate)
     #
     es_bulk.put(dict(
       _op_type='index',

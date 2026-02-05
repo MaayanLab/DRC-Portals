@@ -43,8 +43,8 @@ export default async function Page(props: PageProps) {
   if (!item) notFound()
   const must: estypes.QueryDslQueryContainer[] = []
   const filter: estypes.QueryDslQueryContainer[] = []
-  filter.push({ simple_query_string: { query: `"${item.id}"`, fields: ['r_*.id', 'r_*.r_*', 'm2m_*'] } })
-  if (params.search) must.push({ simple_query_string: { query: params.search, fields: ['a_label^10', 'a_*^5', 'r_*.a_*'], default_operator: 'AND' } })
+  filter.push({ simple_query_string: { query: `"${item.id}"`, fields: ['m2o_*.id', 'm2o_*.m2o_*', 'm2m_*'] } })
+  if (params.search) must.push({ simple_query_string: { query: params.search, fields: ['a_label^10', 'a_*^5', 'm2o_*.a_*'], default_operator: 'AND' } })
   if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) {
     filter.push({
       query_string: {
@@ -101,7 +101,7 @@ export default async function Page(props: PageProps) {
     ...searchRes.hits.hits.flatMap((hit) => hit._source ? [
       [hit._source?.id, hit._source],
       ...Object.entries(hit._source).flatMap(([key, value]) => {
-        if (key.startsWith('r_')) {
+        if (key.startsWith('m2o_')) {
           return [[(value as EntityType).id, value as EntityType]]
         } else {
           return []

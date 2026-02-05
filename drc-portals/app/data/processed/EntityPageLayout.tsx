@@ -21,7 +21,7 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
   for (const k in props.params) params[k] = decodeURIComponent(params[k])
   const item = await getEntity(params)
   if (!item) return {}
-  const dcc = await getEsDCC(item.r_dcc?.id)
+  const dcc = await getEsDCC(item.m2o_dcc?.id)
   const parentMetadata = await parent
   return {
     title: [
@@ -52,7 +52,7 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
   const entityLookup: Record<string, EntityType> = Object.fromEntries([
     [item.id, item],
     ...Object.entries(item).flatMap(([key, value]) => {
-      if (key.startsWith('r_')) {
+      if (key.startsWith('m2o_')) {
         return [[(value as EntityType).id, value as EntityType]]
       } else {
         return []
@@ -66,13 +66,13 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
       subtitle={categoryLabel(item.type)}
       metadata={[
         ...Object.keys(item).toSorted().toReversed().flatMap(predicate => {
-          const m = /^(a|r)_(.+)$/.exec(predicate)
+          const m = /^(a|m2o)_(.+)$/.exec(predicate)
           if (m === null) return []
           if (m[1] == 'a') {
             if (item[predicate as `a_${string}`] == 'null') return []
             let value: string | React.ReactNode = item[predicate as `a_${string}`]
             if (!value) return []
-            if (`r_${m[2]}` in item) return []
+            if (`m2o_${m[2]}` in item) return []
             if (/_?(id_namespace|local_id)$/.exec(m[2]) != null) return []
             if (m[2] === 'label') return []
             if (m[2] === 'entrez') value = <a className="text-blue-600 cursor:pointer underline" href={`https://www.ncbi.nlm.nih.gov/gene/${item[predicate as `a_${string}`]}`} target="_blank" rel="noopener noreferrer">{item[predicate as `a_${string}`]}</a>
@@ -90,18 +90,19 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
               label: titleCapitalize(m[2].replaceAll('_', ' ')),
               value
             }]
-          } else if (m[1] === 'r') {
-            if (typeof item[predicate as `r_${string}`] !== 'object' || item[predicate as `r_${string}`] === null) return []
-            const neighbor = item[predicate as `r_${string}`].id in entityLookup ? entityLookup[item[predicate as `r_${string}`].id] : undefined
+          } else if (m[1] === 'm2o') {
+            if (typeof item[predicate as `m2o_${string}`] !== 'object' || item[predicate as `m2o_${string}`] === null) return []
+            const neighbor = item[predicate as `m2o_${string}`].id in entityLookup ? entityLookup[item[predicate as `m2o_${string}`].id] : undefined
             return [{
               label: titleCapitalize(m[2].replaceAll('_', ' ')),
-              value: neighbor?.type ? <LinkedTypedNode href={create_url({ type: neighbor.type, slug: neighbor.slug })} type={neighbor.type} label={itemLabel(neighbor)} /> : item[predicate as `r_${string}`].a_label,
+              value: neighbor?.type ? <LinkedTypedNode href={create_url({ type: neighbor.type, slug: neighbor.slug })} type={neighbor.type} label={itemLabel(neighbor)} /> : item[predicate as `m2o_${string}`].a_label,
             }]
           }
           return []
         })
       ]}
     >
+      <>{JSON.stringify(item)}</>
       <EntityPageAnalyze item={item} />
       <ListingPageLayoutClientSideFacets
         entityLookup={entityLookup}

@@ -25,7 +25,7 @@ export type EntityExpandedType = {
   pagerank: string,
   a_label: string,
   a_description: string,
-} & WithPrefix<'a_', Record<string, string>> & WithPrefix<'r_', Record<string, EntityType>> & WithPrefix<'m2m_', Record<string, string>>
+} & WithPrefix<'a_', Record<string, string>> & WithPrefix<'m2o_', Record<string, EntityType>> & WithPrefix<'m2m_', Record<string, string>>
 
 export type TermAggType<K extends string> = Record<K, {
   buckets: { key: string, doc_count: number }[]
@@ -112,7 +112,7 @@ export function predicateLabel(type: string) {
 
 export function facetLabel(facet: string) {
   if (facet.startsWith('target.')) facet = facet.substring('target.'.length)
-  if (facet.startsWith('r_')) facet = facet.substring('r_'.length)
+  if (facet.startsWith('m2o_')) facet = facet.substring('m2o_'.length)
   if (facet.endsWith('.id')) facet = facet.substring(0, facet.length-'.id'.length)
   return predicateLabel(facet.replaceAll('_',' '))
 }
@@ -132,8 +132,8 @@ export function categoryLabel(type: string) {
 }
 
 export function itemIcon(item: EntityExpandedType, lookup?: Record<string, EntityType>) {
-  if (lookup && item.r_dcc && item.r_dcc.id in lookup) {
-    const dcc = lookup[item.r_dcc.id]
+  if (lookup && item.m2o_dcc && item.m2o_dcc.id in lookup) {
+    const dcc = lookup[item.m2o_dcc.id]
     return dcc.a_icon
   } else if (lookup && item.type === 'dcc' && item.id in lookup) {
     const dcc = lookup[item.id]
@@ -161,16 +161,16 @@ export function humanBytesSize(size: number) {
 }
 
 export function itemDescription(item: EntityExpandedType, lookup?: Record<string, EntityType>) {
-  if (item['type'] === 'file') return `A${item.a_size_in_bytes ? ` ${humanBytesSize(Number(item.a_size_in_bytes))}` : ''} file${lookup && item.r_dcc && item.r_dcc.id in lookup ? ` from ${lookup[item.r_dcc.id].a_label}` : ''}${item.a_assay_type ? ` produced from ${item.a_assay_type}` : ''} as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
-  if (item['type'] === 'biosample') return `A biosample${lookup && item.r_dcc && item.r_dcc.id in lookup ? ` from ${lookup[item.r_dcc.id].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
-  if (item['type'] === 'subject') return `A subject${lookup && item.r_dcc && item.r_dcc.id in lookup ? ` from ${lookup[item.r_dcc.id].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
-  if (item['type'] === 'dcc_asset') return `A contributed ${item.a_filetype}${lookup && item.r_dcc && item.r_dcc.id in lookup ? ` from ${lookup[item.r_dcc.id].a_label}` : ''}`
+  if (item['type'] === 'file') return `A${item.a_size_in_bytes ? ` ${humanBytesSize(Number(item.a_size_in_bytes))}` : ''} file${lookup && item.m2o_dcc && item.m2o_dcc.id in lookup ? ` from ${lookup[item.m2o_dcc.id].a_label}` : ''}${item.a_assay_type ? ` produced from ${item.a_assay_type}` : ''} as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
+  if (item['type'] === 'biosample') return `A biosample${lookup && item.m2o_dcc && item.m2o_dcc.id in lookup ? ` from ${lookup[item.m2o_dcc.id].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
+  if (item['type'] === 'subject') return `A subject${lookup && item.m2o_dcc && item.m2o_dcc.id in lookup ? ` from ${lookup[item.m2o_dcc.id].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
+  if (item['type'] === 'dcc_asset') return `A contributed ${item.a_filetype}${lookup && item.m2o_dcc && item.m2o_dcc.id in lookup ? ` from ${lookup[item.m2o_dcc.id].a_label}` : ''}`
   if (item['type'] === 'dcc') return `The ${item.a_label} data coordinating center`
   if (item.a_description) {
     if (item.a_description.length > 100) return `${item.a_description.slice(0, 100)}...`
     return `${item.a_description}`
   } else {
-    return `A ${categoryLabel(item.type)}${lookup && item.r_dcc && item.r_dcc.id in lookup ? ` from ${lookup[item.r_dcc.id].a_label}` : ''}`
+    return `A ${categoryLabel(item.type)}${lookup && item.m2o_dcc && item.m2o_dcc.id in lookup ? ` from ${lookup[item.m2o_dcc.id].a_label}` : ''}`
   }
 }
 
