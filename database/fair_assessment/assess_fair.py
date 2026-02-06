@@ -14,7 +14,7 @@ from df2pg import OnConflictSpec, copy_from_records
 from fairshake import PWB_metanode_fair, api_fair, apps_urls_fair, attribute_tables_fair, c2m2_fair, models_fair, code_assets_fair_assessment, entity_page_fair, etl_fair, file_assets_fair_assessment, kg_assertions_fair, xmt_fair
 from ingest_common import (
   TableHelper,
-  connection,
+  pg_connect,
   uuid0, uuid5
 )
 import pandas as pd
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     file_fair_assessment_df = file_assets_fair_assessment()
     frames = [code_fair_assessment_df, file_fair_assessment_df]
     fair_assessment_df = pd.concat(frames, ignore_index=True)
-    copy_from_records(connection, 'fair_assessments', ['id', 'dcc_id', 'type', 'link', 'rubric', 'timestamp'], (
+    copy_from_records(pg_connect(), 'fair_assessments', ['id', 'dcc_id', 'type', 'link', 'rubric', 'timestamp'], (
     dict(id=str(uuid5(uuid0, '\t'.join((row['link'], str(row['timestamp']))))), dcc_id=row['dcc_id'], type=row['type'], link=row['link'], rubric=json.dumps(row['rubric']), timestamp=row['timestamp'])
         for index, row in tqdm(fair_assessment_df.iterrows(), total=fair_assessment_df.shape[0], desc='Ingesting fair assessment results...')
     ), on=OnConflictSpec(conflict=("link", "timestamp"), update=('rubric')))
