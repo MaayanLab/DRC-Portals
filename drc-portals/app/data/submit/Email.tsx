@@ -44,11 +44,15 @@ export function DCCSubmitterErrorEmail({ uploaderName, assetName }: { uploaderNa
             <Text style={text}>
                 The new asset {assetName} you uploaded on behalf of your DCC has failed validation.
             </Text>
+            <Link style={link} href="https://data.cfde.cloud/data/submit/uploaded">
+              👉 Click here to review asset 👈
+            </Link>
             <Text style={text}>
                 Please address the issues with your submission and re-submit. Please review the documentation and consider using our cfde-c2m2 CLI's prepare and validate functions to automatically fix or report issues earlier.
             </Text>
-            <Link style={link} href="https://data.cfde.cloud/documentation/C2M2">  👉 Click here for the C2M2 documentation 👈</Link>
-            <Link style={link} href="https://data.cfde.cloud/data/submit/uploaded">  👉 Click here to review asset 👈</Link>
+            <Link style={link} href="https://data.cfde.cloud/documentation/C2M2">
+              👉 Click here for the C2M2 documentation 👈
+            </Link>
             <Text style={text}>
                 If you encounter any issues, please do not reply to this message as this email box is not monitored. To contact the Data Resource Center, please email help@cfde.cloud.
             </Text>
