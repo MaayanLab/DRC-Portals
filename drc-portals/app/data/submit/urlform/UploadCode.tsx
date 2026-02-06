@@ -82,7 +82,7 @@ export const saveCodeAsset = async (name: string, assetType: string, url: string
     })
     await queue_fairshake({ link: url })
     const receipt = await sendUploadReceipt(session.user, savedCode);
-    const dccApproverAlert = await sendDCCApproverEmail(session.user, formDcc, savedCode);
+    // const dccApproverAlert = await sendDCCApproverEmail(session.user, formDcc, savedCode);
     // const drcApproverAlert = await sendDRCApproverEmail(user, formDcc, savedCode);
 }
 
@@ -173,9 +173,7 @@ export async function sendUploadReceipt(user: { name?: string | null, email?: st
     }
 }
 
-export async function sendDCCApproverEmail(user: { email?: string | null }, dcc: string, assetInfo: { codeAsset: CodeAsset | null }) {
-    const session = await getServerSession(authOptions)
-    if (!session) return redirect("/auth/signin?callbackUrl=/data/submit/form")
+export async function sendDCCApproverEmail(submitter: { email?: string | null }, dcc: string, assetInfo: { codeAsset: CodeAsset | null }) {
     const approversList = await prisma.dCC.findFirst({
         where: {
             short_label: dcc
@@ -191,7 +189,7 @@ export async function sendDCCApproverEmail(user: { email?: string | null }, dcc:
 
     const approvers = approversList ? approversList.Users : []
     for (let approver of approvers) {
-        const emailHtml = await render(<DCCApproverUploadEmail uploaderName={user.email ? user.email : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.codeAsset ? assetInfo.codeAsset?.name : ''} />);
+        const emailHtml = await render(<DCCApproverUploadEmail uploaderName={submitter.email ? submitter.email : ''} approverName={approver.name ? approver.name : ''} assetName={assetInfo.codeAsset ? assetInfo.codeAsset?.name : ''} />);
         if (!process.env.NEXTAUTH_EMAIL) throw new Error('nextauth email config missing')
         const { server, from } = JSON.parse(process.env.NEXTAUTH_EMAIL)
         const transporter = nodemailer.createTransport(server)
