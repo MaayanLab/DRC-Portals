@@ -6,6 +6,7 @@ import Link from "@/utils/link"
 import prisma from "@/lib/prisma"
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from "remark-gfm"
+import { OutreachWithDCCAndCenter } from "../Outreach"
 
 const SmartLink = ({href, children}: {href: string, children: React.ReactNode}) => {
   if (href.startsWith("http")) {
@@ -52,12 +53,31 @@ export default async function ServerCarousel () {
           start_date: { sort: 'asc', nulls: 'first' },
         }
       })
-    const outreach_items = outreach.map(o=>({
-        name: o.title,
-        description: o.carousel_description || o.short_description,
-        icon: o.image || '',
-        url: o.link || '',
-    }))
+    const outreach_items: Array<{
+      name: string,
+      description: string,
+      icon: string,
+      url: string
+    }> = []
+    const webinar_items: Array<{
+      name: string,
+      description: string,
+      icon: string,
+      url: string
+    }> = []
+    for (const o of outreach) {
+      const item = {
+          name: o.title,
+          description: o.carousel_description || o.short_description,
+          icon: o.image || '',
+          url: o.link || '',
+      }
+      if (o.title === "CFDE Webinar Series") {
+        webinar_items.push(item)
+      } else {
+        outreach_items.push(item)
+      }
+    }
     const publications = await prisma.publication.findMany({
         where: {
           carousel: true
@@ -132,7 +152,7 @@ export default async function ServerCarousel () {
       }
     ]
 
-    const children = [...publication_items, ...outreach_items, ...center, ...items].map( (item, i) => (
+    const children = [...publication_items, ...outreach_items, ...webinar_items, ...center, ...items].map( (item, i) => (
         <div key={i}>
             <Box key={i} sx={{
                 minHeight: {xs: 200, sm: 200, md: 300, lg: 450, xl: 450}, 
