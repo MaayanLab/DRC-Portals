@@ -102,7 +102,6 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
         })
       ]}
     >
-      <>{JSON.stringify(item)}</>
       <EntityPageAnalyze item={item} />
       <ListingPageLayoutClientSideFacets
         entityLookup={entityLookup}
