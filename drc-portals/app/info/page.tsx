@@ -34,9 +34,10 @@ export default async function Home() {
     <main>
       <Grid container spacing={2} alignItems={"center"}>
         <Grid item xs={12}>
-          <ResponsivePaper color="primary" elevation={0} className="relative"> 
-            <BlurSmall sx={{position: 'absolute', top: -100, right: -100}}/>
-            <BlurSmall sx={{position: 'absolute', bottom: -100, left: -100}}/>
+          <BlurSmall sx={{position: 'absolute', top: -100, right: -100, zIndex: 100}}/>
+          <BlurSmall sx={{position: 'absolute', bottom: -100, left: -100}}/>
+            
+          <ResponsivePaper color="primary" elevation={0} sx={{background: "transparent"}} className="relative"> 
             <Container maxWidth="lg">
               <Grid container spacing={2} alignItems={"flex-start"}>
                 <Grid item xs={12} lg={9} md={8} sm={7}>

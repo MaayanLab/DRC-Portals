@@ -160,7 +160,8 @@ export default async function ServerCarousel () {
                 textAlign: "center", 
                 border: 1,
                 borderRadius: 5,
-                borderColor: "rgba(81, 123, 154, 0.5)", 
+                borderColor: "transparent", 
+                background: "transparent",
                 padding: 2
             }}>
                 <SmartLink href={item.url}>
