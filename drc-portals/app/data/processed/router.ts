@@ -55,7 +55,7 @@ export default router({
       rest_total_hits_as_int: true,
     })
     const next = searchRes.hits.hits.length === limit ? JSON.stringify(searchRes.hits.hits[searchRes.hits.hits.length-1].sort) : undefined
-    const items = searchRes.hits.hits.filter((hit): hit is typeof hit & { _source: EntityExpandedType } => !!hit._source)
+    const items = searchRes.hits.hits.map(hit => hit._source).filter((hit): hit is EntityExpandedType => !!hit)
     return {
       items,
       total: searchRes.hits.total,
