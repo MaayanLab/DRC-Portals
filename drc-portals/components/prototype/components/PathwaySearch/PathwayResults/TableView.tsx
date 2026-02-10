@@ -10,7 +10,6 @@ import {
   Box,
   Button,
   Checkbox,
-  CircularProgress,
   FormControl,
   IconButton,
   ListItemIcon,
@@ -238,7 +237,7 @@ export default function TableView(cmpProps: TableViewProps) {
               >
                 <Typography variant="body1">#</Typography>
               </StyledHeaderCellWithDivider>
-              {columns.map((col, idx) => (
+              {columns.filter(col => col.visible).map((col, idx) => (
                 <StyledHeaderCellWithDivider key={col.key}>
                   <Box
                     sx={{ display: "flex", justifyContent: "space-between" }}
@@ -284,6 +283,7 @@ export default function TableView(cmpProps: TableViewProps) {
                 <StyledTableCell>{(page - 1) * limit + i + 1}</StyledTableCell>
                 {row
                   .filter((col) => !isRelationshipResult(col))
+                  .filter((_, j) => columns[j].visible)
                   .map((nodeCol, j) => (
                     <StyledDataCell key={j}>
                       {columns[j].valueGetter(

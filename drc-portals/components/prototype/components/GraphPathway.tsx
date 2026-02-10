@@ -35,6 +35,7 @@ import {
 import {
   ConnectionMenuItem,
   PathwaySearchNode,
+  PathwaySearchNodeData,
 } from "../interfaces/pathway-search";
 import { PathwaySearchElement } from "../types/pathway-search";
 import {
@@ -267,11 +268,11 @@ export default function GraphPathway() {
       {
         id: cvTerm.uuid,
         dbLabel: cvTerm.labels[0],
+        visible: true,
         props: {
           name: [cvTerm.properties.name],
         },
       },
-      ["path-element"]
     );
 
     let initialTree: PathwayNode;
@@ -372,8 +373,8 @@ export default function GraphPathway() {
           {
             id: item.nodeId,
             dbLabel: item.label,
-          },
-          ["path-element"]
+            visible: true
+          }
         ),
         ...fallbackElements,
         // And the newly connected edge
@@ -387,8 +388,8 @@ export default function GraphPathway() {
             type: item.type,
           },
           item.direction === Direction.INCOMING
-            ? ["source-arrow-only", "path-element"]
-            : ["path-element"]
+            ? ["source-arrow-only"]
+            : []
         ),
       ];
       updateCounts(candidateSearchElements, loadingElements, fallbackElements);
@@ -531,6 +532,34 @@ export default function GraphPathway() {
     }
   }, [searchElements]);
 
+  const handleShowHide = useCallback((node: NodeSingular) => {
+    const nodeData: PathwaySearchNodeData = node.data();
+    const nodeClasses = node.classes();
+    const newVisibility = !nodeData.visible;
+    const newNode: PathwaySearchNode = {
+      classes: nodeClasses
+        // Don't duplicate the solid/transparent classes, and remove the "hovered" class so the node immediately becomes transparent if hidden
+        .filter(cls => !["solid", "transparent", "hovered"].includes(cls))
+        .concat([newVisibility ? "solid" : "transparent"]),
+      data: {
+        ...nodeData,
+        visible: newVisibility
+      },
+    }
+    const newElements = [
+      deepCopyPathwaySearchNode(newNode),
+      ...searchElements
+        .filter((el) => el.data.id !== nodeData.id)
+        .map((element) =>
+          isPathwaySearchEdgeElement(element)
+            ? deepCopyPathwaySearchEdge(element)
+            : deepCopyPathwaySearchNode(element)
+        ),
+    ]
+    setSearchElements(newElements);
+    setTree(createTree(newElements));
+  }, [searchElements])
+
   // On the initial load of the page, populate the pathway with an initial node if one exists in the query params
   useEffect(() => {
     const id = searchParams.get("id");
@@ -576,6 +605,7 @@ export default function GraphPathway() {
             onPruneSelected={handlePruneSelected}
             onPruneConfirm={handlePruneConfirm}
             onPruneCancel={handlePruneCancel}
+            onShowHideSelected={handleShowHide}
             onDownload={handleExport}
             onUpload={handleImport}
             onCopyCypher={handleCopyCypher}

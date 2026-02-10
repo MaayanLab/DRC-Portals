@@ -39,6 +39,7 @@ export interface PathwayNode {
   id: string;
   label: string;
   children: PathwayNode[];
+  visible: boolean;
   props?: { [key: string]: any };
   parentRelationship?: PathwayRelationship;
 }
