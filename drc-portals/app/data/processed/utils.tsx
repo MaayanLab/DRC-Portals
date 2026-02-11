@@ -25,7 +25,7 @@ export type EntityExpandedType = {
   pagerank: string,
   a_label: string,
   a_description: string,
-} & WithPrefix<'a_', Record<string, string>> & WithPrefix<'m2o_', Record<string, EntityType>> & WithPrefix<'m2m_', Record<string, string>>
+} & WithPrefix<'a_', Record<string, string>> & WithPrefix<'m2o_', Record<string, EntityType>>/* & WithPrefix<'m2m_', Record<string, string>>*/
 
 export type TermAggType<K extends string> = Record<K, {
   buckets: { key: string, doc_count: number }[]

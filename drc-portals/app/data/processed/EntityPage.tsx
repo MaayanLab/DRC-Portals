@@ -43,7 +43,7 @@ export default async function Page(props: PageProps) {
   if (!item) notFound()
   const must: estypes.QueryDslQueryContainer[] = []
   const filter: estypes.QueryDslQueryContainer[] = []
-  filter.push({ simple_query_string: { query: `"${item.id}"`, fields: ['m2o_*.id', 'm2o_*.m2o_*', 'm2m_*'] } })
+  filter.push({ simple_query_string: { query: `"${item.id}"`, fields: ['m2o_*.id', 'm2m_*'] } })
   if (params.search) must.push({ simple_query_string: { query: params.search, fields: ['a_label^10', 'a_*^5', 'm2o_*.a_*'], default_operator: 'AND' } })
   if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) {
     filter.push({
