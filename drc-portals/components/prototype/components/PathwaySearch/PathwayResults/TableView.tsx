@@ -6,6 +6,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import IndeterminateCheckBoxIcon from "@mui/icons-material/IndeterminateCheckBox";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import {
   Box,
   Button,
@@ -50,6 +51,8 @@ import { getPropertyListFromNodeLabel } from "@/components/prototype/utils/pathw
 import { downloadBlob } from "@/components/prototype/utils/shared";
 
 import ReturnBtn from "../ReturnBtn";
+
+import ColumnsPanel from "./ColumnsPanel";
 import PathwayTablePagination from "./PathwayTablePagination";
 
 interface TableViewProps {
@@ -96,14 +99,19 @@ export default function TableView(cmpProps: TableViewProps) {
   );
   const [colMenuColumn, setColMenuColumn] = useState<number>();
   const colMenuOpen = Boolean(colMenuAnchorEl);
+  const [colVisibilityMenuAnchorEl, setColVisibilityMenuAnchorEl] =
+    useState<null | HTMLElement>(null);
+  const colVisibilityMenuOpen = Boolean(colVisibilityMenuAnchorEl);
 
-  const drsBundleData = useMemo(() =>
-    data
-      .filter((_, idx) => selected[idx])
-      .flat()
-      .filter((element) => !isRelationshipResult(element))
-      .map(node => node.properties)
-    , [data, selected])
+  const drsBundleData = useMemo(
+    () =>
+      data
+        .filter((_, idx) => selected[idx])
+        .flat()
+        .filter((element) => !isRelationshipResult(element))
+        .map((node) => node.properties),
+    [data, selected]
+  );
 
   const getColumnHeaderText = (column: ColumnData) => {
     return (
@@ -141,6 +149,16 @@ export default function TableView(cmpProps: TableViewProps) {
     setColMenuAnchorEl(null);
   };
 
+  const handleColVisibilityMenuClick = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    setColVisibilityMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleColVisibilityMenuClose = () => {
+    setColVisibilityMenuAnchorEl(null);
+  };
+
   const colMenuFnWrapper = <Args extends any[]>(
     fn: (...args: Args) => void,
     ...args: Args
@@ -159,6 +177,13 @@ export default function TableView(cmpProps: TableViewProps) {
     });
   };
 
+  const handleColumnVisibilitySwitch = useCallback(
+    (column: number) => {
+      onColumnChange(column, { visible: !columns[column].visible });
+    },
+    [columns]
+  );
+
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       setSelected(new Array(data.length).fill(true));
@@ -173,8 +198,10 @@ export default function TableView(cmpProps: TableViewProps) {
       let newOrderBy: number | undefined = column;
 
       if (sortedColumn === column) {
-        if (order === "asc") newOrder = "desc"; // order column by desc
-        else if (order === "desc") newOrderBy = undefined; // unorder column
+        if (order === "asc")
+          newOrder = "desc"; // order column by desc
+        else if (order === "desc")
+          newOrderBy = undefined; // unorder column
         else newOrder = "asc"; // order column by asc
       } else {
         newOrder = "asc"; // order column by asc
@@ -205,69 +232,109 @@ export default function TableView(cmpProps: TableViewProps) {
 
   return (
     <>
-      {/* Start table */}
+      {/*Table Toolbar*/}
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "row",
+          padding: "4px 4px 0px",
+          borderTopLeftRadius: "4px",
+          borderTopRightRadius: "4px",
+          backgroundColor: "#CAD2E9",
+          borderColor: "rgba(220, 219, 220, 1)",
+          borderStyle: "solid",
+          borderWidth: "1px",
+          borderBottomColor: "#CAD2E9",
+        }}
+      >
+        <Button
+          sx={{ padding: "5px 12px" }}
+          color="secondary"
+          size="small"
+          startIcon={<ViewColumnIcon />}
+          onClick={handleColVisibilityMenuClick}
+        >
+          Columns
+        </Button>
+      </Box>
+      {/* Start table header */}
+      <Box>
+        <TableContainer
+          component={Paper}
+          elevation={0}
+          sx={{ flexGrow: 1, borderRadius: 0 }}
+        >
+          <Table size="small">
+            <TableHead sx={{ top: "0px", zIndex: 4 }}>
+              <TableRow>
+                <StyledHeaderCell
+                  padding="checkbox"
+                  sx={{ left: 0, zIndex: 3 }}
+                >
+                  <Checkbox
+                    indeterminate={
+                      selected.some((val) => val) && // Some checked
+                      selected.some((val) => !val) // And some not checked
+                    }
+                    indeterminateIcon={
+                      <IndeterminateCheckBoxIcon sx={{ color: "#2D5986" }} />
+                    }
+                    checked={selected.every((val) => val)}
+                    onChange={handleSelectAllClick}
+                  />
+                </StyledHeaderCell>
+                <StyledHeaderCellWithDivider
+                  sx={{ width: "1%", padding: "6px 10px" }}
+                >
+                  <Typography variant="body1">#</Typography>
+                </StyledHeaderCellWithDivider>
+                {columns
+                  .filter((column) => column.visible)
+                  .map((col, idx) => (
+                    <StyledHeaderCellWithDivider key={col.key}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <TableSortLabel
+                          disabled={false}
+                          active={sortedColumn === idx && order !== undefined}
+                          direction={sortedColumn === idx ? order : "asc"}
+                          onClick={(event) => handleSortBtnClicked(event, idx)}
+                        >
+                          {getColumnHeaderText(col)}
+                          {sortedColumn === idx ? (
+                            <Box component="span" sx={visuallyHidden}>
+                              {order === "desc"
+                                ? "sorted descending"
+                                : "sorted ascending"}
+                            </Box>
+                          ) : null}
+                        </TableSortLabel>
+                        <IconButton
+                          size="small"
+                          onClick={(event) => handleColMenuClick(event, idx)}
+                        >
+                          <MoreVertIcon fontSize="inherit" />
+                        </IconButton>
+                      </Box>
+                    </StyledHeaderCellWithDivider>
+                  ))}
+              </TableRow>
+            </TableHead>
+          </Table>
+        </TableContainer>
+      </Box>
+      {/* Start table body */}
       <TableContainer
         component={Paper}
         elevation={0}
-        variant="rounded-top"
-        sx={{ flexGrow: 1 }}
+        sx={{ flexGrow: 1, borderRadius: 0 }}
       >
         <Table size="small" sx={{ borderCollapse: "separate" }}>
-          <TableHead sx={{ position: "sticky", top: "0px", zIndex: 4 }}>
-            <TableRow>
-              <StyledHeaderCell
-                padding="checkbox"
-                sx={{ position: "sticky", left: 0, zIndex: 3 }}
-              >
-                <Checkbox
-                  indeterminate={
-                    selected.some((val) => val) && // Some checked
-                    selected.some((val) => !val) // And some not checked
-                  }
-                  indeterminateIcon={
-                    <IndeterminateCheckBoxIcon sx={{ color: "#2D5986" }} />
-                  }
-                  checked={selected.every((val) => val)}
-                  onChange={handleSelectAllClick}
-                />
-              </StyledHeaderCell>
-              {/* width: 1% forces minimal use of space */}
-              <StyledHeaderCellWithDivider
-                sx={{ width: "1%", padding: "6px 10px" }}
-              >
-                <Typography variant="body1">#</Typography>
-              </StyledHeaderCellWithDivider>
-              {columns.filter(col => col.visible).map((col, idx) => (
-                <StyledHeaderCellWithDivider key={col.key}>
-                  <Box
-                    sx={{ display: "flex", justifyContent: "space-between" }}
-                  >
-                    <TableSortLabel
-                      disabled={false}
-                      active={sortedColumn === idx && order !== undefined}
-                      direction={sortedColumn === idx ? order : "asc"}
-                      onClick={(event) => handleSortBtnClicked(event, idx)}
-                    >
-                      {getColumnHeaderText(col)}
-                      {sortedColumn === idx ? (
-                        <Box component="span" sx={visuallyHidden}>
-                          {order === "desc"
-                            ? "sorted descending"
-                            : "sorted ascending"}
-                        </Box>
-                      ) : null}
-                    </TableSortLabel>
-                    <IconButton
-                      size="small"
-                      onClick={(event) => handleColMenuClick(event, idx)}
-                    >
-                      <MoreVertIcon fontSize="inherit" />
-                    </IconButton>
-                  </Box>
-                </StyledHeaderCellWithDivider>
-              ))}
-            </TableRow>
-          </TableHead>
           <TableBody sx={{ zIndex: 4 }}>
             {data.map((row, i) => (
               <TableRow key={`row-${i}`}>
@@ -281,17 +348,19 @@ export default function TableView(cmpProps: TableViewProps) {
                   />
                 </StyledTableCell>
                 <StyledTableCell>{(page - 1) * limit + i + 1}</StyledTableCell>
-                {row
-                  .filter((col) => !isRelationshipResult(col))
-                  .filter((_, j) => columns[j].visible)
-                  .map((nodeCol, j) => (
-                    <StyledDataCell key={j}>
-                      {columns[j].valueGetter(
-                        nodeCol as NodeResult,
-                        columns[j].displayProp
-                      )}
-                    </StyledDataCell>
-                  ))}
+                {
+                  row
+                    .filter((col) => !isRelationshipResult(col)) // Skip relationship data (this shrinks the row width to match the length of `columns`)
+                    .map((nodeCol, j) => (
+                      <StyledDataCell key={j}>
+                        {columns[j].valueGetter(
+                          nodeCol as NodeResult,
+                          columns[j].displayProp
+                        )}
+                      </StyledDataCell>
+                    ))
+                    .filter((_, j) => columns[j].visible) // Skip hidden columns // TODO: This might be unnecessary if/when hidden columns are omitted from the data response
+                }
               </TableRow>
             ))}
           </TableBody>
@@ -365,6 +434,26 @@ export default function TableView(cmpProps: TableViewProps) {
 
         <ReturnBtn onClick={onReturnBtnClick} />
       </Stack>
+      <Menu
+        id="col-visibility-menu"
+        anchorEl={colVisibilityMenuAnchorEl}
+        open={colVisibilityMenuOpen}
+        onClose={handleColVisibilityMenuClose}
+        slotProps={{
+          paper: {
+            style: {
+              maxHeight: 48 * 4.5,
+              width: "20ch",
+            },
+          },
+        }}
+      >
+        <ColumnsPanel
+          columns={columns}
+          onSwitch={handleColumnVisibilitySwitch}
+        />
+      </Menu>
+      {/* Individual Column Menu */}
       <Menu
         id="col-menu"
         anchorEl={colMenuAnchorEl}

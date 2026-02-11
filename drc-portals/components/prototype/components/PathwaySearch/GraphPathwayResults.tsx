@@ -33,7 +33,7 @@ import TableViewSkeleton from "./PathwayResults/TableViewSkeleton";
 
 interface GraphPathwayResultsProps {
   tree: PathwayNode;
-  onReturnBtnClick: () => void;
+  onReturnBtnClick: (columns: ColumnData[]) => void;
 }
 
 export default function GraphPathwayResults(
@@ -78,6 +78,10 @@ export default function GraphPathwayResults(
 
     return { data: await response.json(), status: response.status };
   };
+
+  const handleReturnBtnClick = useCallback(() => {
+    onReturnBtnClick(columns)
+  }, [columns])
 
   const handlePageChange = useCallback(
     async (newPage: number) => {
@@ -266,7 +270,7 @@ export default function GraphPathwayResults(
                 lowerPageBound={lowerPageBound}
                 upperPageBound={upperPageBound}
                 columns={columns}
-                onReturnBtnClick={onReturnBtnClick}
+                onReturnBtnClick={handleReturnBtnClick}
               />
             ) : (
               <TableView
@@ -278,7 +282,7 @@ export default function GraphPathwayResults(
                 order={order}
                 orderBy={orderBy}
                 columns={columns}
-                onReturnBtnClick={onReturnBtnClick}
+                onReturnBtnClick={handleReturnBtnClick}
                 onPageChange={handlePageChange}
                 onLimitChange={handleLimitChange}
                 onOrderByChange={handleOrderByChange}
@@ -291,7 +295,7 @@ export default function GraphPathwayResults(
         <PathwayResultTabPanel value={1}>
           <GraphView
             paths={paths}
-            onReturnBtnClick={onReturnBtnClick}
+            onReturnBtnClick={handleReturnBtnClick}
           ></GraphView>
         </PathwayResultTabPanel>
       </Tabs>
