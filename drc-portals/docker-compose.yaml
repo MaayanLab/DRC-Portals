@@ -221,37 +221,6 @@ services:
     volumes:
       - drc-portal-elasticsearch:/usr/share/elasticsearch/data
 
-  drc-portal-elasticsearch-2:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.1.5
-    x-kubernetes:
-      imagePullPolicy: IfNotPresent
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    deploy:
-      resources:
-        reservations:
-          cpus: '2.0'
-          memory: 3072M
-        limits:
-          memory: 6144M
-    environment:
-      - cluster.name=elastic
-      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
-      - discovery.type=single-node
-      - cluster.routing.allocation.disk.threshold_enabled=false
-      - bootstrap.memory_lock=true
-      - xpack.security.http.ssl.enabled=false
-      - xpack.security.transport.ssl.enabled=false
-      - ES_JAVA_OPTS=-Xms3g -Xmx3g
-      - AWS_ACCESS_KEY_ID=${ELASTICSEARCH_S3_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${ELASTICSEARCH_S3_SECRET_ACCESS_KEY}
-    ports:
-      - 9201:9200
-    volumes:
-      - ./elasticsearch:/usr/share/elasticsearch/data
-
   drc-portal-backup:
     build: ../database/backup
     platform: linux/amd64
