@@ -3,7 +3,7 @@ import SearchTabs from "@/app/data/processed/SearchTabs";
 import { redirect } from "next/navigation";
 import { FancyTab, FancyTabPlaceholder } from "@/components/misc/FancyTabs";
 import { Metadata, ResolvingMetadata } from "next";
-import { categoryLabel, create_url, EntityType, TermAggType } from "./utils";
+import { categoryLabel, create_url, EntityExpandedType, EntityType, TermAggType } from "./utils";
 import elasticsearch from "@/lib/elasticsearch";
 import { estypes } from "@elastic/elasticsearch";
 import { SearchQueryComponentTab as C2M2SearchQueryComponentTab } from '@/app/data/c2m2/search/SearchQueryComponent'
@@ -29,9 +29,9 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
   for (const k in params) params[k] = decodeURIComponent(params[k])
   if (!params.search) redirect('/data')
   const filter: estypes.QueryDslQueryContainer[] = []
-  if (params.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
-  const { data: searchRes, error } = await safeAsync(() => elasticsearch.search<EntityType, TermAggType<'types' | 'dccs'>>({
-    index: 'entity',
+  if (params.search) filter.push({ simple_query_string: { query: params.search, fields: ['a_label^10', 'a_*^5', 'm2o_*.a_*'], default_operator: 'AND' } })
+  const { data: searchRes, error } = await safeAsync(() => elasticsearch.search<EntityExpandedType, TermAggType<'types' | 'dccs'>>({
+    index: 'entity_expanded',
     query: {
       bool: {
         filter,
@@ -55,11 +55,11 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
   if (!searchRes?.hits.total) redirect(create_url({ search: params.search, error: 'No results matching search' }))
   return (
     <SearchTabs>
-      <FancyTabPlaceholder id="c2m2" label={<>Cross-Cut Metadata Model</>} priority={Infinity}>
+      {/* <FancyTabPlaceholder id="c2m2" label={<>Cross-Cut Metadata Model</>} priority={Infinity}>
         <React.Suspense>
           <C2M2SearchQueryComponentTab search={params.search} />
         </React.Suspense>
-      </FancyTabPlaceholder>
+      </FancyTabPlaceholder> */}
       <FancyTab
         id={""}
         label={<>Processed Data<br />{Number(searchRes.hits.total).toLocaleString()}</>}

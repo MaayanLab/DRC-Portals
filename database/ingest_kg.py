@@ -3,9 +3,10 @@ import csv
 import json
 import zipfile
 import re
+import concurrent.futures
 from tqdm.auto import tqdm
 
-from ingest_common import ingest_path, current_dcc_assets, pdp_helper, label_ident
+from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
 from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_descriptions
 
 debug = 1;
@@ -35,7 +36,7 @@ map_type = {
   '4dn dataset': None,
 }
 
-for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Processing KGAssertion Files...'):
+def ingest_kg(es_bulk, file):
   # assemble the full file path for the DCC's asset
   file_path = assertions_path/file['short_label']/file['filename']
   if(debug >0):
@@ -58,9 +59,9 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
         assertions_zip.extractall(assertions_extract_path)
   else:
     print("  Warning: not a zip file, will skip!");
-    continue
+    return
 
-  with pdp_helper() as helper:
+  with pdp_helper(es_bulk) as helper:
     entities = {}
     def upsert_entity(type, attributes, slug=None, pk=None):
       id = helper.upsert_entity(type, attributes, slug=slug, pk=pk)
@@ -137,3 +138,11 @@ for _, file in tqdm(assertions.iterrows(), total=assertions.shape[0], desc='Proc
               except: continue
               helper.upsert_m2o(assertion_id, 'dcc_asset', dcc_asset_id)
               helper.upsert_m2o(assertion_id, 'dcc', dcc_id)
+
+with es_helper() as es_bulk:
+  with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+    for fut in tqdm(concurrent.futures.as_completed((
+      pool.submit(ingest_kg, es_bulk, file)
+      for _, file in assertions.iterrows()
+    )), total=assertions.shape[0], desc='Processing KGAssertion Files...'):
+      fut.result()

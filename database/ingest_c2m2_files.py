@@ -3,10 +3,11 @@ import re
 import zipfile
 import pathlib
 import pandas as pd
+import concurrent.futures
 from tqdm.auto import tqdm
 from datapackage import Package
 
-from ingest_common import ingest_path, current_dcc_assets, pdp_helper, label_ident
+from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
 from ingest_entity_common import gene_labels, gene_descriptions, gene_entrez
 
 def predicate_from_fields(fields):
@@ -60,7 +61,7 @@ dcc_assets = current_dcc_assets()
 c2m2s = dcc_assets[dcc_assets['filetype'] == 'C2M2']
 c2m2s_path = ingest_path / 'c2m2s'
 
-for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
+def ingest_c2m2_datapackage(es_bulk, c2m2):
   c2m2_path = c2m2s_path/c2m2['short_label']/c2m2['filename']
   c2m2_path.parent.mkdir(parents=True, exist_ok=True)
   print("c2m2['link'] object:"); print(c2m2['link']); ##
@@ -79,7 +80,7 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
     | set(pathlib.Path(c2m2_extract_path).rglob('datapackage.json'))
   )
   pkg = Package(str(c2m2_datapackage_json))
-  with pdp_helper() as helper:
+  with pdp_helper(es_bulk) as helper:
     dcc_id = helper.upsert_entity('dcc', dict(
       label=c2m2['short_label']
     ), slug=c2m2['short_label'])
@@ -222,3 +223,11 @@ for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M
               helper.upsert_m2o(target_id, predicate, source_id)
           except Exception as e:
             raise RuntimeError(f"{rc_name=}, {fk['reference']['resource']=}") from e
+
+with es_helper() as es_bulk:
+  with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+    for fut in tqdm(concurrent.futures.as_completed((
+      pool.submit(ingest_c2m2_datapackage, es_bulk, c2m2)
+      for _, c2m2 in c2m2s.iterrows()
+    )), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
+      fut.result()

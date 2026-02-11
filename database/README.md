@@ -2,6 +2,14 @@
 
 Database entries can be downloaded on s3: cfde-drc/database/
 
+## Configure Python
+
+```bash
+uv venv
+uv pip install -r requirements.txt
+uv tool install python-dotenv[cli]
+```
+
 You must first start and migrate the database (see [DRC Portal Dev Guide](../drc-portals/README.md))
 
 ```bash
@@ -81,13 +89,13 @@ Ingest scripts try to be incremental for the most part (so they should be able t
 ```bash
 # typically good enough to clear the primary cached files
 rm ingest/*.tsv
-python3 ingestion.py
+uv run ingestion.py
 
 # OR
 
 # for more extensive cache removal (i.e. with the processed data portal files), typically shouldn't be necessary
 rm -r ingest
-python3 ingestion.py
+uv run ingestion.py
 ```
 
 ## Ingesting C2M2
@@ -99,7 +107,7 @@ To populate C2M2 related tables, see [the C2M2 README.md](C2M2/README.md).
 Update the DCCAssets.tsv, FileAssets.tsv and CodeAssets.tsv file paths in the ingest_commmon.py script to contain all the currently uploaded assets. Running these files should perform the fair assessments:
 ```bash
 # FAIR assessment of current code and file assets
-python3 fair_assessment/assess_fair.py
+uv run fair_assessment/assess_fair.py
 
 ```
 
@@ -109,7 +117,7 @@ python3 fair_assessment/assess_fair.py
 kubectl port-forward -n drc deploy/drc-portal-postgres 5432
 
 # in another, run the following script to generate these files and load them into s3
-python3 update_s3_from_db.py dcc_assets file_assets code_assets
+uv run update_s3_from_db.py dcc_assets file_assets code_assets
 ```
 
 ## Updating Outreach/Webinar in Production
@@ -118,7 +126,7 @@ python3 update_s3_from_db.py dcc_assets file_assets code_assets
 kubectl port-forward -n drc deploy/drc-portal-postgres 5432
 
 # in another, run the following script to generate the files and load them into s3 & the prod database
-python3 update_outreach.py updated-outreach.tsv updated-webinar.tsv
+uv run update_outreach.py updated-outreach.tsv updated-webinar.tsv
 ```
 
 ## Setting Up GMT Crossing

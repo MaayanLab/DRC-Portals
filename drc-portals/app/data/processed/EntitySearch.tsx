@@ -1,7 +1,7 @@
 import React from 'react'
 import elasticsearch from "@/lib/elasticsearch"
 import { estypes } from '@elastic/elasticsearch'
-import { categoryLabel, create_url, EntityType, FilterAggType, itemDescription, itemIcon, itemLabel, TermAggType } from "@/app/data/processed/utils"
+import { categoryLabel, create_url, EntityExpandedType, EntityType, FilterAggType, itemDescription, itemIcon, itemLabel, predicateLabel } from "@/app/data/processed/utils"
 import SearchablePagedTable, { SearchablePagedTableCell, SearchablePagedTableCellIcon, LinkedTypedNode, Description, SearchablePagedTableHeader } from "@/app/data/processed/SearchablePagedTable";
 import { redirect } from 'next/navigation';
 import { ensure_array, groupby } from '@/utils/array';
@@ -20,8 +20,9 @@ export default async function Page(props: PageProps) {
     const v = searchParams[k]
     searchParams[k] = Array.isArray(v) ? v.map(decodeURIComponent) : decodeURIComponent(v)
   }
+  const must: estypes.QueryDslQueryContainer[] = []
   const filter: estypes.QueryDslQueryContainer[] = []
-  if (params.search) filter.push({ simple_query_string: { query: params.search, default_operator: 'AND' } })
+  if (params.search) must.push({ simple_query_string: { query: params.search, fields: ['a_label^10', 'a_*^5', 'm2o_*.a_*'], default_operator: 'AND' } })
   if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) {
     filter.push({
       query_string: {
@@ -33,13 +34,27 @@ export default async function Page(props: PageProps) {
   }
   if (params.type) filter.push({ query_string: { query: `+type:"${params.type}"` } })
   if (params.search_type) filter.push({ query_string: { query: `+type:"${params.search_type}"` } })
-  if (filter.length === 0) redirect('/data')
+  if (must.length+filter.length === 0) redirect('/data')
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
-  const searchRes = await elasticsearch.search<EntityType, FilterAggType<'files'>>({
-    index: 'entity',
+  const searchRes = await elasticsearch.search<EntityExpandedType, FilterAggType<'files'>>({
+    index: 'entity_expanded',
     query: {
-      bool: {
-        filter,
+      function_score: {
+        query: {
+          bool: {
+            must,
+            filter,
+          },
+        },
+        functions: [
+          {
+            field_value_factor: {
+              field: 'pagerank',
+              missing: 1,
+            }
+          }
+        ],
+        boost_mode: "sum",
       },
     },
     aggs: {
@@ -50,10 +65,10 @@ export default async function Page(props: PageProps) {
       },
     },
     sort: searchParams?.reverse === undefined ? [
-      {'pagerank': {'order': 'desc'}},
+      {'_score': {'order': 'desc'}},
       {'id': {'order': 'asc'} },
     ] :  [
-      {'pagerank': {'order': 'asc'}},
+      {'_score': {'order': 'asc'}},
       {'id': {'order': 'desc'} },
     ],
     search_after: searchParams?.cursor ? JSON.parse(searchParams.cursor as string) : undefined,
@@ -63,24 +78,17 @@ export default async function Page(props: PageProps) {
   if (searchParams?.reverse !== undefined) {
     searchRes.hits.hits.reverse()
   }
-  const entityLookupRes = await elasticsearch.search<EntityType>({
-    index: 'entity',
-    query: {
-      ids: {
-        values: Array.from(new Set([
-          ...searchRes.hits.hits.flatMap((item) => {
-            const item_source = item._source
-            if (!item_source) return []
-            return Object.keys(item_source).filter(k => k.startsWith('r_') && k !== 'r_dcc').map(k => item_source[k])
-          })
-        ]))
-      }
-    },
-    size: 100,
-  })
-  const entityLookup = Object.fromEntries([
-    ...searchRes.hits.hits.map((hit) => [hit._id, hit._source]),
-    ...entityLookupRes.hits.hits.map((hit) => [hit._id, hit._source]),
+  const entityLookup: Record<string, EntityType> = Object.fromEntries([
+    ...searchRes.hits.hits.flatMap((hit) => [
+      [hit._id, hit._source],
+      ...Object.entries(hit._source as EntityExpandedType).flatMap(([key, value]) => {
+        if (key.startsWith('m2o_')) {
+          return [[(value as EntityType).id, value as EntityType]]
+        } else {
+          return []
+        }
+      }),
+    ]),
     ...Object.entries(await esDCCs),
   ])
   return (

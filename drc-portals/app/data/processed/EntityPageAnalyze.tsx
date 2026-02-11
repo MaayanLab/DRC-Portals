@@ -1,9 +1,9 @@
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import modules from "@/app/data/processed/_analyze"
-import { EntityType } from "@/app/data/processed/utils";
+import { EntityExpandedType } from "@/app/data/processed/utils";
 
-export default function EntityPageAnalyze(props: { item: EntityType }) {
+export default function EntityPageAnalyze(props: { item: EntityExpandedType }) {
   const compatibleModules = modules.filter(({ compatible }) => compatible(props.item))
   if (compatibleModules.length === 0) return null
   return (
