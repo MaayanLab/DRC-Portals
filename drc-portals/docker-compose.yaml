@@ -213,6 +213,8 @@ services:
       - xpack.security.http.ssl.enabled=false
       - xpack.security.transport.ssl.enabled=false
       - ES_JAVA_OPTS=-Xms3g -Xmx3g
+      - AWS_ACCESS_KEY_ID=${ELASTICSEARCH_S3_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${ELASTICSEARCH_S3_SECRET_ACCESS_KEY}
     ports:
       - 9200:9200
     volumes:
@@ -242,7 +244,8 @@ services:
       - xpack.security.http.ssl.enabled=false
       - xpack.security.transport.ssl.enabled=false
       - ES_JAVA_OPTS=-Xms3g -Xmx3g
-      - reindex.remote.whitelist=drc-portal-elasticsearch:9200
+      - AWS_ACCESS_KEY_ID=${ELASTICSEARCH_S3_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${ELASTICSEARCH_S3_SECRET_ACCESS_KEY}
     ports:
       - 9201:9200
     volumes:
