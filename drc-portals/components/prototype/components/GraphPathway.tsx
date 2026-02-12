@@ -245,37 +245,37 @@ export default function GraphPathway() {
     setShowResults(true);
   }, [tree]);
 
-  const handleReturnBtnClick = useCallback(
-    (columns: ColumnData[]) => {
-      if (tree !== undefined) {
-        const newElements = [
-          ...searchElements.map((element) => {
-            if (isPathwaySearchEdgeElement(element)) {
-              return deepCopyPathwaySearchEdge(element);
-            } else {
-              for (let col of columns) {
-                if (col.key === element.data.id) {
-                  return deepCopyPathwaySearchNode(
-                    element,
-                    { visible: col.visible },
-                    [col.visible ? "solid" : "transparent"],
-                    [col.visible ? "transparent" : "solid"]
-                  );
-                }
+  const handleReturnBtnClick = () => {
+    setShowResults(false);
+  }
+
+  const handleVisibilityChange = useCallback((columns: ColumnData[]) => {
+    if (tree !== undefined) {
+      const newElements = [
+        ...searchElements.map((element) => {
+          if (isPathwaySearchEdgeElement(element)) {
+            return deepCopyPathwaySearchEdge(element);
+          } else {
+            for (let col of columns) {
+              if (col.key === element.data.id) {
+                return deepCopyPathwaySearchNode(
+                  element,
+                  { visible: col.visible },
+                  [col.visible ? "solid" : "transparent"],
+                  [col.visible ? "transparent" : "solid"]
+                );
               }
-              // This should never happen
-              console.warn(`Could not find corresponding column for node element with ID: ${element.data.id}`)
-              return deepCopyPathwaySearchNode(element);
             }
-          }),
-        ];
-        setSearchElements(newElements);
-        setTree(createTree(newElements));
-      }
-      setShowResults(false);
-    },
-    [tree]
-  );
+            // This should never happen
+            console.warn(`Could not find corresponding column for node element with ID: ${element.data.id}`)
+            return deepCopyPathwaySearchNode(element);
+          }
+        }),
+      ];
+      setSearchElements(newElements);
+      setTree(createTree(newElements));
+    }
+  }, [tree]);
 
   const handleSearchBarSubmit = (cvTerm: NodeResult) => {
     // TODO: Direct node results *should* always have at least one label since they are required on all Neo4j nodes, so maybe this check
@@ -621,6 +621,7 @@ export default function GraphPathway() {
       {showResults && tree !== undefined ? (
         <GraphPathwayResults
           tree={tree}
+          onVisibilityChange={handleVisibilityChange}
           onReturnBtnClick={handleReturnBtnClick}
         />
       ) : (

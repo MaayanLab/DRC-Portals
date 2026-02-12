@@ -68,7 +68,8 @@ interface TableViewProps {
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
   onOrderByChange: (column: number | undefined, order: Order) => void;
-  onColumnChange: (column: number, changes: Partial<ColumnData>) => void;
+  onColumnPropertyChange: (column: number, changes: Partial<ColumnData>) => void;
+  onColumnVisibilityChange: (columns: ColumnData[]) => void;
   onDownloadAll: () => Promise<void>;
 }
 
@@ -86,7 +87,8 @@ export default function TableView(cmpProps: TableViewProps) {
     onPageChange,
     onLimitChange,
     onOrderByChange,
-    onColumnChange,
+    onColumnPropertyChange,
+    onColumnVisibilityChange,
     onDownloadAll,
   } = cmpProps;
   const [selected, setSelected] = useState<boolean[]>(
@@ -172,14 +174,17 @@ export default function TableView(cmpProps: TableViewProps) {
   };
 
   const handleColMenuPropertyUpdate = (column: number, property: string) => {
-    colMenuFnWrapper(onColumnChange, column, {
+    colMenuFnWrapper(onColumnPropertyChange, column, {
       displayProp: property,
     });
   };
 
   const handleColumnVisibilitySwitch = useCallback(
-    (column: number) => {
-      onColumnChange(column, { visible: !columns[column].visible });
+    (changedColumn: number) => {
+      const newColumns = columns.map((col, idx) =>
+        idx === changedColumn ? { ...col, visible: !columns[changedColumn].visible } : { ...col }
+      );
+      onColumnVisibilityChange(newColumns);
     },
     [columns]
   );
@@ -290,7 +295,6 @@ export default function TableView(cmpProps: TableViewProps) {
                   <Typography variant="body1">#</Typography>
                 </StyledHeaderCellWithDivider>
                 {columns
-                  .filter((column) => column.visible)
                   .map((col, idx) => (
                     <StyledHeaderCellWithDivider key={col.key}>
                       <Box
@@ -322,7 +326,9 @@ export default function TableView(cmpProps: TableViewProps) {
                         </IconButton>
                       </Box>
                     </StyledHeaderCellWithDivider>
-                  ))}
+                  ))
+                  .filter((_, j) => columns[j].visible) // Skip hidden columns
+                }
               </TableRow>
             </TableHead>
           </Table>
@@ -359,7 +365,6 @@ export default function TableView(cmpProps: TableViewProps) {
                         )}
                       </StyledDataCell>
                     ))
-                    .filter((_, j) => columns[j].visible) // Skip hidden columns // TODO: This might be unnecessary if/when hidden columns are omitted from the data response
                 }
               </TableRow>
             ))}

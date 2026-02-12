@@ -33,13 +33,14 @@ import TableViewSkeleton from "./PathwayResults/TableViewSkeleton";
 
 interface GraphPathwayResultsProps {
   tree: PathwayNode;
-  onReturnBtnClick: (columns: ColumnData[]) => void;
+  onVisibilityChange: (columns: ColumnData[]) => void;
+  onReturnBtnClick: () => void;
 }
 
 export default function GraphPathwayResults(
   cmpProps: GraphPathwayResultsProps
 ) {
-  const { tree, onReturnBtnClick } = cmpProps;
+  const { tree, onVisibilityChange, onReturnBtnClick } = cmpProps;
   const [paths, setPaths] = useState<PathwaySearchResultRow[]>([]);
   const [page, setPage] = useState<number>(1);
   const [lowerPageBound, setLowerPageBound] = useState<number>(Math.max(page - 5, 1));
@@ -79,9 +80,9 @@ export default function GraphPathwayResults(
     return { data: await response.json(), status: response.status };
   };
 
-  const handleReturnBtnClick = useCallback(() => {
-    onReturnBtnClick(columns)
-  }, [columns])
+  const handleReturnBtnClick = () => {
+    onReturnBtnClick()
+  }
 
   const handlePageChange = useCallback(
     async (newPage: number) => {
@@ -171,7 +172,7 @@ export default function GraphPathwayResults(
     [tree, limit, page, columns]
   );
 
-  const handleColumnChange = useCallback(
+  const handleColumnPropertyChange = useCallback(
     async (changedColumn: number, changes: Partial<ColumnData>) => {
       try {
         const newColumns = columns.map((col, idx) =>
@@ -203,6 +204,10 @@ export default function GraphPathwayResults(
     },
     [tree, limit, page, columns, orderBy, order]
   );
+
+  const handleColumnVisibilityChange = (columns: ColumnData[]) => {
+    onVisibilityChange(columns);
+  }
 
   const handleDownloadAllClicked = useCallback(async () => {
     try {
@@ -286,7 +291,8 @@ export default function GraphPathwayResults(
                 onPageChange={handlePageChange}
                 onLimitChange={handleLimitChange}
                 onOrderByChange={handleOrderByChange}
-                onColumnChange={handleColumnChange}
+                onColumnPropertyChange={handleColumnPropertyChange}
+                onColumnVisibilityChange={handleColumnVisibilityChange}
                 onDownloadAll={handleDownloadAllClicked}
               ></TableView>
             )}
