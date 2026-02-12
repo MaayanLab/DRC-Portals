@@ -59,7 +59,7 @@ export default async function ServerCarousel () {
       icon: string,
       url: string
     }> = []
-    const webinar_items: Array<{
+    const featured_outreach: Array<{
       name: string,
       description: string,
       icon: string,
@@ -72,8 +72,8 @@ export default async function ServerCarousel () {
           icon: o.image || '',
           url: o.link || '',
       }
-      if (o.title === "CFDE Webinar Series") {
-        webinar_items.push(item)
+      if (o.featured) {
+        featured_outreach.push(item)
       } else {
         outreach_items.push(item)
       }
@@ -152,7 +152,7 @@ export default async function ServerCarousel () {
       }
     ]
 
-    const children = [...publication_items, ...outreach_items, ...webinar_items, ...center, ...items].map( (item, i) => (
+    const children = [...publication_items,  ...featured_outreach, ...outreach_items, ...center, ...items].map( (item, i) => (
         <div key={i}>
             <Box key={i} sx={{
                 minHeight: {xs: 200, sm: 200, md: 300, lg: 450, xl: 450}, 
