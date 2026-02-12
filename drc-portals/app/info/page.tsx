@@ -123,7 +123,7 @@ export default async function Home() {
                         {/* <Link href="/info/training_and_outreach"><Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">TRAINING & OUTREACH</Typography></Link>
                         <Outreach orientation="vertical" size={1}/>  */}
                         {/* <Link href="/info/training_and_outreach"><Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}><Typography variant="subtitle1">See More</Typography></Button></Link> */}
-                        <Paper elevation={0}>
+                        <Paper elevation={0} sx={{background: "transparent"}}>
                           <Stack>
                             <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">RESOURCES</Typography>
                             <Link href='/data'>
