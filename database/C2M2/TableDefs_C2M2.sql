@@ -279,6 +279,13 @@ gene VARCHAR NOT NULL,
 PRIMARY KEY(biosample_id_namespace, biosample_local_id, gene)
 );
 
+CREATE TABLE c2m2.biosample_protein (
+biosample_id_namespace VARCHAR NOT NULL, 
+biosample_local_id VARCHAR NOT NULL, 
+protein VARCHAR NOT NULL,
+PRIMARY KEY(biosample_id_namespace, biosample_local_id, protein)
+);
+
 CREATE TABLE c2m2.phenotype_gene (
 phenotype VARCHAR NOT NULL, 
 gene VARCHAR NOT NULL,
@@ -657,6 +664,11 @@ ALTER TABLE c2m2.biosample_gene DROP CONSTRAINT IF EXISTS fk_biosample_gene_bios
 ALTER TABLE c2m2.biosample_gene ADD CONSTRAINT  fk_biosample_gene_biosample_1 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES c2m2.biosample (id_namespace, local_id) ON DELETE CASCADE;
 ALTER TABLE c2m2.biosample_gene DROP CONSTRAINT IF EXISTS fk_biosample_gene_gene_2;
 ALTER TABLE c2m2.biosample_gene ADD CONSTRAINT  fk_biosample_gene_gene_2 FOREIGN KEY (gene) REFERENCES c2m2.gene (id) ON DELETE CASCADE;
+
+ALTER TABLE c2m2.biosample_protein DROP CONSTRAINT IF EXISTS fk_biosample_protein_biosample_1;
+ALTER TABLE c2m2.biosample_protein ADD CONSTRAINT  fk_biosample_protein_biosample_1 FOREIGN KEY (biosample_id_namespace, biosample_local_id) REFERENCES c2m2.biosample (id_namespace, local_id) ON DELETE CASCADE;
+ALTER TABLE c2m2.biosample_protein DROP CONSTRAINT IF EXISTS fk_biosample_protein_protein_2;
+ALTER TABLE c2m2.biosample_protein ADD CONSTRAINT  fk_biosample_protein_protein_2 FOREIGN KEY (protein) REFERENCES c2m2.protein (id) ON DELETE CASCADE;
 
 ALTER TABLE c2m2.phenotype_gene DROP CONSTRAINT IF EXISTS fk_phenotype_gene_phenotype_1;
 ALTER TABLE c2m2.phenotype_gene ADD CONSTRAINT  fk_phenotype_gene_phenotype_1 FOREIGN KEY (phenotype) REFERENCES c2m2.phenotype (id) ON DELETE CASCADE;
@@ -1124,6 +1136,19 @@ BEGIN
 	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'biosample_gene' 
 	AND indexname = 'c2m2_biosample_gene_idx_searchable') THEN
 		CREATE INDEX c2m2_biosample_gene_idx_searchable ON c2m2.biosample_gene USING gin(searchable gin_trgm_ops);
+	END IF;
+END $$;
+
+--- Adding COLUMN searchable to table c2m2.biosample_protein
+ALTER TABLE c2m2.biosample_protein ADD COLUMN searchable VARCHAR DEFAULT '';
+UPDATE c2m2.biosample_protein SET searchable = concat_ws('|', '', c2m2.biosample_protein.biosample_local_id, c2m2.biosample_protein.protein);
+
+DO $$
+BEGIN
+	DROP INDEX IF EXISTS c2m2_biosample_protein_idx_searchable;
+	IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'c2m2' AND tablename = 'biosample_protein' 
+	AND indexname = 'c2m2_biosample_protein_idx_searchable') THEN
+		CREATE INDEX c2m2_biosample_protein_idx_searchable ON c2m2.biosample_protein USING gin(searchable gin_trgm_ops);
 	END IF;
 END $$;
 

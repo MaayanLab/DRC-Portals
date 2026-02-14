@@ -66,7 +66,8 @@ elif [[ "$option" == "2" ]]; then
 
     for word in "${keywords[@]}"; do
     echo "================================== Matches for '$word': ===================================" >> "$opf"
-        for file in $(find $search_path -type f -name "*.tsv"); do
+        #for file in $(find $search_path -type f -name "*.tsv"); do # This can give error if space in folder/file name
+        find "$search_path" -type f -name "*.tsv" -print0 | while IFS= read -r -d '' file; do
             echo -e "\t================ Matches for '$word' in $file: =============" >> "$opf"
             grep -oiP "(\b\w+\b\s+){0,5}$word(\s+\b\w+\b){0,5}" "$file" >> "$opf"
     done
@@ -81,7 +82,8 @@ elif [[ "$option" == "3" ]]; then
         echo "================================== Matches for '$word': ==================================="
         echo "================================== Matches for '$word': ===================================" >> "$opf"
 
-        for file in $(find $search_path -type f -name "*.tsv"); do
+        #for file in $(find $search_path -type f -name "*.tsv"); do # This can give error if space in folder/file name
+        find "$search_path" -type f -name "*.tsv" -print0 | while IFS= read -r -d '' file; do
             #matches=$(grep -niP ".{0,50}\\b${word}s?\\b.{0,50}" "$file")
             matches=$(grep -niP ".{0,50}${word}.{0,50}" "$file")
 
@@ -117,7 +119,8 @@ if [[ "$without_across_sentences" == "1" ]] ; then
         echo "================================== Matches for '$word': ==================================="
         echo "================================== Matches for '$word': ===================================" >> "$opf"
 
-        for file in $(find . -type f -name "*.tsv"); do
+        #for file in $(find . -type f -name "*.tsv"); do # This can give error if space in folder/file name
+        find . -type f -name "*.tsv" -print0 | while IFS= read -r -d '' file; do
             matches=$(grep -niP "(?:[\\(\[\{\"'\\w,-]+\\s+){0,5}${word}s?(?:\\s+[\\(\[\{\"'\\w,-]+){0,5}" "$file")
 
             if [[ -n "$matches" ]]; then
@@ -147,7 +150,8 @@ if [[ "$five_words_before_after" == "1" ]] ; then
         echo "================================== Matches for '$word': ==================================="
         echo "================================== Matches for '$word': ===================================" >> "$opf"
 
-        for file in $(find $search_path -type f -name "*.tsv"); do
+        #for file in $(find $search_path -type f -name "*.tsv"); do # This can give error if space in folder/file name
+        find "$search_path" -type f -name "*.tsv" -print0 | while IFS= read -r -d '' file; do
             # Match up to 5 tokens before and after the word, including punctuation and sentence breaks
             matches=$(grep -niP "(?:[\\(\[\{\\\"'\\w,\\-\\.\\?!]+\\s+){0,5}\\b${word}s?\\b(?:\\s+[\\(\[\{\\\"'\\w,\\-\\.\\?!]+){0,5}" "$file")
 

@@ -1,43 +1,100 @@
 
 ================================== Matches for 'gender': ===================================
-	================ Matches for 'gender' in ingest/c2m2s/ExRNA/CFDE_20250612_v2/CFDE_20250612/collection_defined_by_project.tsv: =============
+	================ Matches for 'gender' in ingest/c2m2s/IDG/IDG_C2M2_2024-01-09_datapackage_validated/merged-datapackage_cba63847d02e8ee1ccf150a98ebe814be895333c/data/disease.tsv: =============
+Line 314: DOID:1234	gender incongruence	A sexual health disorder that involv
+Line 314: es a conflict between a person's actual physical gender and the gender that person identifies himself or
+Line 314: herself as.	["DOID:10919","gender dysphoria","gender identify disorder","transsexualism"]
+	================ Matches for 'gender' in ingest/c2m2s/IDG/IDG_C2M2_2024-01-09_datapackage_validated/merged-datapackage_cba63847d02e8ee1ccf150a98ebe814be895333c/data/collection.tsv: =============
+Line 49136: age Collection: DOID:1234	DiseasePage Collection: Gender incongruence (DOID:1234, FILE=tcrd_disease_DOID_0
+	================ Matches for 'gender' in ingest/c2m2s/Metabolomics/MW_submission_packet_20251214/MW_submission_packet_20251214/project.tsv: =============
+Line 38: wn risk factors (such as family history, age, and gender), biological markers supporting diagnosis or pred
+Line 38: s of primary metabolites was conducted on age and gender matched human cerebrospinal fluid (CSF) and plasm
+Line 56: teroids, Sleep and Metabolic Dysfunction in Women	Gender obstructive sleep apnea studies
+Line 136: d control infants were matched by race/ethnicity, gender, and gestational age. Archived cord blood plasma
+Line 336: ciations were determined between trace metals and gender, race, hemodialysis status, hemoglobin at the tim
+Line 342: ntial formula considering gestational age, infant gender, maternal and paternal height, and interaction of
+Line 349: aring the profiles of these patients with age and gender matched controls; (4) Correlation of EBC metabolo
+Line 349: collect EBC on stable HF patients and in age and gender matched controls healthy controls from our other
+Line 824: istopathologically normal, donor controls of both genders for comparison. For the first time, we report pe
+Line 824: f both types of HF, and unveil the interaction of gender with HF, including increased nitric oxide-related
+Line 824: arginine metabolism in male hearts, and many gender-specific mitochondrial and X chromosome-linked pr
+Line 1008: ed by indoxyl sulfate and trimethylamine-N-oxide. Gender-specific characteristics of these landscapes were
+Line 1515: ntern mice at 7 days and 14 days post-crush. Both genders included. Metabolites were extracted in serial e
+Line 1690: ocampal proteome and lipidome, adjusting for age, gender, and post-mortem interval. Fibrillar C-terminal T
+Line 1855: distinct differences observed based on different gender, age, and smoking history groups. Male group show
+Line 2113: r (21 individuals) pneumonia, all matched by age, gender and disease severity. The analysis is based on 24
+Line 2260: ptophan ratio (KTR) after the adjustment for age, gender, and BMI, as well as were negatively associated w
+	================ Matches for 'gender' in ingest/c2m2s/SPARC/C2M2_datapackage_20251215/file.tsv: =============
+Line 15568: 461f31b5bed3a628893b45468b7d		derivative__DiffExp_Gender.pdf	format:3547		data:2968	OBI:0002119		image/jpx
+	================ Matches for 'gender' in ingest/c2m2s/SPARC/C2M2_datapackage_20251215/project.tsv: =============
+Line 32: pact of location, lesion severity, chronicity and gender. Our innovative approach and novel application of
+	================ Matches for 'gender' in ingest/c2m2s/ExRNA/exRNA_CFDE_102025/exRNA_CFDE_102025/file.tsv: =============
+Line 103130: gencode_antisense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		9342	c9513779af7a75b00f586089a6
+Line 103131: rted.bam.coverage.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		408550	af3f79fb46d946d9467cb6a0
+Line 103132: ult.taxaAnnotated.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		29557	8a1837e125b4c25960a4f265b
+Line 103133: miRNAmature_sense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		284	d2b609c569c41257e444fb165a0
+Line 103134: ut.bam.CIGARstats.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		2074	eae3b75fbabed7bdfe5ef364cc
+Line 103135: _001_fastq.adapterSeq	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		34	efc40cccfd4ccd250826d9c8029e
+Line 103136: Counts_tRNA_sense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		2810	7d57715530a37db22637341407
+Line 103137: ult.taxaAnnotated.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		3689	675f813e5c0f3d55c452db0f86
+Line 103138: tisense_geneLevel.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		1129	71a8414fe79181fb8c8489bd2a
+Line 103139: e_sense_geneLevel.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		8668	3f15cf4301589bd053200b936e
+Line 103140: nts_gencode_sense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		55414	709495f19d21761f3e2844f99
+Line 103141: e_Aligned.bedgraph.xz	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		11556	8dbd99d4956c29ae4990b8323
+Line 103142: A_Aligned.bedgraph.xz	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		2900	8f36cd219beaf66f3fe4a82765
+Line 103143: e_Aligned.bedgraph.xz	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		2732	f3b816db324662bba6e06840d1
+Line 103144: e_Aligned.bedgraph.xz	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		5852	9184b85ab2ae2895257bb2b68b
+Line 103145: P_all_combined.bed.xz	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		7624248	24a52c5e944663e2a2c14c8
+Line 103146: miRNAmature_sense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		722	c9dd190a0768a7d458892964c14
+Line 103147: ult.taxaAnnotated.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		4913	eb506852abc64e60982fac601d
+Line 103148: tisense_geneLevel.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		1283	8133c410d80c2deefaf8943946
+Line 103149: ut.bam.CIGARstats.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		2087	aaa49b6fa3619f541cf9944ec1
+Line 103150: gencode_antisense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		7478	32efcf3ca486646c8483f2a0ed
+Line 103151: rted.bam.coverage.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		300628	524f5e263fa37c488e6d22d5
+Line 103152: ounts_piRNA_sense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		182	f8a6bc2c1c8a711e76b88f4408e
+Line 103153: _001_fastq.adapterSeq	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		34	efc40cccfd4ccd250826d9c8029e
+Line 103154: Counts_tRNA_sense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		1660	5f4cf5b24eabe8dd88e5ae9a56
+Line 103155: e_sense_geneLevel.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		9737	5f50f127c74f52893b655d68a9
+Line 103156: ult.taxaAnnotated.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		29989	5a96839eb86900d973f84d079
+Line 103157: nts_gencode_sense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		48318	d0b4956c4b291242a475465cd
+Line 103158: e_Aligned.bedgraph.xz	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		13296	8d86f6a202e7fe8d078648972
+Line 103159: A_Aligned.bedgraph.xz	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		3300	42e3ca0fd74166fc1f9534f8c2
+Line 103160: e_Aligned.bedgraph.xz	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		3128	7943a6d4fb1281b808cb408dd2
+Line 103161: e_Aligned.bedgraph.xz	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		9416	485acb27a9335bf92263efe708
+Line 103162: P_all_combined.bed.xz	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		7632868	ad02639a9026ace73e79544
+	================ Matches for 'gender' in ingest/c2m2s/ExRNA/exRNA_CFDE_102025/exRNA_CFDE_102025/collection_defined_by_project.tsv: =============
 Line 55: A	EXR-IGHIR1GUqJ5l-AN	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST
-	================ Matches for 'gender' in ingest/c2m2s/ExRNA/CFDE_20250612_v2/CFDE_20250612/project.tsv: =============
-Line 45: ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		2020-04-20	IGHIR1IGHIRANGenderPool1	Feb2
-Line 45: 017_GenderPoolPlasmaRNA	exRNAs profiles by sex in healthy in
-	================ Matches for 'gender' in ingest/c2m2s/ExRNA/CFDE_20250612_v2/CFDE_20250612/biosample.tsv: =============
+	================ Matches for 'gender' in ingest/c2m2s/ExRNA/exRNA_CFDE_102025/exRNA_CFDE_102025/project.tsv: =============
+Line 7: g the effect of biofluid (serum vs. EDTA plasma), gender, fasting and female hormonal cycle"	"exRNA refere
+Line 7: g the effect of biofluid (serum vs. EDTA plasma), gender, fasting and female hormonal cycle"
+Line 45: ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20	IGHIR1IGHIRANGenderPool1	Feb2017
+Line 45: _GenderPoolPlasmaRNA	exRNAs profiles by gender in healthy individuals
+	================ Matches for 'gender' in ingest/c2m2s/ExRNA/exRNA_CFDE_102025/exRNA_CFDE_102025/biosample.tsv: =============
 Line 4469: IGHIRANGPM02032017-BS	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20	OBI:0001902	UBERON:0004535	UBERO
 Line 4470: IGHIRANGPF02032017-BS	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20	OBI:0001902	UBERON:0004535	UBERO
-	================ Matches for 'gender' in ingest/c2m2s/ExRNA/CFDE_20250612_v2/CFDE_20250612/project_in_project.tsv: =============
+	================ Matches for 'gender' in ingest/c2m2s/ExRNA/exRNA_CFDE_102025/exRNA_CFDE_102025/project_in_project.tsv: =============
 Line 44: RCC-exRNA	exRNA_Atlas	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST
-	================ Matches for 'gender' in ingest/c2m2s/ExRNA/CFDE_20250612_v2/CFDE_20250612/file.tsv: =============
-Line 84998: gencode_antisense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		9342	c9513779af7a75b00f586089a6
-Line 84999: rted.bam.coverage.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		408550	af3f79fb46d946d9467cb6a0
-Line 85000: ult.taxaAnnotated.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		29557	8a1837e125b4c25960a4f265b
-Line 85001: miRNAmature_sense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		284	d2b609c569c41257e444fb165a0
-Line 85002: ut.bam.CIGARstats.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		2074	eae3b75fbabed7bdfe5ef364cc
-Line 85003: _001_fastq.adapterSeq	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		34	efc40cccfd4ccd250826d9c8029e
-Line 85004: Counts_tRNA_sense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		2810	7d57715530a37db22637341407
-Line 85005: ult.taxaAnnotated.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		3689	675f813e5c0f3d55c452db0f86
-Line 85006: tisense_geneLevel.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		1129	71a8414fe79181fb8c8489bd2a
-Line 85007: e_sense_geneLevel.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		8668	3f15cf4301589bd053200b936e
-Line 85008: nts_gencode_sense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		55414	709495f19d21761f3e2844f99
-Line 85009: miRNAmature_sense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		722	c9dd190a0768a7d458892964c14
-Line 85010: ult.taxaAnnotated.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		4913	eb506852abc64e60982fac601d
-Line 85011: tisense_geneLevel.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		1283	8133c410d80c2deefaf8943946
-Line 85012: ut.bam.CIGARstats.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		2087	aaa49b6fa3619f541cf9944ec1
-Line 85013: gencode_antisense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		7478	32efcf3ca486646c8483f2a0ed
-Line 85014: rted.bam.coverage.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		300628	524f5e263fa37c488e6d22d5
-Line 85015: ounts_piRNA_sense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		182	f8a6bc2c1c8a711e76b88f4408e
-Line 85016: _001_fastq.adapterSeq	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		34	efc40cccfd4ccd250826d9c8029e
-Line 85017: Counts_tRNA_sense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		1660	5f4cf5b24eabe8dd88e5ae9a56
-Line 85018: e_sense_geneLevel.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		9737	5f50f127c74f52893b655d68a9
-Line 85019: ult.taxaAnnotated.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		29989	5a96839eb86900d973f84d079
-Line 85020: nts_gencode_sense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		48318	d0b4956c4b291242a475465cd
-	================ Matches for 'gender' in ingest/c2m2s/SPARC/C2M2_datapackage_202509/file.tsv: =============
-Line 15568: 461f31b5bed3a628893b45468b7d		derivative__DiffExp_Gender.pdf	format:3547		data:2968	OBI:0002119		image/jpx
 
 ================================== Matches for 'inclusion': ===================================
+	================ Matches for 'inclusion' in ingest/c2m2s/GlyGen/glygen_cfde_2025_dec_data_submission/glygen_cfde_2025_sept_data_submission/protein.tsv: =============
+Line 104130: P47031	IML2_YEAST	Inclusion body clearance protein IML2	["D6VWA1", "Increased
+Line 133572: Q55F80	Q55F80_DICDI	Viral A-type inclusion protein	[]	NCBI:txid44689
+	================ Matches for 'inclusion' in ingest/c2m2s/IDG/IDG_C2M2_2024-01-09_datapackage_validated/merged-datapackage_cba63847d02e8ee1ccf150a98ebe814be895333c/data/disease.tsv: =============
+Line 295: ormal proteinaceous (alpha-synuclein) cytoplasmic inclusions, called Lewy bodies, throughout the brain that r
+Line 1071: DOID:3429	inclusion body myositis	A myositis that is characterized by
+	================ Matches for 'inclusion' in ingest/c2m2s/IDG/IDG_C2M2_2024-01-09_datapackage_validated/merged-datapackage_cba63847d02e8ee1ccf150a98ebe814be895333c/data/collection.tsv: =============
+Line 49571: tion: DOID:3429	DiseasePage Collection: Myositis, Inclusion Body (DOID:3429, FILE=tcrd_disease_DOID_003429.js
+Line 50367: n: DOID:11259	DiseasePage Collection: cytomegalic inclusion disease (DOID:11259, FILE=tcrd_disease_DOID_01125
+	================ Matches for 'inclusion' in ingest/c2m2s/IDG/IDG_C2M2_2024-01-09_datapackage_validated/merged-datapackage_cba63847d02e8ee1ccf150a98ebe814be895333c/data/compound.tsv: =============
+Line 5372: Z4LPZ", "MLS000069653", "NSC180", "Salicylic acid inclusion complex", "K 537", "NSC-180", "ATA fraction 10, a
+	================ Matches for 'inclusion' in ingest/c2m2s/Metabolomics/MW_submission_packet_20251214/MW_submission_packet_20251214/project.tsv: =============
+Line 569: enrolment, were excluded from analysis to prevent inclusion of participants who had incipient or asymptomatic
+Line 1249: tform was used to analyse endogenous analytes for inclusion in subsequent statistical analysis procedures use
+Line 1361: 01483	http://dx.doi.org/10.21228/M81M72			Dietary inclusion of nitrite-containing frankfurter exacerbates col
+Line 1517: s were collected from 88 participants who met the inclusion criteria, of whom 43 control patients were treate
+Line 1748: individuals, and 28 obese individuals who met the inclusion criteria for the study. The plasma samples were a
+Line 1930: nce intervals. Overall, these results support the inclusion of small molecule markers in biodosimetry assays
+Line 2305: ignificance in another dimension of the study, b) inclusion in a common pathway with a highly significant com
 	================ Matches for 'inclusion' in ingest/c2m2s/MoTrPAC/datapackage/submit_03_15_2024/data/file_in_collection.tsv: =============
 Line 5706: bolomics-untargeted/t31-plasma/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
 Line 5707: bolomics-untargeted/t31-plasma/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
@@ -304,31 +361,123 @@ Line 10284: s-untargeted/t70-white-adipose/metab-u-lrppos/DDA_Inclusion06.raw	ta
 Line 10284: d6c09d0b05026d28bf9239cbf0bba32ee36b2595678f		DDA_Inclusion06.raw				OBI:0000366		application/octet-stream
 Line 10285: s-untargeted/t70-white-adipose/metab-u-lrppos/DDA_Inclusion07.raw	tag:motrpac-data.org,2023:	motrpac	0392c149
 Line 10285: 6a51c6e017dbfd31cec1e929c4a41fcfe51f891efab5		DDA_Inclusion07.raw				OBI:0000366		application/octet-stream
-	================ Matches for 'inclusion' in ingest/c2m2s/ExRNA/CFDE_20250612_v2/CFDE_20250612/disease.tsv: =============
-Line 9: ormal proteinaceous (alpha-synuclein) cytoplasmic inclusions, called Lewy bodies, throughout the brain that r
-	================ Matches for 'inclusion' in ingest/c2m2s/Metabolomics/MW_submission_packet_20250922/MW_submission_packet_20250916/project.tsv: =============
-Line 569: enrolment, were excluded from analysis to prevent inclusion of participants who had incipient or asymptomatic
-Line 1249: tform was used to analyse endogenous analytes for inclusion in subsequent statistical analysis procedures use
-Line 1361: 01483	http://dx.doi.org/10.21228/M81M72			Dietary inclusion of nitrite-containing frankfurter exacerbates col
-Line 1517: s were collected from 88 participants who met the inclusion criteria, of whom 43 control patients were treate
-Line 1744: individuals, and 28 obese individuals who met the inclusion criteria for the study. The plasma samples were a
-Line 1922: nce intervals. Overall, these results support the inclusion of small molecule markers in biodosimetry assays
-Line 2270: ignificance in another dimension of the study, b) inclusion in a common pathway with a highly significant com
-	================ Matches for 'inclusion' in ingest/c2m2s/IDG/IDG_C2M2_2024-01-09_datapackage_validated/merged-datapackage_cba63847d02e8ee1ccf150a98ebe814be895333c/data/collection.tsv: =============
-Line 49571: tion: DOID:3429	DiseasePage Collection: Myositis, Inclusion Body (DOID:3429, FILE=tcrd_disease_DOID_003429.js
-Line 50367: n: DOID:11259	DiseasePage Collection: cytomegalic inclusion disease (DOID:11259, FILE=tcrd_disease_DOID_01125
-	================ Matches for 'inclusion' in ingest/c2m2s/IDG/IDG_C2M2_2024-01-09_datapackage_validated/merged-datapackage_cba63847d02e8ee1ccf150a98ebe814be895333c/data/compound.tsv: =============
-Line 5372: Z4LPZ", "MLS000069653", "NSC180", "Salicylic acid inclusion complex", "K 537", "NSC-180", "ATA fraction 10, a
-	================ Matches for 'inclusion' in ingest/c2m2s/IDG/IDG_C2M2_2024-01-09_datapackage_validated/merged-datapackage_cba63847d02e8ee1ccf150a98ebe814be895333c/data/disease.tsv: =============
-Line 295: ormal proteinaceous (alpha-synuclein) cytoplasmic inclusions, called Lewy bodies, throughout the brain that r
-Line 1071: DOID:3429	inclusion body myositis	A myositis that is characterized by
-	================ Matches for 'inclusion' in ingest/c2m2s/GlyGen/glygen_cfde_2025_sept_data_submission/protein.tsv: =============
-Line 104156: P47031	IML2_YEAST	Inclusion body clearance protein IML2	["D6VWA1", "Increased
-Line 133590: Q55F80	Q55F80_DICDI	Viral A-type inclusion protein	[]	NCBI:txid44689
+	================ Matches for 'inclusion' in ingest/c2m2s/ExRNA/exRNA_CFDE_102025/exRNA_CFDE_102025/disease.tsv: =============
+Line 21: ormal proteinaceous (alpha-synuclein) cytoplasmic inclusions, called Lewy bodies, throughout the brain that r
 
 ================================== Matches for 'diversity': ===================================
-	================ Matches for 'diversity' in ingest/c2m2s/Metabolomics/MW_submission_packet_20250922/MW_submission_packet_20250916/project.tsv: =============
+	================ Matches for 'diversity' in ingest/c2m2s/GlyGen/glygen_cfde_2025_dec_data_submission/glygen_cfde_2025_sept_data_submission/protein.tsv: =============
+Line 95385: P0DOY5	HD101_HUMAN	Immunoglobulin heavy diversity 1-1	[]	NCBI:txid9606
+Line 95442: P0DPI4	TDB01_HUMAN	T cell receptor beta diversity 1	[]	NCBI:txid9606
+Line 95450: P0DPR3	TRDD1_HUMAN	T cell receptor delta diversity 1	[]	NCBI:txid9606
+	================ Matches for 'diversity' in ingest/c2m2s/HMP/datapackage/merged/data/project.tsv: =============
+Line 9: uted to acne. The project investigated the strain diversity of P. acnes in a disease cohort and a normal coho
+Line 20: ed with changes in the skin microflora. Bacterial diversity associated with AD was examined using a 16S rRNA
+Line 20: r whole genome sequencing. To characterize fungal diversity, two phylogenetic markers within the rDNA region
+Line 20: l Transcribed Spacer (ITS) region. Full microbial diversity was explored with shotgun metagenomic sequencing.
+	================ Matches for 'diversity' in ingest/c2m2s/IDG/IDG_C2M2_2024-01-09_datapackage_validated/merged-datapackage_cba63847d02e8ee1ccf150a98ebe814be895333c/data/gene.tsv: =============
+Line 17655: ENSG00000211907	IGHD1-26	immunoglobulin heavy diversity 1-26 [Source:HGNC Symbol;Acc:HGNC:5485]	[]	NCBI:t
+Line 17656: ENSG00000211909	IGHD5-24	immunoglobulin heavy diversity 5-24 (non-functional) [Source:HGNC Symbol;Acc:HGN
+Line 17657: ENSG00000211911	IGHD3-22	immunoglobulin heavy diversity 3-22 [Source:HGNC Symbol;Acc:HGNC:5497]	[]	NCBI:t
+Line 17658: ENSG00000211912	IGHD2-21	immunoglobulin heavy diversity 2-21 [Source:HGNC Symbol;Acc:HGNC:5491]	[]	NCBI:t
+Line 17659: ENSG00000211914	IGHD6-19	immunoglobulin heavy diversity 6-19 [Source:HGNC Symbol;Acc:HGNC:5515]	[]	NCBI:t
+Line 17660: ENSG00000211915	IGHD5-18	immunoglobulin heavy diversity 5-18 [Source:HGNC Symbol;Acc:HGNC:5509]	[]	NCBI:t
+Line 17661: ENSG00000211917	IGHD3-16	immunoglobulin heavy diversity 3-16 [Source:HGNC Symbol;Acc:HGNC:5496]	[]	NCBI:t
+Line 17662: ENSG00000211918	IGHD2-15	immunoglobulin heavy diversity 2-15 [Source:HGNC Symbol;Acc:HGNC:5489]	[]	NCBI:t
+Line 17663: ENSG00000211920	IGHD6-13	immunoglobulin heavy diversity 6-13 [Source:HGNC Symbol;Acc:HGNC:5514]	[]	NCBI:t
+Line 17664: ENSG00000211921	IGHD5-12	immunoglobulin heavy diversity 5-12 [Source:HGNC Symbol;Acc:HGNC:5508]	[]	NCBI:t
+Line 17665: ENSG00000211923	IGHD3-10	immunoglobulin heavy diversity 3-10 [Source:HGNC Symbol;Acc:HGNC:5495]	[]	NCBI:t
+Line 17666: ENSG00000211924	IGHD3-9	immunoglobulin heavy diversity 3-9 [Source:HGNC Symbol;Acc:HGNC:5499]	[]	NCBI:tx
+Line 17667: ENSG00000211925	IGHD2-8	immunoglobulin heavy diversity 2-8 [Source:HGNC Symbol;Acc:HGNC:5492]	[]	NCBI:tx
+Line 17668: ENSG00000211928	IGHD5-5	immunoglobulin heavy diversity 5-5 [Source:HGNC Symbol;Acc:HGNC:5511]	[]	NCBI:tx
+Line 17669: ENSG00000211930	IGHD3-3	immunoglobulin heavy diversity 3-3 [Source:HGNC Symbol;Acc:HGNC:5498]	[]	NCBI:tx
+Line 17670: ENSG00000211931	IGHD2-2	immunoglobulin heavy diversity 2-2 [Source:HGNC Symbol;Acc:HGNC:5490]	[]	NCBI:tx
+Line 18157: ENSG00000225825	IGHD6-25	immunoglobulin heavy diversity 6-25 [Source:HGNC Symbol;Acc:HGNC:5516]	[]	NCBI:t
+Line 18192: ENSG00000227108	IGHD1-14	immunoglobulin heavy diversity 1-14 (non-functional) [Source:HGNC Symbol;Acc:HGN
+Line 18198: ENSG00000227196	IGHD4-23	immunoglobulin heavy diversity 4-23 (non-functional) [Source:HGNC Symbol;Acc:HGN
+Line 18209: ENSG00000227800	IGHD4-17	immunoglobulin heavy diversity 4-17 [Source:HGNC Symbol;Acc:HGNC:5503]	[]	NCBI:t
+Line 18216: ENSG00000228131	IGHD6-6	immunoglobulin heavy diversity 6-6 [Source:HGNC Symbol;Acc:HGNC:5517]	[]	NCBI:tx
+Line 18320: ENSG00000232543	IGHD4-11	immunoglobulin heavy diversity 4-11 (non-functional) [Source:HGNC Symbol;Acc:HGN
+Line 18341: ENSG00000233655	IGHD4-4	immunoglobulin heavy diversity 4-4 [Source:HGNC Symbol;Acc:HGNC:5505]	[]	NCBI:tx
+Line 18404: ENSG00000236170	IGHD1-1	immunoglobulin heavy diversity 1-1 [Source:HGNC Symbol;Acc:HGNC:5482]	["ENTREZ:2
+Line 18404: 5482", "IGHD1-1", "IGHD11", "immunoglobulin heavy diversity 1-1"]	NCBI:txid9606
+Line 18416: ENSG00000236597	IGHD7-27	immunoglobulin heavy diversity 7-27 [Source:HGNC Symbol;Acc:HGNC:5518]	[]	NCBI:t
+Line 18424: ENSG00000237020	IGHD1-20	immunoglobulin heavy diversity 1-20 [Source:HGNC Symbol;Acc:HGNC:5484]	[]	NCBI:t
+Line 18431: ENSG00000237197	IGHD1-7	immunoglobulin heavy diversity 1-7 [Source:HGNC Symbol;Acc:HGNC:5486]	[]	NCBI:tx
+Line 19537: ENSG00000282253	TRBD1	T cell receptor beta diversity 1 [Source:HGNC Symbol;Acc:HGNC:12158]	[]	NCBI:txi
+	================ Matches for 'diversity' in ingest/c2m2s/LINCS/datapackage/project.tsv: =============
+Line 5: DSGCs, including data curated from ChEMBL, Tox21, diversity-oriented synthesis activities at the Broad Instit
+	================ Matches for 'diversity' in ingest/c2m2s/LINCS/datapackage/collection.tsv: =============
+Line 81: were measured for ~18,000 compounds derived from diversity-oriented synthesis activities at the Broad Instit
+Line 175: line treated with ~21 thousands of compounds from diversity-oriented-synthesis (DOS) library.	False
+	================ Matches for 'diversity' in ingest/c2m2s/Metabolomics/MW_submission_packet_20251214/MW_submission_packet_20251214/gene.tsv: =============
+Line 6028: ENSG00000271317	IGHD4OR15-4A	immunoglobulin heavy diversity 4/OR15-4A (non-functional) [Source:HGNC Symbol;Ac
+Line 6397: ENSG00000282373	IGHD3-10	immunoglobulin heavy diversity 3-10 [Source:HGNC Symbol;Acc:HGNC:5495]	["DXP'1",
+Line 6399: ENSG00000282455	IGHD7-27	immunoglobulin heavy diversity 7-27 [Source:HGNC Symbol;Acc:HGNC:5518]	["DHQ52",
+Line 6400: ENSG00000282520	IGHD3OR15-3A	immunoglobulin heavy diversity 3/OR15-3A (non-functional) [Source:HGNC Symbol;Ac
+Line 6411: ENSG00000282754	IGHD3-3	immunoglobulin heavy diversity 3-3 [Source:HGNC Symbol;Acc:HGNC:5498]	["DXP4", "
+	================ Matches for 'diversity' in ingest/c2m2s/Metabolomics/MW_submission_packet_20251214/MW_submission_packet_20251214/project.tsv: =============
+Line 11: udies	Compare metabolomic, phenotypic and genetic diversity across various groups of Africans.
+Line 126: asibility of metabolomics and to characterize the diversity of ?metabotypes? in the horse, towards discovery
 Line 248: 325	http://dx.doi.org/10.21228/M8788V			Armpit Biodiversity Metabolites and Odors	Diverse communities of micr
+Line 248: technologies has it become possible to sample the diversity of the microbiota that inhabits the outer surface
+Line 361: ations	Neotropical Atlantic Rainforest is a plant diversity rich biome and encompasses distinct vegetation fo
+Line 572: try was performed. Clinical signs, alpha and beta diversity metrics, dysbiosis indices, proportions of bacter
+Line 572: ence was not statistically significant. Bacterial diversity decreased significantly on days 26-28 in both tre
+Line 631: raft-versus-host disease independent of microbial diversity	Host NLRP6 regulates innate immune responses and
+Line 631: er. Host innate immunity and changes in microbial diversity also play a role in the severity of allo-immune-m
+Line 732: and 16S rRNA genes were sequenced. The bacterial diversity and composition of each sample was determined. Ri
+Line 747: ater (1:1, v/v). The greatest extraction rate and diversity of metabolites occurs with extraction solvents A
+Line 747: action solvent B and C showed inferior metabolite diversity. Metabolite set enrichment analysis results showe
+Line 894: R001004	http://dx.doi.org/10.21228/M8X98D			Large diversity in nitrogen- and sulfur-containing compatible sol
+Line 894: utes and free amino acid pools. There was a large diversity of metabolite concentrations between diatoms with
+Line 902: te used to adjust for multiple comparisons. Alpha diversity metrics differed significantly over time in both
+Line 902: ups, with incomplete recovery by days 82-84. Beta diversity and the dysbiosis index differed significantly ov
+Line 909: mmunity. Yet relatively little is known about the diversity or concentration of polar metabolites within mari
+Line 919: obesity, demonstrate the genotypic and phenotypic diversity of the CC for studying complex traits, and highli
+Line 1034: genes on fecal DNA was performed. Alpha and beta diversity metrics were generated using QIIME 2.0. A Kruskal
+Line 1041: ypes, we provide the most comprehensive map of MF diversity to date, along with the global metabolic shifts t
+Line 1105: y analyses have focused on assessing the chemical diversity across the genus. The present study focused on th
+Line 1116: 234	http://dx.doi.org/10.21228/M86H5T			Metabolic diversity of the maize inbred lines	Profiles of primary met
+Line 1141: al heterogeneity in ovarian cancer, the metabolic diversity of a panel of high grade serous ovarian carcinoma
+Line 1283: tions are studied taking advantage of the natural diversity existing within a wild and model species (Arabido
+Line 1349: ns, low analyte concentrations, and high chemical diversity. Here we show that a cation-exchange solid phase
+Line 1358: aracterised in this study expanded the structural diversity over previously reported quick-killing compounds
+Line 1382: essive-like behaviors in mice, the complexity and diversity of the human microbiome has complicated therapeut
+Line 1389: rgy by mid-childhood. Lower infant gut microbiome diversity was associated with peanut allergy development (P
+Line 1435: mal models of WD presented reduced gut microbiota diversity compared to mice with normal copper metabolism. C
+Line 1472: he placebo group showed a significantly greater a diversity index than the control group (p < 0.05). An incre
+Line 1613: Functional divergence of CYP76AKs shapes the chemodiversity of abietane-type diterpenoids in genus Salvia	The
+Line 1613: specific to Salvia and exhibit taxonomic chemical diversity among lineages. To elucidate how ATD chemical div
+Line 1613: ese findings present a unique pattern of chemical diversity in plants that was shaped by the loss of enzyme a
+Line 1693: uisition, competitive performance, and functional diversity, but their potential metabolic interactions with
+Line 1718: ome science has been identifying and studying the diversity of metabolites produced by the gut microbes. Gut
+Line 1937: ast Targeted Metabolomics for Analyzing Metabolic Diversity of Bacterial Indole Derivatives	Disruptions in mi
+Line 1937: es. This study investigates whether the metabolic diversity—the concentration distribution—of bacterial indol
+Line 1937: lysis. This method revealed significant metabolic diversity in indole derivatives among B. uniformis strains
+Line 1937: two distinct B. uniformis clusters. The metabolic diversity between clusters was particularly evident in the
+Line 1937: and indole-3-aldehyde. We explored the metabolic diversity of indole derivatives as potential biomarkers for
+Line 1937: ccess. Our findings suggest that the local indole diversity of tryptophan degradation is a promising biomarke
+Line 1937: nd precise quantitative measurements of metabolic diversity in indole derivatives, facilitating the study of
+Line 1970: nsferases regulating phospholipid composition	The diversity of cellular phospholipids, crucial for membrane h
+Line 1999: .doi.org/10.21228/M8ZR7T			Quantifying acyl-chain diversity in isobaric compound lipids containing monomethyl
+Line 2004: oped using the H2o.ai engine. No differences in β-diversity were observed at either time point between mother
+Line 2004: s relative to normal weight (NW) infants. Simpson diversity at 12 and 34 wk was lower in mothers with LBW inf
+Line 2098: rofile, ensuring a maximum coverage of metabolite diversity to yield extensive insights into the metabolism o
+Line 2193: different regions of Xinjiang	In this study, the diversity of gut microbial profiles and their associations
+Line 2216: tabolomics. Results FMT-AID remodelled mucosal (β-diversity-adonis R2=2.13, p=0.02) and faecal (R2=2.76, p=0.
+Line 2216: cterial communities and enhanced faecal bacterial diversity (p&lt;0.001). FMT-AID enriched the gut with benef
+Line 2311: ctrometer, as well as phytoplankton biovolume and diversity and physicochemical lake’s parameters. Our result
+Line 2414: . Warmer periods correlated with higher bacterial diversity, elevated brominated metabolites, and stronger an
+Line 2445: ey, unlike some other common sweeteners, contains diversity of unique biologically active compounds with pote
+	================ Matches for 'diversity' in ingest/c2m2s/SPARC/C2M2_datapackage_20251215/project.tsv: =============
+Line 48: e specific anatomical, connectional and molecular diversity of the system in such a way as to directly predic
+Line 59: The functional significance of the neurochemical diversity of renal afferent and efferent nerves represents
+Line 68: Network seeks to provide foundational data on the diversity among cell types that comprise the pain neuraxis.
+	================ Matches for 'diversity' in ingest/c2m2s/SPARC/C2M2_datapackage_20251215/collection.tsv: =============
+Line 16: ganglionic plexus (RAGP) neurons	Transcriptional diversity of single neurons in the porcine RAGP. High throu
+Line 22: org/10.26275/7ph7-1ez4		7ph7_1ez4	Transcriptional diversity of single neurons in the porcine right atrial gan
+	================ Matches for 'diversity' in ingest/c2m2s/ExRNA/exRNA_CFDE_102025/exRNA_CFDE_102025/project.tsv: =============
+Line 65: ain unclear. Our objective was to demonstrate the diversity of circulating extracellular RNA (ex-RNA) release
 
 ================================== Matches for 'equity': ===================================
 	================ Matches for 'equity' in ingest/c2m2s/LINCS/datapackage/compound.tsv: =============
@@ -339,29 +488,37 @@ Line 2021: n", "Coroban", "Chlorpyrifos-ethyl", "Piridane", "Equity", "Lentrek",
 Line 42199: org,2022-04-04:	MOMSPI	drs://drs.hmpdacc.org/1Fn14Lgbtb34X		1057	1057	851de0a741d4a7cc2d72e9e39b17d7b76d
 Line 64501: dacc.org,2022-04-04:	MOMSPI	drs://drs.hmpdacc.org/LgBTh4K9pKDw		2700058	22137780	906f7c4ff87370bda15a0e0
 Line 124102: org,2022-04-04:	IBDMDB	drs://drs.hmpdacc.org/i6rLBLgbtiNg		32360	304050	a6c5cf83826523c3105ee0f2af813d6b
-	================ Matches for 'lgbt' in ingest/c2m2s/4DN/250924_c2m2_4dn_sub/250917_c2m2_4dn_sub/file.tsv: =============
-Line 42408: 8-cf14f05db58b	https://data.4dnucleome.org/4DNFID4LGBT1	2019-10-11	122396429			67ed7d92e0c672b443bdfc425
-Line 42408: c1db78f	4DNFID4LGBT1.fastq.gz	format:1930		data:2887	OBI:0003306		app
-Line 42408: lication/gzip				drs://data.4dnucleome.org/4DNFID4LGBT1
+	================ Matches for 'lgbt' in ingest/c2m2s/4DN/251215_4dn_c2m2_submission/251215_4dn_c2m2_submission/file.tsv: =============
+Line 43214: 8-cf14f05db58b	https://data.4dnucleome.org/4DNFID4LGBT1	2019-10-11	122396429			67ed7d92e0c672b443bdfc425
+Line 43214: c1db78f	4DNFID4LGBT1.fastq.gz	format:1930		data:2887	OBI:0003306		app
+Line 43214: lication/gzip				drs://data.4dnucleome.org/4DNFID4LGBT1
 
 ================================== Matches for 'women': ===================================
 	================ Matches for 'women' in ingest/c2m2s/HMP/datapackage/merged/data/project.tsv: =============
 Line 4: dults. It entailed sampling from 18 body sites in women and 15 in men (excluding three vaginal sites) dis
 Line 23: project characterized the microbiomes of pregnant women to gauge microbiome effects on risk of preterm bi
 Line 23: rth (PTB). The project followed 1,527 women longitudinally through pregnancy and involved the
+	================ Matches for 'women' in ingest/c2m2s/IDG/IDG_C2M2_2024-01-09_datapackage_validated/merged-datapackage_cba63847d02e8ee1ccf150a98ebe814be895333c/data/disease.tsv: =============
+Line 199: genital method. Ingestion of Listeria by pregnant women has_symptom nausea, has_symptom vomiting, has_sym
+Line 794: ngal infection of the vaginal mucous membranes in women caused by Candida albicans. The symptoms include
+Line 956: y tend to grow rapidly and present in middle-aged women (40s-50s).	["DOID:1632","DOID:3018","breast malig
+Line 1429: spite high levels of circulating gonadotropins in women under 40.	["hypergonadotropic hypogonadism","prem
+Line 1826: and sometimes disabling depression experienced by women after giving birth.	["Maternity blues","postnatal
+	================ Matches for 'women' in ingest/c2m2s/IDG/IDG_C2M2_2024-01-09_datapackage_validated/merged-datapackage_cba63847d02e8ee1ccf150a98ebe814be895333c/data/compound.tsv: =============
+Line 5872: "Regaine For Men", "Minoxidil,(S)", "Regaine For Women", "UNII-5965120SH1", "Prestwick_521", "3-hydroxy-
+Line 5872: yrimidin-4-amine", "TM-160", "Men''''s Rogaine", "Women''''s rogaine", "6-amino-2-imino-4-(piperidin-1-yl
+Line 7393: , "transdermal patch", "Lyrinel XL", "Oxytrol for Women", "Oxybutynin [USAN:INN:BAN]", "CCRIS 1923", "Oxy
 	================ Matches for 'women' in ingest/c2m2s/LINCS/datapackage/compound.tsv: =============
 Line 2903: "Regaine For Men", "Minoxidil,(S)", "Regaine For Women", "Prestwick_521", "3-hydroxy-2-imino-6-(1-piperi
 Line 2903: yrimidin-4-amine", "TM-160", "Men''''s Rogaine", "Women''''s rogaine", "Rogaine Extra Strength", "pyrimid
 Line 9052: roxy-2-phenylacetate", "Lyrinel XL", "Oxytrol for Women", "Oxybutynin [USAN:INN:BAN]", "CCRIS 1923", "Oxy
-	================ Matches for 'women' in ingest/c2m2s/ExRNA/CFDE_20250612_v2/CFDE_20250612/project.tsv: =============
-Line 3: d miRNAs in plasma from pregnant and non-pregnant women were observed with RNA-seq and EdgeSeq, but not F
-	================ Matches for 'women' in ingest/c2m2s/Metabolomics/MW_submission_packet_20250922/MW_submission_packet_20250916/project.tsv: =============
+	================ Matches for 'women' in ingest/c2m2s/Metabolomics/MW_submission_packet_20251214/MW_submission_packet_20251214/project.tsv: =============
 Line 30: y area is in Gómez Palacio, Durango, Mexico where women are exposed to levels of iAs in drinking water up
 Line 40: s reporting a decline in reproductive function in women that is coincident with changing patterns of West
 Line 40: technology, it has also been reported that aging women, and those with reduced ovarian reserve, have alt
 Line 40: ctive hormones compared to normal ovarian reserve women. Therefore, this methodology is ideal for determi
 Line 40: m two well-established nonhuman primate models of women?s health (Macaca fascicularis and Chlorocebus aet
-Line 56: Sex, Steroids, Sleep and Metabolic Dysfunction in Women	Sex obstructive sleep apnea studies
+Line 56: Sex, Steroids, Sleep and Metabolic Dysfunction in Women	Gender obstructive sleep apnea studies
 Line 118: when combined with oral contraceptives. Usually, women initiate nicotine usage during their adolescence,
 Line 118: usage taking in consideration hormonal cycles in women. Discerning the exact effects of nicotine and its
 Line 118: susceptibility to neurodegenerative conditions in women trying to give up nicotine addiction.
@@ -431,87 +588,79 @@ Line 1567: ere independent risk factor for developing CAC in women with SLE. The
 Line 1567: ved metabolites, were also associated with CAC in women with SLE. Backward stepwise logistic regression m
 Line 1567: , P<0.001) of the presence of coronary calcium in women with SLE. Conclusion. The present study uncovers
 Line 1572: ling data at two time-points in pregnancy for all women in order to identify trimester-specific metabolom
-Line 1599: bolomics and lung cancer risk among never-smoking women in Shanghai Women’s Health Study	Background: The
-Line 1599: elucidated despite 15% of cases in men and 53% in women worldwide are not smoking-related. Metabolomics p
-Line 1599: ods and Findings: Within the prospective Shanghai Women’s Health Study, we conducted a nested case-contro
-Line 1638: by reduced plasma lipid mediators among lactating women in the Philippines: A pilot study	Low vitamin A (
-Line 1638: VA) status is common among lactating women in low-income countries. Lactation has substantia
-Line 1638: ith low VA status versus VA adequacy in lactating women. Plasma samples from lactating women who particip
-Line 1638: low VA status compared with adequacy in lactating women was characterized by reduced lipid mediator conce
-Line 1717: t malignancies and a leading cause of death among women worldwide. Among its subtypes, triple-negative br
-Line 1739: prometabolic Syndrome of Obesity in Normal Weight Women	Objective: We examined the effects of one month o
-Line 1739: (HFD) on gonadotropin secretion in normal weight women to interrogate the role of free fatty acids and i
-Line 1739: nadism of obesity. Methods: Eighteen eumenorrheic women (BMI 18-25 kg/m2) were studied in the early folli
-Line 1739: tures of Reprometabolic Syndrome in normal weight women. Dietary factors may underly the gonadotrope comp
-Line 1760: ands as the most prevalent gynecological tumor in women worldwide. Notably, differentiation diagnosis of
-Line 1835: ly plasma metabolites in pre- and post-menopausal women	Depression will be the disease with the highest i
-Line 1835: ldwide by 2030. Data indicate that postmenopausal women have a higher incidence of mood disorders, and th
-Line 1835: metabolites and lipids of pre- and postmenopausal women to explore whether the profile is affected by dep
-Line 1835: d consent. 42 premenopausal and 67 postmenopausal women had the depression symptoms assessed by the Beck
-Line 1835: thionine that were up-regulated. In premenopausal women with depression, Oxidized Glutathione was down-re
-Line 1835: affected by depression symptoms in pre-menopausal women PC(36:1)/PC(18:1(9Z)/18:0), PC(19:0/19:0), and LT
-Line 1835: laoyl-PAF were down-regulated. In post-menopausal women PC(16:1(9z)/16:1(9z)) and 14,15-DHET were down-re
-Line 1835: ip in the occurrence of obesity and depression in women the hormonal status influenced the effect of depr
-Line 1835: ession in women and that this status may be taken into account wh
-Line 1905: ast cancer, which is the most diagnosed cancer in women worldwide. We and others have reported a central
-Line 1911: ictive index (PEPI) score. Eligible patients were women with ER+/HER2- primary BC cT2 or greater. Stratif
-Line 1937: ee glutamate concentrations in healthy Ecuadorian women	Project Summary: To examine the differences in mi
-Line 1937: longitudinal cohort study for healthy Ecuadorian women was conducted. This deposition is for the glutama
-Line 1985: se untargeted metabolomics data acquired from 300 women at 3 timepoints during pregnancy whose urine samp
-Line 1994: -Birth Weight in Guatemalan Participants from the Women First Trial	Low birth weight (babies born at less
-Line 1994: ed settings. This was a secondary analysis of the Women First trial conducted in a semi-rural region of G
-Line 2014: C2C			Dysregulated Follicular Fluid Metabolism in Women with Unexplained Infertility	Research Question: A
-Line 2014: lomic alterations in the Follicular fluid (FF) of women with unexplained infertility (UI)? Study Design:
-Line 2014: This case-control study included 20 women undergoing in-vitro fertilization (IVF), comparin
-Line 2014: g 10 women diagnosed with UI to 10 control women whose male partners had abnormal semen parameters
-Line 2014: oocyte maturation, and IVF outcomes. Results: In women with UI, 12 metabolites, including Diacylglycerol
-Line 2014: erization of metabolic dysregulation in the FF of women with UI, offering novel insights into the underly
-Line 2014: essment of vitamin D3 levels in serum/FF of these women.
-Line 2030: llets from liquid-based Pap tests from 29 healthy women were analyzed via ultra-high performance liquid c
-Line 2058: lysis of serum and placenta samples from pregnant women to identify exogenous chemicals.
-Line 2072: ression changes, and neighborhood disadvantage in women with primary ER+ BC compared to cancer-free contr
-Line 2072: : Pretreatment plasma samples were collected from women with primary ER+ BC (n=98) and cancer-free contro
-Line 2086: and performance, indicate a higher complexity in women and a limitation of previous knowledge to men onl
-Line 2090: regnancy and generally resolved after childbirth. Women with a GDM history are 7 times more subject to de
-Line 2090: elop type 2 diabetes compared to healthy pregnant women. Metabolic alteration during pregnancy has been s
-Line 2090: Metabolomics of collected blood from GDM pregnant women indicate that GDM is associated with alteration o
-Line 2090: fully determined particularly with Middle Eastern women. Developing such data in comparison to published
-Line 2090: ed metabolic pathways and metabolites in pregnant women with GDM compared to healthy pregnant women. Trap
-Line 2090: d on blood samples collected from 32 GDM pregnant women in comparison to 20 healthy pregnant women. This
-Line 2090: control group, which consists of normal pregnant women, the gestational diabetes group had significantly
-Line 2227: rt of newly diagnosed, treat-ment-naive Colombian women. Samples were analyzed using LC-QTOF-MS and GC-QT
-Line 2247: plasma and peritoneal fluid samples obtained from women with endometriosis and compare them to those of t
-Line 2247: group. It involves the collection of samples from women undergoing laparoscopic surgery in several medica
-Line 2298: s the leading cause of cancer-related death among women in the Middle East and North Africa, with particu
-	================ Matches for 'women' in ingest/c2m2s/IDG/IDG_C2M2_2024-01-09_datapackage_validated/merged-datapackage_cba63847d02e8ee1ccf150a98ebe814be895333c/data/compound.tsv: =============
-Line 5872: "Regaine For Men", "Minoxidil,(S)", "Regaine For Women", "UNII-5965120SH1", "Prestwick_521", "3-hydroxy-
-Line 5872: yrimidin-4-amine", "TM-160", "Men''''s Rogaine", "Women''''s rogaine", "6-amino-2-imino-4-(piperidin-1-yl
-Line 7393: , "transdermal patch", "Lyrinel XL", "Oxytrol for Women", "Oxybutynin [USAN:INN:BAN]", "CCRIS 1923", "Oxy
-	================ Matches for 'women' in ingest/c2m2s/IDG/IDG_C2M2_2024-01-09_datapackage_validated/merged-datapackage_cba63847d02e8ee1ccf150a98ebe814be895333c/data/disease.tsv: =============
-Line 199: genital method. Ingestion of Listeria by pregnant women has_symptom nausea, has_symptom vomiting, has_sym
-Line 794: ngal infection of the vaginal mucous membranes in women caused by Candida albicans. The symptoms include
-Line 956: y tend to grow rapidly and present in middle-aged women (40s-50s).	["DOID:1632","DOID:3018","breast malig
-Line 1429: spite high levels of circulating gonadotropins in women under 40.	["hypergonadotropic hypogonadism","prem
-Line 1826: and sometimes disabling depression experienced by women after giving birth.	["Maternity blues","postnatal
-	================ Matches for 'women' in ingest/c2m2s/SPARC/C2M2_datapackage_202509/project.tsv: =============
+Line 1600: bolomics and lung cancer risk among never-smoking women in Shanghai Women’s Health Study	Background: The
+Line 1600: elucidated despite 15% of cases in men and 53% in women worldwide are not smoking-related. Metabolomics p
+Line 1600: ods and Findings: Within the prospective Shanghai Women’s Health Study, we conducted a nested case-contro
+Line 1639: by reduced plasma lipid mediators among lactating women in the Philippines: A pilot study	Low vitamin A (
+Line 1639: VA) status is common among lactating women in low-income countries. Lactation has substantia
+Line 1639: ith low VA status versus VA adequacy in lactating women. Plasma samples from lactating women who particip
+Line 1639: low VA status compared with adequacy in lactating women was characterized by reduced lipid mediator conce
+Line 1720: t malignancies and a leading cause of death among women worldwide. Among its subtypes, triple-negative br
+Line 1743: prometabolic Syndrome of Obesity in Normal Weight Women	Objective: We examined the effects of one month o
+Line 1743: (HFD) on gonadotropin secretion in normal weight women to interrogate the role of free fatty acids and i
+Line 1743: nadism of obesity. Methods: Eighteen eumenorrheic women (BMI 18-25 kg/m2) were studied in the early folli
+Line 1743: tures of Reprometabolic Syndrome in normal weight women. Dietary factors may underly the gonadotrope comp
+Line 1764: ands as the most prevalent gynecological tumor in women worldwide. Notably, differentiation diagnosis of
+Line 1841: ly plasma metabolites in pre- and post-menopausal women	Depression will be the disease with the highest i
+Line 1841: ldwide by 2030. Data indicate that postmenopausal women have a higher incidence of mood disorders, and th
+Line 1841: metabolites and lipids of pre- and postmenopausal women to explore whether the profile is affected by dep
+Line 1841: d consent. 42 premenopausal and 67 postmenopausal women had the depression symptoms assessed by the Beck
+Line 1841: thionine that were up-regulated. In premenopausal women with depression, Oxidized Glutathione was down-re
+Line 1841: affected by depression symptoms in pre-menopausal women PC(36:1)/PC(18:1(9Z)/18:0), PC(19:0/19:0), and LT
+Line 1841: laoyl-PAF were down-regulated. In post-menopausal women PC(16:1(9z)/16:1(9z)) and 14,15-DHET were down-re
+Line 1841: ip in the occurrence of obesity and depression in women the hormonal status influenced the effect of depr
+Line 1841: ession in women and that this status may be taken into account wh
+Line 1913: ast cancer, which is the most diagnosed cancer in women worldwide. We and others have reported a central
+Line 1919: ictive index (PEPI) score. Eligible patients were women with ER+/HER2- primary BC cT2 or greater. Stratif
+Line 1946: ee glutamate concentrations in healthy Ecuadorian women	Project Summary: To examine the differences in mi
+Line 1946: longitudinal cohort study for healthy Ecuadorian women was conducted. This deposition is for the glutama
+Line 1995: se untargeted metabolomics data acquired from 300 women at 3 timepoints during pregnancy whose urine samp
+Line 2004: -Birth Weight in Guatemalan Participants from the Women First Trial	Low birth weight (babies born at less
+Line 2004: ed settings. This was a secondary analysis of the Women First trial conducted in a semi-rural region of G
+Line 2026: C2C			Dysregulated Follicular Fluid Metabolism in Women with Unexplained Infertility	Research Question: A
+Line 2026: lomic alterations in the Follicular fluid (FF) of women with unexplained infertility (UI)? Study Design:
+Line 2026: This case-control study included 20 women undergoing in-vitro fertilization (IVF), comparin
+Line 2026: g 10 women diagnosed with UI to 10 control women whose male partners had abnormal semen parameters
+Line 2026: oocyte maturation, and IVF outcomes. Results: In women with UI, 12 metabolites, including Diacylglycerol
+Line 2026: erization of metabolic dysregulation in the FF of women with UI, offering novel insights into the underly
+Line 2026: essment of vitamin D3 levels in serum/FF of these women.
+Line 2044: llets from liquid-based Pap tests from 29 healthy women were analyzed via ultra-high performance liquid c
+Line 2074: lysis of serum and placenta samples from pregnant women to identify exogenous chemicals.
+Line 2081: 8F83T			Untargeted Lipidomics of African American women at 8-10 months postpartum	Lipid dysregulation is
+Line 2081: cted 8-10 months postpartum from African American women who were diagnosed with cardiometabolic complicat
+Line 2081: eased in the postpartum serum of African American women who experienced cardiometabolic complications of
+Line 2081: these findings demonstrate that African American women who experienced cardiometabolic complications of
+Line 2092: ression changes, and neighborhood disadvantage in women with primary ER+ BC compared to cancer-free contr
+Line 2092: : Pretreatment plasma samples were collected from women with primary ER+ BC (n=98) and cancer-free contro
+Line 2106: and performance, indicate a higher complexity in women and a limitation of previous knowledge to men onl
+Line 2110: regnancy and generally resolved after childbirth. Women with a GDM history are 7 times more subject to de
+Line 2110: elop type 2 diabetes compared to healthy pregnant women. Metabolic alteration during pregnancy has been s
+Line 2110: Metabolomics of collected blood from GDM pregnant women indicate that GDM is associated with alteration o
+Line 2110: fully determined particularly with Middle Eastern women. Developing such data in comparison to published
+Line 2110: ed metabolic pathways and metabolites in pregnant women with GDM compared to healthy pregnant women. Trap
+Line 2110: d on blood samples collected from 32 GDM pregnant women in comparison to 20 healthy pregnant women. This
+Line 2110: control group, which consists of normal pregnant women, the gestational diabetes group had significantly
+Line 2257: rt of newly diagnosed, treat-ment-naive Colombian women. Samples were analyzed using LC-QTOF-MS and GC-QT
+Line 2280: plasma and peritoneal fluid samples obtained from women with endometriosis and compare them to those of t
+Line 2280: group. It involves the collection of samples from women undergoing laparoscopic surgery in several medica
+Line 2337: s the leading cause of cancer-related death among women in the Middle East and North Africa, with particu
+Line 2359: t metabolism. To address this, urine samples from women with PPROM and healthy controls were analyzed usi
+Line 2359: icrobial and metabolic signatures in the urine of women with PPROM and support the utility of urinary mul
+Line 2420: month intermittent fasting in middle-aged men and women with overweight: secondary outcomes of a randomiz
+Line 2420: lar pathways in middle-aged (30-65 years) men and women with overweight (BMI 24.8–35 kg/m²). In this tria
+	================ Matches for 'women' in ingest/c2m2s/SPARC/C2M2_datapackage_20251215/project.tsv: =============
 Line 33: the prevalence of both conditions being higher in women than in men (female to male ratio: 2:1 for IBS, 5
 Line 39: ence of GI visceral pain syndromes experienced by women. Our team brings an unusually wide ranging and in
+	================ Matches for 'women' in ingest/c2m2s/ExRNA/exRNA_CFDE_102025/exRNA_CFDE_102025/project.tsv: =============
+Line 3: d miRNAs in plasma from pregnant and non-pregnant women were observed with RNA-seq and EdgeSeq, but not F
 
 ================================== Matches for 'trans-gen': ===================================
 
 ================================== Matches for 'transgen': ===================================
-	================ Matches for 'transgen' in ingest/c2m2s/4DN/250924_c2m2_4dn_sub/250917_c2m2_4dn_sub/project.tsv: =============
-Line 3: NUCLEAR NICHE(S) USING NOVEL PROTEOMIC, GENOMIC, TRANSGENIC, AND LIVE-CELL MICROSCOPY TECHNOLOGIES
-	================ Matches for 'transgen' in ingest/c2m2s/SCGE/C2M2-10/project.tsv: =============
-Line 47: xpressing SpCas9 and guide RNAs targeting the Ai9 transgene were tested in HEK293T cells by transient transf
-Line 50: guide RNA targeting the stop sequence in the Ai14 transgene are intracerebrally delivered to Ai14 mice and g
-Line 51: liverying SpCas9 and guide RNAs targeting the Ai9 transgene in Ai9 transgenic mice. Viral delivery was detec
-Line 55: troporation in presence of amphiphilic peptide to transgenic human HEK-293T cells harboring the TLR-MCV1 rep
-Line 57: and tracrRNA were delivered by electroporation to transgenic human HEK-293T cells harboring the TLR1 reporte
-Line 60: he Ai9 locus in vitro (SCGE:18000000022)	Reporter transgene activation by SaCas9 gRNA target and modified sc
-Line 86: liverying SpCas9 and guide RNAs targeting the Ai9 transgene in Ai9 transgenic mice. Gene editing quantified
-Line 109: ene were used in human kidney organoids to assess transgene delivery to nephron epithelia. Organoids were tr
-	================ Matches for 'transgen' in ingest/c2m2s/Metabolomics/MW_submission_packet_20250922/MW_submission_packet_20250916/project.tsv: =============
+	================ Matches for 'transgen' in ingest/c2m2s/GlyGen/glygen_cfde_2025_dec_data_submission/glygen_cfde_2025_sept_data_submission/protein.tsv: =============
+Line 140760: 9	TASOR_MOUSE	Protein TASOR	["E9PUH2", "Q9CUD3", "Transgene activation suppressor protein"]	NCBI:txid10090
+Line 183466: 1	TASOR_HUMAN	Protein TASOR	["Q9UPP7", "Q9H2F7", "Transgene activation suppressor protein", "Retinoblastoma-
+	================ Matches for 'transgen' in ingest/c2m2s/Metabolomics/MW_submission_packet_20251214/MW_submission_packet_20251214/project.tsv: =============
 Line 198: se CBS gene and instead contains a human CBS cDNA transgene that is under control of a zinc inducible MT-1 p
 Line 203: 28/M8VC8G			Non targeted meatbolomic profiling of transgenic- humanized amylin producing rats	Non targeted m
 Line 374: urine samples from SS rats and a newly generated transgenic rat that overexpresses fumarase (SS.Fh1+). The
@@ -532,29 +681,39 @@ Line 1216: s within the retina, while degenerating axons. In transgenic bacteria
 Line 1216: ched wild-type uninjured optic nerves, or control transgenic mice, were also analyzed. Metabolites were care
 Line 1284: induced mouse model of pancreatitis (Pt) and of a transgenic mouse model of pancreatic cancer (PCa) were use
 Line 1429: ecular changes. We profile the lipid changes in a transgenic line of 1 year old Xenopus laevis Tg(islet2b:gf
-Line 1694: Role of PI3K in Atrial Myopathy: Insights from Transgenic Mouse Models and Identification of a Dysregulat
-Line 1694: ibrosis and thrombi was identified in a subset of transgenic mice with reduced phosphoinositide 3-kinase (PI
-Line 1694: ogical and molecular analyses in cardiac-specific transgenic mice with increased or decreased PI3K to assess
-Line 1698: n-vitro and in-vivo models. Particularly, we used transgenic mice in which the Cgref1 gene is deleted to ena
-Line 1858: t PR has metabolic benefits for 3xTg mice and non-transgenic controls of both sexes, promoting leanness and
-Line 1864: ecular changes. We profile the lipid changes in a transgenic line of 1 year old Xenopus laevis Tg(islet2b:gf
-Line 1884: the metabolite changes in the optic tissues of a transgenic line of 1 year old Xenopus laevis Tg(islet2b:gf
-Line 1912: d mouse peritoneal macrophages isolated from LDAH-transgenic mice and wild-type littermate controls with oxi
-Line 1975: NMR metabolomics applied to assess the direct and transgenerational effects of simvastatin on the metabolism
-Line 1975: rough direct exposure but also through inter- and transgenerational inheritance (in the absence of the insul
-Line 1975: revious studies observed that direct exposure and transgenerational exposure to simvastatin has been found t
-Line 1975: y relevant concentrations of simvastatin (F0) and transgenerational exposure (F3, where only the F0 generati
-Line 1988: ptomic profiles acquired in both wildtype and APP transgenic animals, allowing us to disentangle TREM2 versu
-Line 1993: ate, cardiac-specific expression of a human ADRB3 transgene (β3AR-Tg) and subjected to transverse aortic con
-	================ Matches for 'transgen' in ingest/c2m2s/GlyGen/glygen_cfde_2025_sept_data_submission/protein.tsv: =============
-Line 140780: Q69ZR9	TASOR_MOUSE	Protein TASOR	["E9PUH2", "Transgene activation suppressor protein", "Q9CUD3"]	NCBI:t
-Line 183477: d protein RAP140", "A1L3A4", "B5ME28", "Q9UPP7", "Transgene activation suppressor protein", "CTCL tumor anti
-	================ Matches for 'transgen' in ingest/c2m2s/SPARC/C2M2_datapackage_202509/project.tsv: =============
+Line 1697: Role of PI3K in Atrial Myopathy: Insights from Transgenic Mouse Models and Identification of a Dysregulat
+Line 1697: ibrosis and thrombi was identified in a subset of transgenic mice with reduced phosphoinositide 3-kinase (PI
+Line 1697: ogical and molecular analyses in cardiac-specific transgenic mice with increased or decreased PI3K to assess
+Line 1701: n-vitro and in-vivo models. Particularly, we used transgenic mice in which the Cgref1 gene is deleted to ena
+Line 1865: t PR has metabolic benefits for 3xTg mice and non-transgenic controls of both sexes, promoting leanness and
+Line 1871: ecular changes. We profile the lipid changes in a transgenic line of 1 year old Xenopus laevis Tg(islet2b:gf
+Line 1891: the metabolite changes in the optic tissues of a transgenic line of 1 year old Xenopus laevis Tg(islet2b:gf
+Line 1920: d mouse peritoneal macrophages isolated from LDAH-transgenic mice and wild-type littermate controls with oxi
+Line 1984: NMR metabolomics applied to assess the direct and transgenerational effects of simvastatin on the metabolism
+Line 1984: rough direct exposure but also through inter- and transgenerational inheritance (in the absence of the insul
+Line 1984: revious studies observed that direct exposure and transgenerational exposure to simvastatin has been found t
+Line 1984: y relevant concentrations of simvastatin (F0) and transgenerational exposure (F3, where only the F0 generati
+Line 1998: ptomic profiles acquired in both wildtype and APP transgenic animals, allowing us to disentangle TREM2 versu
+Line 2003: ate, cardiac-specific expression of a human ADRB3 transgene (β3AR-Tg) and subjected to transverse aortic con
+Line 2016: the proinflammatory mediator LTB4 by macrophages. Transgenic mice were created with a population of cardiac
+Line 2428: tic and cerebral lipidomes in wild-type and fat-1 transgenic (endogenous omega-3 PUFA-producing) mice subjec
+	================ Matches for 'transgen' in ingest/c2m2s/SPARC/C2M2_datapackage_20251215/project.tsv: =============
 Line 7: mans. Mice will be utilized for studies involving transgenic, optogenetics and viral tracing approaches. Thi
 Line 10: herapy. Studies in Aim 1 will use combinations of transgenic mouse models and fluorescent neuronal tracers t
 Line 36: ity to genetically modify the system to develop a transgenic model that can be stimulated with light to targ
 Line 43: mans. Mice will be utilized for studies involving transgenic, optogenetics and viral tracing approaches. Thi
 Line 44: pproach to identify the pain pathways using novel transgenic and viral vector tracing strategies. We expect
-	================ Matches for 'transgen' in ingest/c2m2s/SPARC/C2M2_datapackage_202509/collection.tsv: =============
+	================ Matches for 'transgen' in ingest/c2m2s/SPARC/C2M2_datapackage_20251215/collection.tsv: =============
 Line 27: c plexus (RAGP)	Animal study (C57BL/6J background transgenic mice) to determine the involvement of the super
+	================ Matches for 'transgen' in ingest/c2m2s/4DN/251215_4dn_c2m2_submission/251215_4dn_c2m2_submission/project.tsv: =============
+Line 7: NUCLEAR NICHE(S) USING NOVEL PROTEOMIC, GENOMIC, TRANSGENIC, AND LIVE-CELL MICROSCOPY TECHNOLOGIES
+	================ Matches for 'transgen' in ingest/c2m2s/SCGE/scge_cfde_submission_20251016_143304/project.tsv: =============
+Line 47: xpressing SpCas9 and guide RNAs targeting the Ai9 transgene were tested in HEK293T cells by transient transf
+Line 50: guide RNA targeting the stop sequence in the Ai14 transgene are intracerebrally delivered to Ai14 mice and g
+Line 51: liverying SpCas9 and guide RNAs targeting the Ai9 transgene in Ai9 transgenic mice. Viral delivery was detec
+Line 55: troporation in presence of amphiphilic peptide to transgenic human HEK-293T cells harboring the TLR-MCV1 rep
+Line 57: and tracrRNA were delivered by electroporation to transgenic human HEK-293T cells harboring the TLR1 reporte
+Line 60: he Ai9 locus in vitro (SCGE:18000000022)	Reporter transgene activation by SaCas9 gRNA target and modified sc
+Line 86: liverying SpCas9 and guide RNAs targeting the Ai9 transgene in Ai9 transgenic mice. Gene editing quantified
+Line 109: ene were used in human kidney organoids to assess transgene delivery to nephron epithelia. Organoids were tr
 

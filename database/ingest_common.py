@@ -298,7 +298,8 @@ def pdp_helper():
 # TODO: I think the dcc label should be preserved instead of a uuid in this tsv..
 
 # require dccapproved or not: True or False
-require_dccapproved=False
+#require_dccapproved=False
+require_dccapproved=True
 
 ingest_path = pathlib.Path('ingest')
 

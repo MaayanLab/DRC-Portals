@@ -16,10 +16,15 @@
 
 # To do a quick check if each DCC has only one valid C2M2 package listed in the file ingest/DccAssets.tsv
 # If not already downloaded: can do: be in folder ingest: (see also ../ingest_common.py for the URL and file names)
+cd ingest
 # wget https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_assets.tsv && mv current_dcc_assets.tsv DccAssets.tsv
 # OR
-# curl https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_assets.tsv -o "DccAssets.tsv"
+curl https://cfde-drc.s3.amazonaws.com/database/files/current_dcc_assets.tsv -o "DccAssets.tsv"
+curl https://cfde-drc.s3.amazonaws.com/database/files/current_file_assets.tsv -o "FileAssets.tsv"
+curl https://cfde-drc.s3.amazonaws.com/database/files/current_dccs.tsv -o "DCC.tsv"
+
 # Then be in C2M2 folder (cd ..)
+cd ..
 ./get_current_notdeleted_assets_list.sh ingest/DccAssets.tsv C2M2
 # Can also process ../ingest/DccAssets.tsv (ingest/DccAssets.tsv in the parent folder named database)
 ./get_current_notdeleted_assets_list.sh ../ingest/DccAssets.tsv C2M2
@@ -28,9 +33,10 @@
 # Check the resulting output files like validDcc_XMT.tsv inside ../ingest/
 # ingest]$ cat validDcc_XMT.tsv |grep "\.gmt"|cut -d$'\t' -f1|cut -d'/' -f4|sort|uniq
 # ingest]$ egrep -e "file_path.parent:ingest/assertions" ../log/log_ingest_kg.log
+# Important: as needed, modify ingest/DccAssets.tsv to adjust the approval labels
 
 # If a new DCC submitted metadata, the corresponding schema name (for DCC-specific schema) or  
-# dcc_short_label in the table c2m2.id_namespace_dcc_id must be included. One can do as below 
+# dcc_short_label in the table c2m2.id_namespace_dcc_id must be included after initial ingest. One can do as below 
 # to find which files need to be updated for this
 egrep -ie "hubmap" *.sh
 egrep -ie "hubmap" *.sql # likely none
@@ -73,14 +79,18 @@ egrep -i -e "Error" ${logf} > ${logdir}/error_in_schemaC2M2_download_${ymd}.log;
 
 #
 # To get the list of files and lines with specific keywords 
-./extract_keyword_phrases.sh kwlog/lines_from_dcc_files_with_keywords.txt kwlog/lines_from_dcc_files_with_phrase_around_keywords.txt
+logf=kwlog/log_extract_keyword_phrases.log
+./extract_keyword_phrases.sh kwlog/lines_from_dcc_files_with_keywords.txt kwlog/lines_from_dcc_files_with_phrase_around_keywords.txt 2>&1 | tee ${logf};
 
 #To replace any specific words with another words in the tsv files directly, before ingesting
 # Please check the lines in the script replace_gender_sex_women_female_in_tsvfiles to see which keywords are being replaced by what
 logf=${logdir}/log_replace_gender_sex_women_female_in_tsvfiles.log
 ./replace_gender_sex_women_female_in_tsvfiles.sh ingest/c2m2s 2>&1 | tee ${logf};
 date_div >> ${logf};
-./extract_keyword_phrases.sh kwlog/cleaned_lines_from_dcc_files_with_keywords.txt kwlog/cleaned_lines_from_dcc_files_with_phrase_around_keywords.txt
+
+logf=kwlog/log_cleaned_extract_keyword_phrases.log
+./extract_keyword_phrases.sh kwlog/cleaned_lines_from_dcc_files_with_keywords.txt kwlog/cleaned_lines_from_dcc_files_with_phrase_around_keywords.txt 2>&1 | tee ${logf};
+
 #for file in $(find ingest/c2m2s -type f -name "*.tsv"); do egrep -i -e "sex" ${file}|wc -l; done
 #for file in $(find ingest/c2m2s -type f -name "*.tsv"); do egrep -i -e "gender" ${file}; done
 
@@ -111,6 +121,23 @@ egrep -i -e "Error" ${logf} > ${logdir}/error_in_schemaC2M2_ingestion_${ymd}.log
 # statements are also printed.
 ./gen_sql_select_count_delete_statements.sh fk_referenced_tables.txt sql_select_count_delete_keywords_statements.sql
 
+#------------------------------------
+# To ingest controlled vocabulary files into c2m2 schema
+# on psql prompt while being in database folder: \i ingest_CV.sql
+# on bash prompt : psql -h localhost -U drc -d drc -a -f ingest_CV.sql # this may prompt for DB password if not stored in ~/.pgpass file (permission 600)
+#psql -h localhost -U drc -d drc -p [5432|5433] -a -f ingest_CV.sql
+#psql -h sc-cfdedbdev.sdsc.edu -v ON_ERROR_STOP=1 -U drcadmin -d drc -p 5432 -a -f ingest_CV.sql -o ${logdir}/log_ingest_CV.log
+# To update ingest_CV.sql itself
+./gen_ingest_script.sh ingest_CV.sql
+logf=${logdir}/log_ingest_CV.log
+date_div >> ${logf};
+psql "$(python3 dburl.py)" -a -f ingest_CV.sql -L ${logf}
+date_div >> ${logf};
+# To be added if needed: using python script: I am using \COPY inside the sql file, so
+# with self.connection as cursor: cursor.executescript(open("ingest_CV.sql", "r").read())
+# will not work unless absolute path for the source tsv file is used.
+
+#------------------------------------
 # To sanitize the C2M2 tables by deleting records with matching keywords
 #logf=${logdir}/log_sanitize_C2M2_tables_for_keywords_C2M2_2.log
 logf=${logdir}/log_sanitize_C2M2_tables_for_keywords_ALL.log
@@ -152,34 +179,21 @@ date_div >> ${logf};
 # * See some queries in c2m2_crosscheck_basic_queries.sql
 # Thought: semi-automate the comparison by fetching from the two DB then presenting as one table using shell scripting
 
-# To ingest controlled vocabulary files into c2m2 schema
-# on psql prompt while being in database folder: \i ingest_CV.sql
-# on bash prompt : psql -h localhost -U drc -d drc -a -f ingest_CV.sql # this may prompt for DB password if not stored in ~/.pgpass file (permission 600)
-#psql -h localhost -U drc -d drc -p [5432|5433] -a -f ingest_CV.sql
-#psql -h sc-cfdedbdev.sdsc.edu -v ON_ERROR_STOP=1 -U drcadmin -d drc -p 5432 -a -f ingest_CV.sql -o ${logdir}/log_ingest_CV.log
-# To update ingest_CV.sql itself
-./gen_ingest_script.sh ingest_CV.sql
-logf=${logdir}/log_ingest_CV.log
-date_div >> ${logf};
-psql "$(python3 dburl.py)" -a -f ingest_CV.sql -L ${logf}
-date_div >> ${logf};
-# To be added if needed: using python script: I am using \COPY inside the sql file, so
-# with self.connection as cursor: cursor.executescript(open("ingest_CV.sql", "r").read())
-# will not work unless absolute path for the source tsv file is used.
-
 #------------------------------------
 # This block, that deals with ingestion into Dcc-specific schema, is largely indepedent of ingests into the c2m2 schema
 # If ingesting files from only one DCC (e.g., into schema mw), e.g., during per-DCC submission review and validation, can specify dcc_short_label as argument, e.g.,
-dcc_short=Metabolomics; python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_ingestion_${dcc_short}_${ymd}.log; ${python_cmd} populateC2M2FromS3.py ${dcc_short} ${logdir} 2>&1 | tee ${logf} ; date_div >> ${logf}; 
+echo -e "actually_read_tables = 1\n" > set_actually_read_tables.py
+dcc_short=Bridge2AI; python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_ingestion_${dcc_short}_${ymd}.log; ${python_cmd} populateC2M2FromS3.py ${dcc_short} ${logdir} 2>&1 | tee ${logf} ; date_div >> ${logf}; 
 egrep -i -e "Warning" ${logf} ; egrep -i -e "Error" ${logf} ;
 # To run it for all DCCs in one go (i.e., put tables from respectives DCCs into a schema by that DCC's name), run the linux shell script:
+echo -e "actually_read_tables = 1\n" > set_actually_read_tables.py
 chmod ug+x call_populateC2M2FromS3_DCCnameASschema.sh
 python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} ${logdir}
 # For 1 DCC or a few DCCs, call syntax is, as an example:
 DCC1=Metabolomics
 DCC2=4DN
 python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} ${logdir} ${DCC1} ${DCC2}
-python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} ${logdir} MoTrPAC
+python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} ${logdir} Bridge2AI
 # Example: For June 2024
 #python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} ${logdir} 4DN GlyGen HuBMAP KidsFirst Metabolomics SPARC
 # Example: For December 2024
@@ -238,7 +252,7 @@ date_div >> ${logf};
 # Combine c2m2.ffl_biosample_cmp and c2m2.ffl_collection_cmp to create c2m2.ffl_biosample_collection_cmp
 logf=${logdir}/log_c2m2_combine_bios_col_cmp.log
 date_div >> ${logf};
-psql "$(python3 dburl.py)" -a -f c2m2_combine_biosample_collection_cmp.sql -L ${logf}
+psql "$(python3 dburl.py)" -a -f c2m2_combine_biosample_collection_cmp.sql -L ${logf};
 date_div >> ${logf};
 # To save space, delete intermediate cmp ffl tables after c2m2.ffl_biosample_collection_cmp is ready and tested
 psql "$(python3 dburl.py)" -a -f drop_intermediate_ffl_cmp_tables.sql
@@ -297,7 +311,7 @@ date_div >> ${logf};
 # It is better to do direct ingest into the public schema, but others such as _4dn, metabolomics, etc. (DCC-name specific schema which have metadata only from that DCC) and c2m2 (which has metadata from all the DCCs) can be copied over to the other DB.
 #host1=sc-cfdedb.sdsc.edu; host2=localhost; dbname=drc; sch=Metabolomics;
 #host1=localhost; host2=sc-cfdedb.sdsc.edu; dbname=drc; sch=c2m2;
-host1=localhost; host2=sc-cfdedbdev.sdsc.edu; port1=5434; port2=5432; dbname=drc; sch=c2m2;
+host1=localhost; host2=sc-cfdedbdev.sdsc.edu; port1=5433; port2=5432; dbname=drc; sch=c2m2;
 # Example of 
 ymd=$(date +%y%m%d);
 logf=${logdir}/main_pg_dump_log_${ymd}.log

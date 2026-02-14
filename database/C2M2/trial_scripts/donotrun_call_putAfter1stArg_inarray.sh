@@ -12,7 +12,7 @@ if [[ $# -lt 1 ]]; then
 fi
 
 # list of dcc_short_label from ingesting from all DCCs
-dcc_short_labels=('4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'Kids%20First' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC');
+dcc_short_labels=('4DN' 'Bridge2AI' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'Kids%20First' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SCGE' 'SenNet' 'SPARC');
 #dcc_short_labels=('Metabolomics');
 
 # define python command

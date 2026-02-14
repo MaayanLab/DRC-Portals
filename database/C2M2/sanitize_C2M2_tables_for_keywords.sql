@@ -271,7 +271,7 @@ DECLARE
 BEGIN
     IF drop_specific_rows_from_c2M2_tables > 0 THEN
         --- BEGIN; --- Use only if running directly on psql prompt
-        DELETE FROM c2m2.subject_sex where id = 'cfde_subject_sex:3';
+        --- DELETE FROM c2m2.subject_sex where id = 'cfde_subject_sex:3'; --- not needed 
         DELETE FROM c2m2.disease where id = 'DOID:1234'; --- gender/sex incongruence
         DELETE FROM c2m2.disease where id = 'DOID:10919'; --- gender/sex dysphoria
 
