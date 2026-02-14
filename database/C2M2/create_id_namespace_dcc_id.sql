@@ -17,6 +17,7 @@ DROP TABLE IF EXISTS c2m2.id_namespace_dcc_id RESTRICT;
 CREATE TABLE c2m2.id_namespace_dcc_id (id_namespace_id varchar NOT NULL, dcc_id varchar NOT NULL, 
     dcc_short_label varchar NOT NULL, PRIMARY KEY(id_namespace_id));
 
+--- c2m2.id_namespace_dcc_id.dcc_short_label to match short_label from public.dccs in most cases
 INSERT INTO c2m2.id_namespace_dcc_id (id_namespace_id, dcc_id, dcc_short_label)
 VALUES 
  ('https://data.4dnucleome.org', 'cfde_registry_dcc:4dn', '4DN'),
@@ -45,7 +46,15 @@ VALUES
  ('SPARC:', 'cfde_registry_dcc:sparc', 'SPARC'),
 --- ('tag:sennetconsortium.org,2024:', 'cfde_registry_dcc:sennet', 'SenNet')
  ('tag:sennetconsortium.org,2025:', 'cfde_registry_dcc:sennet', 'SenNet'),
- ('scge.mcw.edu', 'cfde_registry_dcc:scge', 'SCGE')
+ ('scge.mcw.edu', 'cfde_registry_dcc:scge', 'SCGE'),
+ --- Adding Bridge2AI DGPs, they have used their own individual DCC names
+ ('ai-readi', 'cfde_registry_dcc:ai-readi', 'Bridge2AI'),
+ ('cm4ai', 'cfde_registry_dcc:cm4ai', 'Bridge2AI'),
+ ('cm4ai_ppi', 'cfde_registry_dcc:cm4ai', 'Bridge2AI'),
+ ('cm4ai_ploc', 'cfde_registry_dcc:cm4ai', 'Bridge2AI'),
+ ('cm4ai_perturbseq', 'cfde_registry_dcc:cm4ai', 'Bridge2AI'),
+ ('cm4ai_cellmaps', 'cfde_registry_dcc:cm4ai', 'Bridge2AI')
+--- Column names: id_namespace_id, dcc_id, dcc_short_label
 ;
 
 /* add the constraint */
@@ -86,6 +95,8 @@ ALTER TABLE c2m2.id_namespace_dcc_id ADD CONSTRAINT  fk_id_namespace_dcc_id_shor
 /* Part of the above code, e.g., id_namespace_id values related texts were generated using:
 select concat_ws('', '(''', id, ''', ' , '''''),') as id_code_string from c2m2.id_namespace order by id_code_string;
 --- related useful queries:
+--- In below, not all DCCs have a non-header row in project_in_project.tsv (e.g., MoTrPAC and SenNet)
+select distinct parent_project_id_namespace,child_project_id_namespace from c2m2.project_in_project order by parent_project_id_namespace;
 select id,dcc_name,dcc_abbreviation,project_id_namespace,project_local_id from c2m2.dcc;
 select id,abbreviation,name from c2m2.id_namespace;
 select id,label,short_label from public.dccs;

@@ -1,7 +1,7 @@
 # Run syntax: python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} DCC1 DCC1 DCC3 ...
 
 # If ingesting files from only one DCC (into schema mw), e.g., during per-DCC submission review and validation, can specify dcc_short_label as argument, e.g.,
-#dcc_short=Metabolomics; ymd=$(date +%y%m%d); logf=log/C2M2_ingestion_${dcc_short}_${ymd}.log; python populateC2M2FromS3.py ${dcc_short} 2>&1 | tee ${logf}
+#dcc_short=Metabolomics; ymd=$(date +%y%m%d); logf="log/C2M2_ingestion_${dcc_short}_${ymd}.log"; python populateC2M2FromS3.py "${dcc_short}" 2>&1 | tee ${logf}
 #egrep -i -e "Warning" ${logf} ; egrep -i -e "Error" ${logf} ;
 
 if [[ $# -lt 2 ]]; then
@@ -15,8 +15,11 @@ fi
 # 2024/12/18: SenNet added
 #dcc_short_labels=('4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet');
 # 2025/01/06: ERCC is now labelled as ExRNA in ingest/DccAssets.tsv
-dcc_short_labels=('4DN' 'ExRNA' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet' 'SCGE');
-#dcc_short_labels=('Metabolomics');
+# 2026/02/03: Added Bridge2AI (even through DGPs have separate id_namespace and DCC names, the all go into onec schema)
+dcc_short_labels=('4DN' 'Bridge2AI' 'ExRNA' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet' 'SCGE');
+# For Dec 2025, 'Kids First' used
+dcc_short_labels=('4DN' 'Bridge2AI' 'ExRNA' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'Kids First' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet' 'SCGE');
+#dcc_short_labels=('Bridge2AI');
 
 # define python command
 python_cmd=$1
@@ -44,7 +47,7 @@ echo "===================== New run ====================" > ${errorf};
 # Iterate over the elements of the array dcc_short_labels using a for loop
 for dcc_short in "${dcc_short_labels[@]}"; do
 	logf=${logdir}/C2M2_ingestion_${dcc_short}_${ymd}.log; 
-	${python_cmd} populateC2M2FromS3.py ${dcc_short} ${logdir} 2>&1 | tee ${logf}
+	${python_cmd} populateC2M2FromS3.py "${dcc_short}" ${logdir} 2>&1 | tee ${logf}
 
 	echo "===================== DCC: ${dcc_short} ====================" >> ${warnf};
 	egrep -i -e "Warning" ${logf} >> ${warnf}; 
