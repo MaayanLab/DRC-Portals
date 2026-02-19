@@ -76,6 +76,7 @@ model biosample {
   biosample_from_subject                                              biosample_from_subject[]
   biosample_gene                                                      biosample_gene[]
   biosample_in_collection                                             biosample_in_collection[]
+  biosample_protein                                                   biosample_protein[]
   biosample_ptm                                                       biosample_ptm[]
   biosample_substance                                                 biosample_substance[]
   file_describes_biosample                                            file_describes_biosample[]
@@ -961,6 +962,7 @@ model protein {
   synonyms                                               String?              @default("") @db.VarChar
   organism                                               String?              @default("") @db.VarChar
   searchable                                             String?              @default("") @db.VarChar
+  biosample_protein_biosample_protein_proteinToprotein   biosample_protein[]  @relation("biosample_protein_proteinToprotein")
   collection_protein_collection_protein_proteinToprotein collection_protein[] @relation("collection_protein_proteinToprotein")
   ncbi_taxonomy                                          ncbi_taxonomy?       @relation(fields: [organism], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_protein_ncbi_taxonomy_1")
   protein_gene_protein_gene_proteinToprotein             protein_gene[]       @relation("protein_gene_proteinToprotein")
@@ -1203,4 +1205,16 @@ model ts_stat_ffl_cmp {
   word               String   @id
   ndoc               Int?
   percentage_of_rows Decimal? @db.Decimal
+}
+
+model biosample_protein {
+  biosample_id_namespace                     String    @db.VarChar
+  biosample_local_id                         String    @db.VarChar
+  protein                                    String    @db.VarChar
+  searchable                                 String?   @default("") @db.VarChar
+  biosample                                  biosample @relation(fields: [biosample_id_namespace, biosample_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_protein_biosample_1")
+  protein_biosample_protein_proteinToprotein protein   @relation("biosample_protein_proteinToprotein", fields: [protein], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_biosample_protein_protein_2")
+
+  @@id([biosample_id_namespace, biosample_local_id, protein])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_biosample_protein_idx_searchable", type: Gin)
 }
