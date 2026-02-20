@@ -8,7 +8,7 @@ import Button from "@mui/material/Button";
 import DDIcon from '@/public/img/DD.png'
 import GDLPAIcon from '@/public/img/icons/gdlpa.png'
 import GeneCentricIcon from '@/public/img/icons/gene-centric-partnership.png'
-import { EntityType, M2MTargetType, capitalize } from '@/app/data/processed/utils';
+import { EntityExpandedType, EntityType, capitalize } from '@/app/data/processed/utils';
 import CardButton from ".//CardButton";
 import PWBButton from ".//PWBButton";
 import G2SGButton from './G2SGButton';
@@ -16,18 +16,18 @@ import GSEButton from './GSEButton';
 import elasticsearch from '@/lib/elasticsearch';
 
 const getGeneSet = React.cache(async (id: string) => {
-  const searchRes = await elasticsearch.search<M2MTargetType>({
-    index: 'm2m_target_expanded',
+  const searchRes = await elasticsearch.search<EntityExpandedType>({
+    index: 'entity_expanded',
     query: {
       query_string: {
-        query: `+source_id:"${id}" +target_type:gene`,
+        query: `${id} type:gene`,
         default_operator: 'AND',
       },
     },
     // maybe we should page but I don't think any gene set should be this big
     size: 10000,
   })
-  return searchRes.hits.hits.map(hit => hit._source?.target_a_label as string)
+  return searchRes.hits.hits.map(hit => hit._source?.a_label as string)
 })
 
 const modules: {
@@ -188,7 +188,7 @@ const modules: {
           "gene-set": {
             "type":"Input[Set[Gene]]",
             "value":{
-              "description": item.description,
+              "description": item.a_description,
               "set": await getGeneSet(item.id),
             }
           }
@@ -221,7 +221,7 @@ const modules: {
         "metadata":{"title":"CFDE Gene Set Enrichment"}
       }}
       title="Playbook Workflow Builder: Gene Set Enrichment"
-      description={<>Perform Gene Set Enrichment with this gene set against Common Fund program's gene sets, identifying significant overlaps using a pre-built PWB workflow. Run the workflow with {item.label}.</>}
+      description={<>Perform Gene Set Enrichment with this gene set against Common Fund program's gene sets, identifying significant overlaps using a pre-built PWB workflow. Run the workflow with {item.a_label}.</>}
       mode="report"
     />,
   },
@@ -229,37 +229,37 @@ const modules: {
     compatible: (item) => item.type === 'gene_set',
     button: async ({ item }) => <G2SGButton
       body={{
-        "term": item.label,
+        "term": item.a_label,
         "genes": await getGeneSet(item.id),
-        "description": item.description
+        "description": item.a_description
       }}
       title="GeneSetCart"
-      description={<>GeneSetCart helps you to fetch gene sets from various data sources, augment, combine with set operations, visualize and analyze these gene sets in a single session. Start a new session with {item.label}.</>}
+      description={<>GeneSetCart helps you to fetch gene sets from various data sources, augment, combine with set operations, visualize and analyze these gene sets in a single session. Start a new session with {item.a_label}.</>}
     />,
   },
   {
     compatible: (item) => item.type === 'gene_set',
     button: async ({ item }) => <GSEButton
       body={{
-        "term": item.label,
+        "term": item.a_label,
         "genes": await getGeneSet(item.id),
-        "description": item.description
+        "description": item.a_description
       }}
       title="CFDE Gene Set Enrichment (GSE)"
-      description={<>CFDE-GSE illuminates connections between the input gene set and various CF gene sets that overlap with the queried gene set. Query CFDE-GSE with {item.label}.</>}
+      description={<>CFDE-GSE illuminates connections between the input gene set and various CF gene sets that overlap with the queried gene set. Query CFDE-GSE with {item.a_label}.</>}
     />,
   },
   {
     compatible: (item) => item.type === 'gene_set',
     button: async ({ item }) => <PWBButton
       body={{
-        data: { gene_set: { type: "Input[Set[Gene]]", value: { set: await getGeneSet(item.id), description: item.label } } },
+        data: { gene_set: { type: "Input[Set[Gene]]", value: { set: await getGeneSet(item.id), description: item.a_label } } },
         workflow: [
           { id: "input_gene_set", type: "Input[Set[Gene]]", data: { id: "gene_set" } },
         ],
       }}
       title="Playbook Workflow Builder"
-      description={<>The Playbook Workflow Builder helps you interactively construct workflows leveraging CFDE APIs without code. Start a new workflow with {item.label}.</>}
+      description={<>The Playbook Workflow Builder helps you interactively construct workflows leveraging CFDE APIs without code. Start a new workflow with {item.a_label}.</>}
     />,
   },
   {

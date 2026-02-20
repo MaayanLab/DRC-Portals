@@ -2,7 +2,7 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.24.0
+    image: maayanlab/drc-portal:0.25.2
     deploy:
       replicas: 3
       resources:
@@ -47,7 +47,7 @@ services:
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:0.23.20-rc.2
+    image: maayanlab/drc-portal-dev:0.24.0-rc.3
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -55,7 +55,7 @@ services:
         nginx.ingress.kubernetes.io/configuration-snippet: |
           more_set_headers "X-Robots-Tag: noindex";
     ports:
-      - 3000:3000
+      - 3000
     environment:
       - DATABASE_URL=${DEV_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${SECONDARY_DATABASE}:5432/${POSTGRES_DB}?schema=public&pool_timeout=0&connection_limit=10&connect_timeout=30}
       - C2M2_DATABASE_URL=${DEV_C2M2_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${SECONDARY_DATABASE}:5432/${POSTGRES_DB}?schema=c2m2&pool_timeout=0&connection_limit=10&connect_timeout=30}
@@ -89,13 +89,14 @@ services:
       context: ..
       dockerfile: worker/Dockerfile
     platform: linux/amd64
-    image: maayanlab/drc-portal-worker:0.20.0
+    image: maayanlab/drc-portal-worker:0.24.4
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     environment:
       - DATABASE_URL=${PROD_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public&pool_timeout=0&connection_limit=10&connect_timeout=30}
       - C2M2_DATABASE_URL=${PROD_C2M2_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=c2m2&pool_timeout=0&connection_limit=10&connect_timeout=30}
       - PDP_DATABASE_URL=${PROD_PDP_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public&pool_timeout=0&connection_limit=10&connect_timeout=30}
+      - NEXTAUTH_EMAIL
 
   drc-portal-data-proxy:
     image: maayanlab/proxy:1.2.13
@@ -213,6 +214,8 @@ services:
       - xpack.security.http.ssl.enabled=false
       - xpack.security.transport.ssl.enabled=false
       - ES_JAVA_OPTS=-Xms3g -Xmx3g
+      - AWS_ACCESS_KEY_ID=${ELASTICSEARCH_S3_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${ELASTICSEARCH_S3_SECRET_ACCESS_KEY}
     ports:
       - 9200:9200
     volumes:

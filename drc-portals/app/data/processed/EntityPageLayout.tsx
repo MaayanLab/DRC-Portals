@@ -1,5 +1,4 @@
 import React from 'react'
-import elasticsearch from "@/lib/elasticsearch"
 import { categoryLabel, create_url, EntityType, humanBytesSize, itemDescription, itemLabel, linkify, titleCapitalize } from "@/app/data/processed/utils"
 import { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 import Link from "@/utils/link";
@@ -22,7 +21,7 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
   for (const k in props.params) params[k] = decodeURIComponent(params[k])
   const item = await getEntity(params)
   if (!item) return {}
-  const dcc = await getEsDCC(item.r_dcc)
+  const dcc = await getEsDCC(item.m2o_dcc?.id)
   const parentMetadata = await parent
   return {
     title: [
@@ -49,20 +48,16 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
   for (const k in props.params) params[k] = decodeURIComponent(params[k])
   const item = await getEntity(params)
   if (!item) notFound()
-  const entityLookupRes = await elasticsearch.search<EntityType>({
-    index: 'entity',
-    query: {
-      ids: {
-        values: Array.from(new Set([
-          ...Object.keys(item).filter(k => k.startsWith('r_') && k !== 'r_dcc').map(k => item[k]),
-        ]))
-      }
-    },
-    size: 100,
-  })
+    
   const entityLookup: Record<string, EntityType> = Object.fromEntries([
     [item.id, item],
-    ...entityLookupRes.hits.hits.filter((hit): hit is typeof hit & {_source: EntityType} => !!hit._source).map((hit) => [hit._id, hit._source]),
+    ...Object.entries(item).flatMap(([key, value]) => {
+      if (key.startsWith('m2o_')) {
+        return [[(value as EntityType).id, value as EntityType]]
+      } else {
+        return []
+      }
+    }),
     ...Object.entries(await esDCCs),
   ])
   return (
@@ -71,35 +66,36 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
       subtitle={categoryLabel(item.type)}
       metadata={[
         ...Object.keys(item).toSorted().toReversed().flatMap(predicate => {
-          if (item[predicate] === 'null') return []
-          const m = /^(a|r)_(.+)$/.exec(predicate)
+          const m = /^(a|m2o)_(.+)$/.exec(predicate)
           if (m === null) return []
           if (m[1] == 'a') {
-            let value: string | React.ReactNode = item[predicate]
+            if (item[predicate as `a_${string}`] == 'null') return []
+            let value: string | React.ReactNode = item[predicate as `a_${string}`]
             if (!value) return []
-            if (`r_${m[2]}` in item) return []
+            if (`m2o_${m[2]}` in item) return []
             if (/_?(id_namespace|local_id)$/.exec(m[2]) != null) return []
             if (m[2] === 'label') return []
-            if (m[2] === 'entrez') value = <a className="text-blue-600 cursor:pointer underline" href={`https://www.ncbi.nlm.nih.gov/gene/${item[predicate]}`} target="_blank" rel="noopener noreferrer">{item[predicate]}</a>
-            else if (m[2] === 'ensembl') value = <a className="text-blue-600 cursor:pointer underline" href={`https://www.ensembl.org/id/${item[predicate]}`} target="_blank" rel="noopener noreferrer">{item[predicate]}</a>
+            if (m[2] === 'entrez') value = <a className="text-blue-600 cursor:pointer underline" href={`https://www.ncbi.nlm.nih.gov/gene/${item[predicate as `a_${string}`]}`} target="_blank" rel="noopener noreferrer">{item[predicate as `a_${string}`]}</a>
+            else if (m[2] === 'ensembl') value = <a className="text-blue-600 cursor:pointer underline" href={`https://www.ensembl.org/id/${item[predicate as `a_${string}`]}`} target="_blank" rel="noopener noreferrer">{item[predicate as `a_${string}`]}</a>
             else if (m[2] === 'synonyms') value = (JSON.parse(value as string) as string[]).join(', ')
-            else if (/_in_bytes/.exec(m[2]) !== null) value = humanBytesSize(Number(item[predicate]))
+            else if (/_in_bytes/.exec(m[2]) !== null) value = humanBytesSize(Number(item[predicate as `a_${string}`]))
             else if (/_time$/.exec(m[2]) !== null) value = JSON.parse(value as string) as string
             else if (m[2] == 'icon') value = <img className="max-w-28 max-h-48 align-top m-0 mb-2" src={value as string} />
             else if (m[2] == 'access_url') value = <div className="flex flex-col place-items-start">
               {linkify(value as string)}
               <DRSCartButton access_url={value as string} />
             </div>
-            else value = linkify(item[predicate])
+            else value = linkify(item[predicate as `a_${string}`])
             return [{
               label: titleCapitalize(m[2].replaceAll('_', ' ')),
               value
             }]
-          } else if (m[1] === 'r') {
-            const neighbor = item[predicate] in entityLookup ? entityLookup[item[predicate]] : undefined
+          } else if (m[1] === 'm2o') {
+            if (typeof item[predicate as `m2o_${string}`] !== 'object' || item[predicate as `m2o_${string}`] === null) return []
+            const neighbor = item[predicate as `m2o_${string}`].id in entityLookup ? entityLookup[item[predicate as `m2o_${string}`].id] : undefined
             return [{
               label: titleCapitalize(m[2].replaceAll('_', ' ')),
-              value: neighbor?.type ? <LinkedTypedNode href={create_url({ type: neighbor.type, slug: neighbor.slug })} type={neighbor.type} label={itemLabel(neighbor)} /> : item[predicate],
+              value: neighbor?.type ? <LinkedTypedNode href={create_url({ type: neighbor.type, slug: neighbor.slug })} type={neighbor.type} label={itemLabel(neighbor)} /> : item[predicate as `m2o_${string}`].a_label,
             }]
           }
           return []
