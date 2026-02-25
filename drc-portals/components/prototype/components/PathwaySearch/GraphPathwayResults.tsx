@@ -242,10 +242,13 @@ export default function GraphPathwayResults(
   };
 
   useEffect(() => {
+    const newColumns = getColumnDataFromTree(tree)
+    const columnData =
+      orderBy === undefined ? undefined : newColumns[orderBy];
     setLoading(true);
-    setColumns(getColumnDataFromTree(tree));
+    setColumns(newColumns);
     Promise.all([
-      getPathwaySearchResults(tree, page, limit),
+      getPathwaySearchResults(tree, page, limit, columnData?.key, columnData?.displayProp, order),
     ]).then(([searchResult]) => {
       setLoading(false);
       setPaths(searchResult.data.paths);

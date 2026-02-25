@@ -357,14 +357,17 @@ export default function TableView(cmpProps: TableViewProps) {
                 {
                   row
                     .filter((col) => !isRelationshipResult(col)) // Skip relationship data (this shrinks the row width to match the length of `columns`)
-                    .map((nodeCol, j) => (
-                      <StyledDataCell key={j}>
-                        {columns[j].valueGetter(
-                          nodeCol as NodeResult,
-                          columns[j].displayProp
-                        )}
-                      </StyledDataCell>
-                    ))
+                    .map((nodeCol, j) => {
+                      const visibleColumns = columns.filter(col => col.visible);
+                      return (
+                        <StyledDataCell key={j}>
+                          {visibleColumns[j].valueGetter(
+                            nodeCol as NodeResult,
+                            visibleColumns[j].displayProp
+                          )}
+                        </StyledDataCell>
+                      )
+                    })
                 }
               </TableRow>
             ))}
