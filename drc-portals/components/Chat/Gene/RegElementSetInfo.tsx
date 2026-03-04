@@ -1,6 +1,8 @@
 import useSWR from 'swr';
 import TableView from "@/components/Chat/vis/tableView";
 import PlaybookButton from '../playbookButton';
+import { Typography } from '@mui/material';
+import { Container } from '@mui/material';
 
 const getPlaybookRegElementInfo = async (body: any) => {
 
@@ -82,16 +84,17 @@ export default function RegElementSetInfo(props: any) {
         formattedTableData.end.push(elt.coordinates.end)
     });
     return (
-        <>
+        <Container maxWidth="lg">
+            <Typography variant={"h3"}>Regulatory Elements in the Vicinity of {gene}</Typography>
             <TableView rowData={formattedTableData}></TableView>
             <PlaybookButton id={data.id}></PlaybookButton>
-        </>)
+        </Container>)
     } catch {
         return (
-            <>
+            <Container maxWidth="lg">
                 <TableView rowData={{}}></TableView>
                 <br></br>
                 <PlaybookButton id={data.id}></PlaybookButton>
-            </>)
+            </Container>)
     }
 }

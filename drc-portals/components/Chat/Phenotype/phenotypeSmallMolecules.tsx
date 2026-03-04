@@ -20,7 +20,6 @@ const getPlaybookInfo = async (body: any) => {
 
 export default function PhenotypeSmallMolecules(props: any) {
     const phenotype: string = props.phenotype || 'Autophagy'
-
     const body = {
         "data": {
             "ac647b33-1312-0865-c3b1-0ec30840c28f": {

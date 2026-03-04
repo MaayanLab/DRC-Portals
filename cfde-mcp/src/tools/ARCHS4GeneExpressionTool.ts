@@ -12,7 +12,7 @@ const ARCHS4GeneExpression = [
     outputSchema: {
         "function": z.string().describe("Function to run"),
         "inputType": z.string().describe("The type of input"),
-        "geneSymbol": z.string().optional().nullable().describe("Gene symbol"),
+        "input": z.string().optional().nullable().describe("Gene symbol"),
         "methods": z.array(z.string()).describe("Methods describing the workflow")
     }
   },

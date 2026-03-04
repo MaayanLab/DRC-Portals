@@ -5,7 +5,8 @@ import useSWR from 'swr';
 // Construct a workflow Gene => ARCHS4 Tissue => Barplot with the input: ACE2
 import PlotlyPlot from "@/components/Chat/vis/plotly";
 import PlaybookButton from '../playbookButton';
-
+import Container from '@mui/material/Container';
+import { Typography } from '@mui/material';
 const getPlaybookARCHS4PlotData = async (body: any) => {
 
 
@@ -57,16 +58,17 @@ export default function ScoredARCHS4Tissue(props: any) {
     }
     plotData.layout.plot_bgcolor = "transparent"
     plotData.layout.paper_bgcolor = "transparent"
-    plotData.layout.font = {
-      color: "white"
-    }
+    // plotData.layout.font = {
+    //   color: "white"
+    // }
     plotData.layout.xaxis["dtick"] = 1
     plotData.layout.xaxis["tickfont"] = {size: 8}
     // plotData.layout.xaxis["automargin"] = true
     // plotData.layout.xaxis['range']= [0, sorted.length ]
     return (
-    <>
+    <Container maxWidth="lg">
+        <Typography variant={"h3"}>Expression of {gene} on ARCHS4 Tissues</Typography>
         <PlotlyPlot props={plotData}></PlotlyPlot>
         <PlaybookButton id={(data || {}).id}></PlaybookButton>
-    </>)
+    </Container>)
 }

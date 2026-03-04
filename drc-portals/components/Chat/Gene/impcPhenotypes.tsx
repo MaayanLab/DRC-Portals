@@ -1,5 +1,6 @@
 import useSWR from 'swr';
 import TableViewCol from '@/components/Chat/vis/tableViewCol';
+import { Typography, Container } from '@mui/material';
 
 const fetchImpcPhenotype = async (geneId: string) => {
     const firstLetter = geneId[0].toUpperCase();
@@ -29,12 +30,12 @@ export default function ImpcPhenotypes(props: any) {
   } else if (isLoading) {
     return <div>Loading...</div>;
   }
-
+  console.log(data)
+  if (data.length === 0) return <Typography variant={"h3"}>No Mouse Phenotypes Found For {geneSymbol}</Typography>
   return (
-    <div>
-        <> 
+    <Container maxWidth="lg">
+          <Typography variant={"h3"}>Mouse Phenotypes Associated With {geneSymbol}</Typography>
           <TableViewCol rowData={data} columns={columns} />
-        </>
-    </div>
+    </Container>
   );
 };

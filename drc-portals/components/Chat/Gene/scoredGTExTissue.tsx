@@ -4,7 +4,8 @@ import useSWR from 'swr';
 // Construct a workflow Gene => GTEx Tissue => Barplot with the input: ACE2
 import PlotlyPlot from "@/components/Chat/vis/plotly";
 import PlaybookButton from '../playbookButton';
-
+import Container from '@mui/material/Container';
+import { Typography } from '@mui/material';
 const getPlaybookGTExPlotData = async (body: any) => {
 
     const options: any = {
@@ -54,13 +55,14 @@ export default function ScoredGTExTissue(props: any) {
     }
     plotData.layout.plot_bgcolor = "transparent"
     plotData.layout.paper_bgcolor = "transparent"
-    plotData.layout.font = {
-      color: "white"
-    }
+    // plotData.layout.font = {
+    //   color: "white"
+    // }
 
     return (
-    <>
+    <Container maxWidth="lg">
+        <Typography variant={"h3"}>Expression of {gene} on GTEx Tissues</Typography>
         <PlotlyPlot props={plotData}></PlotlyPlot>
         <PlaybookButton id={data.id}></PlaybookButton>
-    </>)
+    </Container>)
 }

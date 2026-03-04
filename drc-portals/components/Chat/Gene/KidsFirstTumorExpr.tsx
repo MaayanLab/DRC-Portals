@@ -1,6 +1,7 @@
 import useSWR from 'swr';
 import TableViewCol from '../vis/tableViewCol';
 import PlaybookButton from '../playbookButton';
+import { Container, Typography } from '@mui/material';
 
 const getPlaybookKidsFirstData = async (body: any) => {
 
@@ -58,8 +59,9 @@ export default function KidsFirstTumorExpr(props: any) {
     const tableData = data.data[1].process.output.value;
 
     return (
-        <>
+        <Container maxWidth="lg">
+            <Typography variant={"h3"}>Pediatric Tumors Associated With {gene}</Typography>
             <TableViewCol rowData={tableData}/>
             <PlaybookButton id={data.id}></PlaybookButton>
-        </>)
+        </Container>)
 }

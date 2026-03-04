@@ -4,7 +4,6 @@ import Message from "./message";
 import Communicator from "./Communicator";
 import ChatExample from "./chatExample";
 import ReactMarkdown from 'react-markdown'
-
 // input forms
 import GeneInput from "./Inputs/geneInput";
 import GeneSetInput from "./Inputs/geneSetInput";
@@ -68,7 +67,6 @@ export default function Chat() {
         ?.content || null,
     [chat]
   );
-
   // const trigger = React.useCallback(
   //   async (arg0: { body: { message: string } }) => {
   //     const options = {
@@ -150,39 +148,46 @@ export default function Chat() {
           args: null,
         };
       }  else {
-        let mcp_val = results.filter(r=>r["type"]==="mcp_call")[0] || {}
-        const mcp_output = JSON.parse(mcp_val["output"] || '{}')
+        let mcp_vals = results.filter(r=>r["type"]==="mcp_call") || []
         const output_text = data.output_text
-        if (mcp_output.function) {
-          const {function:toolName, inputType, output_text:outtxt, ...toolArgs} = mcp_output
-          // const toolName = function
-          const processText = output_text
-          newMessage = {
-            role: "bot",
-            content: processText,
-            output: inputType,
-            args: { process: toolName, ...toolArgs },
-          };
-        } else if (mcp_output.error) {
-          newMessage = {
+        newMessage = {
             role: "bot",
             content: output_text,
-            output: null,
-            args: null,
+            output: '',
+            args: {},
           };
-        } else {
-          newMessage = {
-            role: "bot",
-            content: output_text.replace(
-              /\【.*?\】/g,
-              ""
-            ),
-            output: null,
-            args: null,
-          };
+        for (const mcp_val of mcp_vals) {
+          const mcp_output = JSON.parse(mcp_val["output"] || '{}')
+          if (mcp_output.function) {
+            const {function:toolName, inputType, output_text:outtxt, ...toolArgs} = mcp_output
+            // const toolName = function
+            newMessage = {
+              ...newMessage,
+              output: inputType,
+              args: {...newMessage.args, [toolName]: { process: toolName, ...toolArgs }},
+            };
+          } else if (mcp_output.error) {
+            newMessage = {
+              role: "bot",
+              content: output_text,
+              output: null,
+              args: null,
+            };
+            break
+          } else {
+            newMessage = {
+              role: "bot",
+              content: output_text.replace(
+                /\【.*?\】/g,
+                ""
+              ),
+              output: null,
+              args: null,
+            };
+            break;
+          }
         }
-        if (newMessage.args) setPrevResponseId(null)
-        else setPrevResponseId(data["id"])
+        setPrevResponseId(data["id"])
       }
 
       setChat((cc: any) => {
@@ -199,7 +204,7 @@ export default function Chat() {
 
   return (
     <div>
-      <div className={"border border-neutral-700 rounded-xl pt-3 pb-2"}>
+      <div style={{background: "#C3E1E6"}} className={"border border-neutral-700 rounded-xl pt-3 pb-2"}>
         <Message role="welcome" key={"welcome"}>
           <p>
             I&apos;m the CFDE Workbench AI Assistant, an AI-powered chat assistant interface designed to provide information about the CFDE and help you
@@ -220,7 +225,7 @@ export default function Chat() {
                     components={{ 
                         p: PRenderer,
                     }}
-                    className="[&_*]:text-white">
+                    >
                       {message.content}
                 </ReactMarkdown>
               </Message>
@@ -297,7 +302,7 @@ export default function Chat() {
       
       <div className="flex flex-wrap justify-center mt-2 mb-5">
         <ChatExample
-          example={"In which GTEx tissues is AKT1 most highly expressed?"}
+          example={"In which tissues is AKT1 most highly expressed?"}
           submit={submit}
         />
         <ChatExample
@@ -330,12 +335,16 @@ export default function Chat() {
           example={"How can I integrate data from SenNet and A2CPS?"}
           submit={submit}
         />
-        <ChatExample
+        {/* <ChatExample
           example={"In which ARCHS4 tissues is NFATC1 expressed?"}
+          submit={submit}
+        /> */}
+        <ChatExample
+          example={"Which small molecules or drugs may induce autophagy?"}
           submit={submit}
         />
         <ChatExample
-          example={"Which small molecules or drugs may induce autophagy?"}
+          example={"What can you tell me about the gene APOE?"}
           submit={submit}
         />
       </div>

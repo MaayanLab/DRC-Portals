@@ -4,7 +4,7 @@ import example from '@/components/Chat/utils/example.json'
 import uniqueArray from '@/components/Chat/utils/uniqueArray'
 
 // Import gene set components and map them to names
-import SigComLincs from '../GeneSet/sigComLincs'
+import SigComLincs from '@/components/Chat/GeneSet/sigComLincs'
 import classNames from 'classnames'
 import Button from '@mui/material/Button';
 

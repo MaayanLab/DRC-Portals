@@ -4,9 +4,12 @@ import useSWR from 'swr';
 import { PlotParams } from 'react-plotly.js';
 import TableView from '@/components/Chat/vis/tableView';
 import PlaybookButton from '../playbookButton';
+import { Typography, Container } from '@mui/material';
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false, loading: () => <div>Loading...</div> })
-
+function capitalizeFirstLetter(val:string) {
+    return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+}
 const getPlaybookL1000= async (body: any) => {
 
     const options: any = {
@@ -84,17 +87,17 @@ export default function ReverseSearchL1000(props: any) {
     }
 
     const layout: PlotParams['layout'] = {
-        title: `${gene} Scatter Plot`,
+        title: {text: `${gene} Scatter Plot`},
         autosize: true,
         margin: {
             pad: 4
         },
-        xaxis: { title: 'Abs(CD-Coefficeint)', automargin: true },
-        yaxis: { title: 'Log2(Fold Change)', automargin: true },
+        xaxis: { title: {text: 'Abs(CD-Coefficeint)'}, automargin: true },
+        yaxis: { title: {text: 'Log2(Fold Change)'}, automargin: true },
         plot_bgcolor: "transparent",
         paper_bgcolor: "transparent",
         font: {
-            color: "white",
+            color: "black",
 
         }
     };
@@ -149,7 +152,8 @@ export default function ReverseSearchL1000(props: any) {
         })
 
         return (
-            <div>
+            <Container maxWidth="lg">
+                <Typography variant={"h3"}>Perturbagen Signatures Up- and Down-regulating {gene}</Typography>
                 <div className='text-center'>
                     <Plot
                         data={scatterPlotData}
@@ -158,7 +162,7 @@ export default function ReverseSearchL1000(props: any) {
                 </div>
                 <TableView rowData={rowData} />
                 {(data && data.id) ? <PlaybookButton id={data.id}></PlaybookButton> : <></>}
-            </div>
+            </Container>
         )
 
     } else {
@@ -198,7 +202,8 @@ export default function ReverseSearchL1000(props: any) {
         }]
 
         return (
-            <div>
+            <Container maxWidth="lg">
+                <Typography variant={"h3"}>Perturbagen Signatures {capitalizeFirstLetter(dir)}-regulating {gene}</Typography>
                 <div className='text-center'>
                     <Plot
                         data={scatterPlotData}
@@ -207,7 +212,7 @@ export default function ReverseSearchL1000(props: any) {
                 </div>
                 <TableView rowData={res.data} />
                 {data.id ? <PlaybookButton id={data.id}></PlaybookButton> : <></>}
-            </div>
+            </Container>
         )
     }
 }
