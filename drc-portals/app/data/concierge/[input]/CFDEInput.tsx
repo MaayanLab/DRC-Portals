@@ -9,11 +9,10 @@ import Icon from '@mdi/react';
 import Link from '@/utils/link';
 import { mdiPagePrevious } from '@mdi/js';
 import { ChatResponse, submit } from './submit';
-import { Loading } from './loadingComponent';
 import ReactMarkdown from 'react-markdown'
 import {  PRenderer, LinkRenderer } from '@/components/misc/ReactMarkdownRenderers'
 import remarkGfm from 'remark-gfm';
-
+import { Loading } from './loadingComponent';
 
 const Other = ({submit, back}: {submit: Function, back:Function}) => {
     const questions = [
@@ -149,7 +148,7 @@ const DCCs = ({submit, back}: {submit: Function, back:Function}) => {
             ))}
             {selected.length > 1 &&
                 <Grid item xs={12}>
-                    <Button sx={{width: "100%"}} variant='outlined' color='secondary' onClick={()=>submit(`How do you integrate datasets from ${selected.join(", ")}`)}>
+                    <Button sx={{width: "100%"}} variant='outlined' color='secondary' onClick={()=>submit(`How do you integrate datasets from ${selected.join(", ")}?`)}>
                         <Typography variant={"body1"}>Data Integration</Typography>
                     </Button>
                 </Grid>
@@ -178,10 +177,11 @@ export default function CFDEInput({input}: {input: {
     const [loading, setLoading] = React.useState(false)
     const [prevResponseId, setPrevResponseId] = React.useState<string | null>(null)
     const [response, setResponse] = React.useState<null | ChatResponse>(null)
-    
+    const [question, setQuestion] = useState<string>('')
     const submit_query = async (content: string) => {
         setSubmitted(true)
         setLoading(true)
+        setQuestion(content)
         const response:ChatResponse = await (submit({
             content,
             prevResponseId,
@@ -238,6 +238,7 @@ export default function CFDEInput({input}: {input: {
                 {loading &&  <Loading/>}
                 <Collapse in={!loading && response !== null}>
                     <Stack spacing={2}>
+                        <Typography variant="h5">{question}</Typography>
                         <ReactMarkdown 
                             skipHtml
                             remarkPlugins={[remarkGfm]}
