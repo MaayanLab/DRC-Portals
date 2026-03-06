@@ -1,6 +1,7 @@
 import { Session } from "neo4j-driver";
 import { NextRequest } from "next/server";
 
+import { UNIQUE_TO_GENERIC_REL } from "@/lib/neo4j/constants";
 import {
   createPathwaySearchAllPathsCypher,
   createUpperPageBoundCypher,
@@ -19,7 +20,7 @@ import {
   RelationshipResult,
   TreeParseResult,
 } from "@/lib/neo4j/types";
-import { parsePathwayTree } from "@/lib/neo4j/utils";
+import { isRelationshipResult, parsePathwayTree } from "@/lib/neo4j/utils";
 
 const MAX_LIMIT = 1000;
 const MAX_PAGE_SIBLINGS = 9;
@@ -172,9 +173,20 @@ export async function POST(request: NextRequest) {
           );
         }),
     ]);
-    const paths: PathwaySearchResultRow[] = pathwaySearchResult.map((record) =>
-      Object.values(record.toObject())
-    );
+    const paths: PathwaySearchResultRow[] = pathwaySearchResult
+      .map((record) => Object.values(record.toObject()))
+      .map((val) =>
+        val.map((column) => {
+          if (isRelationshipResult(column)) {
+            return {
+              ...column,
+              type: UNIQUE_TO_GENERIC_REL.get(column.type) || "Unkown", // Transform the unique rels back to their generic format for UI presentation
+            };
+          } else {
+            return column;
+          }
+        })
+      );
     const upperPageBound = upperPageBoundResult.toObject().upperPageBound;
 
     // If we reach the end of the table, we can fix the lower bound to maintain a constant number of page items
