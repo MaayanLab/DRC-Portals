@@ -14,28 +14,30 @@ import Carousel from '@/components/misc/Carousel/ServerCarousel'
 import Twitter from '@/components/misc/Twitter'
 import CFPrograms from "@/components/misc/CFPrograms"
 import Icon from '@mdi/react';
-import { mdiArrowRight, mdiYoutube } from "@mdi/js"
+import { mdiArrowRight, mdiYoutube, mdiBookOpenVariantOutline, mdiLink } from "@mdi/js"
 import { BlurSmall } from "@/components/styled/Blur"
 import prisma from "@/lib/prisma"
 import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent"
 import { ResponsivePaper } from "./styled"
-import InteractiveNav from "@/components/InteractiveNav"
+import CFDEWheel from "cfde-wheel"
+import { Tooltip } from "@mui/material"
 
 export default async function Home() {
   const publications = await prisma.publication.findMany({
     orderBy: {
       year: "desc"
     },
-    take: 5
+    take: 9
   })
 
   return (
     <main>
       <Grid container spacing={2} alignItems={"center"}>
         <Grid item xs={12}>
-          <ResponsivePaper color="primary" elevation={0} className="relative"> 
-            <BlurSmall sx={{position: 'absolute', top: -100, right: -100}}/>
-            <BlurSmall sx={{position: 'absolute', bottom: -100, left: -100}}/>
+          <BlurSmall sx={{position: 'absolute', top: -100, right: -100, zIndex: 100}}/>
+          <BlurSmall sx={{position: 'absolute', bottom: -100, left: -100}}/>
+            
+          <ResponsivePaper color="primary" elevation={0} sx={{background: "transparent"}} className="relative"> 
             <Container maxWidth="lg">
               <Grid container spacing={2} alignItems={"flex-start"}>
                 <Grid item xs={12} lg={9} md={8} sm={7}>
@@ -73,7 +75,7 @@ export default async function Home() {
                       <Stack spacing={2}>
                         <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}} variant="subtitle1">CFDE NAVIGATION WHEEL</Typography>
                         <div style={{marginLeft: 40}}>
-                          <InteractiveNav/>
+                          <CFDEWheel button={true}/>
                         </div>
                         <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">ABOUT THE WORKBENCH</Typography>
                         <Box sx={{width: 233}}>
@@ -82,7 +84,7 @@ export default async function Home() {
                         <div className="flex justify-start">
                           <div>
                             <Button color="tertiary" sx={{backgroundColor: "#eaedf6", color: "#2D5986"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                              <Link target="_blank" rel="noopener noreferrer" href={"https://www.biorxiv.org/content/10.1101/2025.02.04.636535v1"}>
+                              <Link target="_blank" rel="noopener noreferrer" href={"https://www.sciencedirect.com/science/article/pii/S0022283626000045"}>
                                 <Typography variant="caption"><b>READ PAPER</b></Typography>
                               </Link>
                             </Button>
@@ -95,22 +97,33 @@ export default async function Home() {
                           <Image src="https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/pwb-w-062025.png" alt="gsc" width={233} height={233}/>
                         </Box>
                         <Stack direction={"row"} spacing={1}>
-                            <Button color="tertiary" sx={{backgroundColor: "#eaedf6", color: "#2D5986"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
-                              <Link target="_blank" rel="noopener noreferrer" href={"https://playbook-workflow-builder.cloud"}>
-                                <Typography variant="caption"><b>PWB</b></Typography>
-                              </Link>
-                            </Button>
-                            <Button  color="secondary" endIcon={<Icon path={mdiYoutube} size={1} />} sx={{marginLeft: -2}}>
-                              <Link target="_blank" rel="noopener noreferrer" href={"https://www.youtube.com/watch?v=mHXCdX0kfHE"}>
-                                YOUTUBE
-                              </Link>
-                            </Button>
+                            <Tooltip title="Read publication">
+                              <Button color="secondary">
+                                <Link target="_blank" rel="noopener noreferrer" href={"https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1012901"}>
+                                  <Icon path={mdiBookOpenVariantOutline} size={1} />
+                                </Link>
+                              </Button>
+                            </Tooltip>
+                            <Tooltip title="Go to site">
+                              <Button color="secondary">
+                                <Link target="_blank" rel="noopener noreferrer" href={"https://playbook-workflow-builder.cloud"}>
+                                  <Icon path={mdiLink} size={1} />
+                                </Link>
+                              </Button>
+                            </Tooltip>
+                            <Tooltip title="Watch tutorial">
+                              <Button  color="secondary">
+                                <Link target="_blank" rel="noopener noreferrer" href={"https://www.youtube.com/watch?v=mHXCdX0kfHE"}>
+                                  <Icon path={mdiYoutube} size={1} />
+                                </Link>
+                              </Button>
+                            </Tooltip>
                           </Stack>
 
                         {/* <Link href="/info/training_and_outreach"><Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">TRAINING & OUTREACH</Typography></Link>
                         <Outreach orientation="vertical" size={1}/>  */}
                         {/* <Link href="/info/training_and_outreach"><Button color="tertiary" endIcon={<Icon path={mdiArrowRight} size={1} />}><Typography variant="subtitle1">See More</Typography></Button></Link> */}
-                        <Paper elevation={0}>
+                        <Paper elevation={0} sx={{background: "transparent"}}>
                           <Stack>
                             <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">RESOURCES</Typography>
                             <Link href='/data'>
@@ -190,7 +203,7 @@ export default async function Home() {
                     </Typography>
                   </Grid>
                   <Grid item>
-                    <Link href="/info/documentation">
+                    <Link href="/data/documentation">
                       <Button variant="contained" sx={{borderRadius: 2}} color="primary">Find Out More</Button>
                     </Link>
                   </Grid>
@@ -225,7 +238,7 @@ export default async function Home() {
                     </Typography>
                   </Grid>
                   <Grid item>
-                    <Link href="/info/documentation">
+                    <Link href="/data/documentation">
                       <Button variant="contained" sx={{borderRadius: 2}} color="primary">Find Out More</Button>
                     </Link>
                   </Grid>
@@ -259,7 +272,7 @@ export default async function Home() {
                         </Grid>
                         <Grid item xs={12} md={6}>
                           <Typography variant={"h2"} color="secondary">
-                            Making data more FAIR
+                            Make CF data more FAIR
                           </Typography>
                           <Typography variant={"subtitle1"}>
                             The Data Resource and Knowledge Centers are dedicated to enhancing the accessibility and utility of Common Fund-generated data and resources, striving to uphold the FAIR principles. This commitment serves as a catalyst for groundbreaking biomedical discoveries, fostering synergies across the diverse datasets within the Common Fund ecosystem, thereby unlocking novel avenues of research and innovation.

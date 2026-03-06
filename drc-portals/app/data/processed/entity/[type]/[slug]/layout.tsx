@@ -1,0 +1,1 @@
+export { default, generateMetadata } from '@/app/data/processed/EntityPageLayout'

@@ -754,3 +754,14 @@ SELECT count(*) FROM
       dcc_short_label, project_name, disease_name, taxonomy_name, anatomy_name, gene_name, 
           protein_name, compound_name, data_type_name, assay_type_name
   );
+
+--- Some more trials
+select distinct dcc_name, dcc_abbreviation, project_id_namespace,project_name, project_local_id,biosample_id_namespace, 
+biosample_local_id from c2m2.ffl_biosample_collection where searchable @@ websearch_to_tsquery('english', 'metabolic disease male');
+select distinct dcc_name, dcc_abbreviation, project_name from c2m2.ffl_biosample_collection where 
+searchable @@ websearch_to_tsquery('english', 'metabolic disease male');
+
+select distinct dcc_name, dcc_abbreviation, project_id_namespace,project_name, project_local_id,biosample_id_namespace, 
+biosample_local_id from c2m2.ffl_biosample_collection where searchable @@ websearch_to_tsquery('english', 'hispanic female cancer');
+select distinct dcc_name, dcc_abbreviation, project_name from c2m2.ffl_biosample_collection where 
+searchable @@ websearch_to_tsquery('english', 'hispanic female cancer');

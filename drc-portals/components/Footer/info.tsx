@@ -31,7 +31,7 @@ const Community = () => (
       <Typography variant="subtitle1"><b>Community</b></Typography>
       <Link href="https://www.youtube.com/watch?v=TAnKcNp2kdY"><Typography variant="footer">Workbench Tutorial</Typography></Link>
       <Link href="/info/training_and_outreach"><Typography variant="footer">Training & Outreach</Typography></Link>
-      <Link href="/info/documentation"><Typography variant="footer">Documentation</Typography></Link>
+      <Link href="/data/documentation"><Typography variant="footer">Documentation</Typography></Link>
       <Link href="/info/qr"><Typography variant="footer">Get QR Codes</Typography></Link>
       <Link href="https://commonfund.nih.gov/dataecosystem/FundingOpportunities"><Typography variant="footer">Funding Opportunities</Typography></Link>
     </Stack>

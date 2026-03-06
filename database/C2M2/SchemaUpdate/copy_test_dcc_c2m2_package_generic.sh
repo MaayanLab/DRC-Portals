@@ -25,9 +25,16 @@ else
 	onlyTest=$6
 fi
 
+if [[ $# -lt 7 ]]; then
+	schema_json_file=C2M2_datapackage.json
+else
+	schema_json_file=$7
+fi
+
 curdir="$PWD"
 
-schema_json_file=C2M2_datapackage.json
+# schema_json_file is set above now
+#schema_json_file=C2M2_datapackage.json
 schema_json_file_default=C2M2_datapackage.json
 main_target_file=file.tsv
 

@@ -1,8 +1,8 @@
 // SearchQueryComponent.tsx
-import { generateFilterQueryString } from '@/app/data/c2m2/utils';
+import { generateFilterQueryString, logDatabaseConnectionInfo } from '@/app/data/c2m2/utils';
 import prisma from '@/lib/prisma/c2m2';
 import { useSanitizedSearchParams, generateSelectColumnsStringModified, generateSelectColumnsStringPlain, generateOrderByString } from "@/app/data/c2m2/utils";
-
+import { generate_qWITHt_FTQS } from '@/app/data/c2m2/utils';
 
 import ListingPageLayout from "../ListingPageLayout";
 import { Button } from "@mui/material";
@@ -54,12 +54,14 @@ const selectColumns = generateSelectColumnsStringModified("allres_full");
 const selectColumnsPlain = generateSelectColumnsStringPlain();
 const orderByClause = generateOrderByString();
 
-
 // Adding a specialized query for count purpose only.
 
 const doQueryCount = React.cache(async (props: PageProps) => {
   const searchParams = useSanitizedSearchParams({ searchParams: { ...props.searchParams, q: props.search } });
   if (!searchParams.q) return null;
+
+  //To debug DB connection, always keep commented except when debugging
+  //logDatabaseConnectionInfo();
 
   // Prepare the filter clause, similar to the original doQuery function
   const filterClause = generateFilterQueryString(searchParams, "allres_full");
@@ -105,6 +107,8 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
   const filterClause = generateFilterQueryString(searchParams, "allres_full");
   console.log("FILTER CLAUSE = " + JSON.stringify(filterClause));
 
+  const qWITHt_FTQS = generate_qWITHt_FTQS(searchParams.q, searchParams.t);
+
   const t0: number = performance.now();
   const [results] = await prisma.$queryRaw<Array<{
     filtered_count: number,
@@ -112,10 +116,12 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
     WITH 
     allres_exp AS (
       SELECT /* DISTINCT */
-        ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank,
+        /* original: ts_rank_cd(searchable, websearch_to_tsquery('english', ${searchParams.q})) AS rank, */
+        ts_rank_cd(searchable, websearch_to_tsquery('english', ${qWITHt_FTQS})) AS rank,
         ${SQL.raw(selectColumns)}
       FROM ${SQL.template`c2m2."${SQL.raw(main_table)}"`} as allres_full 
-      WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q})
+      /* original: WHERE searchable @@ websearch_to_tsquery('english', ${searchParams.q}) */
+      WHERE searchable @@ websearch_to_tsquery('english', ${qWITHt_FTQS})
         ${!filterClause.isEmpty() ? SQL.template`and ${filterClause}` : SQL.empty()}
     ),
 

@@ -2,20 +2,14 @@ import type { JobHelpers } from "graphile-worker";
 import path from 'path'
 import prisma from "@/lib/prisma";
 import python from "@/utils/python";
-import graphile from "@/lib/graphile";
-
-export type FAIRShakeTaskPayload = {
-  link: string
-}
+import { sendDCCSubmitterErrorEmail as sendDCCSubmitterErrorEmailForFileAsset, sendDCCApproverEmail as sendDCCApproverEmailForFileAsset } from "@/app/data/submit/form/Email";
+import { sendDCCApproverEmail as sendDCCApproverEmailForCodeAsset } from "@/app/data/submit/urlform/Email";
+import type { FAIRShakeTaskPayload } from '@/lib/graphile/fairshake';
 
 const __rootdir = path.resolve(__dirname, '..', '..')
 
-export async function queue_fairshake(payload: FAIRShakeTaskPayload) {
-  const workerUtils = await graphile
-  await workerUtils.addJob('fairshake', payload)
-}
-
-export default async function process_fairshake(payload: FAIRShakeTaskPayload, helpers: JobHelpers) {
+export default async function process_fairshake(_payload: unknown, helpers: JobHelpers) {
+  const payload = _payload as FAIRShakeTaskPayload
   const { codeAsset, fileAsset, fairAssessments, ...asset } = await prisma.dccAsset.findUniqueOrThrow({
     where: {
       link: payload.link,
@@ -26,6 +20,11 @@ export default async function process_fairshake(payload: FAIRShakeTaskPayload, h
       fairAssessments: {
         select: {
           id: true,
+        }
+      },
+      dcc: {
+        select: {
+          short_label: true,
         }
       },
     },
@@ -75,4 +74,13 @@ export default async function process_fairshake(payload: FAIRShakeTaskPayload, h
       log,
     },
   })
+  if (fileAsset) {
+    if (assessment.rubric['Machine readable metadata'] === 0 && asset.creator) { // C2M2 assessment failure
+      const dccSubmitterErrorAlert = await sendDCCSubmitterErrorEmailForFileAsset({ email: asset.creator }, asset.dcc?.short_label ?? '', { fileAsset, log })
+    } else {
+      const dccApproverAlert = await sendDCCApproverEmailForFileAsset({ email: asset.creator }, asset.dcc?.short_label ?? '', { fileAsset })
+    }
+  } else if (codeAsset) {
+    const dccApproverAlert = await sendDCCApproverEmailForCodeAsset({ email: asset.creator }, asset.dcc?.short_label ?? '', { codeAsset });
+  }
 }

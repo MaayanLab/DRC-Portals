@@ -729,3 +729,20 @@ drc=# select count(*) from c2m2.ffl_biosample_collection;
  8019781
 (1 row)
 */
+
+--- 2025/10/02
+--- basic counts
+select count(*) from c2m2.project;
+select count(*) from c2m2.subject;
+select count(*) from c2m2.biosample;
+select count(*) from c2m2.biosample_from_subject;
+select count(*) from c2m2.collection;
+select count(*) from c2m2.file;
+
+--- dcc wise counts
+select id_namespace, count(*) as count from c2m2.project group by id_namespace order by id_namespace;
+select id_namespace, count(*) as count from c2m2.subject group by id_namespace order by id_namespace;
+select id_namespace, count(*) as count from c2m2.biosample group by id_namespace order by id_namespace;
+select biosample_id_namespace, count(*) as count from c2m2.biosample_from_subject group by biosample_id_namespace order by biosample_id_namespace;
+select id_namespace, count(*) as count from c2m2.collection group by id_namespace order by id_namespace;
+select id_namespace, count(*) as count from c2m2.file group by id_namespace order by id_namespace;

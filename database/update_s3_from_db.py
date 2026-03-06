@@ -1,4 +1,3 @@
-from ingest_common import connection
 import pandas as pd
 from datetime import date
 import sys
@@ -8,6 +7,8 @@ from botocore.exceptions import ClientError
 import csv
 import json
 import pathlib
+from ingest_common import pg_connect
+connection = pg_connect()
 
 def upload_file(file_name, bucket, object_name=None):
 	"""Upload a file to an S3 bucket

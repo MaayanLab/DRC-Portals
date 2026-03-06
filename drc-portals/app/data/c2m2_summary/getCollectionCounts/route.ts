@@ -1,6 +1,3 @@
-import c2m2 from '@/lib/prisma/c2m2';
-import { CarCrash, CropDin } from '@mui/icons-material';
-import { csCZ } from '@mui/x-data-grid';
 import { NextResponse } from 'next/server';
 import { Pool } from 'pg';
 

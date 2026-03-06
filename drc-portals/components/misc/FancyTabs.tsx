@@ -71,10 +71,10 @@ export function FancyTabs(props: React.PropsWithChildren<{
     return {tabs, enabledTabs: tabs.filter(tab => !tab.disabled)}
   }, [ctx.tabs])
   const currentTab = React.useMemo(() => [
-    props.tab ? ctx.tabs[props.tab] : undefined,
-    tab ? ctx.tabs[tab] : undefined,
+    props.tab !== undefined ? ctx.tabs[props.tab] : undefined,
+    tab !== undefined ? ctx.tabs[tab] : undefined,
     ...tabs,
-  ].filter(tab => tab && !tab.disabled && !tab.hidden && !tab.loading)[0]?.id, [props.tab, tab, tabs])
+  ].filter(tab => tab !== undefined && !tab.disabled && !tab.hidden && !tab.loading)[0]?.id, [props.tab, tab, tabs])
   React.useEffect(() => {
     if (initializing_state !== 'pre' && props.tab === undefined && props.onChange && currentTab !== undefined) {
       props.onChange(undefined, currentTab)
@@ -82,7 +82,7 @@ export function FancyTabs(props: React.PropsWithChildren<{
   }, [initializing_state, props.tab, props.onChange, currentTab])
   return (
     <Grid container xs={12}>
-      <Grid item xs={2} paddingRight={2}>
+      <Grid item xs={4} sm={2} paddingRight={2}>
         <Tabs
           variant="scrollable"
           textColor='secondary'
@@ -95,7 +95,7 @@ export function FancyTabs(props: React.PropsWithChildren<{
             <Tab
               key={item.id}
               sx={{
-                fontSize: '14pt',
+                fontSize: '12pt',
                 '&.Mui-selected': {
                   color: '#295988', // Only change text color for selected tab, no background color change
                 },
@@ -122,7 +122,7 @@ export function FancyTabs(props: React.PropsWithChildren<{
           ))}
         </Tabs>
       </Grid>
-      <Grid item xs={10}>
+      <Grid item container xs={8} sm={10}>
         {enabledTabs.length > 0 ? null
           : initializing_state === 'pre' ? props.preInitializationFallback
             : initializing_state === 'post' ? props.postInitializationFallback

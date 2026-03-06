@@ -1,5 +1,4 @@
 import { RecordInfoQueryComponent} from './RecordInfoQueryComponent';
-import {  useSanitizedSearchParams } from "@/app/data/processed/utils"
 
 import React, { Suspense } from 'react';
 
@@ -7,8 +6,6 @@ type PageProps = { params: { id: string }, searchParams: Record<string, string |
 
 export default async function Page(props: PageProps) {
   console.log(props)
-  const searchParams = useSanitizedSearchParams(props)
-  console.log(searchParams.q)
   return(
     <Suspense fallback={<div>Loading...</div>}>
       <RecordInfoQueryComponent {...props} />

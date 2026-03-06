@@ -25,8 +25,8 @@ interface PieChartModalProps {
   yAxis: string;
   xAxis: string;
   groupBy: string;
-  colorMap: Record<string, string>;
-  title: string;  // <-- Add this line
+  title: string;
+  colorMap: Record<string, string>;  // Added colorMap here
 }
 
 interface DescriptionResponse {
@@ -34,14 +34,16 @@ interface DescriptionResponse {
   error?: string;
 }
 
-const generatePieTitle = (yAxis: string, xAxis: string, groupBy: string): string => {
-  let title = yAxis;
-  if (xAxis) title += ` by ${xAxis}`;
-  if (groupBy) title += ` group: ${groupBy}`;
-  return title;
-};
-
-const PieChartModal: React.FC<PieChartModalProps> = ({ open, onClose, data, yAxis, xAxis, groupBy, colorMap, title }) => {
+const PieChartModal: React.FC<PieChartModalProps> = ({
+  open,
+  onClose,
+  data,
+  yAxis,
+  xAxis,
+  groupBy,
+  title,
+  colorMap  // Added colorMap in destructure
+}) => {
   const [plotDescription, setPlotDescription] = useState<string>('');
   const [loadingDescription, setLoadingDescription] = useState<boolean>(false);
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
@@ -59,23 +61,14 @@ const PieChartModal: React.FC<PieChartModalProps> = ({ open, onClose, data, yAxi
   }, [open]);
 
   const getChartPrompt = () => {
-    // Convert the pie chart data into a readable string
-    const dataSummary = data
-      .map(d => `${d.name}: ${d.value}`)
-      .join(', ');
-  
-    let prompt = `For the pie chart titled "${title}", the slices represent "${groupBy}" `;
+    const dataSummary = data.map(d => `${d.name}: ${d.value}`).join(', ');
+    let prompt = `For the pie chart titled "${title}" (grouped by "${groupBy}"), the slices represent "${groupBy}" `;
     prompt += `and the size of each slice represents "${yAxis}".\n\n`;
     prompt += `Here is the data for the pie chart:\n${dataSummary}\n\n`;
-    prompt += `Summarize the chart in **no more than 5 sentences** by describing the distribution of "${groupBy}" categories, `;
+    prompt += `Summarize the chart in no more than 5 sentences by describing the distribution of "${groupBy}" categories, `;
     prompt += `any notable trends or differences based on the counts, and key insights from the data.`;
-    
     return prompt;
   };
-  
-  
-  
-  
 
   const handleGenerateDescription = async () => {
     setLoadingDescription(true);
@@ -126,7 +119,7 @@ const PieChartModal: React.FC<PieChartModalProps> = ({ open, onClose, data, yAxi
       id: uuidv4(),
       chartType: 'pie',
       xAxis,
-      xAxisValue: '', // optionally provide if you have
+      xAxisValue: '',
       groupBy,
       pieData: data,
       pieDescription: plotDescription,
@@ -136,8 +129,8 @@ const PieChartModal: React.FC<PieChartModalProps> = ({ open, onClose, data, yAxi
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        {title}
+      <DialogTitle sx={{ textAlign: 'center' }}>
+        {groupBy ? `${title} (grouped by ${groupBy})` : title}
         <IconButton
           aria-label="close"
           onClick={onClose}
@@ -147,14 +140,15 @@ const PieChartModal: React.FC<PieChartModalProps> = ({ open, onClose, data, yAxi
         </IconButton>
       </DialogTitle>
       <DialogContent>
-        <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>
-          {title}
-        </Typography>
-
-        <C2M2PieChart data={data} colorMap={colorMap} title={title} />
+        {/* Pie Chart with automatically generated distinct colors */}
+        <C2M2PieChart data={data} title={title} colorMap={colorMap} /> {/* Pass colorMap to your pie chart */}
 
         <Box sx={{ display: 'flex', alignItems: 'center', mt: 3, gap: 2 }}>
-          <Button variant="contained" onClick={handleGenerateDescription} disabled={loadingDescription}>
+          <Button
+            variant="contained"
+            onClick={handleGenerateDescription}
+            disabled={loadingDescription}
+          >
             Generate Description
           </Button>
           <Button
@@ -181,7 +175,15 @@ const PieChartModal: React.FC<PieChartModalProps> = ({ open, onClose, data, yAxi
         )}
 
         {plotDescription && !isEditing && (
-          <Box sx={{ mt: 3, whiteSpace: 'pre-wrap', backgroundColor: '#f5f5f5', p: 2, borderRadius: 1 }}>
+          <Box
+            sx={{
+              mt: 3,
+              whiteSpace: 'pre-wrap',
+              backgroundColor: '#f5f5f5',
+              p: 2,
+              borderRadius: 1
+            }}
+          >
             <Typography variant="subtitle1">Plot Description</Typography>
             <Typography sx={{ mt: 1 }}>{plotDescription}</Typography>
             <Button variant="outlined" onClick={() => setIsEditing(true)}>Edit</Button>

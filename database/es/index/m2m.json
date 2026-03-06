@@ -1,0 +1,9 @@
+{
+  "mappings": {
+    "properties": {
+      "source_id": {"type": "keyword"},
+      "predicate": {"type": "keyword"},
+      "target_id": {"type": "keyword"}
+    }
+  }
+}

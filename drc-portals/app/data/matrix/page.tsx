@@ -89,7 +89,7 @@ export default async function DataMatrix() {
           Playbook Workflow Builder</Link> (PWB) metanode specifications, models and app URLs. 
           <br /> <br />
           For more information about any of the asset types, please refer to 
-          the <Link href="/info/documentation" color="#3470e5">DOCUMENTATION</Link> section
+          the <Link href="/data/documentation" color="#3470e5">DOCUMENTATION</Link> section
           of the CFDE Workbench <Link href="/info" color="#3470e5">
           Information Portal</Link>.</Typography> 
       </Grid>

@@ -1,5 +1,5 @@
 from ingest_common import (
-  connection,
+  pg_connect,
   dcc_path,
   publications_path,
   dcc_publications_path,
@@ -27,6 +27,7 @@ import io
 import pandas as pd
 import csv
 
+connection = pg_connect()
 cur = connection.cursor()
 cur.execute('''
   create table dcc_tmp

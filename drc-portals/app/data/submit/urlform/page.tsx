@@ -1,7 +1,6 @@
 import React from 'react';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { Alert, Button, Grid } from '@mui/material';
 import { CodeForm } from './CodeForm';

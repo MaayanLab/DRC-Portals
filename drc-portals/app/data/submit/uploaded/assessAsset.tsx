@@ -1,6 +1,6 @@
 'use server'
 import { authOptions } from '@/lib/auth';
-import { queue_fairshake } from '@/tasks/fairshake';
+import { queue_fairshake } from '@/lib/graphile/fairshake';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 

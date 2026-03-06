@@ -15,7 +15,7 @@ fi
 # 2024/12/18: SenNet added
 #dcc_short_labels=('4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet');
 # 2025/01/06: ERCC is now labelled as ExRNA in ingest/DccAssets.tsv
-dcc_short_labels=('4DN' 'ExRNA' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet');
+dcc_short_labels=('4DN' 'ExRNA' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet' 'SCGE');
 #dcc_short_labels=('Metabolomics');
 
 # define python command

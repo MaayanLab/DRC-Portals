@@ -1,32 +1,29 @@
+'use client'
 import React from "react"
-import { Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Typography, List, ListItem, Box, Divider } from "@mui/material"
-import FormPagination from "./FormPagination"
+import { Paper, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, List, ListItem, Box, Divider, TableCellProps, TableCellBaseProps } from "@mui/material"
 import { SearchForm, SearchField } from './SearchField'
 import Link from "@/utils/link"
 import Image, { StaticImageData } from "@/utils/image"
-import { NodeType } from "@prisma/client"
-import { type_to_color, type_to_string } from "./utils"
+import { categoryLabel, categoryColor } from "./utils"
 import { Highlight } from "@/components/misc/Highlight"
 
 export function LinkedTypedNode({
-  slug,
+  href,
   type,
   label,
   search,
-  entity_type = '',
   focus = false,
 }: {
-  slug: string,
-  type: NodeType,
+  href: string,
+  type: string,
   label: string,
   search?: string,
-  entity_type?: string,
   focus?: boolean,
 }) {
   return (
     <div className="flex flex-col">
-      <Link href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${encodeURIComponent(slug)}`}><Typography variant="body1" sx={{overflowWrap: "break-word", maxWidth: 300, textDecoration: 'underline'}} color="secondary" fontWeight={focus ? "bold" : undefined}><Highlight search={search} text={label} /></Typography></Link>
-      <Link href={`/data/processed/${type}${entity_type ? `/${encodeURIComponent(entity_type)}` : ''}/${encodeURIComponent(slug)}`}><Typography variant='caption' color={type_to_color(type, entity_type)}><Highlight search={search} text={`${type_to_string(type, entity_type)} (Entity type)`} /></Typography></Link>
+      <Link href={href} scroll={false}><Typography variant="body1" sx={{overflowWrap: "break-word", maxWidth: 300, textDecoration: 'underline'}} color="secondary" fontWeight={focus ? "bold" : undefined}><Highlight search={search} text={label} /></Typography></Link>
+      <Link href={href} scroll={false}><Typography variant='caption' color={categoryColor(type)}><Highlight search={search} text={`${categoryLabel(type)} (Entity type)`} /></Typography></Link>
     </div>
   )
 }
@@ -38,40 +35,71 @@ export function Description({ search, description }: { search: string, descripti
   }
 }
 
-export function SearchablePagedTableCellIcon(props: {
-  src: string | StaticImageData, href: string, alt: string
-}) {
+const SearchablePagedTableCellContext = React.createContext<{component: React.ElementType<TableCellBaseProps>}>({ component: 'td' })
+
+export function SearchablePagedTableCell(props: React.PropsWithChildren<TableCellProps>) {
+  const { component } = React.useContext(SearchablePagedTableCellContext)
   return (
-    <Box sx={{width: {xs: "4rem", sm: "4rem", md: "8rem", lg: "8rem", xl: "8rem"}, height: {xs: "2rem", sm: "2rem", md: "4rem", lg: "4rem", xl: "4rem"}, position: "relative"}}>
-      <Link href={props.href}>
-        <Image className="object-contain" src={props.src} alt={props.alt} fill />
-      </Link>
-    </Box>
+    <TableCell {...props} component={component} sx={{maxWidth: 300, overflowWrap: 'break-word', borderBottom: {xs: 0, md: '1px solid rgba(224, 224, 224, 1)'}, ...props.sx}}>
+      {props.children}
+    </TableCell>
   )
 }
 
+export function SearchablePagedTableCellIcon({ src, href, alt, ...props}: {
+  src: string | StaticImageData, href?: string, alt: string
+} & TableCellProps) {
+  return (
+    <SearchablePagedTableCell {...props} sx={{maxWidth: 'unset'}}>
+      <Box sx={{position: "relative", width: {xs: "2rem", sm: "4rem", md: "8rem", lg: "8rem", xl: "8rem"}, height: {xs: "2rem", sm: "2rem", md: "4rem", lg: "4rem", xl: "4rem"}}}>
+        <Link href={href ?? 'javascript:'} scroll={false}>
+          <Image className="object-contain" src={src} alt={alt} fill />
+        </Link>
+      </Box>
+    </SearchablePagedTableCell>
+  )
+}
+
+export function SearchablePagedTableHeader(props: {
+  label: string,
+  search_name: string,
+  search: string,
+  autocomplete?: { source_id?: string, type?: string, facet?: string[] },
+}) {
+  const id = React.useId()
+  return (
+    <Grid item xs={12} sx={{marginBottom: 5}}>
+      <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'} gap={2}>
+        <Typography variant="h2" color="secondary" className="whitespace-nowrap">{props.label}</Typography>
+        <SearchForm name={id} param={props.search_name}>
+          <SearchField
+            name={id}
+            defaultValue={props.search}
+            placeholder={`Filter ${props.label}`}
+            autocomplete={props.autocomplete}
+            InputProps={{
+              sx: {width:{xs: '200px', sm: '200px', md: '270px', lg: '270px', xl: '270px'} }
+            }}
+          />
+        </SearchForm>
+      </Stack>
+    </Grid>
+  )
+}
 export default function SearchablePagedTable(props: React.PropsWithChildren<{
-  label?: string,
-  q: string, p: number, r: number, count?: number,
+  tableHeader?: React.ReactNode,
   loading?: boolean,
   columns: React.ReactNode[],
   rows: React.ReactNode[][],
+  tableFooter?: React.ReactNode,
+  tablePagination?: React.ReactNode,
 }>) {
   return (
     <Grid container justifyContent={'space-between'}>
-      {props.label && 
-      <Grid item xs={12} sx={{marginBottom: 5}}>
-        <Stack direction={"row"} alignItems={"center"} justifyContent={'space-between'}>
-          <Typography variant="h2" color="secondary" className="whitespace-nowrap">{props.label}</Typography>
-          <SearchForm>
-            <SearchField q={props.q} placeholder={`Search ${props.label}`} />
-          </SearchForm>
-        </Stack>
-      </Grid>
-      }
+      {props.tableHeader}
       <Grid item xs={12}>
         <Stack spacing={1}>
-          <Box sx={{display: {xs: "none", sm: "block", md: "block", lg: "block", xl: "block",}}}>
+          <Box sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block",}}}>
             <TableContainer component={Paper} elevation={0} variant="rounded-top">
               <Table aria-label="simple table">
                 <TableHead>
@@ -84,39 +112,44 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {props.rows.length === 0 ? <TableRow>
-                    <TableCell colSpan={props.columns.length} align="center">
-                      {props.loading ? <>Loading results...</> : <>No results satisfy the query and filters</>}
-                    </TableCell>
-                  </TableRow> :
-                    props.rows.map((row, i) => (
-                      <TableRow
-                        key={i}
-                        sx={{ 
-                          '&:last-child td, &:last-child th': { border: 0 },
-                        }}
-                      >
-                        {row.map((cell, j) => <TableCell sx={{maxWidth: 300, overflowWrap: 'break-word'}} key={j}>
-                          {cell}
-                        </TableCell>)}
-                      </TableRow>
-                    ))}
+                  <SearchablePagedTableCellContext.Provider value={{ component: 'td' }}>
+                    {props.rows.length === 0 ? <TableRow>
+                      <TableCell colSpan={props.columns.length} align="center">
+                        {props.loading ? <>Loading results...</> : <>No results satisfy the query and filters</>}
+                      </TableCell>
+                    </TableRow> :
+                      props.rows.map((row, i) => (
+                        <TableRow
+                          key={i}
+                          sx={{ 
+                            '&:last-child td, &:last-child th': { border: 0 },
+                          }}
+                        >{row.map((cell, j) => <React.Fragment key={j}>{cell}</React.Fragment>)}</TableRow>
+                      ))}
+                  </SearchablePagedTableCellContext.Provider>
                 </TableBody>
               </Table>
             </TableContainer>
-            </Box>
-            <Box sx={{display: {xs: "block", sm: "none", md: "none", lg: "none", xl: "none",}}}>
-              <List>
-                {props.rows.map((row, i) => (
+          </Box>
+          <Box sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
+            <List component={Paper}>
+              <SearchablePagedTableCellContext.Provider value={{ component: 'div' }}>
+                {props.rows.length === 0 ? <ListItem>
+                    <Grid container justifyContent={"flex-start"} alignItems={"center"}>
+                      <Grid item xs={12} textAlign={"center"}>
+                        {props.loading ? <>Loading results...</> : <>No results satisfy the query and filters</>}
+                      </Grid>
+                    </Grid>
+                  </ListItem> : props.rows.map((row, i) => (
                   <React.Fragment key={i}>
                     <ListItem>
                       <Grid container justifyContent={"flex-start"} alignItems={"center"}>
-                        <Grid item xs={3}>
+                        <Grid item xs={2} md={3}>
                           {row[0]}
                         </Grid>
-                        <Grid item xs={9}>
+                        <Grid item xs={10} md={9}>
                           <Stack spacing={1}>
-                            {row.slice(1).map((cell, j) => <div key={j}>{cell}</div>)}
+                            {row.slice(1).map((cell, j) => <React.Fragment key={j}>{cell}</React.Fragment>)}
                           </Stack>
                         </Grid>
                       </Grid>
@@ -124,9 +157,11 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
                     {(i < props.rows.length - 1 ) && <Divider/>}
                   </React.Fragment>
                 ))}
-              </List>
-            </Box>
-          <FormPagination p={props.p} r={props.r} count={props.count} />
+              </SearchablePagedTableCellContext.Provider>
+            </List>
+          </Box>
+          {props.tableFooter}
+          {props.tablePagination}
         </Stack>
       </Grid>
     </Grid>

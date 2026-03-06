@@ -5,6 +5,7 @@ output/
 .DS_Store
 kub/
 venv
+.venv
 package-lock.json
 playground*
 mcp/dist

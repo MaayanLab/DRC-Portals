@@ -13,9 +13,6 @@ import { Grid, Card, CardContent, Typography } from '@mui/material';
 import { useQueryState } from 'next-usequerystate';
 import download from 'downloadjs'
 import domtoimage from 'dom-to-image';
-import { ContentType } from 'recharts/types/component/Tooltip';
-import { TooltipPayload } from 'recharts/types/state/tooltipSlice';
-
 const renderCustomizedLabel = (props: any) => {
 	const {
 	  x, y, width, height, index, color, value
@@ -34,9 +31,9 @@ const renderCustomizedLabel = (props: any) => {
 	);
   };
 
-  const BarTooltip = ({ active, payload }: {active: boolean, payload:TooltipPayload}) => {
+  const BarTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
 	if (active) {
-		const {enrichr_label, pval, qval, zscore, combined_score} = payload[0].payload
+		const {enrichr_label, pval, qval, zscore, combined_score} = ((payload || [])[0] || {}).payload || {}
 		return(
 			<Card sx={{opacity:"0.8", textAlign: "left"}}>
 				<CardContent>
@@ -155,7 +152,7 @@ export const EnrichmentBar = (props: {
 						data={data}// Save the ref of the chart
 						ref={barRef}
 					>
-						<Tooltip content={BarTooltip} />
+						<Tooltip content={<BarTooltip/>} />
 						<Bar dataKey="value" fill={color} barSize={barSize}>
 							<LabelList dataKey="bar_label" position="left" content={(props:any) => renderCustomizedLabel(props)} fill={fontColor}/>
 							{data_cells}

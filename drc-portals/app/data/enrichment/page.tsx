@@ -136,7 +136,7 @@ export default async function Home({searchParams}: {
         console.log("Got url")
 	
 		return (
-		<Grid container direction={"column"} spacing={2} justifyContent="space-between">
+		<Grid direction={"column"} spacing={2} justifyContent="space-between">
 			<Grid item xs={12} >
 				<Typography sx={{ml:3, mt:2}} color="secondary" variant="h2">
 					Enrichment Analysis Against Common Fund Gene Set Libraries

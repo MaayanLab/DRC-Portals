@@ -7,7 +7,8 @@ from datetime import date
 from uuid import uuid5, NAMESPACE_URL
 import boto3
 from botocore.exceptions import ClientError
-from ingest_common import connection
+from ingest_common import pg_connect
+connection = pg_connect()
 import json
 
 # python update_outreach.py outreach.tsv [webinar.tsv]

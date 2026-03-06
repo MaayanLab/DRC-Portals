@@ -2690,6 +2690,75 @@
       },
       {
          "profile": "tabular-data-resource",
+         "name": "biosample_protein",
+         "title": "biosample_protein",
+         "path": "biosample_protein.tsv",
+         "dialect": {
+            "delimiter": "\t",
+            "doubleQuote": false,
+            "lineTerminator": "\n",
+            "skipInitialSpace": true,
+            "header": true
+         },
+         "description": "Association between a protein and a C2M2 biosample containing experimental resources directly related to the study of that protein",
+         "schema": {
+            "fields": [
+               {
+               "name": "biosample_id_namespace",
+               "description": "Identifier namespace for this biosample",
+               "type": "string",
+               "constraints": {
+                  "required": true
+               }
+               },
+               {
+               "name": "biosample_local_id",
+               "description": "The ID of this biosample",
+               "type": "string",
+               "constraints": {
+                  "required": true
+               }
+               },
+               {
+               "name": "protein",
+               "description": "A UniProtKB term ID describing this protein",
+               "type": "string",
+               "constraints": {
+                  "required": true
+               }
+               }
+            ],
+            "primaryKey": [
+               "biosample_id_namespace",
+               "biosample_local_id",
+               "protein"
+            ],
+            "foreignKeys": [
+               {
+               "fields": [
+                  "biosample_id_namespace",
+                  "biosample_local_id"
+               ],
+               "reference": {
+                  "resource": "biosample",
+                  "fields": [
+                     "id_namespace",
+                     "local_id"
+                  ]
+               }
+               },
+               {
+               "fields": "protein",
+               "reference": {
+                  "resource": "protein",
+                  "fields": "id"
+               }
+               }
+            ]
+         }
+      },
+      {
+         "profile": "tabular-data-resource",
          "name": "phenotype_gene",
          "title": "phenotype_gene",
          "path": "phenotype_gene.tsv",

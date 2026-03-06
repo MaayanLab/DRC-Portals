@@ -3,6 +3,9 @@ WORKDIR /work
 
 ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1
 RUN apk add --no-cache \
+  bash \
+  curl \
+  tmux \
   git \
   postgresql-client \
   gcc \
@@ -15,4 +18,5 @@ ADD requirements.txt requirements.txt
 ADD fair_assessment/requirements.txt fair_assessment_requirements.txt
 RUN pip install -r requirements.txt -r fair_assessment_requirements.txt
 ADD . .
+RUN mkdir -p ingest
 CMD ["/bin/sh"]

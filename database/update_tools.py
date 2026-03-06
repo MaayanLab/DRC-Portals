@@ -7,7 +7,8 @@ from uuid import uuid5, NAMESPACE_URL
 import boto3
 import pathlib
 from botocore.exceptions import ClientError
-from ingest_common import connection
+from ingest_common import pg_connect
+connection = pg_connect()
 
 if len(sys.argv) == 0 or not sys.argv[1].endswith("tsv"):
     raise Exception("Please add a tsv file")

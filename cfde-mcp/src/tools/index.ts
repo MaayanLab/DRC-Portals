@@ -10,6 +10,7 @@ import RegElementSetInfo from "./RegElementSetInfoTool.js"
 import ReverseSearchL1000 from "./ReverseSearchL1000Tool.js"
 import sigComLincs from "./sigComLincsTool.js"
 import KidsFirstTumorExpr from "./KidsFirstTumorExpr.js"
+import DeepDiveGeneSummary from "./DeepDiveGeneSummary.js"
 
 const tools:any[] = [
 	CFDEDocumentationTool,
@@ -24,6 +25,7 @@ const tools:any[] = [
 	RegElementSetInfo,
 	ReverseSearchL1000,
 	sigComLincs,
+	DeepDiveGeneSummary
 ]
 export const initialize_tools = (server:any) => {
 	for (const tool of tools) {
