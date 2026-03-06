@@ -70,12 +70,13 @@ import {
   ConnectionMenuItem,
   PathwaySearchNode,
 } from "../../interfaces/pathway-search";
-import { CustomToolbarFnFactory } from "../../types/cy";
+import { CustomToolbarFnFactory, CytoscapeReference } from "../../types/cy";
 import {
   PathwaySearchElement,
   PropertyConfigs,
   PropertyValueType,
 } from "../../types/pathway-search";
+import { downloadChartPNG } from "../../utils/cy";
 import {
   getRootFromElements,
   isPathwaySearchEdgeElement,
@@ -441,6 +442,12 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
           </Fragment>
         );
       },
+      (cyRef: CytoscapeReference) =>
+        downloadChartPNG(
+          "search-chart-toolbar-download-png",
+          "Download PNG",
+          cyRef
+        ),
       () => (
         <Divider
           key="pathway-search-chart-toolbar-divider-1"

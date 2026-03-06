@@ -613,7 +613,7 @@ export default function GraphPathway() {
   return (
     <Box
       sx={{
-        height: "640px",
+        height: "670px",
         width: "100%",
         position: "relative",
       }}

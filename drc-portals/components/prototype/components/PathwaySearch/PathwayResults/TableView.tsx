@@ -237,110 +237,109 @@ export default function TableView(cmpProps: TableViewProps) {
 
   return (
     <>
-      {/*Table Toolbar*/}
-      <Box
-        sx={{
-          width: "100%",
-          display: "flex",
-          flexDirection: "row",
-          padding: "4px 4px 0px",
-          borderTopLeftRadius: "4px",
-          borderTopRightRadius: "4px",
-          backgroundColor: "#CAD2E9",
-          borderColor: "rgba(220, 219, 220, 1)",
-          borderStyle: "solid",
-          borderWidth: "1px",
-          borderBottomColor: "#CAD2E9",
-        }}
-      >
-        <Button
-          sx={{ padding: "5px 12px" }}
-          color="secondary"
-          size="small"
-          startIcon={<ViewColumnIcon />}
-          onClick={handleColVisibilityMenuClick}
-        >
-          Columns
-        </Button>
-      </Box>
       {/* Start table header */}
-      <Box>
-        <TableContainer
-          component={Paper}
-          elevation={0}
-          sx={{ flexGrow: 1, borderRadius: 0 }}
-        >
-          <Table size="small">
-            <TableHead sx={{ top: "0px", zIndex: 4 }}>
-              <TableRow>
-                <StyledHeaderCell
-                  padding="checkbox"
-                  sx={{ left: 0, zIndex: 3 }}
-                >
-                  <Checkbox
-                    indeterminate={
-                      selected.some((val) => val) && // Some checked
-                      selected.some((val) => !val) // And some not checked
-                    }
-                    indeterminateIcon={
-                      <IndeterminateCheckBoxIcon sx={{ color: "#2D5986" }} />
-                    }
-                    checked={selected.every((val) => val)}
-                    onChange={handleSelectAllClick}
-                  />
-                </StyledHeaderCell>
-                <StyledHeaderCellWithDivider
-                  sx={{ width: "1%", padding: "6px 10px" }}
-                >
-                  <Typography variant="body1">#</Typography>
-                </StyledHeaderCellWithDivider>
-                {columns
-                  .map((col, idx) => (
-                    <StyledHeaderCellWithDivider key={col.key}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <TableSortLabel
-                          disabled={false}
-                          active={sortedColumn === idx && order !== undefined}
-                          direction={sortedColumn === idx ? order : "asc"}
-                          onClick={(event) => handleSortBtnClicked(event, idx)}
-                        >
-                          {getColumnHeaderText(col)}
-                          {sortedColumn === idx ? (
-                            <Box component="span" sx={visuallyHidden}>
-                              {order === "desc"
-                                ? "sorted descending"
-                                : "sorted ascending"}
-                            </Box>
-                          ) : null}
-                        </TableSortLabel>
-                        <IconButton
-                          size="small"
-                          onClick={(event) => handleColMenuClick(event, idx)}
-                        >
-                          <MoreVertIcon fontSize="inherit" />
-                        </IconButton>
-                      </Box>
-                    </StyledHeaderCellWithDivider>
-                  ))
-                  .filter((_, j) => columns[j].visible) // Skip hidden columns
-                }
-              </TableRow>
-            </TableHead>
-          </Table>
-        </TableContainer>
-      </Box>
-      {/* Start table body */}
       <TableContainer
         component={Paper}
         elevation={0}
         sx={{ flexGrow: 1, borderRadius: 0 }}
       >
         <Table size="small" sx={{ borderCollapse: "separate" }}>
+          <TableHead sx={{ position: "sticky", top: "0px", zIndex: 5 }}>
+            {/*Table Toolbar*/}
+            <TableRow>
+              <StyledHeaderCell
+                // 2 extra columns for the checkbox and row #
+                colSpan={columns.length + 2}
+                sx={{
+                  position: "sticky",
+                  left: 0,
+                  zIndex: 3,
+                  borderTopLeftRadius: "4px",
+                  borderTopRightRadius: "4px",
+                  backgroundColor: "#fff",
+                  border: "1px solid #DCDBDC",
+                  borderBottomColor: "#CAD2E9",
+                  paddingBottom: 0
+                }}
+              >
+                <Button
+                  sx={{
+                    backgroundColor: "#CAD2E9",
+                    borderBottomLeftRadius: 0,
+                    borderBottomRightRadius: 0,
+                    padding: "5px 12px",
+                    '&:hover': {
+                      backgroundColor: '#C3E1E6', // Hover background color
+                    },
+                  }}
+                  color="secondary"
+                  size="small"
+                  startIcon={<ViewColumnIcon />}
+                  onClick={handleColVisibilityMenuClick}
+                >
+                  Columns
+                </Button>
+              </StyledHeaderCell>
+            </TableRow>
+            <TableRow>
+              <StyledHeaderCell
+                padding="checkbox"
+                sx={{ position: "sticky", left: 0, zIndex: 3 }}
+              >
+                <Checkbox
+                  indeterminate={
+                    selected.some((val) => val) && // Some checked
+                    selected.some((val) => !val) // And some not checked
+                  }
+                  indeterminateIcon={
+                    <IndeterminateCheckBoxIcon sx={{ color: "#2D5986" }} />
+                  }
+                  checked={selected.every((val) => val)}
+                  onChange={handleSelectAllClick}
+                />
+              </StyledHeaderCell>
+              <StyledHeaderCellWithDivider
+                sx={{ width: "1%", padding: "6px 10px" }}
+              >
+                <Typography variant="body1">#</Typography>
+              </StyledHeaderCellWithDivider>
+              {columns
+                .map((col, idx) => (
+                  <StyledHeaderCellWithDivider key={col.key}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <TableSortLabel
+                        disabled={false}
+                        active={sortedColumn === idx && order !== undefined}
+                        direction={sortedColumn === idx ? order : "asc"}
+                        onClick={(event) => handleSortBtnClicked(event, idx)}
+                      >
+                        {getColumnHeaderText(col)}
+                        {sortedColumn === idx ? (
+                          <Box component="span" sx={visuallyHidden}>
+                            {order === "desc"
+                              ? "sorted descending"
+                              : "sorted ascending"}
+                          </Box>
+                        ) : null}
+                      </TableSortLabel>
+                      <IconButton
+                        size="small"
+                        onClick={(event) => handleColMenuClick(event, idx)}
+                      >
+                        <MoreVertIcon fontSize="inherit" />
+                      </IconButton>
+                    </Box>
+                  </StyledHeaderCellWithDivider>
+                ))
+                .filter((_, j) => columns[j].visible) // Skip hidden columns
+              }
+            </TableRow>
+          </TableHead>
           <TableBody sx={{ zIndex: 4 }}>
             {data.map((row, i) => (
               <TableRow key={`row-${i}`}>
