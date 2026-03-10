@@ -1,7 +1,7 @@
 'use client'
 
 import useSWR from 'swr';
-import {MarkdownStatic} from '@/components/misc/MarkdownComponent';
+import { MarkdownStatic } from '@/components/misc/MarkdownComponent';
 import { Box, Stack, Typography, Container } from '@mui/material';
 // Construct a workflow Gene => ARCHS4 Tissue => Barplot with the input: ACE2
 // import PlaybookButton from '../playbookButton';

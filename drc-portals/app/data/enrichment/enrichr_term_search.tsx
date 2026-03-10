@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import {Stack, Typography, Autocomplete, TextField} from '@mui/material'
 import { typed_fetch } from "./helper";
-export const EnrichrTermSearch = ({setInput}: {setInput: Function}) => {
+export const EnrichrTermSearch = ({setInput, hideText, background}: {setInput: Function, hideText?:boolean, background?: string}) => {
     const [term, setTerm] = useState<string>('')
     const [open, setOpen] = useState<boolean>(false)
     const [loading, setLoading] = useState<boolean>(false)
@@ -63,15 +63,16 @@ export const EnrichrTermSearch = ({setInput}: {setInput: Function}) => {
                     setInput({description: `${description} (${library})`, genes})
                     setOpen(false)
                 }
+                setTerm('')
             }
         } catch (error) {
             console.error(error)
         }
     }
-
+    console.log(term)
     return (
         <Stack direction={'column'} spacing={1} justifyContent={'flex-start'} alignItems={'flex-start'}>
-            <Typography variant={'subtitle2'}> Fetch annotated gene sets from Enrichr</Typography>
+            {hideText === undefined && <Typography variant={'subtitle2'}> Fetch annotated gene sets from Enrichr</Typography>}
             <Autocomplete
                 id="enrichr-term"
                 options={options.sort((a, b) => -b.library.localeCompare(a.library))}
@@ -79,18 +80,24 @@ export const EnrichrTermSearch = ({setInput}: {setInput: Function}) => {
                 getOptionLabel={(option) => option.term}
                 sx={{ width: "100%" }}
                 loading={loading}
-                renderInput={(params) => <TextField 
+                renderInput={(params) => {
+                    return <TextField 
                     {...params} 
-                    sx={{backgroundColor: "#FFF"}}
+                    inputProps={{...params.inputProps, value: term}}
+                    sx={{backgroundColor: background || "#FFF"}}
                     placeholder="Search Enrichr Term" 
-                    onChange={(e)=>setTerm(e.target.value)} />}
+                    onChange={(e)=>setTerm(e.target.value)} />
+                }}
                 noOptionsText={`Can't find ${term}`}
                 onChange={(e,v)=>{
                     fetchGeneSet(v?.library, v?.term)
+                    setOpen(false)
                 }}
                 popupIcon={null}
                 open={open}
-                onBlur={()=>setOpen(false)}
+                onBlur={()=>{
+                    setOpen(false)
+                }}
             />
         </Stack>
     )
