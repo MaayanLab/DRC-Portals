@@ -43,12 +43,21 @@ export async function generateMetadata(props: PageProps, parent: ResolvingMetada
   }
 }
 
+export const getGeneSummary = React.cache(async (params: {type: string, a_label: string}) => {
+  if (params.type !== 'gene') return undefined
+  const res = await fetch(`https://gsfm.maayanlab.cloud/api/trpc/gene_info?input="${params.a_label}"`)  
+  if (!res.ok) return 'No summary found'
+
+  const data = await res.json()  
+  return data.result.data
+})
+
 export default async function Page(props: React.PropsWithChildren<PageProps>) {
   const params = await props.params
   for (const k in props.params) params[k] = decodeURIComponent(params[k])
   const item = await getEntity(params)
   if (!item) notFound()
-    
+  const summary = await getGeneSummary(item)
   const entityLookup: Record<string, EntityType> = Object.fromEntries([
     [item.id, item],
     ...Object.entries(item).flatMap(([key, value]) => {
@@ -64,6 +73,7 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
     <LandingPageLayout
       title={itemLabel(item)}
       subtitle={categoryLabel(item.type)}
+      summary={summary}
       metadata={[
         ...Object.keys(item).toSorted().toReversed().flatMap(predicate => {
           const m = /^(a|m2o)_(.+)$/.exec(predicate)

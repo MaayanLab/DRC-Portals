@@ -7,7 +7,7 @@ import { Box, Stack, Typography, Container } from '@mui/material';
 // import PlaybookButton from '../playbookButton';
 // import { Typography, Stack, Box } from '@mui/material';
 
-const getDeepDiveSummary = async (gene: string) => {
+export const getDeepDiveSummary = async (gene: string) => {
 
 
     const res = await fetch(`https://deepdive-dev.maayanlab.cloud/deepdive/api/${gene}/`)
