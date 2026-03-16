@@ -15,14 +15,14 @@ const CustomPopper = function (props: any) {
 };
 
 const Gene = ({ data, isConnectable }: {data: {update_input: Function}, isConnectable: boolean}) => {
-  const [geneTerm, setGeneTerm] = React.useState('')
+  const [geneTerm, setGeneTerm] = React.useState<{type?: string, a_label?: string}>({a_label: ""})
   const [inputTerm, setInputTerm] = React.useState('')
-  const { data: d, error, isLoading } = useSWRImmutable<string[]>(() => {
-        if (inputTerm.length < 2) return null
-        // if (processName === 'ReverseSearchL1000') return `/chat/l1000sigs/autocomplete?q=${encodeURIComponent(geneTerm)}`
-        return `https://maayanlab.cloud/Harmonizome/api/1.0/suggest?t=gene&q=${encodeURIComponent(inputTerm)}`
-    }, fetcher)
-  const items = React.useMemo(() => d ? levenSort(d, inputTerm).slice(0, 10).map((elt: string) => { return { value: elt, label: elt } }) : [], [d, inputTerm])
+  const { data: d, error, isLoading } = useSWRImmutable<any>(() => {
+          if (inputTerm.length <= 2) return null
+          // if (processName === 'ReverseSearchL1000') return `/chat/l1000sigs/autocomplete?q=${encodeURIComponent(Term)}`
+          return `/api/trpc/autocomplete?batch=1&input={"0":{"search":"${encodeURIComponent(inputTerm)}","facet":["type:\\"gene\\"", "type:\\"protein\\""]}}`
+      }, fetcher)
+  const items = React.useMemo(() => d ? d[0].result.data : [], [d, inputTerm])
   return (
     <Card sx={{width: 400, backgroundColor: green[100]}}>
 	    <Handle
@@ -67,18 +67,18 @@ const Gene = ({ data, isConnectable }: {data: {update_input: Function}, isConnec
               // PopperComponent={CustomPopper}
               className='w-auto'
               options={items}
-              value={geneTerm}
+              value={geneTerm || ''}
               color='secondary'
               // onInputChange={handleInputChange}
               loading={isLoading}
               // filterOption={null}
               noOptionsText={inputTerm.length ? 'No matching genes or proteins': 'Enter Gene or Protein Name'}
               // placeholder={'Enter gene symbol...'}
+              getOptionLabel={option=>option.a_label}
               onChange={(e: any, newValue: any) => {
-                      // if (newValue) setGeneTerm(newValue.value)
-                      // else setGeneTerm('')
+                      
                       if (newValue) {
-                        data.update_input('gene', newValue.value, 'add')
+                        data.update_input(newValue.type, newValue.a_label, 'add')
                         setInputTerm('')
                       }
                   }

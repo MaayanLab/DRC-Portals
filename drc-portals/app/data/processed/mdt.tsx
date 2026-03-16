@@ -53,7 +53,7 @@ const MDComponents: {[K in keyof MDComponentProps]: (props: MDComponentProps[K])
     return (
       <Grid container justifyContent={'flex-start'}>
         <Grid item xs={12}>
-          <Button sx={{color: "black", textAlign: "left", paddingLeft: 0}} onClick={()=>setOpen(!open)}><Typography variant="h5"><strong>References (click to toggle)</strong></Typography></Button>
+          <Button sx={{color: "black", textAlign: "left", paddingLeft: 0}} onClick={()=>setOpen(!open)}><Typography variant="h5"><strong>References (click to {open ? "collapse": "view"})</strong></Typography></Button>
         </Grid>
         <Grid item xs={12}>
           <Collapse in={open}>

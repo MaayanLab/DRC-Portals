@@ -19,7 +19,6 @@ const GeneSet = ({ data, isConnectable }: {data: {update_input: Function, setGen
   useEffect(()=>{
     setUserInput({description: '', value: {}})
   }, [search])
-  console.log(userInput)
   return (
     <Card sx={{width: 400, backgroundColor: purple[100]}}>
 	    <Handle

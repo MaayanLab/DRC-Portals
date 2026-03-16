@@ -1,13 +1,11 @@
 'use client'
 import { MarkdownStatic } from '@/components/misc/MarkdownComponent';
-import { Stack, Typography } from '@mui/material';
+import { Stack } from '@mui/material';
 import React from 'react';
 import MDT from './mdt';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-import Icon from '@mdi/react';
-import { mdiTimerSand } from '@mdi/js';
 
 const tabs = [
 	{

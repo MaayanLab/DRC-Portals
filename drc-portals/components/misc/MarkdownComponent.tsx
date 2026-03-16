@@ -3,7 +3,7 @@ import MarkdownToJSX from 'markdown-to-jsx';
 import { ReactNode } from 'react';
 import Image from '@/utils/image';
 
-const overrides = {
+const default_overrides = {
     h1: {
         component: ({children, ...props}: {children: ReactNode})=><Typography {...props} variant="h1">{children}</Typography>,
         props: {
@@ -70,18 +70,18 @@ const Markdown = async ({src, markdown}: {src?:string, markdown?:string}) => {
     if (markdown) md=markdown
     if (src) md = await (await fetch(src, { next: { revalidate: 3600 } })).text()
     if (md === null) return null
-    return <MarkdownToJSX options={{wrapper: 'article', overrides}}>{md}</MarkdownToJSX>
+    return <MarkdownToJSX options={{wrapper: 'article', overrides: default_overrides}}>{md}</MarkdownToJSX>
 }
 
-export const MarkdownStatic = ({markdown}: {markdown?:string}) => {
+export const MarkdownStatic = ({markdown, overrides}: {markdown?:string, overrides?: {[key: string]: {component: any, props?: {[key:string]: any}}}}) => {
     let md = null
     if (markdown) md=markdown
     if (md === null) return null
-    return <MarkdownToJSX options={{wrapper: 'article', overrides}}>{md}</MarkdownToJSX>
+    return <MarkdownToJSX options={{wrapper: 'article', overrides: {...default_overrides, ...overrides}}}>{md}</MarkdownToJSX>
 }
 
 export const MarkdownPlain =  ({markdown}: {markdown:string}) => {
-    return <MarkdownToJSX options={{wrapper: 'article', overrides}}>{markdown}</MarkdownToJSX>
+    return <MarkdownToJSX options={{wrapper: 'article', overrides: default_overrides}}>{markdown}</MarkdownToJSX>
 }
 
 export default Markdown

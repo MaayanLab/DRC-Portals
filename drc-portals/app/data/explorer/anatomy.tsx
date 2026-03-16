@@ -14,14 +14,14 @@ const CustomPopper = function (props: any) {
 };
 
 const Anatomy = ({ data, isConnectable }: {data: {update_input: Function}, isConnectable: boolean}) => {
-  const [term, setTerm] = React.useState('')
+  const [term, setTerm] = React.useState({type: "", a_label: ""})
   const [inputTerm, setInputTerm] = React.useState('')
   const { data: d, error, isLoading } = useSWRImmutable<any>(() => {
           if (inputTerm.length <= 2) return null
           // if (processName === 'ReverseSearchL1000') return `/chat/l1000sigs/autocomplete?q=${encodeURIComponent(Term)}`
           return `/api/trpc/autocomplete?batch=1&input={"0":{"search":"${encodeURIComponent(inputTerm)}","facet":["type:\\"anatomy\\""]}}`
       }, fetcher)
-    const items = React.useMemo(() => d ? d[0].result.data.map((i:{[key:string]: string})=>i.a_label) : [], [d, inputTerm])
+    const items = React.useMemo(() => d ? d[0].result.data: [], [d, inputTerm])
   return (
     <Card sx={{width: 400, backgroundColor: red[100]}}>
 	    <Handle
@@ -72,12 +72,13 @@ const Anatomy = ({ data, isConnectable }: {data: {update_input: Function}, isCon
               loading={isLoading}
               // filterOption={null}
               noOptionsText={inputTerm.length ? 'No matching  types/tissue/organ': 'Enter  types/tissue/organ'}
+              getOptionLabel={option=>option.a_label}
               onChange={(e: any, newValue: any) => {
-                      // if (newValue) setTerm(newValue.value)
-                      // else setTerm('')
+                      
                       if (newValue) {
-                        data.update_input('anatomy', newValue, 'add')
-                        // setInputTerm('')
+                        data.update_input(newValue.type, newValue.a_label, 'add')
+                        setInputTerm('')
+                        
                       }
                   }
               }
