@@ -7,6 +7,8 @@ import IndeterminateCheckBoxIcon from "@mui/icons-material/IndeterminateCheckBox
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import {
   Box,
   Button,
@@ -468,25 +470,33 @@ export default function TableView(cmpProps: TableViewProps) {
         onClose={handleColMenuClose}
       >
         {colMenuColumn !== undefined ? (
-          <NestedMenuItem
-            rightIcon={<KeyboardArrowRightIcon />}
-            parentMenuOpen={colMenuOpen}
-            renderLabel={() => "Set column property"}
-            sx={{ paddingX: "16px" }}
-          >
-            {getPropertyListFromNodeLabel(columns[colMenuColumn].label).map(
-              (property, idx) => (
-                <MenuItem
-                  key={`column-menu-prop-select-${idx}`}
-                  onClick={() =>
-                    handleColMenuPropertyUpdate(colMenuColumn, property)
-                  }
-                >
-                  {property}
-                </MenuItem>
-              )
-            )}
-          </NestedMenuItem>
+          <>
+            <MenuItem onClick={() => handleColumnVisibilitySwitch(colMenuColumn)}>
+              <ListItemIcon>
+                <VisibilityOffIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Hide Column</ListItemText>
+            </MenuItem>
+            <NestedMenuItem
+              rightIcon={<KeyboardArrowRightIcon />}
+              parentMenuOpen={colMenuOpen}
+              renderLabel={() => "Set column property"}
+              sx={{ paddingX: "16px" }}
+            >
+              {getPropertyListFromNodeLabel(columns[colMenuColumn].label).map(
+                (property, idx) => (
+                  <MenuItem
+                    key={`column-menu-prop-select-${idx}`}
+                    onClick={() =>
+                      handleColMenuPropertyUpdate(colMenuColumn, property)
+                    }
+                  >
+                    {property}
+                  </MenuItem>
+                )
+              )}
+            </NestedMenuItem>
+          </>
         ) : null}
         {colMenuColumn !== sortedColumn ||
           order === undefined ||
