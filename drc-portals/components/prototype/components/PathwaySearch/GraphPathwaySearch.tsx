@@ -498,34 +498,6 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
           handleSelectedNodeChange(event.target.id(), event.cy);
         },
       },
-      {
-        event: "mouseover",
-        target: "node",
-        callback: (event: EventObjectNode) => {
-          event.target.neighborhood().addClass("solid");
-        },
-      },
-      {
-        event: "mouseout",
-        target: "node",
-        callback: (event: EventObjectNode) => {
-          event.target.neighborhood().removeClass("solid");
-        },
-      },
-      {
-        event: "mouseover",
-        target: "edge",
-        callback: (event: EventObjectEdge) => {
-          event.target.connectedNodes().addClass("solid");
-        },
-      },
-      {
-        event: "mouseout",
-        target: "edge",
-        callback: (event: EventObjectEdge) => {
-          event.target.connectedNodes().removeClass("solid");
-        },
-      },
     ],
     [handleSelectedNodeChange]
   );
