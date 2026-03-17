@@ -6,7 +6,7 @@ export async function POST(req: NextRequest
     var url: string;
     console.log(perturb)
     if (perturb == "drug") {
-        url = `https://lincs-reverse-search-dashboard.dev.maayanlab.cloud/api/table/cp/${dir}/${gene}`
+        url = `https:///lincs-reverse-search-dashboard.dev.maayanlab.cloud/api/table/cp/${dir}/${gene}`
     } else {
         url = `https://lincs-reverse-search-dashboard.dev.maayanlab.cloud/api/table/xpr/${dir}/${gene}`
     }

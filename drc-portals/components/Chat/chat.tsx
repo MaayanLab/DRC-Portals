@@ -161,11 +161,13 @@ export default function Chat() {
           if (mcp_output.function) {
             const {function:toolName, inputType, output_text:outtxt, ...toolArgs} = mcp_output
             // const toolName = function
-            newMessage = {
-              ...newMessage,
-              output: inputType,
-              args: {...newMessage.args, [toolName]: { process: toolName, ...toolArgs }},
-            };
+            if (!newMessage.output || newMessage.output === inputType) {
+              newMessage = {
+                ...newMessage,
+                output: inputType,
+                args: {...newMessage.args, [toolName]: { process: toolName, ...toolArgs }},
+              };
+            }
           } else if (mcp_output.error) {
             newMessage = {
               role: "bot",
@@ -214,6 +216,7 @@ export default function Chat() {
           </p>
         </Message>
         {chat.messages.flatMap((message, i) => {
+          console.log(message.output)
           const Component = processMapper[message.output || ""];
           return (
             <React.Fragment key={i}>
