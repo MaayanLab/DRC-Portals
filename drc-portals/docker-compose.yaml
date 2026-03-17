@@ -84,6 +84,8 @@ services:
       - NEXT_PUBLIC_ENRICHR_URL
       - TURL_CRED
       - ELASTICSEARCH_URL=${DEV_ELASTICSEARCH_URL:-http://elastic:${ELASTICSEARCH_PASSWORD}@drc-portal-elasticsearch:9200}
+      - DEEPDIVE_TOKEN
+      - DEEPDIVE_URL
   drc-portal-worker:
     build:
       context: ..
