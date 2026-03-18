@@ -8,6 +8,7 @@ import { PathwaySearchNodeDataProps } from "../types/pathway-search";
 export interface PathwaySearchNodeData {
   id: string;
   dbLabel: string;
+  visible: boolean;
   count?: number;
   props?: PathwaySearchNodeDataProps;
 }
@@ -44,6 +45,7 @@ export interface ColumnData {
   key: string;
   label: string;
   displayProp: string;
+  visible: boolean;
   postfix?: number;
   valueGetter: (node: NodeResult, displayProp: string) => ReactNode;
 }
