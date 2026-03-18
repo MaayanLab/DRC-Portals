@@ -434,6 +434,7 @@ const Explorer = () => {
           zoomOnScroll={false}
           zoomOnDoubleClick={false}
           zoomOnPinch={false}
+          proOptions={{hideAttribution: true}}
         />
       </Container>
     </Grid>
