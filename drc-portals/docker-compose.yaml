@@ -47,7 +47,7 @@ services:
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:0.24.0-rc.3
+    image: maayanlab/drc-portal-dev:0.25.3-rc.1
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -84,6 +84,8 @@ services:
       - NEXT_PUBLIC_ENRICHR_URL
       - TURL_CRED
       - ELASTICSEARCH_URL=${DEV_ELASTICSEARCH_URL:-http://elastic:${ELASTICSEARCH_PASSWORD}@drc-portal-elasticsearch:9200}
+      - DEEPDIVE_TOKEN
+      - DEEPDIVE_URL
   drc-portal-worker:
     build:
       context: ..
