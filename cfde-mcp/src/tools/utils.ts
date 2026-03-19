@@ -15,3 +15,14 @@ export const get_playbook_description = async (data: any) => {
     const output = await resOutput.json() 
 	return output
 }
+
+
+export function groupby<T>(L: T[], keyfun: (el: T) => string): Record<string, T[]> {
+  const buckets: Record<string, T[]> = {}
+  for (const el of L) {
+    const key = keyfun(el)
+    if (!(key in buckets)) buckets[key] = []
+    buckets[key].push(el)
+  }
+  return buckets
+}

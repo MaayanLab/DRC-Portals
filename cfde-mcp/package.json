@@ -16,6 +16,7 @@
     "generate": "npx prisma generate --schema=src/prisma/schema.prisma"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^9.3.4",
     "@modelcontextprotocol/sdk": "^1.19.1",
     "@prisma/client": "^6.16.2",
     "cors": "^2.8.5",
