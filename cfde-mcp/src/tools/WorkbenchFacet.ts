@@ -3,7 +3,6 @@ import { estypes } from "@elastic/elasticsearch";
 import { groupby } from "./utils.js";
 import elasticsearch from "./elasticsearch.js";
 
-const limit = 100
 
 type WithPrefix<Prefix extends string, T> = {
   [K in keyof T as `${Prefix}${string & K}`]: T[K];
