@@ -11,8 +11,8 @@ const Markdown = (props: {children: string | null | undefined}) =>
 	remarkPlugins={[remarkGfm]}
 	components={{
 	  h1: (props: {[key:string]: any}) => <Typography sx={{mt: 2, mb: 2}} variant="h1">{props.children}</Typography>,
-	  h2: (props: {[key:string]: any}) => props.id === 'footnote-label' ? <Typography sx={{mt: 2, mb: 2}} variant="h3">References</Typography> : <h2 {...props} />,
-	  ol: (props: {[key:string]: any}) => <ol style={{listStyle: 'decimal'}}>{props.children}</ol>,
+	  h2: (props: {[key:string]: any}) => props.id === 'footnote-label' ? <Typography sx={{mt: 2, mb: 2}} variant="h3">References</Typography> : <Typography variant="h2" {...props} />,
+	  ol: (props: {[key:string]: any}) => <ol style={{listStyle: 'decimal', marginLeft: 10}}>{props.children}</ol>,
 	  ul: (props: {[key:string]: any}) => <ul style={{listStyle: 'square'}}>{props.children}</ul>,
 	  a: (props: {[key:string]: any}) => props.className === 'data-footnote-backref' ? null: <Link href={props.href} {...props}>{props.children} </Link>,
 	  p: (props: {[key:string]: any}) => <Typography variant="body1" mb={2} mt={2}>{props.children}</Typography>,
@@ -109,7 +109,8 @@ const Article = ({params}: {
 	else if (deepDiveResults === null) return null
 	else if (deepDiveResults[0].result?.data?.output?.output) {
 		const val = deepDiveResults[0].result.data.output.output.value
-		const md = val.startsWith("# ") ? val: "# "+val
+		// make sure it starts with #
+		const md = val.split(" ")[0].indexOf("#") > -1 ? val: "## "+val
 		return <Markdown>{md}</Markdown>
 	} else if (error !== '') {
 		const md = error
