@@ -37,6 +37,10 @@ export const methods: {[key: string]: {label: string, icon: string}} = {
 	label: "DeepDive with RAG Agent",
 	icon: mdiRobotOutline
   },
+  DeepDiveCFDEAgent: {
+	label: "DeepDive with CFDE Workbench Agent",
+	icon: mdiRobotOutline
+  },
   DeepDiveWithReviewer: {
 	label: "Summarize with Review Process",
 	icon: mdiHumanMaleBoard
@@ -173,11 +177,11 @@ export const Search = ({inputList, update_input, applicables, getAbortController
 		const runs = applicables.map(a=>(
         <Grid item key={a.method}>
           <Chip sx={{borderRadius: 0}} color='secondary' variant="outlined"
-              avatar={<Icon style={{backgroundColor: "transparent", color: "#2D5986"}} path={methods[a.method].icon} size={1}/>}
+              avatar={<Icon style={{backgroundColor: "transparent", color: "#2D5986"}} path={(methods[a.method] || {}).icon} size={1}/>}
               onClick={()=>{
                 run_runnable(a.method, a.params)
               }}
-              label={methods[a.method].label}
+              label={(methods[a.method] || {}).label || a.method}
               clickable
             />
         </Grid>
