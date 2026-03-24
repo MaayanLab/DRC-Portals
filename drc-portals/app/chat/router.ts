@@ -32,7 +32,7 @@ export default router({
         // If the client reconnects, it will be the last event id that the client received
         // The id is the createdAt of the post
         query: z.string(),
-		response_id: z.string().optional(),
+    		response_id: z.string().optional(),
       }),
     )
     .subscription(async function* (props) {

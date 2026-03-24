@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import Message from "./message";
 import Communicator from "./Communicator";
 import ChatExample from "./chatExample";
@@ -47,18 +47,20 @@ let processMapper: Record<string, any> = {
   PhenotypeInput: PhenotypeInput,
 };
 
+interface MessageType {
+  role: string;
+  content: string;
+  output: null | string;
+  options: null | string[];
+  args: null | any;
+}
+
 export default function Chat() {
   const [query, setQuery] = React.useState("");
   const [prevResponseId, setPrevResponseId] = React.useState<string | null>(null)
   const [chat, setChat] = React.useState({
     waitingForReply: false,
-    messages: [] as {
-      role: string;
-      content: string;
-      output: null | string;
-      options: null | string[];
-      args: null | any;
-    }[],
+    messages: [] as MessageType[],
   });
 
   const lastBotChat = React.useMemo(
@@ -67,28 +69,7 @@ export default function Chat() {
         ?.content || null,
     [chat]
   );
-  // const trigger = React.useCallback(
-  //   async (arg0: { body: { message: string } }) => {
-  //     const options = {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         query: arg0.body.message,
-  //         threadId: threadId,
-  //       }),
-  //     };
-  //     const res = await fetch(`/chat/assistant`, options);
-  //     const data: ResponseData = await res.json();
-  //     if (!threadId) {
-  //       setThreadId(data.threadId);
-  //     }
-  //     return data;
-  //   },
-  //   [threadId]
-  // );
-
+  
   const submit = React.useCallback(
     async (message: {
       role: string;
@@ -103,107 +84,140 @@ export default function Chat() {
         messages: [...cc.messages, message],
       }));
       setQuery(() => "");
-      const payload: {[key:string]: string} = {
-        query: message.content,
-      }
-      if (prevResponseId) payload['response_id'] = prevResponseId
-      const options = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      };
-      const res = await fetch(`/chat/response`, options);
-      const data: ResponseData = await res.json();
-      let newMessage: {
-        role: string;
-        content: string;
-        output: null | string;
-        args: null | any;
-      };
-      const results = data["output"];        
-      if (!data) {
-        newMessage = {
-          role: "bot",
-          content:
-            "The CFDE Workbench AI Assistant is taking longer than usual to respond. We apologize for the inconvenience, please try again later.",
-          output: null,
-          args: null,
-        };
-      } else if (data.error) {
-        newMessage = {
-          role: "bot",
-          content:
-            data.error,
-          output: null,
-          args: null,
-        };
-      } else if (!results) {
-        newMessage = {
-          role: "bot",
-          content:
-            "The CFDE Workbench AI Assistant is having some issues. We apologize for the inconvenience, please try again later.",
-          output: null,
-          args: null,
-        };
-      }  else {
-        let mcp_vals = results.filter(r=>r["type"]==="mcp_call") || []
-        const output_text = data.output_text
-        newMessage = {
-            role: "bot",
-            content: output_text,
-            output: '',
-            args: {},
-          };
-        for (const mcp_val of mcp_vals) {
-          const mcp_output = JSON.parse(mcp_val["output"] || '{}')
-          if (mcp_output.function) {
-            const {function:toolName, inputType, output_text:outtxt, ...toolArgs} = mcp_output
-            // const toolName = function
-            if (!newMessage.output || newMessage.output === inputType) {
-              newMessage = {
-                ...newMessage,
-                output: inputType,
-                args: {...newMessage.args, [toolName]: { process: toolName, ...toolArgs }},
-              };
-            }
-          } else if (mcp_output.error) {
-            newMessage = {
-              role: "bot",
-              content: output_text,
-              output: null,
-              args: null,
-            };
-            break
-          } else {
-            newMessage = {
-              role: "bot",
-              content: output_text.replace(
-                /\【.*?\】/g,
-                ""
-              ),
-              output: null,
-              args: null,
-            };
-            break;
-          }
-        }
-        setPrevResponseId(data["id"])
-      }
-
-      setChat((cc: any) => {
-        if (!results) return { waitingForReply: false, messages: cc.messages };
-        else
-          return {
-            waitingForReply: false,
-            messages: [...cc.messages, newMessage],
-          };
-      });
     },
-    [chat, prevResponseId]
+    [prevResponseId]
   );
 
+  useEffect(()=>{
+    if (chat.messages.length === 0) return
+    const message = chat.messages[chat.messages.length - 1]
+    if (message.role === 'bot') return
+    else if (message.role === "user") {
+      const content = message.content
+      const input: {[key:string]: string} = {query: content}
+      if (prevResponseId) input['response_id'] = prevResponseId
+      const eventSource = new EventSource(`http://localhost:3000/api/trpc/chat?input=${JSON.stringify(input)}`);
+      eventSource.onmessage = (event) => {
+        const response = JSON.parse(event.data);
+        if (response.type === "response.completed") {
+          let newMessage: MessageType = {
+            role: 'bot',
+            content: '',
+            output: null,
+            args: null,
+            options: null
+          }
+          const data:ResponseData = response.response
+          const results = data["output"];        
+          if (!data) {
+            newMessage = {
+              role: "bot",
+              content:
+                "The CFDE Workbench AI Assistant is taking longer than usual to respond. We apologize for the inconvenience, please try again later.",
+              output: null,
+              args: null,
+              options: null
+            };
+          } else if (data.error) {
+            newMessage = {
+              role: "bot",
+              content:
+                data.error,
+              output: null,
+              args: null,
+              options: null
+            };
+          } else if (!results) {
+            newMessage = {
+              role: "bot",
+              content:
+                "The CFDE Workbench AI Assistant is having some issues. We apologize for the inconvenience, please try again later.",
+              output: null,
+              args: null,
+              options: null
+            };
+          }  else {
+            let mcp_vals = []
+            const messages = []
+            for (const r of results) {
+              if (r["type"] === "mcp_call") {
+                mcp_vals.push(r)
+              } else if (r["type"] === "message") {
+                for (const c of r.content) {
+                  if (c.type === "output_text") {
+                    messages.push(c.text)
+                  }
+                }
+              }
+            }
+            const output_text = messages.join("\n\n")
+             
+            newMessage = {
+                role: "bot",
+                content: output_text,
+                output: '',
+                args: {},
+                options: null
+              };
+            for (const mcp_val of mcp_vals) {
+              const mcp_output = JSON.parse(mcp_val["output"] || '{}')
+              if (mcp_output.function) {
+                const {function:toolName, inputType, output_text:outtxt, ...toolArgs} = mcp_output
+                // const toolName = function
+                if (!newMessage.output || newMessage.output === inputType) {
+                  newMessage = {
+                    ...newMessage,
+                    output: inputType,
+                    args: {...newMessage.args, [toolName]: { process: toolName, ...toolArgs }},
+                  };
+                }
+              } else if (mcp_output.error) {
+                newMessage = {
+                  role: "bot",
+                  content: output_text,
+                  output: null,
+                  args: null,
+                  options: null
+                };
+                break
+              } else {
+                newMessage = {
+                  role: "bot",
+                  content: output_text.replace(
+                    /\【.*?\】/g,
+                    ""
+                  ),
+                  output: null,
+                  args: null,
+                  options: null
+                };
+                break;
+              }
+            }
+            setPrevResponseId(data["id"])
+          }
+
+          setChat((cc: any) => {
+            if (!results) return { waitingForReply: false, messages: cc.messages };
+            else
+              return {
+                waitingForReply: false,
+                messages: [...cc.messages, newMessage],
+              };
+          });
+        }
+      };
+      eventSource.onerror = () => {
+        console.error('Error connecting to SSE server.');
+        eventSource.close();
+      };
+      // Cleanup on unmount
+      return () => {
+        eventSource.close();
+      };
+    }
+  }, [chat])
+  console.log(prevResponseId)
   return (
     <div>
       <div style={{background: "#C3E1E6"}} className={"border border-neutral-700 rounded-xl pt-3 pb-2"}>
@@ -306,49 +320,109 @@ export default function Chat() {
       <div className="flex flex-wrap justify-center mt-2 mb-5">
         <ChatExample
           example={"In which tissues is AKT1 most highly expressed?"}
-          submit={submit}
+          submit={()=>submit({
+            role: "user",
+            content: "In which tissues is AKT1 most highly expressed?",
+            output: null,
+            options: null,
+            args: null
+          })}
         />
         <ChatExample
-          example={
-            "Which L1000 drugs most significantly up or down regulate STAT3?"
-          }
-          submit={submit}
+          example={"Which L1000 drugs most significantly up or down regulate STAT3?"}
+          submit={()=>submit({
+            role: "user",
+            content: "Which L1000 drugs most significantly up or down regulate STAT3?",
+            output: null,
+            options: null,
+            args: null
+          })}
         />
         <ChatExample
           example={"Which L1000 signatures up or down regulate my gene set?"}
-          submit={submit}
+          submit={()=>submit({
+            role: "user",
+            content: "Which L1000 signatures up or down regulate my gene set?",
+            output: null,
+            options: null,
+            args: null
+          })}
         />
         <ChatExample
           example={"Which mouse phenotypes significantly associated with ACE2?"}
-          submit={submit}
+          submit={()=>submit({
+            role: "user",
+            content: "Which mouse phenotypes significantly associated with ACE2?",
+            output: null,
+            options: null,
+            args: null
+          })}
         />
         <ChatExample
           example={"In which pediatric tumors is ACE2 expressed?"}
-          submit={submit}
+          submit={()=>submit({
+            role: "user",
+            content: "In which pediatric tumors is ACE2 expressed?",
+            output: null,
+            options: null,
+            args: null
+          })}
         />
         <ChatExample
           example={"Which regulatory elements are associated with ACE2?"}
-          submit={submit}
+          submit={()=>submit({
+            role: "user",
+            content: "Which regulatory elements are associated with ACE2?",
+            output: null,
+            options: null,
+            args: null
+          })}
         />
         <ChatExample
           example={"Can you provide information about the glycan G17689DH?"}
-          submit={submit}
+          submit={()=>submit({
+            role: "user",
+            content: "Can you provide information about the glycan G17689DH?",
+            output: null,
+            options: null,
+            args: null
+          })}
         />
         <ChatExample
           example={"How can I integrate data from SenNet and A2CPS?"}
-          submit={submit}
+          submit={()=>submit({
+            role: "user",
+            content: "How can I integrate data from SenNet and A2CPS?",
+            output: null,
+            options: null,
+            args: null
+          })}
         />
         {/* <ChatExample
           example={"In which ARCHS4 tissues is NFATC1 expressed?"}
-          submit={submit}
+          submit={()=>submit({
+          role: "user",
+          content: "In which ARCHS4 tissues is NFATC1 expressed?",})}
         /> */}
         <ChatExample
           example={"Which small molecules or drugs may induce autophagy?"}
-          submit={submit}
+          submit={()=>submit({
+            role: "user",
+            content: "Which small molecules or drugs may induce autophagy?",
+            output: null,
+            options: null,
+            args: null
+          })}
         />
         <ChatExample
           example={"What can you tell me about the gene APOE?"}
-          submit={submit}
+          submit={()=>submit({
+            role: "user",
+            content: "What can you tell me about the gene APOE?",
+            output: null,
+            options: null,
+            args: null
+          })}
         />
       </div>
       <div className="flex flex-wrap justify-center">

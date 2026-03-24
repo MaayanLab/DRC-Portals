@@ -5,14 +5,8 @@ export default function ChatExample({example, submit}: {example: string, submit:
     return (
         <Button onClick={(evt) => {
             evt.preventDefault()
-            submit({
-                role: 'user',
-                content: example,
-                output: null,
-                options: null,
-                args: null
-            })
-            }}>
+            submit()
+        }}>
             <Chip label={example} color="primary"/>
         </Button>
     )
