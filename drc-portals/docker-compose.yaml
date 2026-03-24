@@ -47,7 +47,7 @@ services:
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:0.25.3-rc.1
+    image: maayanlab/drc-portal-dev:0.25.3-rc.2
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -86,6 +86,7 @@ services:
       - ELASTICSEARCH_URL=${DEV_ELASTICSEARCH_URL:-http://elastic:${ELASTICSEARCH_PASSWORD}@drc-portal-elasticsearch:9200}
       - DEEPDIVE_TOKEN
       - DEEPDIVE_URL
+      - MCP_API_KEY
   drc-portal-worker:
     build:
       context: ..
@@ -291,7 +292,7 @@ services:
   drc-portal-mcp:
     build: ../cfde-mcp
     platform: linux/amd64
-    image: maayanlab/drc-portal-mcp:0.1.22
+    image: maayanlab/drc-portal-mcp:0.1.24
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -299,6 +300,7 @@ services:
     environment:
       - API_KEY=${MCP_API_KEY}
       - DATABASE_URL=${PROD_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public}
+      - ELASTICSEARCH_URL=${PROD_ELASTICSEARCH_URL:-http://elastic:${ELASTICSEARCH_PASSWORD}@drc-portal-elasticsearch:9200}
     ports:
       - 5000:5000
     
