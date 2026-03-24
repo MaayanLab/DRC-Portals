@@ -1,6 +1,7 @@
 // Cxt Menu Item IDs
 export const ADD_CONNECTION_ITEM_ID = "chart-cxt-add-connection";
 export const SHOW_FILTERS_ID = "chart-cxt-show-filters";
+export const SHOW_HIDE_NODE_ID = "chart-cxt-show-hide-node";
 export const PRUNE_ID = "chart-cxt-prune";
 export const RESET_HIGHLIGHTS = "cxt-menu-reset-highlights";
 export const DOWNLOAD_SELECTION = "chart-cxt-download-selection";
