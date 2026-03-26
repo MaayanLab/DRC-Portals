@@ -234,25 +234,32 @@ export default function Chat() {
           const Component = processMapper[message.output || ""];
           return (
             <React.Fragment key={i}>
-              <Message role={message.role} key={i.toString() + "message"}>
-                {/* <p style={{ whiteSpace: "pre-line" }}>{message.content}</p> */}
-                <ReactMarkdown 
-                    skipHtml
-                    remarkPlugins={[remarkGfm]}
-                    components={{ 
-                        p: PRenderer,
-                    }}
-                    >
-                      {message.content}
-                </ReactMarkdown>
-              </Message>
-
               {message.output ? (
                 <Message role="bot" key={i.toString() + "result"}>
+                  <ReactMarkdown 
+                      skipHtml
+                      remarkPlugins={[remarkGfm]}
+                      components={{ 
+                          p: PRenderer,
+                      }}
+                      >
+                        {message.content}
+                  </ReactMarkdown>
                   {React.createElement(Component, message.args)}
                 </Message>
               ) : (
-                <></>
+                <Message role={message.role} key={i.toString() + "message"}>
+                  {/* <p style={{ whiteSpace: "pre-line" }}>{message.content}</p> */}
+                  <ReactMarkdown 
+                      skipHtml
+                      remarkPlugins={[remarkGfm]}
+                      components={{ 
+                          p: PRenderer,
+                      }}
+                      >
+                        {message.content}
+                  </ReactMarkdown>
+                </Message>
               )}
             </React.Fragment>
           );
