@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { symbol, z } from "zod";
 import { get_playbook_description } from "./utils.js";
 
 const DeepDiveGeneSummary = [
@@ -13,7 +13,18 @@ const DeepDiveGeneSummary = [
         "function": z.string().describe("Function to run"),
         "inputType": z.string().describe("The type of input"),
         "geneSymbol": z.string().optional().nullable().describe("Gene symbol"),
-        "methods": z.array(z.string()).describe("Methods describing the workflow")
+        "methods": z.array(z.string()).describe("Methods describing the workflow"),
+        "output": z.object({
+                    result: z.object({
+                      data: z.object({
+                        symbol: z.string().describe("Gene name"),
+                        name: z.string().describe("Gene long name"),
+                        description: z.string().describe("NCBI Gene Description"),
+                        deepdive_gpt4o_description: z.string().describe("GPT4 Summary"),
+                        deepdive_gemini_description: z.string().describe("Gemini Summary"),
+                      })
+                    })
+                  }).describe("Summaries returned by Deepdive"),
     }
   },
   async ({geneSymbol}: {geneSymbol: string}) => {
@@ -27,7 +38,8 @@ const DeepDiveGeneSummary = [
         },
     }
     const methods = await get_playbook_description(body)
-    
+    const res = await fetch(`https://gsfm.maayanlab.cloud/api/trpc/gene_info?input="${geneSymbol}"`)
+    const output = await res.json()
     return {
       content: [
         {
@@ -36,7 +48,8 @@ const DeepDiveGeneSummary = [
               function: "DeepDiveGeneSummary",
               inputType: "GeneInput",
               methods: methods.usability_domain || [],
-              geneSymbol
+              geneSymbol,
+              output
           })
         }
       ],
@@ -44,7 +57,8 @@ const DeepDiveGeneSummary = [
           function: "DeepDiveGeneSummary",
           inputType: "GeneInput",
           methods: methods.usability_domain || [],
-          geneSymbol
+          geneSymbol,
+          output
       }
     }
   }

@@ -17,6 +17,27 @@ export const get_playbook_description = async (data: any) => {
 }
 
 
+export const fetch_playbook = async (data: any) => {
+	const res = await fetch(ENDPOINT + '/api/db/fpl', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(data),
+	})
+
+    const id = await res.json()
+    const resOutput = await fetch(ENDPOINT + '/api/db/fpl/' + id + '/output')
+ 
+    const output = await resOutput.json() 
+
+	const resOutput2 = await fetch(ENDPOINT + '/api/bco/' + id)
+ 
+    const methods = await resOutput2.json() 
+	return {output, 'id': id, methods}
+}
+
+
 export function groupby<T>(L: T[], keyfun: (el: T) => string): Record<string, T[]> {
   const buckets: Record<string, T[]> = {}
   for (const el of L) {

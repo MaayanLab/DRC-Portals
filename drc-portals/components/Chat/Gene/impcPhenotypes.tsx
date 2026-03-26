@@ -30,7 +30,6 @@ export default function ImpcPhenotypes(props: any) {
   } else if (isLoading) {
     return <div>Loading...</div>;
   }
-  console.log(data)
   if (data.length === 0) return <Typography variant={"h3"}>No Mouse Phenotypes Found For {geneSymbol}</Typography>
   return (
     <Container maxWidth="lg">

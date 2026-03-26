@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { get_playbook_description } from "./utils.js";
+import { fetch_playbook, get_playbook_description } from "./utils.js";
 
 const KidsFirstTumorExpr = [
   "KidsFirstTumorExpr",
@@ -13,7 +13,11 @@ const KidsFirstTumorExpr = [
         "function": z.string().describe("Function to run"),
         "inputType": z.string().describe("The type of input"),
         "methods": z.array(z.string()).describe("Methods describing the workflow"),
-        "geneSymbol": z.string().optional().nullable().describe("Gene symbol")
+        "geneSymbol": z.string().optional().nullable().describe("Gene symbol"),
+        "id": z.string(),
+        "output": z.array(z.looseObject({
+                    id: z.string(),
+                  })).describe("Analysis returned by the Playbook Workflow Builder"),
     }
   },
   async ({geneSymbol}: {geneSymbol: string}) => {
@@ -43,7 +47,7 @@ const KidsFirstTumorExpr = [
             }
         ]
     }
-    const methods = await get_playbook_description(body)
+    const {methods, output, id} = await fetch_playbook(body)
     return {
       content: [
         {
@@ -52,7 +56,9 @@ const KidsFirstTumorExpr = [
               function: "KidsFirstTumorExpr",
               inputType: "GeneInput",
               methods: methods.usability_domain || [],
-              geneSymbol
+              geneSymbol,
+              output,
+              id
           })
         }
       ],
@@ -60,7 +66,9 @@ const KidsFirstTumorExpr = [
           function: "KidsFirstTumorExpr",
           inputType: "GeneInput",
           methods: methods.usability_domain || [],
-          geneSymbol
+          geneSymbol,
+          output,
+          id
       }
     }
   }

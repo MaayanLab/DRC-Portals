@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { get_playbook_description } from "./utils.js";
+import { fetch_playbook, get_playbook_description } from "./utils.js";
 
 const PhenotypeSmallMolecules = [
   "PhenotypeSmallMolecules",
@@ -13,7 +13,11 @@ const PhenotypeSmallMolecules = [
         "function": z.string().describe("Function to run"),
         "inputType": z.string().describe("The type of input"),
         "methods": z.array(z.string()).describe("Methods describing the workflow"),
-        "phenotype": z.string().optional().nullable().describe("Phenotype to be analyzed.")
+        "phenotype": z.string().optional().nullable().describe("Phenotype to be analyzed."),
+        "id": z.string(),
+        "output": z.array(z.looseObject({
+                    id: z.string(),
+                  })).describe("Analysis returned by the Playbook Workflow Builder"),
     }
   },
   async ({phenotype}: {phenotype: string}) => {
@@ -209,7 +213,7 @@ const PhenotypeSmallMolecules = [
             "gpt_summary": ""
         }
     }
-    const methods = await get_playbook_description(body)
+    const {output, id, methods} = await fetch_playbook(body)
     return {
       content: [
         {
@@ -218,7 +222,9 @@ const PhenotypeSmallMolecules = [
               function: "PhenotypeSmallMolecules",
               inputType: "PhenotypeInput",
               methods: methods.usability_domain || [],
-              phenotype
+              phenotype,
+              output,
+              id
           })
         }
       ],
@@ -226,7 +232,9 @@ const PhenotypeSmallMolecules = [
           function: "PhenotypeSmallMolecules",
           inputType: "PhenotypeInput",
           methods: methods.usability_domain || [],
-          phenotype
+          phenotype,
+          output,
+          id
       }
     }
   }

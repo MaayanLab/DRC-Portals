@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { get_playbook_description } from "./utils.js";
+import { fetch_playbook, get_playbook_description } from "./utils.js";
 
 const ARCHS4GeneExpression = [
   "ARCHS4GeneExpression",
@@ -13,7 +13,11 @@ const ARCHS4GeneExpression = [
         "function": z.string().describe("Function to run"),
         "inputType": z.string().describe("The type of input"),
         "input": z.string().optional().nullable().describe("Gene symbol"),
-        "methods": z.array(z.string()).describe("Methods describing the workflow")
+        "methods": z.array(z.string()).describe("Methods describing the workflow"),
+        "id": z.string(),
+        "output": z.array(z.looseObject({
+                    id: z.string(),
+                  })).describe("Analysis returned by the Playbook Workflow Builder"),
     }
   },
   async ({geneSymbol}: {geneSymbol: string}) => {
@@ -27,7 +31,7 @@ const ARCHS4GeneExpression = [
         title: 'ARCHS4 Median Tissue Expression',
         },
     }
-    const methods = await get_playbook_description(body)
+    const {id, methods, output} = await fetch_playbook(body)
     
     return {
       content: [
@@ -37,6 +41,8 @@ const ARCHS4GeneExpression = [
               function: "ARCHS4GeneExpression",
               inputType: "GeneInput",
               methods: methods.usability_domain || [],
+              id,
+              output,
               geneSymbol
           })
         }
@@ -45,7 +51,9 @@ const ARCHS4GeneExpression = [
           function: "ARCHS4GeneExpression",
           inputType: "GeneInput",
           methods: methods.usability_domain || [],
-          geneSymbol
+          geneSymbol,
+          id,
+          output
       }
     }
   }

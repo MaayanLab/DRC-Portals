@@ -29,22 +29,9 @@ const GetOutreachTool = [
 				"symposium",
 				"social event"
 			]).optional().describe("Type of outreach activity"),
-		},
-		outputSchema: {
-			outreach: z.array(z.object({
-				title: z.string().describe("Title of the activity"),
-				description: z.string().describe("Description of the activity"),
-				link: z.string().describe("Link to the activity"),
-				tags: z.array(z.string()).nullable().describe("Tags of the activity"),
-				start_date: z.date().nullable().describe("Start date of the activity. If blank then the event is recurring"),
-				end_date: z.date().nullable().describe("End date of the activity. If blank then the event is recurring"),
-				application_start: z.date().nullable().describe("Start of the application period if the activity has an application period"),
-				application_end: z.date().nullable().describe("End of the application period if the activity has an application period"),
-			}))
 		}
 	},
 	async ({name, tag}: {name?: string, tag?: string}) => {
-		console.log(name, tag)
 		if (name) {
 			const where_tags = tag ? {
 				where: {
@@ -81,7 +68,7 @@ const GetOutreachTool = [
 				}
 			})
 			if (dcc_outreach?.dcc_outreach) {
-				const outreach = dcc_outreach?.dcc_outreach.map(o=>({
+				const outreach = dcc_outreach?.dcc_outreach.map((o)=>({
 							title: o.outreach.title,
 							description: o.outreach.description,
 							link: o.outreach.link,
@@ -128,7 +115,7 @@ const GetOutreachTool = [
 					}
 				})
 				if (center_outreach?.center_outreach) {
-					const outreach = center_outreach?.center_outreach.map(o=>({
+					const outreach = center_outreach?.center_outreach.map((o)=>({
 								title: o.outreach.title,
 								description: o.outreach.description,
 								link: o.outreach.link,
@@ -167,7 +154,7 @@ const GetOutreachTool = [
 			}: {}
 			const results = await prisma.outreach.findMany({where})
 			if (results.length) {
-				const outreach = results.map(o=>({
+				const outreach = results.map((o)=>({
 					title: o.title,
 					description: o.description,
 					link: o.link,

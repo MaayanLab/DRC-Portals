@@ -52,7 +52,6 @@ const SearchWorkbenchTool = [
 		cursor?: string,
 	}}) => {
 		try {
-			console.log(props)
 			const must: estypes.QueryDslQueryContainer[] = []
 			const filter: estypes.QueryDslQueryContainer[] = []
 			if (props.input.search) must.push({ simple_query_string: { query: props.input.search, fields: ['a_label^10', 'a_*^5', 'm2o_*.a_*'], default_operator: 'AND' } })
@@ -63,7 +62,6 @@ const SearchWorkbenchTool = [
 					)).map(([_, F]) => `(${F.join(' OR ')})`).join(' AND '),
 				}
 			})
-			console.log(filter, JSON.stringify(must))
 			const searchRes = await elasticsearch.search<EntityExpandedType>({
 				index: 'entity_expanded',
 				query: {
@@ -104,7 +102,8 @@ const SearchWorkbenchTool = [
 									items,
 									total: searchRes.hits.total,
 									next,
-								})
+									filter
+								}),
 							}
 						],
 					}

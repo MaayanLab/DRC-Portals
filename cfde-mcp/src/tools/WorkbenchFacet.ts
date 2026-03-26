@@ -33,7 +33,7 @@ export type TermAggType<K extends string> = Record<K, {
 }>
 
 const WorkbenchFacetTool = [
-	"workbench facet",
+	"WorkbenchFacet",
 	{
 		title: "Workbench Facet",
 		description: "Provide aggregations for CFDE Workbench database",

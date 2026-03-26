@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { get_playbook_description } from "./utils.js";
+import { fetch_playbook, get_playbook_description } from "./utils.js";
 
 const ReverseSearchL1000 = [
   "ReverseSearchL1000",
@@ -17,7 +17,11 @@ const ReverseSearchL1000 = [
         "methods": z.array(z.string()).describe("Methods describing the workflow"),
         "geneSymbol": z.string().optional().nullable().describe("Gene symbol"),
         "dir": z.enum(["up", "down", "both"]).optional().nullable().describe("Please pick a direction."),
-        "perturb": z.enum(['drug', 'CRISPR']).optional().nullable().describe("Please pick a the type of signatures you are interested in.")
+        "perturb": z.enum(['drug', 'CRISPR']).optional().nullable().describe("Please pick a the type of signatures you are interested in."),
+        "id": z.string(),
+        "output": z.array(z.looseObject({
+                    id: z.string(),
+                  })).describe("Analysis returned by the Playbook Workflow Builder"),
     }
   },
   async ({geneSymbol, dir, perturb}: {geneSymbol: string, dir: "up" | "down" | "both", perturb: "drug" | "CRISPR"}) => {
@@ -47,7 +51,7 @@ const ReverseSearchL1000 = [
             }
         ]
     }
-    const methods = await get_playbook_description(body)
+    const {methods, output, id} = await fetch_playbook(body)
     return {
       content: [
         {
@@ -58,7 +62,9 @@ const ReverseSearchL1000 = [
               methods: methods.usability_domain || [],
               geneSymbol,
               dir,
-              perturb
+              perturb,
+              output,
+              id
           })
         }
       ],
@@ -68,7 +74,9 @@ const ReverseSearchL1000 = [
           methods: methods.usability_domain || [],
           geneSymbol,
           dir,
-          perturb
+          perturb,
+          output,
+          id
       }
     }
   }

@@ -44,7 +44,7 @@ app.post('/mcp', async (req:any, res:any) => {
 
 const port = parseInt("5000");
 app.listen(port, () => {
-    console.log(`CFDE MCP Server running on http://localhost:5000/mcp ${process.env.API_KEY}`);
+    console.log(`CFDE MCP Server running on http://localhost:5000/mcp`);
 }).on('error', (error:any) => {
     console.error('Server error:', error);
     process.exit(1);
