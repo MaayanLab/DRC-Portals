@@ -16,18 +16,19 @@ const ImpcPhenotypes = [
     inputSchema: {
         "geneSymbol": z.string().optional().describe("Gene symbol")
     },
-    outputSchema: {
-        "function": z.string().describe("Function to run"),
-        "geneSymbol": z.string().optional().nullable().describe("Gene symbol"),
-        "inputType": z.string().describe("The type of input"),
-        "methods": z.string().describe("Methods describing the workflow"),
-        "output": z.array(z.looseObject({
-          id: z.string(),
-        })).describe("Analysis returned by the IMPC API"),
-    }
+    // outputSchema: {
+    //     "function": z.string().describe("Function to run"),
+    //     "geneSymbol": z.string().optional().nullable().describe("Gene symbol"),
+    //     "inputType": z.string().describe("The type of input"),
+    //     "methods": z.string().describe("Methods describing the workflow"),
+    //     "output": z.array(z.looseObject({
+    //       id: z.string(),
+    //     })).describe("Analysis returned by the IMPC API"),
+    // }
   },
   async ({geneSymbol}: {geneSymbol: string}) => {
     const output = await fetchImpcPhenotype(geneSymbol)
+    console.log(output)
     return {
       content: [
         {
