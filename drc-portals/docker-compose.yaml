@@ -2,7 +2,7 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.25.4
+    image: maayanlab/drc-portal:0.26.0
     deploy:
       replicas: 3
       resources:
@@ -297,6 +297,21 @@ services:
       imagePullPolicy: IfNotPresent
       annotations:
         maayanlab.cloud/ingress: https://mcp.cfde.cloud
+    environment:
+      - API_KEY=${MCP_API_KEY}
+      - DATABASE_URL=${PROD_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public}
+      - ELASTICSEARCH_URL=${PROD_ELASTICSEARCH_URL:-http://elastic:${ELASTICSEARCH_PASSWORD}@drc-portal-elasticsearch:9200}
+    ports:
+      - 5000:5000
+
+  drc-portal-mcp-dev:
+    build: ../cfde-mcp
+    platform: linux/amd64
+    image: maayanlab/drc-portal-mcp-dev:0.1.25
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      annotations:
+        maayanlab.cloud/ingress: https://mcp-dev.cfde.cloud
     environment:
       - API_KEY=${MCP_API_KEY}
       - DATABASE_URL=${PROD_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public}
