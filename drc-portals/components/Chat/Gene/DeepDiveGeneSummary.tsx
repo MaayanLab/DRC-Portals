@@ -3,6 +3,7 @@
 import useSWR from 'swr';
 import { MarkdownStatic } from '@/components/misc/MarkdownComponent';
 import { Box, Stack, Typography, Container } from '@mui/material';
+import GeneSummary from '@/app/data/processed/GeneSummary';
 // Construct a workflow Gene => ARCHS4 Tissue => Barplot with the input: ACE2
 // import PlaybookButton from '../playbookButton';
 // import { Typography, Stack, Box } from '@mui/material';
@@ -19,22 +20,16 @@ export const getDeepDiveSummary = async (gene: string) => {
 export default function DeepDiveGeneSummary(props: any) {
     const gene: string = props.geneSymbol || 'ACE2'
     
-    const {data, isLoading, error} = useSWR([gene], () => getDeepDiveSummary(gene));
-    if (error) {
-        return <>{error}</>
-    } else if (isLoading) {
-        return <Box sx={{width: "100%"}}>Loading summary...</Box>
+    if (props.output === undefined) {
+        return <>Error</>
     }
-    if (!data) return <>{error}</>
+    const summary = props.output.result.data
     
 
     
     return (
     <Container maxWidth="lg">
-        <Stack>
-            <Typography variant="h3">{gene} Summary Based on Top 50 PubMed Articles</Typography>
-            <MarkdownStatic markdown={data.gene_summary}/>
-        </Stack>
+        <GeneSummary summary={summary}/>
     </Container>
     )
 }

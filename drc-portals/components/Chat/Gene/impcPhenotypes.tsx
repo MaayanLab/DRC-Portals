@@ -23,13 +23,10 @@ const columns = [
 
 export default function ImpcPhenotypes(props: any) {
   const geneSymbol = props.geneSymbol
-  const { data, error, isLoading } = useSWR([geneSymbol], () => fetchImpcPhenotype(geneSymbol));
-
-  if (error) {
-    return <div>No information for gene with identifier ${geneSymbol} found in GTEx</div>;
-  } else if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  if (props.output === undefined) {
+        return <>Error</>
+    }
+  const data = props.output
   if (data.length === 0) return <Typography variant={"h3"}>No Mouse Phenotypes Found For {geneSymbol}</Typography>
   return (
     <Container maxWidth="lg">

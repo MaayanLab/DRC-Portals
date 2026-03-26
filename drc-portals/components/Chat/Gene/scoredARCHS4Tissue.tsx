@@ -27,23 +27,10 @@ const getPlaybookARCHS4PlotData = async (body: any) => {
 
 export default function ScoredARCHS4Tissue(props: any) {
     const gene: string = props.geneSymbol || 'ACE2'
-    
-    const body = {
-        workflow: [
-        { id: '1', type: 'Input[Gene]', data: { type: 'Term[Gene]', value: gene } },
-        { id: '2', type: 'ARCHS4TissueExpression', inputs: { gene: { id: '1' } } },
-        { id: '3', type: 'BarplotFrom[Scored[Tissue]]', inputs: { terms: { id: '2' } } },
-        ],
-        metadata: {
-        title: 'ARCHS4 Median Tissue Expression',
-        },
+    if (props.id === undefined) {
+        return <>Error</>
     }
-    const {data, isLoading, error} = useSWR([body], () => getPlaybookARCHS4PlotData(body));
-    if (error) {
-        return <>{error}</>
-    } else if (isLoading) {
-        return <>{isLoading}</>
-    }
+    const data = {data: props.output, id: props.id}
     const plotData = (data || {}).data[2].process.output.value;
     const table_value = (data || {}).data[1].process.output.value
     const sorted = table_value.filter((a:any)=>a.zscore !== null).sort((a:any,b:any)=>(b.zscore-a.zscore))

@@ -23,24 +23,11 @@ const getPlaybookGTExPlotData = async (body: any) => {
 
 export default function ScoredGTExTissue(props: any) {
     const gene: string = props.geneSymbol || 'ACE2'
+    if (props.id === undefined) {
+        return <>Error</>
+    }
+    const data = {data: props.output, id: props.id}
     
-    const body = {
-        workflow: [
-        { id: '1', type: 'Input[Gene]', data: { type: 'Term[Gene]', value: gene } },
-        { id: '2', type: 'GTExTissueExpressionFromGene', inputs: { gene: { id: '1' } } },
-        { id: '3', type: 'BarplotFrom[Scored[Tissue]]', inputs: { terms: { id: '2' } } },
-        ],
-        metadata: {
-        title: 'GTEx Tissue Expression Barplot',
-        },
-    }
-    const {data, isLoading, error} = useSWR([body], () => getPlaybookGTExPlotData(body));
-
-    if (error) {
-        return <>{error}</>
-    } else if (isLoading) {
-        return <>{isLoading}</>
-    }
 
     const plotData = data.data[2].process.output.value;
     const table_value = (data || {}).data[1].process.output.value

@@ -20,40 +20,11 @@ const getPlaybookGlycanInfo = async (body: any) => {
 export default function GlyGenbyGlyTouCan(props: any) {
     const glycan: string = props.glycan || 'G17689DH'
 
-    const body = {
-        "data": {
-            "80ca332c-4217-2216-055e-888b992453f4": {
-                "type": "Input[glycan]",
-                "value": glycan
-            }
-        },
-        "workflow": [
-            {
-                "id": "c8e46e25-17f7-b6d8-fd98-9447e7bc3542",
-                "type": "Input[glycan]",
-                "data": {
-                    "id": "80ca332c-4217-2216-055e-888b992453f4"
-                }
-            },
-            {
-                "id": "f5412429-c51f-5cbc-2201-ceaf153d1afd",
-                "type": "GlycanInformation",
-                "inputs": {
-                    "glycan": {
-                        "id": "c8e46e25-17f7-b6d8-fd98-9447e7bc3542"
-                    }
-                }
-            }
-        ]
+    if (props.id === undefined) {
+        return <>Error</>
     }
+    const data = {data: props.output, id: props.id}
 
-    const { data, isLoading, error } = useSWR([body], () => getPlaybookGlycanInfo(body));
-
-    if (error) {
-        return <>{error}</>
-    } else if (isLoading) {
-        return <>{isLoading}</>
-    }
 
     const tableData = data.data[1].process.output.value;
     try {

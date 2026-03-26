@@ -96,7 +96,7 @@ export default function Chat() {
       const content = message.content
       const input: {[key:string]: string} = {query: content}
       if (prevResponseId) input['response_id'] = prevResponseId
-      const eventSource = new EventSource(`http://localhost:3000/api/trpc/chat?input=${JSON.stringify(input)}`);
+      const eventSource = new EventSource(`/api/trpc/chat?input=${JSON.stringify(input)}`);
       eventSource.onmessage = (event) => {
         const response = JSON.parse(event.data);
         if (response.type === "response.completed") {

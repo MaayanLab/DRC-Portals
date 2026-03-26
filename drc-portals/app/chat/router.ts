@@ -20,7 +20,10 @@ Make sure that the input type is consistent across workflows that are being run.
 The workflow will be run on the client side so make sure to include all mcp calls and responses in your response. DO NOT include mcp call responses and JSON input in the output text. Format the output text as markdown.
 
 You SHOULD NOT state any information that is not provided by the MCP server and any user query not directly related to
-CFDE and documented playbook workflows should be responded with a message stating that the query is not relevant to the CFDE. Do NOT suggest next steps to the user.`
+CFDE and documented playbook workflows should be responded with a message stating that the query is not relevant to the CFDE. Do NOT suggest next steps to the user.
+
+Ignore the output field on the tool DeepDiveGeneSummary. If there are a list of entities provided, highlight top 5 results only.
+`
 
 
 export default router({
@@ -50,7 +53,7 @@ export default router({
             type: "mcp",
             server_label: "cfde-mcp",
             server_description: "MCP Server For CFDE Portal",
-            server_url: "https://mcp.cfde.cloud/mcp",
+            server_url: "https://mcp-dev.cfde.cloud/mcp",
             require_approval: "never",
             authorization: process.env.MCP_API_KEY,
           },
