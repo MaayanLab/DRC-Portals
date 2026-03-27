@@ -129,14 +129,24 @@ const sigComLincs = [
                 up_gene_set: z.array(z.string()).describe("Input up gene set for querying up and down gene sets"),
                 down_gene_set: z.array(z.string()).describe("Input down gene set for querying up and down gene sets")
             }),
-    ]).describe("Input gene sets for signature search. Can either be a single gene set or an up and a down gene set")},
+    ]).optional().describe("Input gene sets for signature search. Can either be a single gene set or an up and a down gene set")},
     // outputSchema: {
     //     function: z.string().describe("Function to run"),
     //     inputType: z.string().describe("The type of input"),
     //     methods: z.string().describe("Description of the workflow"),
     // }
   },
-  async ({input}: {input: {gene_set?:string[], up_gene_set?:string[], down_gene_set?:string[]}}) => {
+  async ({input}: {input?: {gene_set?:string[], up_gene_set?:string[], down_gene_set?:string[]}}) => {
+    if (input === undefined) {
+        return {
+            content: [
+      {
+        type: "text",
+        text: "Please input a gene set or an up and down gene set and call this tool again"
+      }
+    ]
+        }
+    }
     const result = await getPersistentUrl(input)
     const CRISPR_KO_signatures = await SignatureSearch(result.forEnrichment, 'l1000_xpr')
     const Chemical_Perturbation_signatures = await SignatureSearch(result.forEnrichment, 'l1000_cp')
