@@ -64,7 +64,7 @@ export default router({
             type: "mcp",
             server_label: "cfde-mcp",
             server_description: "MCP Server For CFDE Portal",
-            server_url: "https://mcp-dev.cfde.cloud/mcp",
+            server_url: "https://mcp.cfde.cloud/mcp",
             require_approval: "never",
             authorization: process.env.MCP_API_KEY,
           },
