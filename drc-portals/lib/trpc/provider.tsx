@@ -29,7 +29,7 @@ const TrpcProvider: React.FC<{ children: React.ReactNode }> = ({
           // uses the httpSubscriptionLink for subscriptions
           condition: (op) => op.type === 'subscription',
           true: httpSubscriptionLink({
-            url: `/api/trpc`,
+            url,
             eventSourceOptions() {
               return {
                 withCredentials: true,

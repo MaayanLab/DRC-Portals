@@ -95,8 +95,8 @@ export default function Chat() {
 
   const eventSource = trpc.chat.useSubscription(input, {
         onData(event) {
-          const response = event.data;
-          if (response !== null) {
+          if (typeof event !== 'string') {
+            const response = event.data;
             if (!response.type.endsWith("delta")) {
               const s = response.type.split(".").slice(1,).join(" ").replaceAll("_", " ").replaceAll("mcp", "MCP")
               setLoadingText(s[0].toUpperCase() + s.slice(1,) + "...")
