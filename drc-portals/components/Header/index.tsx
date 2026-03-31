@@ -38,9 +38,15 @@ export const TopNav = async ({ path, session }: { path: "/info" | "/data", sessi
   // )
   return (
     <>
-      <Link href={path === "/info" ? "/data": "/info"}>
-        <Typography variant="nav"><b>Data</b></Typography>
+    <Link href={"/info"}>
+      <Typography variant="nav" sx={path === "/info" ? { textDecoration: "underline", textDecorationThickness: 2 } : {}}><b>Info</b></Typography>
+    </Link>
+    <Link href={"/data"}>
+      <Typography variant="nav" sx={path === "/data" ? { textDecoration: "underline", textDecorationThickness: 2 } : {}}><b>Data</b></Typography>
       </Link>
+      {/* <Link href={path === "/info" ? "/data": "/info"}>
+        <Typography variant="nav"><b>Data</b></Typography>
+      </Link> */}
       <Link href={"/info/centers/CWIC"}>
         <Typography variant="nav"><b>Cloud</b></Typography>
       </Link>
