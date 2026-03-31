@@ -13,7 +13,7 @@ import { Input } from "@mui/material";
 import DccIcons from "./dccIcons";
 import remarkGfm from "remark-gfm"
 import {  PRenderer } from '@/components/misc/ReactMarkdownRenderers'
-import { SSE } from "sse.js";
+import trpc from "@/lib/trpc/client"
 
 type content = {
   text: {
@@ -61,6 +61,7 @@ export default function Chat() {
   const [query, setQuery] = React.useState("");
   const [loadingText, setLoadingText] = React.useState("")
   const [prevResponseId, setPrevResponseId] = React.useState<string | null>(null)
+  const [input, setInput] = React.useState<{query: string, response_id?: string}>({query: ""})
   const [chat, setChat] = React.useState({
     waitingForReply: false,
     messages: [] as MessageType[],
@@ -92,138 +93,144 @@ export default function Chat() {
     [prevResponseId]
   );
 
+  const eventSource = trpc.chat.useSubscription(input, {
+        onData(event) {
+          const response = event.data;
+          if (response !== null) {
+            if (!response.type.endsWith("delta")) {
+              const s = response.type.split(".").slice(1,).join(" ").replaceAll("_", " ").replaceAll("mcp", "MCP")
+              setLoadingText(s[0].toUpperCase() + s.slice(1,) + "...")
+            }
+            if (response.type === "response.completed") {
+              let newMessage: MessageType = {
+                role: 'bot',
+                content: '',
+                output: null,
+                args: null,
+                options: null
+              }
+              const data = response.response
+              const results = data["output"];        
+              if (!data) {
+                newMessage = {
+                  role: "bot",
+                  content:
+                    "The CFDE Workbench AI Assistant is taking longer than usual to respond. We apologize for the inconvenience, please try again later.",
+                  output: null,
+                  args: null,
+                  options: null
+                };
+              } else if (data.error) {
+                newMessage = {
+                  role: "bot",
+                  content:
+                    `${data.error}`,
+                  output: null,
+                  args: null,
+                  options: null
+                };
+              } else if (!results) {
+                newMessage = {
+                  role: "bot",
+                  content:
+                    "The CFDE Workbench AI Assistant is having some issues. We apologize for the inconvenience, please try again later.",
+                  output: null,
+                  args: null,
+                  options: null
+                };
+              }  else {
+                let mcp_vals = []
+                const messages = []
+                for (const r of results) {
+                  if (r["type"] === "mcp_call") {
+                    mcp_vals.push(r)
+                  } else if (r["type"] === "message") {
+                    for (const c of r.content) {
+                      if (c.type === "output_text") {
+                        messages.push(c.text)
+                      }
+                    }
+                  }
+                }
+                const output_text = messages.join("\n\n")
+                
+                newMessage = {
+                    role: "bot",
+                    content: output_text,
+                    output: '',
+                    args: {},
+                    options: null
+                  };
+                for (const mcp_val of mcp_vals) {
+                  const mcp_output = JSON.parse(mcp_val["output"] || '{}')
+                  if (mcp_output.function) {
+                    const {function:toolName, inputType, output_text:outtxt, ...toolArgs} = mcp_output
+                    // const toolName = function
+                    if (!newMessage.output || newMessage.output === inputType) {
+                      newMessage = {
+                        ...newMessage,
+                        output: inputType,
+                        args: {...newMessage.args, [toolName]: { process: toolName, submit, ...toolArgs }},
+                      };
+                    }
+                  } else if (mcp_output.error) {
+                    newMessage = {
+                      role: "bot",
+                      content: output_text,
+                      output: null,
+                      args: null,
+                      options: null
+                    };
+                    break
+                  } else {
+                    newMessage = {
+                      role: "bot",
+                      content: output_text.replace(
+                        /\【.*?\】/g,
+                        ""
+                      ),
+                      output: null,
+                      args: null,
+                      options: null
+                    };
+                    break;
+                  }
+                }
+                setPrevResponseId(data["id"])
+              }
+
+              setChat((cc: any) => {
+                if (!results) return { waitingForReply: false, messages: cc.messages };
+                else
+                  return {
+                    waitingForReply: false,
+                    messages: [...cc.messages, newMessage],
+                  };
+              });
+            }
+          }
+        },
+        onError(err) {
+          console.error('Subscription error:', err);
+        }
+        
+      });
+
   useEffect(()=>{
     if (chat.messages.length === 0) return
     const message = chat.messages[chat.messages.length - 1]
     if (message.role === 'bot') return
     else if (message.role === "user") {
       const content = message.content
-      const input: {[key:string]: string} = {query: content}
+      const input: {query: string, response_id?: string} = {query: content}
       if (prevResponseId) input['response_id'] = prevResponseId
       setLoadingText("Thinking...")
-      const eventSource = new EventSource(`/api/trpc/chat?input=${JSON.stringify(input)}`);
-      eventSource.onmessage = (event) => {
-        const response = JSON.parse(event.data);
-        if (!response.type.endsWith("delta")) {
-          const s = response.type.split(".").slice(1,).join(" ").replaceAll("_", " ").replaceAll("mcp", "MCP")
-          setLoadingText(s[0].toUpperCase() + s.slice(1,) + "...")
-        }
-        if (response.type === "response.completed") {
-          let newMessage: MessageType = {
-            role: 'bot',
-            content: '',
-            output: null,
-            args: null,
-            options: null
-          }
-          const data:ResponseData = response.response
-          const results = data["output"];        
-          if (!data) {
-            newMessage = {
-              role: "bot",
-              content:
-                "The CFDE Workbench AI Assistant is taking longer than usual to respond. We apologize for the inconvenience, please try again later.",
-              output: null,
-              args: null,
-              options: null
-            };
-          } else if (data.error) {
-            newMessage = {
-              role: "bot",
-              content:
-                data.error,
-              output: null,
-              args: null,
-              options: null
-            };
-          } else if (!results) {
-            newMessage = {
-              role: "bot",
-              content:
-                "The CFDE Workbench AI Assistant is having some issues. We apologize for the inconvenience, please try again later.",
-              output: null,
-              args: null,
-              options: null
-            };
-          }  else {
-            let mcp_vals = []
-            const messages = []
-            for (const r of results) {
-              if (r["type"] === "mcp_call") {
-                mcp_vals.push(r)
-              } else if (r["type"] === "message") {
-                for (const c of r.content) {
-                  if (c.type === "output_text") {
-                    messages.push(c.text)
-                  }
-                }
-              }
-            }
-            const output_text = messages.join("\n\n")
-             
-            newMessage = {
-                role: "bot",
-                content: output_text,
-                output: '',
-                args: {},
-                options: null
-              };
-            for (const mcp_val of mcp_vals) {
-              const mcp_output = JSON.parse(mcp_val["output"] || '{}')
-              if (mcp_output.function) {
-                const {function:toolName, inputType, output_text:outtxt, ...toolArgs} = mcp_output
-                // const toolName = function
-                if (!newMessage.output || newMessage.output === inputType) {
-                  newMessage = {
-                    ...newMessage,
-                    output: inputType,
-                    args: {...newMessage.args, [toolName]: { process: toolName, submit, ...toolArgs }},
-                  };
-                }
-              } else if (mcp_output.error) {
-                newMessage = {
-                  role: "bot",
-                  content: output_text,
-                  output: null,
-                  args: null,
-                  options: null
-                };
-                break
-              } else {
-                newMessage = {
-                  role: "bot",
-                  content: output_text.replace(
-                    /\【.*?\】/g,
-                    ""
-                  ),
-                  output: null,
-                  args: null,
-                  options: null
-                };
-                break;
-              }
-            }
-            setPrevResponseId(data["id"])
-          }
+      setInput(input)
 
-          setChat((cc: any) => {
-            if (!results) return { waitingForReply: false, messages: cc.messages };
-            else
-              return {
-                waitingForReply: false,
-                messages: [...cc.messages, newMessage],
-              };
-          });
-        }
-      };
-      eventSource.onerror = () => {
-        console.error('Error connecting to SSE server.');
-        eventSource.close();
-      };
-      // Cleanup on unmount
-      return () => {
-        eventSource.close();
-      };
+      // // Cleanup on unmount
+      // return () => {
+      //   eventSource.reset();
+      // };
     }
   }, [chat])
   return (

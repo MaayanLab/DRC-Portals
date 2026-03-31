@@ -1,7 +1,7 @@
 "use client"
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { httpBatchLink, getFetch, loggerLink } from "@trpc/client"
+import { httpBatchLink, getFetch, loggerLink, httpSubscriptionLink, splitLink } from "@trpc/client"
 import { useState } from "react"
 // import superjson from "superjson"
 import trpc from "./client"
@@ -25,6 +25,18 @@ const TrpcProvider: React.FC<{ children: React.ReactNode }> = ({
         loggerLink({
           enabled: () => true,
         }),
+        splitLink({
+          // uses the httpSubscriptionLink for subscriptions
+          condition: (op) => op.type === 'subscription',
+          true: httpSubscriptionLink({
+            url: `/api/trpc`,
+            eventSourceOptions() {
+              return {
+                withCredentials: true,
+              }
+            }
+          }),
+          false: 
         httpBatchLink({
           url,
           fetch: async (input, init?) => {
@@ -35,6 +47,7 @@ const TrpcProvider: React.FC<{ children: React.ReactNode }> = ({
             })
           },
         }),
+      }),
       ],
       // transformer: superjson,
     })

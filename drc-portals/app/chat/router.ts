@@ -52,6 +52,7 @@ export default router({
     .subscription(async function* (props) {
       // `props.signal` is an AbortSignal that will be aborted when the client disconnects.
       const {query, response_id} = props.input
+    if (query === '') yield tracked('', null);
 	  const opts = response_id ? {previous_response_id: response_id}: {}
 	  const stream = await client.responses.create({
         model: 'gpt-5',
