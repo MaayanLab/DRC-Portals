@@ -29,7 +29,7 @@ export const NodeFilterBox = styled(Box)(() => ({
 
 export const PathwayResultTabPanel = styled(BaseTabPanel)(() => ({
   width: "100%",
-  height: "573px",
+  height: "603px",
 }));
 
 export const TableViewContainer = styled(Paper)(() => ({

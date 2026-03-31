@@ -324,7 +324,7 @@ volumes:
   drc-portal-postgres:
     x-kubernetes:
       size: 100Gi
-      class: gp2
+      name: drc-portal-postgres
 
   drc-portal-postgres-2:
     x-kubernetes:

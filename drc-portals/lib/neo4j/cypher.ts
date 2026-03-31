@@ -1,3 +1,5 @@
+import set_difference from "@/utils/set";
+
 import { CORE_LABELS } from "./constants";
 import { Direction } from "./enums";
 import { TreeParseResult } from "./types";
@@ -176,8 +178,12 @@ export const createPathwaySearchAllPathsCypher = (
   orderByProp?: string,
   order?: "asc" | "desc" | undefined
 ) => {
-  const nodeIds = Array.from(treeParseResult.nodeIds).map(escapeCypherString);
-  const relIds = Array.from(treeParseResult.relIds).map(escapeCypherString);
+  const nodeIds = Array.from(
+    set_difference(treeParseResult.nodeIds, treeParseResult.hiddenNodeIds)
+  ).map(escapeCypherString);
+  const relIds = Array.from(
+    set_difference(treeParseResult.relIds, treeParseResult.hiddenRelIds)
+  ).map(escapeCypherString);
   const usingJoinStmts = usingJoin ? treeParseResult.usingJoinStmts : [];
 
   return [
@@ -187,7 +193,7 @@ export const createPathwaySearchAllPathsCypher = (
     ...(treeParseResult.filterMap.size > 0
       ? ["WHERE", Array.from(treeParseResult.filterMap.values()).join(" AND ")]
       : []),
-    "WITH *",
+    `WITH DISTINCT ${nodeIds.concat(relIds).join(", ")}`,
     // Need to order/paginate before aliasing the results to the return values. In other words: "First order *all* the results by this node
     // and property, then paginate the results, then map that page into the final result." If we did the ordering/pagination *after* the
     // return, we would be ordering the *page* and not the entire result set.
@@ -218,6 +224,12 @@ export const createUpperPageBoundCypher = (
   treeParseResult: TreeParseResult,
   usingJoin = false
 ) => {
+  const nodeIds = Array.from(
+    set_difference(treeParseResult.nodeIds, treeParseResult.hiddenNodeIds)
+  ).map(escapeCypherString);
+  const relIds = Array.from(
+    set_difference(treeParseResult.relIds, treeParseResult.hiddenRelIds)
+  ).map(escapeCypherString);
   const usingJoinStmts = usingJoin ? treeParseResult.usingJoinStmts : [];
 
   return [
@@ -227,7 +239,7 @@ export const createUpperPageBoundCypher = (
     ...(treeParseResult.filterMap.size > 0
       ? ["WHERE", Array.from(treeParseResult.filterMap.values()).join(" AND ")]
       : []),
-    "WITH *",
+    `WITH DISTINCT ${nodeIds.concat(relIds).join(", ")}`,
     "SKIP $skip",
     "LIMIT ($maxSiblings - (($skip / $limit) - $lowerPageBound)) * $limit",
     "RETURN toInteger(ceil(toFloat(count(*)) / $limit)) + ($skip / $limit) AS upperPageBound",

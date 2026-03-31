@@ -1,9 +1,7 @@
 "use client";
 
-import DownloadIcon from "@mui/icons-material/Download";
 import {
   Box,
-  Button,
   Checkbox,
   FormControl,
   MenuItem,
