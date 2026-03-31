@@ -68,6 +68,18 @@ const getPersistentUrl = async (input: {gene_set?:string[], up_gene_set?: string
     return {share_url, forEnrichment}
 }
 
+const get_user_input = async (persistent_id: string) => {
+    const res = await fetch(`https://maayanlab.cloud/sigcom-lincs/metadata-api/user_input/${persistent_id}`)
+    const results = await res.json()
+    const forEnrichment: {[key:string]: string[]} = {}
+    for (const [k,v] of Object.entries(results.meta)) {
+        if (!k.startsWith("$")) forEnrichment[k] = v as string[]
+    }
+    const up_down = forEnrichment.up_entities !== undefined
+    const share_url = `https://maayanlab.cloud/sigcom-lincs/#/SignatureSearch/${up_down ? "Rank": "Set"}/${persistent_id}`
+    return {share_url, forEnrichment}
+}
+
 const SignatureSearch = async (for_enrichment: {[key:string]: string[]}, database: string) => {
     const payload = {
         ...for_enrichment,
@@ -119,7 +131,7 @@ const sigComLincs = [
   "sigComLincs",
   {
     title: "sigComLincs",
-    description: "Returns the LINCS L1000 small molecules and genetic perturbations that likely up- or down-regulate the expression of a gene set.",
+    description: "Returns the LINCS L1000 small molecules and genetic perturbations that likely up- or down-regulate the expression of a gene set. Call this tool even if the gene set is not defined.",
     inputSchema: {
         input: z.union([
             z.object({
@@ -129,27 +141,46 @@ const sigComLincs = [
                 up_gene_set: z.array(z.string()).describe("Input up gene set for querying up and down gene sets"),
                 down_gene_set: z.array(z.string()).describe("Input down gene set for querying up and down gene sets")
             }),
-    ]).optional().describe("Input gene sets for signature search. Can either be a single gene set or an up and a down gene set")},
+            z.object({
+                persistent_id: z.uuid().describe("UUID of the submitted gene set in SigCom LINCS")
+            })
+    ]).nullable().describe("Input gene sets for signature search. Can either be a single gene set or an up and a down gene set. Can also be a persistent id of a submitted geneset in sigcom lincs. Can also be null."),
+    database: z.enum(['CRISPR KO', "Chemical Perturbation", "both"]).default('both').optional().describe("Signature library to use")
+},
     // outputSchema: {
     //     function: z.string().describe("Function to run"),
     //     inputType: z.string().describe("The type of input"),
     //     methods: z.string().describe("Description of the workflow"),
     // }
   },
-  async ({input}: {input?: {gene_set?:string[], up_gene_set?:string[], down_gene_set?:string[]}}) => {
-    if (input === undefined) {
+  async ({input, database='both'}: {input?: {persistent_id?: string, gene_set?:string[], up_gene_set?:string[], down_gene_set?:string[]}, database: 'CRISPR KO'|"Chemical Perturbation"|"both"}) => {
+    if (input === undefined || input === null) {
         return {
             content: [
       {
         type: "text",
-        text: "Please input a gene set or an up and down gene set and call this tool again"
+        text: JSON.stringify({
+            function: "sigComLincs",
+            inputType: "GeneSetInput",
+            methods: "Signature search to find mimicking and reversing signatures will be done using SigCom LINCS.",
+            message: "Please input a gene set or an up and down gene set and call this tool again"})
       }
     ]
         }
     }
-    const result = await getPersistentUrl(input)
-    const CRISPR_KO_signatures = await SignatureSearch(result.forEnrichment, 'l1000_xpr')
-    const Chemical_Perturbation_signatures = await SignatureSearch(result.forEnrichment, 'l1000_cp')
+    let result:any
+    if (input.persistent_id !== undefined) {
+        result = await get_user_input(input.persistent_id)
+    } else {
+        result = await getPersistentUrl(input)
+    }
+    const output:{[key:string]: any} = {}
+    if (database === 'both' || database === 'CRISPR KO') {
+        output['CRISPR_KO_signatures'] = await SignatureSearch(result.forEnrichment, 'l1000_xpr')
+    }
+    if (database === 'both' || database === 'Chemical Perturbation') {
+        output['Chemical_Perturbation_signatures'] = await SignatureSearch(result.forEnrichment, 'l1000_cp')
+    }
     return {
     content: [
       {
@@ -159,8 +190,7 @@ const sigComLincs = [
             inputType: "GeneSetInput",
             methods: "Signature search to find mimicking and reversing signatures will be done using SigCom LINCS.",
             share_url: result.share_url,
-            CRISPR_KO_signatures,
-            Chemical_Perturbation_signatures,
+            output
             // up,
             // down
         })
@@ -171,8 +201,7 @@ const sigComLincs = [
         inputType: "GeneSetInput",
         methods: "Signature search to find mimicking and reversing signatures will be done using SigCom LINCS.",
         share_url: result.share_url,
-        CRISPR_KO_signatures,
-        Chemical_Perturbation_signatures,
+        output
         // up,
         // down
     }

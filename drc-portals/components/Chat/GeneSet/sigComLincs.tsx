@@ -1,11 +1,14 @@
 import useSWR from 'swr';
 import Link from '@/utils/link';
 import Image from '@/utils/image';
-import { Button } from '@mui/material';
+import { Button, Grid, Typography } from '@mui/material';
+import TableViewCol from '../vis/tableViewCol';
+import BarChartComponent from '../vis/barChart';
+import { blue, red } from '@mui/material/colors';
 
 const METADATA_API = "https://maayanlab.cloud/sigcom-lincs/metadata-api/"
 
-const fetchSigComLincsId = async (geneset: string[], genesetDown: string[], useUpDown: boolean) => {
+export const fetchSigComLincsId = async (geneset: string[], genesetDown: string[], useUpDown: boolean) => {
     const url = METADATA_API + "entities/find"
 
     if (useUpDown) {
@@ -132,27 +135,83 @@ const fetchSigComLincsId = async (geneset: string[], genesetDown: string[], useU
 }
 
 
-
 export default function SigComLincs(props: any) {
-    const geneset = props.genes
-    const useUpDown = props.upDownGeneset
-    const genesetDown = props.genesDown
-    const { data, error, isLoading } = useSWR([geneset, genesetDown, useUpDown], () => fetchSigComLincsId(geneset, genesetDown, useUpDown));
-
-    if (error) {
-        return <div>An error when submitting your gene set.</div>;
-
-    } else if (isLoading) {
-        return <div>Loading...</div>;
+    if (props.output === undefined) {
+        return <>Error</>
+    }
+    const tables: {[key:string]: {[key:string]: Array<{[key:string]: string|number}>}} = {}
+    const meta_cols = ["local_id", "pert_name", "cell_line", "pert_time", "pert_dose"]
+    const score_cols = ["zscore", "z-sum", "p-value", "p-up", "p-down", "type", "rank"]
+    if (props.output.CRISPR_KO_signatures) {
+        tables["CRISPR KO"] = {}
+        for (const i of props.output.CRISPR_KO_signatures) {
+            const val:{[key:string]: string|number} = {}
+            for (const col of meta_cols) {
+                if (i.meta[col]) val[col] = i.meta[col]
+            }
+            for (const col of score_cols) {
+                if (i.scores[col]) val[col] = i.scores[col]
+            }
+            const dir = i.scores["type"]
+            if (tables['CRISPR KO'][dir] === undefined) tables['CRISPR KO'][dir] = []
+            tables['CRISPR KO'][dir].push(val)
+        }
     }
 
+    if (props.output.Chemical_Perturbation_signatures) {
+        tables["Chemical Perturbations"] = {
+        }
+        for (const i of props.output.Chemical_Perturbation_signatures) {
+            const val:{[key:string]: string|number} = {}
+            for (const col of meta_cols) {
+                if (i.meta[col]) val[col] = i.meta[col]
+            }
+            for (const col of score_cols) {
+                if (i.scores[col]) val[col] = i.scores[col]
+            }
+            const dir = i.scores["type"]
+            if (tables['Chemical Perturbations'][dir] === undefined) tables['Chemical Perturbations'][dir] = []
+            tables['Chemical Perturbations'][dir].push(val)
+        }
+    }
+
+    console.log(tables)
     return (
-        <div className='text-center'>
-            <Link href={data || ''} target='_blank'>
-                <Button>
-                    <div className='text-slate-100 flex-row'>Open in<Image className='rounded-md m-0' alt='SigCom Lincs' width={50} height={50} src='/img/SigComLincs.png' /></div> 
-                </Button>
-            </Link>
-        </div>
+        <Grid container spacing={2} sx={{marginLeft: 2, marginRight: 2}}>
+            {Object.entries(tables).map(([k,v])=>(
+                <Grid item xs={12} key={k}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <Typography variant={'h5'}>
+                                {k} Signatures
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            {v.down ? <BarChartComponent data={v.down} color={red[200]} neg={true}/>:
+                            <BarChartComponent data={v.reversers} color={red[200]} neg={true}/>}
+                        </Grid>
+                        <Grid item xs={6}>
+                            {v.up ? <BarChartComponent data={v.up} color={blue[200]} neg={false}/>:
+                            <BarChartComponent data={v.mimickers} color={blue[200]} neg={false}/>}
+                        </Grid>
+                        {Object.entries(v).map(([key, val])=>(
+                            <Grid item xs={12}>
+                                <Typography variant={'h5'}>
+                                    {key[0].toUpperCase() + key.slice(1,)}{key.endsWith("s") ? "": "-regulating Signatures"}
+                                </Typography>
+                                {val[0].rank as number < 50 ? <TableViewCol rowData={val.map(i=>{
+                                    const {local_id, rank, ...rest} = i
+                                    return rest
+                                })}/>:
+                                <TableViewCol rowData={val.sort((a,b)=>(b.rank as number-(a.rank as number))).map(i=>{
+                                    const {local_id, rank, ...rest} = i
+                                    return rest
+                                })}/>}
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Grid>
+            ))}
+        </Grid>
     );
 };

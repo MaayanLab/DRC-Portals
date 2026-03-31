@@ -13,6 +13,7 @@ import { Input } from "@mui/material";
 import DccIcons from "./dccIcons";
 import remarkGfm from "remark-gfm"
 import {  PRenderer } from '@/components/misc/ReactMarkdownRenderers'
+import { SSE } from "sse.js";
 
 type content = {
   text: {
@@ -49,6 +50,7 @@ let processMapper: Record<string, any> = {
 
 interface MessageType {
   role: string;
+  hidden?: boolean;
   content: string;
   output: null | string;
   options: null | string[];
@@ -57,6 +59,7 @@ interface MessageType {
 
 export default function Chat() {
   const [query, setQuery] = React.useState("");
+  const [loadingText, setLoadingText] = React.useState("")
   const [prevResponseId, setPrevResponseId] = React.useState<string | null>(null)
   const [chat, setChat] = React.useState({
     waitingForReply: false,
@@ -73,6 +76,7 @@ export default function Chat() {
   const submit = React.useCallback(
     async (message: {
       role: string;
+      hidden?: boolean,
       content: string;
       output: null | string;
       options: null | string[];
@@ -96,9 +100,14 @@ export default function Chat() {
       const content = message.content
       const input: {[key:string]: string} = {query: content}
       if (prevResponseId) input['response_id'] = prevResponseId
+      setLoadingText("Thinking...")
       const eventSource = new EventSource(`/api/trpc/chat?input=${JSON.stringify(input)}`);
       eventSource.onmessage = (event) => {
         const response = JSON.parse(event.data);
+        if (!response.type.endsWith("delta")) {
+          const s = response.type.split(".").slice(1,).join(" ").replaceAll("_", " ").replaceAll("mcp", "MCP")
+          setLoadingText(s[0].toUpperCase() + s.slice(1,) + "...")
+        }
         if (response.type === "response.completed") {
           let newMessage: MessageType = {
             role: 'bot',
@@ -168,7 +177,7 @@ export default function Chat() {
                   newMessage = {
                     ...newMessage,
                     output: inputType,
-                    args: {...newMessage.args, [toolName]: { process: toolName, ...toolArgs }},
+                    args: {...newMessage.args, [toolName]: { process: toolName, submit, ...toolArgs }},
                   };
                 }
               } else if (mcp_output.error) {
@@ -217,7 +226,6 @@ export default function Chat() {
       };
     }
   }, [chat])
-  console.log(prevResponseId)
   return (
     <div>
       <div style={{background: "#C3E1E6"}} className={"border border-neutral-700 rounded-xl pt-3 pb-2"}>
@@ -229,8 +237,7 @@ export default function Chat() {
             you answer it.
           </p>
         </Message>
-        {chat.messages.flatMap((message, i) => {
-          console.log(message.output)
+        {chat.messages.filter(i=>!i.hidden).flatMap((message, i) => {
           const Component = processMapper[message.output || ""];
           return (
             <React.Fragment key={i}>
@@ -282,7 +289,7 @@ export default function Chat() {
                 fill="currentFill"
               />
             </svg>
-            <p className="text-sm">Thinking...</p>
+            <p className="text-sm">{loadingText.replace("mcp", "MCP")}</p>
             <span className="sr-only">Loading...</span>
           </div>
         ) : (

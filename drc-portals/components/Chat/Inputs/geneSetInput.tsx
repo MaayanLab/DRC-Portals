@@ -4,9 +4,10 @@ import example from '@/components/Chat/utils/example.json'
 import uniqueArray from '@/components/Chat/utils/uniqueArray'
 
 // Import gene set components and map them to names
-import SigComLincs from '../GeneSet/sigComLincs'
+import SigComLincs, { fetchSigComLincsId } from '../GeneSet/sigComLincs'
 import classNames from 'classnames'
 import Button from '@mui/material/Button';
+import { Grid } from '@mui/material'
 
 let processMapper: Record<string, any> = {
   'sigComLincs': SigComLincs
@@ -22,7 +23,7 @@ export default function InputForm(args: any) {
   const processName = props.process
   const hasUpDown = upDownMapper[props.process]
   const Component = processMapper[processName || '']
-  const [submitted, setSubmitted] = React.useState(false)
+  // const [submitted, setSubmitted] = React.useState(false)
   const [upDown, setUpDown] = React.useState(hasUpDown)
   const [rawGenes, setRawGenes] = React.useState('')
   const [rawGenes2, setRawGenes2] = React.useState('')
@@ -63,13 +64,22 @@ export default function InputForm(args: any) {
       setUpDown(true)
     }
   }, [props.args])
-
+  const sigcom_id = async () => {
+    const url = await fetchSigComLincsId(genes, genes2, upDown)
+    const persistent_id = url.split("/")[url.split("/").length-1]
+    props.submit({
+      role: "user",
+      hidden: true,
+      content: JSON.stringify({persistent_id}),
+      output: null,
+      options: null,
+      args: null,
+    })
+  }
   return (
-    <div className='flex flex-col'>
-      <div className='flex flex-row'>
-        {!submitted ? <>
-
-          <div className='flex-col'>
+    <Grid container spacing={2} justifyContent={"center"}>
+        {!props.output ? <>
+          <Grid item xs={upDown ? 6: 12}>
             <p className="prose mb-2">
               Try a gene set <a
                 className="font-bold cursor-pointer  text-sky-400"
@@ -82,7 +92,7 @@ export default function InputForm(args: any) {
               className="flex flex-col place-items-end"
               onSubmit={async (evt) => {
                 evt.preventDefault()
-                setSubmitted(true)
+                // setSubmitted(true)
               }}
             >
               <textarea
@@ -104,10 +114,10 @@ export default function InputForm(args: any) {
               </div>
               {hasUpDown ? <></> : <><button className={classNames('btn', { 'disabled': genes.length < 5 })} type="submit">Submit</button></>}
             </form>
-          </div>
+          </Grid>
           {upDown ?
             <>
-              <div className='flex-col ml-5'>
+              <Grid item xs={6}>
                 <p className="prose mb-2">
                   Try a gene set <a
                     className="font-bold cursor-pointer  text-sky-400"
@@ -120,7 +130,7 @@ export default function InputForm(args: any) {
                   className="flex flex-col place-items-end"
                   onSubmit={async (evt) => {
                     evt.preventDefault()
-                    setSubmitted(true)
+                    // setSubmitted(true)
                   }}
                 >
                   <textarea
@@ -141,16 +151,15 @@ export default function InputForm(args: any) {
                     {genes2.length} down gene(s) entered
                   </div>
                 </form>
-              </div>
+              </Grid>
             </> :
             <></>
           }
         </> :
           <>
-            {React.createElement(Component, { genes: genes, genesDown: genes2, upDownGeneset: upDown })}
+            {React.createElement(Component, { output: props.output, share_url: props.share_url })}
           </>}
-      </div>
-      {submitted ? <></> : <div className='flex flex-col mx-auto'>
+      {props.output ? <></> : <Grid item>
         {hasUpDown ? <><Button className="m-2" variant="outlined" color="info"
           // style={{
           //   borderRadius: 35,
@@ -166,19 +175,19 @@ export default function InputForm(args: any) {
             className={classNames('btn', { 'cursor-not-allowed opacity-50': (genes.length < 5 || genes2.length < 5) })} onClick={(evt) => {
             evt.preventDefault()
             if ((genes.length >= 5) && ((genes2.length >= 5))) {
-              setSubmitted(true)
+              sigcom_id()
             }
           }}>Submit</Button></div> : <div className='mt-2 text-center'><Button className={classNames('text-slate-100 mt-2', { 'cursor-not-allowed opacity-50': (genes.length < 5) })} onClick={(evt) => {
             evt.preventDefault()
             if ((genes.length >= 5)) {
-              setSubmitted(true)
+              sigcom_id()
             }
           }}
             color="primary"
             variant="contained"
           >Submit</Button></div>}</> : <></>}
-      </div>
+      </Grid>
       }
-    </div>
+    </Grid>
   )
 }
