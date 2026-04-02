@@ -9,7 +9,7 @@ import GeneInput from "./Inputs/geneInput";
 import GeneSetInput from "./Inputs/geneSetInput";
 import GlycanInput from "./Inputs/glycanInput";
 import PhenotypeInput from "./Inputs/phenotypeInput";
-import { Input } from "@mui/material";
+import { Input, Typography } from "@mui/material";
 import DccIcons from "./dccIcons";
 import remarkGfm from "remark-gfm"
 import {  PRenderer } from '@/components/misc/ReactMarkdownRenderers'
@@ -250,6 +250,7 @@ export default function Chat() {
             <React.Fragment key={i}>
               {message.output ? (
                 <Message role="bot" key={i.toString() + "result"}>
+                  <Typography variant="h3">Methods</Typography>
                   <ReactMarkdown 
                       skipHtml
                       remarkPlugins={[remarkGfm]}
@@ -259,6 +260,7 @@ export default function Chat() {
                       >
                         {message.content}
                   </ReactMarkdown>
+                  <Typography variant="h3">Tables and Figures</Typography>
                   {React.createElement(Component, message.args)}
                 </Message>
               ) : (

@@ -6,6 +6,7 @@ import levenSort from '@/components/Chat/utils/leven-sort';
 import { orange } from '@mui/material/colors';
 import { mdiHumanMaleHeightVariant } from '@mdi/js';
 import Icon from '@mdi/react';
+import trpc from '@/lib/trpc/client'
  
 const fetcher = (endpoint: string) => fetch(endpoint).then((res) => res.json())
 
@@ -16,12 +17,11 @@ const CustomPopper = function (props: any) {
 const Phenotype = ({ data, isConnectable }: {data: {update_input: Function}, isConnectable: boolean}) => {
   const [term, setTerm] = React.useState({type: '', a_label: ''})
   const [inputTerm, setInputTerm] = React.useState('')
-  const { data: d, error, isLoading } = useSWRImmutable<any>(() => {
-        if (inputTerm.length <= 2) return null
-        // if (processName === 'ReverseSearchL1000') return `/chat/l1000sigs/autocomplete?q=${encodeURIComponent(Term)}`
-        return `/api/trpc/autocomplete?batch=1&input={"0":{"search":"${encodeURIComponent(inputTerm)}","facet":["type:\\"disease or phenotype\\"", "type:\\"disease\\"", "type:\\"phenotype\\""]}}`
-    }, fetcher)
-  const items = React.useMemo(() => d ? d[0].result.data : [], [d, inputTerm])
+  const { data: options } =  trpc.autocomplete.useQuery({
+        search: inputTerm.toLocaleLowerCase(),
+        facet: ["type:\"disease or phenotype\"", "type:\"disease\"", "type:\"phenotype\""],
+    }, { staleTime: Infinity, enabled: inputTerm !== '' && inputTerm.length >= 3 })
+    
   return (
     <Card sx={{width: 400, backgroundColor: orange[100]}}>
 	    <Handle
@@ -65,22 +65,28 @@ const Phenotype = ({ data, isConnectable }: {data: {update_input: Function}, isC
               sx={{width: 350, borderColor: "black"}}
               // PopperComponent={CustomPopper}
               className='w-auto'
-              options={items}
+              options={options || []}
               value={term}
               color='secondary'
               // onInputChange={handleInputChange}
-              loading={isLoading}
+              // loading={isLoading}
               // filterOption={null}
               noOptionsText={inputTerm.length ? 'No matching phenotypes': 'Enter Phenotype'}
               getOptionLabel={option=>option.a_label}
               onChange={(e: any, newValue: any) => {
                       
                       if (newValue) {
-                        data.update_input(newValue.type, newValue.a_label, 'add')
-                        setInputTerm('')
-                      }
+                        if (typeof newValue === 'string') {
+                          data.update_input('phenotype', newValue, 'add')
+                          setInputTerm('')
+                        } else {
+                          data.update_input(newValue.type, newValue.a_label, 'add')
+                          setInputTerm('')
+                        }
+                      } 
                   }
               }
+              freeSolo
               inputValue={inputTerm}
               onInputChange={(event, newInputValue) => {
                   setInputTerm(newInputValue);

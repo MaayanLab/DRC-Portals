@@ -13,7 +13,7 @@ import {
 import '@xyflow/react/dist/style.css';
 // import './xy-theme.css'
 import CustomNode from './custom';
-import { Avatar, Card, CardHeader, Chip, Container, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import { Avatar, Button, Card, CardHeader, Chip, Container, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import Gene from './gene';
 import { blue, green, lime, orange, purple, red } from '@mui/material/colors';
 import { mdiDna, mdiEye, mdiEyedropper, mdiFileDocument, mdiFlask, mdiHumanMaleHeightVariant, mdiListBox, mdiOpenInApp, mdiPill, mdiTimerSand, mdiVirus } from '@mdi/js';
@@ -85,79 +85,45 @@ const ui_elements: {[key: string]: {color: string, icon: string}} = {
   }
 }
 
-const fetchRunnables = async (search:string[], controller:AbortController) => {
-      try {
-        const res = await fetch(`/data/explorer/api`, {
-              method: 'POST',
-              body: JSON.stringify({
-                methods: 'getApplicableRunnables,getRunnables,getArticles',
-                payload: {
-                  batch: 1,
-                  input: JSON.stringify({"0":{"search":search.join(" ")},"1":{"search":search.join(" ")},"2":{"search":search.join(" ")}})
-                },
-                signal: controller.signal
-              }),
-          })
-          if (res.status === 200) {
-            return await res.json()
-          }
-          return []
-      } catch (error) {
-          console.log(error)
-          return []
-      }
-      
-    }
-
 const Explorer = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<BuiltInEdge>([]);
   const [geneSetPos, setGeneSetPos] = useState(0)
   const [taskId, setTaskId] = useState('')
-  const [inputList, setInputList] = useState<{entity: string, label: string, color: string, icon: string, values?: {[key: string]: string[]}}[]>([])
+  const [inputList, setInputList] = useState<{entity: string, label: string, color: string, icon: string, values?: {[key: string]: string[]}, links?: {resource: string, description: string, link: string}[]}[]>([])
   const [loading, setLoading] = useState(false)
   const [applicables, setApplicables] = useState<{method: string, params: {[key:string]: string}}[]>([])
   const [runnables, setRunnables] = useState<{timestamp: string, method: string, published: boolean, output: {runnable_id: string, value: string}}[]>([])
   const [articles, setArticles] = useState<{timestamp: string, message: {message_id: string, content: string}}[]>([])
   const scrollRef = useRef<null | HTMLDivElement>(null)
+	const [submit, setSubmit] = useState(false)
+  console.log(inputList)
+  // useEffect(()=>{
+  //   const get_runnables = async () => {
+  //     setLoading(true)
+  //     setApplicables([])
+  //     const deepDiveOptions = await fetchRunnables(inputList.map(i=>i.label), getAbortController())
+  //     if (deepDiveOptions) {
+  //       const [applicable, runnable, artc ] = deepDiveOptions
+  //       // const runnables = runnable.result.data.items
+  //       setRunnables(runnable.result.data.items)
+  //       if (inputList.length === 1) setApplicables(applicable.result.data)
+  //       else setApplicables(applicable.result.data.filter((i:{method:string})=>i.method !== 'DeepDive'))
+  //       // const articles = artc.result.data.items
+  //     }
+  //     setLoading(false)
+  //   }
+  //   if (inputList.length > 0) get_runnables()
+  // }, [inputList])
 
-  const abortController = useRef(new AbortController());
-
-  const getAbortController = () => {
-    const controller = abortController.current;
-    if (controller !== undefined) {
-      controller.abort("Cancelling request.");
-      abortController.current = new AbortController();
-    }
-    return abortController.current
-  };
-
-  useEffect(()=>{
-    const get_runnables = async () => {
-      setLoading(true)
-      setApplicables([])
-      const deepDiveOptions = await fetchRunnables(inputList.map(i=>i.label), getAbortController())
-      if (deepDiveOptions) {
-        const [applicable, runnable, artc ] = deepDiveOptions
-        // const runnables = runnable.result.data.items
-        setRunnables(runnable.result.data.items)
-        if (inputList.length === 1) setApplicables(applicable.result.data)
-        else setApplicables(applicable.result.data.filter((i:{method:string})=>i.method !== 'DeepDive'))
-        // const articles = artc.result.data.items
-      }
-      setLoading(false)
-    }
-    if (inputList.length > 0) get_runnables()
-  }, [inputList])
-
-  const update_input = (entity: string, label: string, type:string="add", values:{up?: string[], down?: string[], gene_set?: string[]}={}) => {
+  const update_input = (entity: string, label: string, type:string="add", values:{up?: string[], down?: string[], gene_set?: string[]}={}, links:{resource: string, description: string, link: string}[]=[]) => {
     setTaskId('')
     if (type === "add") {
       setInputList(inputList=>{
         const add = inputList.filter(i=>i.entity === entity && i.label === label).length
-        if (add === 0) return [...inputList, {entity, label, ...ui_elements[entity], values}]
+        if (add === 0) return [...inputList, {entity, label, ...ui_elements[entity], values, links}]
         else if (label === "user_input") {
-          return [...inputList, {entity, label: `${label} ${add}`, ...ui_elements[entity], values}]
+          return [...inputList, {entity, label: `${label} ${add}`, ...ui_elements[entity], values, links}]
         }
         else return inputList
       })
@@ -383,39 +349,36 @@ const Explorer = () => {
       (connection) => setEdges((eds) => addEdge(connection, eds)),
       [setEdges],
     );
-  
+  if (!submit) {
   return (
   <Grid container spacing={1} alignItems='stretch'>
-    <Search inputList={inputList} update_input={update_input} applicables={applicables} getAbortController={getAbortController}/>
-    {loading && <Grid item><Icon path={mdiTimerSand} style={{animation: "spin 2s linear infinite"}} size={1}/></Grid>}
-    {runnables.length > 0 && <Grid item>
-      <Chip sx={{borderRadius: 0}} color='secondary' variant="outlined"
-        avatar={<Icon style={{backgroundColor: "transparent", color: "#2D5986"}} path={mdiFileDocument} size={1}/>}
-        onClick={()=>{
-          scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }}
-        label={"View available articles"}
-        clickable
-      />
+    
+    {inputList.map(i=>(
+      <Grid item key={i.label}>
+        <Tooltip title={i.label} key={i.label}>
+        <Chip avatar={<Avatar sx={{backgroundColor: i.color}}><Icon path={i.icon} size={1}/></Avatar>}
+          label={i.label}
+          sx={{backgroundColor: i.color}}
+          onDelete={()=>update_input(i.entity, i.label, 'remove')}
+        />
+        </Tooltip>
+      </Grid>
+    ))}
+    {inputList.length > 0 && 
+    <Grid item xs={12}>
+      <Button 
+          sx={{width: "100%"}} 
+          variant="outlined" 
+          color="secondary" 
+          // startIcon={<Icon path={mdiFileDocument} size={1}/>}
+          onClick={()=>setSubmit(true)}
+        >
+          Continue 
+      </Button>
     </Grid>}
     <Grid item xs={12}>
-      {/* {taskId === '' && 
-      <Grid item xs={12}>
-          <RenderRunnables search={inputList.map(i=>i.label)} setTaskId={setTaskId} getAbortController={getAbortController}/>
-        </Grid>
-      } */}
+      
       <Container maxWidth="xl" sx={{height: 700, position: "relative"}}>
-        <Stack spacing={1} sx={{width: 150, position: "absolute", top: 0, left: -20, zIndex: 100}}>
-            {inputList.map(i=>(
-              <Tooltip title={i.label} key={i.label}>
-                <Chip avatar={<Avatar sx={{backgroundColor: i.color}}><Icon path={i.icon} size={1}/></Avatar>}
-                  label={i.label}
-                  sx={{backgroundColor: i.color}}
-                  onDelete={()=>update_input(i.entity, i.label, 'remove')}
-                />
-                </Tooltip>
-            ))}
-        </Stack>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -437,13 +400,14 @@ const Explorer = () => {
           proOptions={{hideAttribution: true}}
         />
       </Container>
+      
     </Grid>
     {runnables.length > 0 && <Grid item xs={12} ref={scrollRef}>
       <Typography variant="h5">
         Available Articles
       </Typography>
     </Grid>}
-    {runnables.map((i: {[key:string]: any})=>
+    {/* {runnables.map((i: {[key:string]: any})=>
       <Grid item xs={12} md={6} key={i.method}>
         <Card sx={{height: '100%'}}>
           <CardHeader
@@ -461,19 +425,32 @@ const Explorer = () => {
             subheader={`Created: ${i.output.timestamp.toLocaleString()} using ${methods[i.method].label}`}
           />
         </Card>
-        {/* <Button 
-          sx={{width: "100%"}} 
-          variant="outlined" 
-          color="secondary" 
-          startIcon={<Icon path={mdiFileDocument} size={1}/>}
-          onClick={()=>props.setTaskId(i.output.runnable_id)}
-        >
-          {i.output.value.split("\n\n")[0].replace("# ", "")}
-        </Button> */}
+        
       </Grid>
-    )}
+    )} */}
   </Grid>
   );
+}
+else {
+  return(
+    <Grid container spacing={1}>
+      <Grid item xs={12}>
+        <Search inputList={inputList}/>
+      </Grid>
+      <Grid item xs={12}>
+        <Button 
+            sx={{width: "100%"}} 
+            variant="outlined" 
+            color="secondary" 
+            // startIcon={<Icon path={mdiFileDocument} size={1}/>}
+            onClick={()=>setSubmit(false)}
+          >
+            Go Back 
+        </Button>
+      </Grid>
+    </Grid>
+  ) 
+}
 };
  
 export default Explorer;

@@ -7,7 +7,8 @@ import { green } from '@mui/material/colors';
 import Icon from '@mdi/react';
 import { mdiDna } from '@mdi/js';
 import { Stack } from '@mui/system';
- 
+import trpc from '@/lib/trpc/client'
+
 const fetcher = (endpoint: string) => fetch(endpoint).then((res) => res.json())
 
 const CustomPopper = function (props: any) {
@@ -17,12 +18,11 @@ const CustomPopper = function (props: any) {
 const Gene = ({ data, isConnectable }: {data: {update_input: Function}, isConnectable: boolean}) => {
   const [geneTerm, setGeneTerm] = React.useState<{type?: string, a_label?: string}>({a_label: ""})
   const [inputTerm, setInputTerm] = React.useState('')
-  const { data: d, error, isLoading } = useSWRImmutable<any>(() => {
-          if (inputTerm.length <= 2) return null
-          // if (processName === 'ReverseSearchL1000') return `/chat/l1000sigs/autocomplete?q=${encodeURIComponent(Term)}`
-          return `/api/trpc/autocomplete?batch=1&input={"0":{"search":"${encodeURIComponent(inputTerm)}","facet":["type:\\"gene\\"", "type:\\"protein\\""]}}`
-      }, fetcher)
-  const items = React.useMemo(() => d ? d[0].result.data : [], [d, inputTerm])
+  const { data: options } =  trpc.autocomplete.useQuery({
+      search: inputTerm.toLocaleLowerCase(),
+      facet: ["type:\"gene\"", "type:\"protein\""],
+  }, { staleTime: Infinity, enabled: inputTerm !== '' && inputTerm.length >= 3 })
+  
   return (
     <Card sx={{width: 400, backgroundColor: green[100]}}>
 	    <Handle
@@ -66,11 +66,11 @@ const Gene = ({ data, isConnectable }: {data: {update_input: Function}, isConnec
               sx={{width: 350, borderColor: "black"}}
               // PopperComponent={CustomPopper}
               className='w-auto'
-              options={items}
+              options={options || []}
               value={geneTerm || ''}
               color='secondary'
               // onInputChange={handleInputChange}
-              loading={isLoading}
+              // loading={isLoading}
               // filterOption={null}
               noOptionsText={inputTerm.length ? 'No matching genes or proteins': 'Enter Gene or Protein Name'}
               // placeholder={'Enter gene symbol...'}
@@ -78,11 +78,41 @@ const Gene = ({ data, isConnectable }: {data: {update_input: Function}, isConnec
               onChange={(e: any, newValue: any) => {
                       
                       if (newValue) {
-                        data.update_input(newValue.type, newValue.a_label, 'add')
-                        setInputTerm('')
-                      }
+                        if (typeof newValue === 'string') {
+                          const links = [
+                            {
+                              "resource": "gdlpa",
+                              "link": `https://cfde-gene-pages.cloud/gene/${newValue}?CF=false&PS=true`,
+                              description: newValue
+                            },
+                            {
+                              "resource": "gsfm",
+                              "link": `https://gsfm.maayanlab.cloud/gene/${newValue}`,
+                              description: newValue
+                            },
+                          ]
+                          data.update_input('gene', newValue, 'add', {}, links)
+                          setInputTerm('')
+                        } else {
+                          const links = [
+                            {
+                              "resource": "gdlpa",
+                              "link": `https://cfde-gene-pages.cloud/gene/${newValue.a_label}?CF=false&PS=true`,
+                              description: newValue.a_label
+                            },
+                            {
+                              "resource": "gsfm",
+                              "link": `https://gsfm.maayanlab.cloud/gene/${newValue.a_label}`,
+                              description: newValue.a_label
+                            },
+                          ]
+                          data.update_input(newValue.type, newValue.a_label, 'add', {}, links)
+                          setInputTerm('')
+                        }
+                      } 
                   }
               }
+              freeSolo
               inputValue={inputTerm}
               onInputChange={(event, newInputValue) => {
                   setInputTerm(newInputValue);

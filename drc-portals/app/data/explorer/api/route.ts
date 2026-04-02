@@ -13,6 +13,7 @@ export async function POST(request: Request) {
 		});
 	}
 	if (methods === 'runRunnable') {
+		console.log(process.env.DEEPDIVE_TOKEN, process.env.DEEPDIVE_URL, payload)
 		const res = await fetch(`${process.env.DEEPDIVE_URL}/${methods}?batch=1`, {
             method: 'POST',
             headers: {
