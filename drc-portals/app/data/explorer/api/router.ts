@@ -135,7 +135,7 @@ const fetchSigComLincsId = async (geneset: string[], genesetDown: string[], useU
 	}
 }
 
-const l2s2_resolve_id = async (gene_set: string[], up: boolean, url: string) => {
+const perturbseqr_resolve_id = async (gene_set: string[], up: boolean, url: string) => {
 	const query = {
 			"operationName":"AddUserGeneSet",
 			"query":"mutation AddUserGeneSet($genes: [String], $description: String = \"\") {\n  addUserGeneSet(input: {genes: $genes, description: $description}) {\n    userGeneSet {\n      id\n      __typename\n    }\n    __typename\n  }\n}\n",
@@ -241,14 +241,14 @@ export default router({
 	)
 	.mutation(async (props) => {
 	  // `props.signal` is an AbortSignal that will be aborted when the client disconnects.
-	  const url = 'http://l2s2.maayanlab.cloud/'
+	  const url = 'https://perturbseqr.maayanlab.cloud/'
 	  const {input, description} = props.input
 	  const requests: Promise<{[key: string]: string} | string>[] = []
 	  if (input?.gene_set) {
 		const enrichr_promise: Promise<{[key: string]: string}> = addList(description, input.gene_set || [])
 		const sigcom_promise: Promise<string> = fetchSigComLincsId(input.gene_set || [], [], false, description)
-		const l2s2_promise: Promise<string> = l2s2_resolve_id(input.gene_set || [], true, url)
-		const [enrichr, sigcom_lincs, l2s2] = await Promise.all([enrichr_promise, sigcom_promise, l2s2_promise])
+		const perturbseqr_promise: Promise<string> = perturbseqr_resolve_id(input.gene_set || [], true, url)
+		const [enrichr, sigcom_lincs, perturbseqr] = await Promise.all([enrichr_promise, sigcom_promise, perturbseqr_promise])
 		return [
 			{
 				"resource": "enrichr",
@@ -266,9 +266,9 @@ export default router({
 				link: sigcom_lincs
 			},
 			{
-				"resource": "l2s2",
+				"resource": "perturbseqr",
 				description,
-				link: `${url}enrich?dataset=${l2s2}`
+				link: `${url}enrich?dataset=${perturbseqr}`
 			},
 			
 		]
@@ -276,9 +276,9 @@ export default router({
 		const enrichr_up_promise: Promise<{[key: string]: string}> = addList(description + " up", input.up_gene_set || [])
 		const enrichr_down_promise: Promise<{[key: string]: string}> = addList(description + " down", input.down_gene_set || [])
 		const sigcom_promise: Promise<string> = fetchSigComLincsId(input.up_gene_set || [], input.down_gene_set || [], true, description)
-		const l2s2_up_promise: Promise<string> = l2s2_resolve_id(input.up_gene_set || [], true, url)
-		const l2s2_down_promise: Promise<string> = l2s2_resolve_id(input.down_gene_set || [], false, url)
-		const [enrichr_up, enrichr_down, sigcom_lincs, l2s2_up, l2s2_down] = await Promise.all([enrichr_up_promise, enrichr_down_promise, sigcom_promise, l2s2_up_promise, l2s2_down_promise])
+		const perturbseqr_up_promise: Promise<string> = perturbseqr_resolve_id(input.up_gene_set || [], true, url)
+		const perturbseqr_down_promise: Promise<string> = perturbseqr_resolve_id(input.down_gene_set || [], false, url)
+		const [enrichr_up, enrichr_down, sigcom_lincs, perturbseqr_up, perturbseqr_down] = await Promise.all([enrichr_up_promise, enrichr_down_promise, sigcom_promise, perturbseqr_up_promise, perturbseqr_down_promise])
 		return [
 			{
 				"resource": "enrichr",
@@ -306,9 +306,9 @@ export default router({
 				link: sigcom_lincs
 			},
 			{
-				"resource": "l2s2",
+				"resource": "perturbseqr",
 				description,
-				link: `${url}enrichpair?dataset=${l2s2_up}&dataset=${l2s2_down}`
+				link: `${url}enrichpair?dataset=${perturbseqr_up}&dataset=${perturbseqr_down}`
 			},
 		]
 	}

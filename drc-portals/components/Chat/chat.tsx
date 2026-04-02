@@ -9,7 +9,7 @@ import GeneInput from "./Inputs/geneInput";
 import GeneSetInput from "./Inputs/geneSetInput";
 import GlycanInput from "./Inputs/glycanInput";
 import PhenotypeInput from "./Inputs/phenotypeInput";
-import { Input, Typography } from "@mui/material";
+import { Grid, Input, Typography } from "@mui/material";
 import DccIcons from "./dccIcons";
 import remarkGfm from "remark-gfm"
 import {  PRenderer } from '@/components/misc/ReactMarkdownRenderers'
@@ -93,13 +93,13 @@ export default function Chat() {
     [prevResponseId]
   );
 
-  const eventSource = trpc.chat.useSubscription(input, {
+  trpc.chat.useSubscription(input, {
         onData(event) {
           if (typeof event !== 'string') {
             const response = event.data;
             if (!response.type.endsWith("delta")) {
               const s = response.type.split(".").slice(1,).join(" ").replaceAll("_", " ").replaceAll("mcp", "MCP")
-              setLoadingText(s[0].toUpperCase() + s.slice(1,) + "...")
+              setLoadingText(s ? s[0].toUpperCase() + s.slice(1,) + "...": "Thinking...")
             }
             if (response.type === "response.completed") {
               let newMessage: MessageType = {
@@ -250,18 +250,28 @@ export default function Chat() {
             <React.Fragment key={i}>
               {message.output ? (
                 <Message role="bot" key={i.toString() + "result"}>
-                  <Typography variant="h3">Methods</Typography>
-                  <ReactMarkdown 
-                      skipHtml
-                      remarkPlugins={[remarkGfm]}
-                      components={{ 
-                          p: PRenderer,
-                      }}
-                      >
-                        {message.content}
-                  </ReactMarkdown>
-                  <Typography variant="h3">Tables and Figures</Typography>
-                  {React.createElement(Component, message.args)}
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <Typography variant="h3">Methods</Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <ReactMarkdown 
+                        skipHtml
+                        remarkPlugins={[remarkGfm]}
+                        components={{ 
+                            p: PRenderer,
+                        }}
+                        >
+                          {message.content}
+                    </ReactMarkdown>
+                    </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="h3">Tables and Figures</Typography>
+                  </Grid>
+                  <Grid item xs={12}>
+                    {React.createElement(Component, message.args)}
+                  </Grid>
+                  </Grid>
                 </Message>
               ) : (
                 <Message role={message.role} key={i.toString() + "message"}>

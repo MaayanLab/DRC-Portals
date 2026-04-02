@@ -252,7 +252,8 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 		gsfm: "/img/gsfm.png",
 		gdlpa: "/img/gdlpa.png",
 		"sigcom-lincs": "/img/lincs.png",
-		l2s2: "/img/l2s2.webp"
+		l2s2: "/img/l2s2.webp",
+		perturbseqr: "/img/perturbseqr.webp"
 	  }
 	  const resources: {[key: string]: ReactNode[]} = {}
 	  for (const i of inputList) {
@@ -376,7 +377,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 							avatar={
 								<Image src={icons.gdlpa} width={30} height={30} alt="gdlpa"/>
 							}
-							title={<Typography variant="h3">{`Query Gene and Drug Landing Page Aggregator`}</Typography>}
+							title={<Typography variant="h3">{`Query Gene and Drug Landing Page Aggregator (GDLPA)`}</Typography>}
 						/>
 						<CardContent>
 							<Grid container spacing={2}>
@@ -421,7 +422,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 					</Card>
 				</Grid>
 			}
-			{(resources.enrichr || []).length > 0 && 
+			{/* {(resources.enrichr || []).length > 0 && 
 				<Grid item xs={12}>
 					<Card>
 						<CardHeader
@@ -439,8 +440,8 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						</CardContent>
 					</Card>
 				</Grid>
-			}
-			{(resources['sigcom-lincs'] || []).length > 0 && 
+			} */}
+			{/* {(resources['sigcom-lincs'] || []).length > 0 && 
 				<Grid item xs={12}>
 					<Card>
 						<CardHeader
@@ -458,8 +459,8 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						</CardContent>
 					</Card>
 				</Grid>
-			}
-			{(resources.l2s2 || []).length > 0 && 
+			} */}
+			{/* {(resources.l2s2 || []).length > 0 && 
 				<Grid item xs={12}>
 					<Card>
 						<CardHeader
@@ -473,6 +474,25 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						<CardContent>
 							<Grid container spacing={2}>
 								{resources.l2s2}
+							</Grid>
+						</CardContent>
+					</Card>
+				</Grid>
+			} */}
+			{(resources.perturbseqr || []).length > 0 && 
+				<Grid item xs={12}>
+					<Card>
+						<CardHeader
+							avatar={
+								<Image src={icons.perturbseqr} width={30} height={30} alt="sigcom"/>
+							}
+							title={<Typography variant="h3">{`Discover Mimicking and Reversing Signatures on Perturb-Seqr`}</Typography>}
+							subheader={'Query over 400,000 gene sets on Perturb-Seqr'}
+							
+						/>
+						<CardContent>
+							<Grid container spacing={2}>
+								{resources.perturbseqr}
 							</Grid>
 						</CardContent>
 					</Card>
@@ -498,7 +518,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 							avatar={
 								<Icon path={mdiRobotOutline} style={{backgroundColor: "transparent", color: "#2D5986"}} size={1}/>
 							}
-							title={<Typography variant="h3">{`Generate a summary report on ${inputList.length === 1 ? inputList[0].label: 'multiple terms'} using DeepDive2`}</Typography>}
+							title={<Typography variant="h3">{`Generate Summary Reports Considering All Selected Terms Using DeepDive2 Workflows`}</Typography>}
 						/>
 						<CardContent>
 							<Grid container spacing={2}>
@@ -517,7 +537,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 							avatar={
 								<Icon path={mdiRobotOutline} style={{backgroundColor: "transparent", color: "#2D5986"}} size={1}/>
 							}
-							title={<Typography variant="h3">{`View summary reports on ${inputList.length === 1 ? inputList[0].label: 'input terms'}`}</Typography>}
+							title={<Typography variant="h3">{`View Summary Reports Considering All Selected Terms Using DeepDive2 Workflows`}</Typography>}
 						/>
 						<CardContent>
 							<Grid container spacing={2}>
