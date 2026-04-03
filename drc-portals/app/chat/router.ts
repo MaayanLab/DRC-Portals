@@ -55,7 +55,7 @@ export default router({
     if (query === '') yield '';
 	  const opts = response_id ? {previous_response_id: response_id}: {}
 	  const stream = await client.responses.create({
-        model: 'gpt-5',
+        model: 'gpt-5-mini',
         instructions: systemInstructions,
         input: query,
 		stream: true,
@@ -72,9 +72,8 @@ export default router({
         ]
       });
 	  for await (const event of stream) {
-		if(props.signal!.aborted) return
-		const event_type = event.type
-		yield tracked(JSON.stringify(event), event);
+      if(props.signal!.aborted) return
+        yield tracked(JSON.stringify(event), event);
 	  }
 	  return
     }),

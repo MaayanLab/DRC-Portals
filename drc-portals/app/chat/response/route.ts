@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     let response
     if (response_id) {
       response = await client.responses.create({
-        model: 'gpt-5',
+        model: 'gpt-4o-mini',
         instructions: systemInstructions,
         input: query,
         previous_response_id: response_id,
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       });
     } else {
       response = await client.responses.create({
-        model: 'gpt-5',
+        model: 'gpt-4o-mini',
         instructions: systemInstructions,
         input: query,
         tools: [
