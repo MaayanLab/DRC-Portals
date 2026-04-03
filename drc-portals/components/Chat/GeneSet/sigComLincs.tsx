@@ -8,7 +8,7 @@ import { blue, red } from '@mui/material/colors';
 
 const METADATA_API = "https://maayanlab.cloud/sigcom-lincs/metadata-api/"
 
-export const fetchSigComLincsId = async (geneset: string[], genesetDown: string[], useUpDown: boolean) => {
+export const fetchSigComLincsId = async (geneset: string[], genesetDown: string[], useUpDown: boolean, description?: string) => {
     const url = METADATA_API + "entities/find"
 
     if (useUpDown) {
@@ -46,21 +46,22 @@ export const fetchSigComLincsId = async (geneset: string[], genesetDown: string[
             "up_entities": upEntities,
             "down_entities": downEntities
         }
-    
         entities.forEach((e: any) => {
             const symbol = e["meta"]["symbol"]
-            if (geneset.includes(symbol))
-                forEnrichment.up_entities.push(e["id"])
+            if (geneset.includes(symbol)) 
+                forEnrichment.up_entities.push(e.id)
             else if (genesetDown.includes(symbol))
-                forEnrichment.down_entities.push(e["id"])
+                forEnrichment.down_entities.push(e.id)
+                
         })
 
         const payload2 = {
             "meta": {
                 "$validator": "/dcic/signature-commons-schema/v6/meta/user_input/user_input.json",
-                ...forEnrichment
+                ...forEnrichment,
+                description
             },
-            "type": "signature"
+            "type": "signatures"
         }
     
         const res2 = await fetch(METADATA_API + "user_input", {
@@ -110,14 +111,18 @@ export const fetchSigComLincsId = async (geneset: string[], genesetDown: string[
             "offset": 0,
             "limit": 0
         }
-
-        entities.forEach((e: any) => forEnrichment.entities.push(e.id))
+        for (const e of entities) {
+            if (forEnrichment.entities.indexOf(e.id) === -1) {
+                forEnrichment.entities.push(e.id)
+            }
+        }
         const payload2 = {
             "meta": {
                 "$validator": "/dcic/signature-commons-schema/v6/meta/user_input/user_input.json",
-                ...forEnrichment
+                ...forEnrichment,
+                description
             },
-            "type": "signature"
+            "type": "signatures"
         }
     
         const res2 = await fetch(METADATA_API + "user_input", {
@@ -187,12 +192,12 @@ export default function SigComLincs(props: any) {
                             </Typography>
                         </Grid>
                         <Grid item xs={6}>
-                            {v.down ? <BarChartComponent data={v.down} color={red[200]} neg={true}/>:
-                            <BarChartComponent data={v.reversers} color={red[200]} neg={true}/>}
+                            {v.down ? <BarChartComponent data={v.down} color={blue[200]} neg={true}/>:
+                            <BarChartComponent data={v.reversers} color={blue[200]} neg={true}/>}
                         </Grid>
                         <Grid item xs={6}>
-                            {v.up ? <BarChartComponent data={v.up} color={blue[200]} neg={false}/>:
-                            <BarChartComponent data={v.mimickers} color={blue[200]} neg={false}/>}
+                            {v.up ? <BarChartComponent data={v.up} color={red[200]} neg={false}/>:
+                            <BarChartComponent data={v.mimickers} color={red[200]} neg={false}/>}
                         </Grid>
                         {Object.entries(v).map(([key, val])=>(
                             <Grid item xs={12}>

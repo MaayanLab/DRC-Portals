@@ -166,7 +166,7 @@ export default router({
       size: 10,
       track_total_hits: false,
     })
-    const items = searchRes.hits.hits.map(hit => ({ type: hit._source?.type, a_label: hit._source?.a_label }))
-    return items.filter((hit): hit is { type: string, a_label: string } => !!hit.type && !!hit.a_label)
+    const items = searchRes.hits.hits.map(hit => ({ type: hit._source?.type, a_label: hit._source?.a_label, id: hit._source?.id }))
+    return items.filter((hit): hit is { type: string, a_label: string, id: string } => !!hit.type && !!hit.a_label)
   })
 })
