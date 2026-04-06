@@ -56,7 +56,7 @@ export const TopNav = async ({ path, session }: { path: "/info" | "/data", sessi
       <Link href={"https://orau.org/cfde-trainingcenter/"} target="_blank" rel="noopener noreferrer">
         <Typography variant="nav"><b>training</b></Typography>
       </Link>
-      <Link href={"https://cfdeworkspace.org/"} target="_blank" rel="noopener noreferrer">
+      <Link href={"https://cfdeconnect.org/"} target="_blank" rel="noopener noreferrer">
         <Typography variant="nav"><b>coordination</b></Typography>
       </Link>
       <UserComponent session={session} />
