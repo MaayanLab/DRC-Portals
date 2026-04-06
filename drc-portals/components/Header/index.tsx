@@ -47,16 +47,16 @@ export const TopNav = async ({ path, session }: { path: "/info" | "/data", sessi
       {/* <Link href={path === "/info" ? "/data": "/info"}>
         <Typography variant="nav"><b>Data</b></Typography>
       </Link> */}
-      <Link href={"/info/centers/CWIC"}>
+      <Link href={"https://cfdeworkspace.org/"} target="_blank" rel="noopener noreferrer">
         <Typography variant="nav"><b>Cloud</b></Typography>
       </Link>
-      <Link href={"/info/centers/KC"}>
+      <Link href={"https://cfdeknowledge.org/r/kc_landing"} target="_blank" rel="noopener noreferrer">
         <Typography variant="nav"><b>Knowledge</b></Typography>
       </Link>
-      <Link href={"/info/centers/TC"}>
+      <Link href={"https://orau.org/cfde-trainingcenter/"} target="_blank" rel="noopener noreferrer">
         <Typography variant="nav"><b>training</b></Typography>
       </Link>
-      <Link href={"/info/centers/ICC"}>
+      <Link href={"https://cfdeworkspace.org/"} target="_blank" rel="noopener noreferrer">
         <Typography variant="nav"><b>coordination</b></Typography>
       </Link>
       <UserComponent session={session} />
