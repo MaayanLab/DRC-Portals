@@ -39,24 +39,21 @@ export const TopNav = async ({ path, session }: { path: "/info" | "/data", sessi
   return (
     <>
     <Link href={"/info"}>
-      <Typography variant="nav" sx={path === "/info" ? { textDecoration: "underline", textDecorationThickness: 2 } : {}}><b>Info</b></Typography>
+      <Typography variant={path === "/info" ? "nav_highlighted": "nav"}><b>Info</b></Typography>
     </Link>
     <Link href={"/data"}>
-      <Typography variant="nav" sx={path === "/data" ? { textDecoration: "underline", textDecorationThickness: 2 } : {}}><b>Data</b></Typography>
+      <Typography variant={path === "/data" ? "nav_highlighted": "nav"}><b>Data</b></Typography>
       </Link>
-      {/* <Link href={path === "/info" ? "/data": "/info"}>
-        <Typography variant="nav"><b>Data</b></Typography>
-      </Link> */}
-      <Link href={"/info/centers/CWIC"}>
+      <Link href={"https://cfdeworkspace.org/"} target="_blank" rel="noopener noreferrer">
         <Typography variant="nav"><b>Cloud</b></Typography>
       </Link>
-      <Link href={"/info/centers/KC"}>
+      <Link href={"https://cfdeknowledge.org/r/kc_landing"}>
         <Typography variant="nav"><b>Knowledge</b></Typography>
       </Link>
-      <Link href={"/info/centers/TC"}>
+      <Link href={"https://orau.org/cfde-trainingcenter/"}>
         <Typography variant="nav"><b>training</b></Typography>
       </Link>
-      <Link href={"/info/centers/ICC"}>
+      <Link href={"https://cfdeconnect.org/"}>
         <Typography variant="nav"><b>coordination</b></Typography>
       </Link>
       <UserComponent session={session} />
@@ -116,12 +113,12 @@ export default async function Header({ path }: { path: "/info" | "/data" }) {
               <Logo title="CFDE Workbench" href={path} size='large' color="secondary" />
             </Grid>
             <Grid item>
-              <Stack direction={"row"} alignItems={"center"} spacing={2}>
+              <Stack direction={"row"} alignItems={"center"}>
                 <TopNav path={path} session={session} />
               </Stack>
             </Grid>
             <Grid item xs={12}>
-              <Grid container alignItems={"center"} spacing={2}>
+              <Grid container alignItems={"center"}>
                 <BottomNav nav={nav} path={path} />
               </Grid>
             </Grid>
