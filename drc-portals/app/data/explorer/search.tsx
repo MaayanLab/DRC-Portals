@@ -1,5 +1,5 @@
 import Icon from "@mdi/react";
-import { Grid, Button, Chip, CircularProgress, Stack, Typography, Avatar, Card, CardHeader, IconButton, CardContent, Skeleton } from "@mui/material";
+import { Grid, Typography, Card, CardHeader, IconButton, CardContent, Skeleton } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { router_push } from "../enrichment/utils";
@@ -7,11 +7,6 @@ import {  mdiFileDocument, mdiHeadQuestionOutline, mdiHumanMaleBoard, mdiRobotOu
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import React from "react";
 
-import List from '@mui/material/List';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import Collapse from '@mui/material/Collapse';
 import Image from "@/utils/image";
 import { ArrowForward, ExpandLess, ExpandMore } from "@mui/icons-material";
 import { GSFMButton } from "./buttons/gsfm";
@@ -85,7 +80,12 @@ export const methods: {[key: string]: {label: string, icon: string, description:
   DeepDiveHypothesis: {
 	label: "Hypothesize Disease Connections",
 	icon: mdiHeadQuestionOutline,
-	description: "DeepDive2 runs a hypothesis generation workflow using highy cited PubMed articles for disease and gene terms, and GSFM predictions on gene terms."
+	description: "DeepDive2 runs a hypothesis generation workflow using highy cited PubMed articles for disease and gene terms, and GSFM predictions on gene terms"
+  },
+  DeepDiveHypothesisAll: {
+	label: "Hypothesize Term Connections",
+	icon: mdiHeadQuestionOutline,
+	description: "DeepDive2 runs a hypothesis generation workflow using highy cited PubMed articles, GSFM, and CFDE Workbench for the input terms."
   },
 }
 
@@ -94,10 +94,10 @@ const fetchRunnables = async (search:string[], controller:AbortController) => {
 		const res = await fetch(`/data/explorer/api`, {
 			  method: 'POST',
 			  body: JSON.stringify({
-				methods: 'getApplicableRunnables,getRunnables,getArticles',
+				methods: 'getRunnables,getArticles',
 				payload: {
 				  batch: 1,
-				  input: JSON.stringify({"0":{"search":search.join(" ")},"1":{"search":search.join(" ")},"2":{"search":search.join(" ")}})
+				  input: JSON.stringify({"0":{"search":search.join(" ")},"1":{"search":search.join(" ")}})
 				},
 				signal: controller.signal
 			  }),
@@ -121,7 +121,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 	const [loadingIndex, setLoadingIndex] = useState(-1)
 	const [loading, setLoading] = useState(false)
 	const [description, setDescription] = useState<{method: string, description: Function, params: {[key:string]: any}} | null>(null)
-	const [applicables, setApplicables] = useState<{method: string, params: {[key:string]: string}}[]>([])
+	// const [applicables, setApplicables] = useState<{method: string, params: {[key:string]: string}}[]>([])
 	const [runnables, setRunnables] = useState<{timestamp: string, method: string, published: boolean, output: {runnable_id: string, value: string}}[]>([])
 	const [articles, setArticles] = useState<{timestamp: string, message: {message_id: string, content: string}}[]>([])
 	const [open, setOpen] = useState('')
@@ -139,14 +139,14 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 	useEffect(()=>{
 		const get_runnables = async () => {
 		  setLoading(true)
-		  setApplicables([])
+		//   setApplicables([])
 		  const deepDiveOptions = await fetchRunnables(inputList.map(i=>i.label), getAbortController())
 		  if (deepDiveOptions) {
-			const [applicable, runnable, artc ] = deepDiveOptions
+			const [runnable, artc ] = deepDiveOptions
 			// const runnables = runnable.result.data.items
 			setRunnables(runnable.result.data.items)
-			if (inputList.length === 1) setApplicables(applicable.result.data)
-			else setApplicables(applicable.result.data.filter((i:{method:string})=>i.method !== 'DeepDive'))
+			// if (inputList.length === 1) setApplicables(applicable.result.data)
+			// else setApplicables(applicable.result.data.filter((i:{method:string})=>i.method !== 'DeepDive'))
 			// const articles = artc.result.data.items
 		  }
 		  setLoading(false)
@@ -185,38 +185,73 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 				// 	<ListItemText primary={`Search CFDE Workbench for ${i.label}`}/>
 				// </ListItemButton>
 		))
-		const runs = applicables.map(a=>(
-			<Grid item xs={6} sm={4} key={a.method}>
-				<Card key={a.method} sx={{height: '100%'}}>
-					<CardHeader
-						avatar={
-						<Icon style={{backgroundColor: "transparent", color: "#2D5986"}} path={(methods[a.method] || {}).icon} size={1}/>
-						}
-						action={
-						<IconButton aria-label="goto"
-							onClick={()=>{
-								run_runnable(a.method, a.params, router, getAbortController)
-							}}
-						>
-							<ArrowForward />
-						</IconButton>
-						}
-						title={(methods[a.method] || {}).label || a.method}
-						subheader={(methods[a.method] || {}).description}
-					/>
-				</Card>
-			</Grid>
-			// <ListItemButton key={a.method} sx={{ pl: 4 }}
-			// 	onClick={()=>{
-			// 		run_runnable(a.method, a.params, router, getAbortController)
-			// 	}}
-			// >
-			// 	<ListItemIcon>
-			// 		<Icon style={{backgroundColor: "transparent", color: "#2D5986"}} path={(methods[a.method] || {}).icon} size={1}/>
-			// 	</ListItemIcon>
-			// 	<ListItemText primary={(methods[a.method] || {}).label || a.method} secondary={(methods[a.method] || {}).description}/>
-			// </ListItemButton>
-      	))
+		const runs:ReactNode[] = []
+
+		const run_component = ({method, icon, params, label, description}: {method: string, icon: string, params: {[key:string]: string}, label: string, description: string}) => (
+			<Grid item xs={6} sm={4} key={method}>
+		 		<Card key={method} sx={{height: '100%'}}>
+		 			<CardHeader
+		 				avatar={
+		 				<Icon style={{backgroundColor: "transparent", color: "#2D5986"}} path={icon} size={1}/>
+		 				}
+		 				action={
+		 				<IconButton aria-label="goto"
+		 					onClick={()=>{
+		 						run_runnable(method, params, router, getAbortController)
+		 					}}
+		 				>
+		 					<ArrowForward />
+		 				</IconButton>
+		 				}
+		 				title={label}
+		 				subheader={description}
+		 			/>
+		 		</Card>
+		 	</Grid>
+		)
+		for (const [method, v] of Object.entries(methods)) {
+			const input = inputList.map(i=>i.label).join(" ")
+			if (method === 'DeepDive') {
+				if (inputList.length === 1) {
+					runs.push(
+						run_component({...v, method, params: {input}})
+					)
+				}
+			} else if (method === "DeepDiveHypothesis") {
+				const diseases = inputList.filter(i=>i.entity === 'disease' || i.entity === 'disease or phenotype' || i.entity === 'phenotype').map(i=>i.label)
+				const genes = inputList.filter(i=>i.entity === 'gene').map(i=>i.label)
+				if (diseases.length === 1 && genes.length === 1 && inputList.length === 2) {
+					runs.push(run_component({...v, method, params: {gene: genes[0], disease: diseases[0]}}))	
+				} 
+				
+			} else if (method === "DeepDiveHypothesisAll"){
+					runs.push(run_component({...v, method: "DeepDiveCFDEAgent", params: {input: `Create a hypothesis that shows connections between ${inputList.map(i=>i.label).join(", ")}`}}))
+			} else {
+				runs.push(run_component({...v, method, params: {input}}))
+			}
+		}
+		// const runs = inputList.map(a=>(
+		// 	<Grid item xs={6} sm={4} key={a.method}>
+		// 		<Card key={a.method} sx={{height: '100%'}}>
+		// 			<CardHeader
+		// 				avatar={
+		// 				<Icon style={{backgroundColor: "transparent", color: "#2D5986"}} path={(methods[a.method] || {}).icon} size={1}/>
+		// 				}
+		// 				action={
+		// 				<IconButton aria-label="goto"
+		// 					onClick={()=>{
+		// 						run_runnable(a.method, a.params, router, getAbortController)
+		// 					}}
+		// 				>
+		// 					<ArrowForward />
+		// 				</IconButton>
+		// 				}
+		// 				title={(methods[a.method] || {}).label || a.method}
+		// 				subheader={(methods[a.method] || {}).description}
+		// 			/>
+		// 		</Card>
+		// 	</Grid>
+      	// ))
 		const articles = runnables.map((i: {[key:string]: any})=>
 			<Grid item xs={6} sm={4} key={i.output.runnable_id}>
 				<Card key={i.output.runnable_id} sx={{height: '100%'}}>
@@ -499,20 +534,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 				</Grid>
 			}
 			<Grid item xs={12}>
-				{loading && 
-					<Card>
-						<CardHeader
-							avatar={
-								<Icon path={mdiTimerSand} style={{animation: "spin 2s linear infinite"}} size={1}/>
-							}
-							title={"Contacting Deepdive2..."}
-							subheader={`Fetching articles...`}
-						/>
-						<CardContent><Skeleton variant="rectangular" width={'100%'} height={200} /></CardContent>
-					</Card>
-					
-				}
-				{applicables.length > 0 &&
+				{runs.length > 0 &&
 					<Card>
 						<CardHeader
 							avatar={
@@ -529,6 +551,20 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 				}
 				
 			</Grid>
+			{loading && 
+				<Grid item xs={12}>
+					<Card>
+						<CardHeader
+							avatar={
+								<Icon path={mdiTimerSand} style={{animation: "spin 2s linear infinite"}} size={1}/>
+							}
+							title={"Contacting Deepdive2..."}
+							subheader={`Fetching articles...`}
+						/>
+						<CardContent><Skeleton variant="rectangular" width={'100%'} height={200} /></CardContent>
+					</Card>
+				</Grid>
+			}
 
 			{articles.length > 0 &&
 				<Grid item xs={12}>

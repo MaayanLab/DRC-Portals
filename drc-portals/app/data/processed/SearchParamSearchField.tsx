@@ -12,7 +12,7 @@ export default function SearchParamSearchField(props: Omit<React.ComponentProps<
   if (
     pathname === '/'
     || pathname === '/data'
-    || /^(\/data)?(\/graph|\/enrichment|\/cross|\/processed\/search\/[^\/]+\/(?!c2m2)[^\/]+)$/.exec(pathname) !== null
+    || /^(\/data)?(\/graph|\/enrichment|\/cross|\/explorer|\/processed\/search\/[^\/]+\/(?!c2m2)[^\/]+)$/.exec(pathname) !== null
   ) return null
   return (
     <SearchForm name={id} param={props.name}>

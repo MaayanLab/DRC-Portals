@@ -16,7 +16,7 @@ import CustomNode from './custom';
 import { Avatar, Button, Card, CardHeader, Chip, Container, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import Gene from './gene';
 import { blue, green, lime, orange, purple, red } from '@mui/material/colors';
-import { mdiDna, mdiEye, mdiEyedropper, mdiFileDocument, mdiFlask, mdiHumanMaleHeightVariant, mdiListBox, mdiOpenInApp, mdiPill, mdiTimerSand, mdiVirus } from '@mdi/js';
+import { mdiDna, mdiEye, mdiEyedropper, mdiFlask, mdiHumanMaleHeightVariant, mdiListBox, mdiPill, mdiVirus } from '@mdi/js';
 import Icon from '@mdi/react';
 import Phenotype from './phenotype';
 import SmallMolecule from './drug';
@@ -24,7 +24,7 @@ import Anatomy from './anatomy';
 import Assay from './assay';
 import GeneSet from './gene_set';
 import { methods, Search } from './search';
-
+import ExplorerNode from './node';
 
  
 const nodeTypes = {
@@ -33,7 +33,7 @@ const nodeTypes = {
   phenotype: Phenotype,
   small_molecule: SmallMolecule,
   anatomy: Anatomy,
-  assay: Assay
+  node: ExplorerNode
 };
  
 const defaultViewport = { x: 0, y: 0, zoom: 1.5 };
@@ -77,13 +77,25 @@ const ui_elements: {[key: string]: {color: string, icon: string}} = {
   },
   "disease or phenotype": {
     color: orange[100],
-    icon: mdiHumanMaleHeightVariant,
+    icon: mdiVirus,
   },
   disease: {
     color: orange[100],
     icon: mdiVirus,
   }
 }
+
+const gdlpa = (newValue:string, type: string) => ({
+    "resource": "gdlpa",
+    "link": `https://cfde-gene-pages.cloud/{type}/${newValue}?CF=false&PS=true`,
+    description: newValue
+  })
+
+const gsfm = (newValue:string) => ({
+    "resource": "gsfm",
+    "link": `https://gsfm.maayanlab.cloud/gene/${newValue}`,
+    description: newValue
+  })
 
 const Explorer = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
@@ -97,7 +109,6 @@ const Explorer = () => {
   const [articles, setArticles] = useState<{timestamp: string, message: {message_id: string, content: string}}[]>([])
   const scrollRef = useRef<null | HTMLDivElement>(null)
 	const [submit, setSubmit] = useState(false)
-  console.log(inputList)
   // useEffect(()=>{
   //   const get_runnables = async () => {
   //     setLoading(true)
@@ -135,39 +146,44 @@ const Explorer = () => {
     setNodes([
       {
         id: 'gene',
-        type: 'geneNode',
-        data: { label: "Gene/Protein", update_input },
-        position: { x: 250, y: 300+geneSetPos },
+        type: 'node',
+        data: { label: "Genes, Proteins, and Variants", update_input, facet: ['gene', 'protein'], icon: mdiDna, get_links: (newValue:string)=>([
+          gdlpa(newValue, 'gene'),
+          gsfm(newValue),
+        ]) },
+        position: { x: 150, y: 185+geneSetPos },
       },
 	    {
         id: 'drug',
-        type: 'small_molecule',
-        data: { label: "Drugs/Small Molecule", update_input },
-        position: { x: -100, y: 0+geneSetPos },
+        type: 'node',
+        data: { label: "Small Molecules, Drugs, and Metabolites", update_input, facet: ['compound', 'metabolite'], icon: mdiPill, get_links: (newValue:string)=>([
+          gdlpa(newValue, 'drug'),
+        ]) },
+        position: { x: -100, y: 0+geneSetPos/2 },
       },
       {
         id: 'gs',
         type: 'gene_set',
         data: { label: "Gene Set/ Pathways/ Modules", update_input, setGeneSetPos },
-        position: { x: 600, y: 0 },
+        position: { x: 400, y: 0 },
       },
       {
         id: 'cell',
-        type: 'anatomy',
-        data: { label: "Cell/ Tissue/ Organ", update_input },
-        position: { x: -200, y: 500+geneSetPos },
+        type: 'node',
+        data: { label: "Cell types, Tissues, and Organ", update_input, facet: ['anatomy'], icon: mdiEye, },
+        position: { x: -180, y: 350+geneSetPos },
       },
       {
         id: 'disease',
-        type: 'phenotype',
-        data: { label: "Phenotype/ Disease", update_input },
-        position: { x: 700, y: 500+geneSetPos },
+        type: 'node',
+        data: { label: "Phenotypes, and Diseases", update_input, facet: ["disease", "phenotype", "disease or phenotype"], icon: mdiVirus  },
+        position: { x: 480, y: 355+geneSetPos },
       },
       {
         id: 'assay',
-        type: 'assay',
-        data: { label: "Assay", update_input },
-        position: { x: 250, y: 700+geneSetPos },
+        type: 'node',
+        data: { label: "Assay", update_input, facet: ["asset_type"], icon: mdiFlask },
+        position: { x: 150, y: 530+geneSetPos },
       }
     ]);
  
@@ -378,7 +394,7 @@ const Explorer = () => {
     </Grid>}
     <Grid item xs={12}>
       
-      <Container maxWidth="xl" sx={{height: 700, position: "relative"}}>
+      <Container maxWidth="xl" sx={{height: 700 + geneSetPos, position: "relative"}}>
         <ReactFlow
           nodes={nodes}
           edges={edges}

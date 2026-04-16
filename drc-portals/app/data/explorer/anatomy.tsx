@@ -23,7 +23,7 @@ const Anatomy = ({ data, isConnectable }: {data: {update_input: Function}, isCon
   }, { staleTime: Infinity, enabled: inputTerm !== '' && inputTerm.length >= 3 })
     
   return (
-    <Card sx={{width: 400, backgroundColor: red[100]}}>
+    <Card sx={{width: 400, borderColor: "#2D5986"}}>
 	    <Handle
         type="target"
         position={Position.Top}
@@ -56,7 +56,7 @@ const Anatomy = ({ data, isConnectable }: {data: {update_input: Function}, isCon
 	    <Grid container alignItems={"center"} spacing={2}>
         <Grid item xs={12}>
           <Stack direction={"row"} spacing={1} alignItems={"center"}>
-            <Avatar sx={{backgroundColor: red[100], color: 'black'}}><Icon path={mdiEye} size={2}/></Avatar>
+            <Avatar sx={{backgroundColor: "transparent", color: '#2D5986'}}><Icon path={mdiEye} size={2}/></Avatar>
             <Typography variant='h3'>Cell Types, Tissues, and Organs</Typography>
           </Stack>
         </Grid>

@@ -101,6 +101,7 @@ const data_nav = [
   { title: "Documentation", href: "/data/documentation" }
 ]
 
+
 export default async function Header({ path }: { path: "/info" | "/data" }) {
   const nav = path === "/info" ? info_nav : data_nav
   const session = await getServerSession(authOptions)

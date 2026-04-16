@@ -41,7 +41,7 @@ const GeneSet = ({ data, isConnectable }: {data: {update_input: Function, setGen
   // }, [genes])
   const linksearch = trpc.send_gene_set.useMutation()
   return (
-    <Card sx={{width: 400, backgroundColor: purple[100]}}>
+    <Card sx={{width: 400, bgcolor: '#E7F3F5', borderColor: "#2D5986", borderWidth: 2}}>
 	    <Handle
         type="target"
         position={Position.Top}
@@ -74,13 +74,13 @@ const GeneSet = ({ data, isConnectable }: {data: {update_input: Function, setGen
 	    <Grid container alignItems={"center"} spacing={2}>
         <Grid item xs={12}>
           <Stack direction={"row"} spacing={1} alignItems={"center"}>
-            <Avatar sx={{backgroundColor: purple[100], color: 'black'}}><Icon path={mdiListBox} size={2}/></Avatar>
+            <Avatar sx={{backgroundColor:'transparent', color: "#2D5986"}}><Icon path={mdiListBox} size={2}/></Avatar>
             <Typography variant='h3'>Gene Sets, Pathways, and Modules</Typography>
             <Tooltip title={search === 'term' ? "Add your own gene set": "Search Enrichr gene sets"}>
               <Button variant='outlined' color="secondary" onClick={()=>{
                 if (search==='term') {
                   setSearch('input')
-                  data.setGeneSetPos(70)
+                  data.setGeneSetPos(120)
                 } else {
                   setSearch('term')
                   data.setGeneSetPos(0)
