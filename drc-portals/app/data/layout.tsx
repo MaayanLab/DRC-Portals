@@ -91,7 +91,7 @@ export default function DataLayout({
           __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
         }}
       />
-      <Grid item><Header path={"/data"}/></Grid>
+      {/* <Grid item><Header path={"/data"}/></Grid> */}
       <Grid item container className="grow overflow-hidden">
         <Background background="#E7F3F5">
           {/* <NavBreadcrumbs/> */}

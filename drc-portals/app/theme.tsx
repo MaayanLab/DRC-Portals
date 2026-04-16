@@ -92,7 +92,7 @@ export const cfde_theme = createTheme({
             fontStyle: "normal",
             fontWeight: 600,
             textTransform: "uppercase",
-            color: "#2D5986",
+            // color: "#2D5986",
             paddingLeft: 5,
             paddingRight: 5,
             marginRight: 2,

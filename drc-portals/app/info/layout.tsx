@@ -16,7 +16,7 @@ export default function InfoLayout({
 }) {
   return (
     <>
-      <Grid item><Header path="/info"/></Grid>
+      {/* <Grid item><Header path="/info"/></Grid> */}
       <Grid item className="flex grow">
         <Background background='#EDF0F8'>
           {/* <NavBreadcrumbs/> */}

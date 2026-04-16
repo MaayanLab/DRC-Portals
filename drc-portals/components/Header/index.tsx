@@ -1,5 +1,5 @@
 
-
+'use client'
 import AppBar from '@mui/material/AppBar'
 import Container from '@mui/material/Container'
 
@@ -8,7 +8,14 @@ import {
   Toolbar,
   Stack,
   Typography,
-  Box
+  Box,
+  Collapse,
+  List,
+  ListItem,
+  ListItemText,
+  Popper,
+  ClickAwayListener,
+  ListItemIcon
 } from '@mui/material';
 
 import SearchParamSearchField from '@/app/data/processed/SearchParamSearchField'
@@ -21,7 +28,12 @@ import { authOptions } from '@/lib/auth'
 import { TextNav } from "./client"
 import { Session, getServerSession } from "next-auth"
 import NavBreadcrumbs from './breadcrumbs';
-export const TopNav = async ({ path, session }: { path: "/info" | "/data", session: Session | null }) => {
+import { useEffect, useRef, useState } from 'react';
+import { Button } from '@mui/material';
+import { ListItemButton } from '@mui/material';
+import { mdiAccountGroup, mdiAccountSwitch, mdiBook, mdiCalendar, mdiDataMatrix, mdiFileDocument, mdiFormatListGroup, mdiGesture, mdiGraphOutline, mdiHammer, mdiHome, mdiHomeGroup, mdiInformation, mdiLaptop, mdiMagnify, mdiRobotOutline, mdiSend, mdiSetCenter } from '@mdi/js';
+import Icon from '@mdi/react';
+export const TopNav = ({ session }: {session: Session | null }) => {
   // return (
   //   <>
   //     <Link href={"/info"}>
@@ -39,10 +51,10 @@ export const TopNav = async ({ path, session }: { path: "/info" | "/data", sessi
   return (
     <>
     <Link href={"/info"}>
-      <Typography variant={path === "/info" ? "nav_highlighted": "nav"}><b>Info</b></Typography>
+      <Typography variant={"nav"}><b>Info</b></Typography>
     </Link>
     <Link href={"/data"}>
-      <Typography variant={path === "/data" ? "nav_highlighted": "nav"}><b>Data</b></Typography>
+      <Typography variant={"nav"}><b>Data</b></Typography>
       </Link>
       <Link href={"https://cfdeworkspace.org/"} target="_blank" rel="noopener noreferrer">
         <Typography variant="nav"><b>Cloud</b></Typography>
@@ -61,20 +73,20 @@ export const TopNav = async ({ path, session }: { path: "/info" | "/data", sessi
   )
 }
 
-export const BottomNav = ({ nav, path }: { path: '/info' | '/data', nav: Array<{ href: string, title: string }> }) => {
-  return nav.map(({ title, href }) => (
-    <Grid item key={title}>
-      {href.indexOf('http') > -1 ?
-        <Link href={href} target="_blank" rel="noopener noreferrer">
-          <Typography variant="nav">{title}</Typography>
-        </Link> :
-        <Link href={`${href}`}>
-          <TextNav title={title} path={href.replace(path, '')} />
-        </Link>
-      }
-    </Grid>
-  ))
-}
+// export const BottomNav = ({ nav, path }: { path: '/info' | '/data', nav: Array<{ href: string, title: string }> }) => {
+//   return nav.map(({ title, href }) => (
+//     <Grid item key={title}>
+//       {href.indexOf('http') > -1 ?
+//         <Link href={href} target="_blank" rel="noopener noreferrer">
+//           <Typography variant="nav">{title}</Typography>
+//         </Link> :
+//         <Link href={`${href}`}>
+//           <TextNav title={title} path={href.replace(path, '')} />
+//         </Link>
+//       }
+//     </Grid>
+//   ))
+// }
 
 const info_nav = [
   { title: "Home", href: "/info" },
@@ -101,41 +113,222 @@ const data_nav = [
   { title: "Documentation", href: "/data/documentation" }
 ]
 
+const options = [
+  {
+    title: "Search",
+    links: [
+      {
+        title: "Search Common Fund Data",
+        href: '/data',
+        description: "Query Common Fund Data Sets",
+        icon: mdiMagnify
+      },
+      {
+        title: "C2M2 Interactive Graph Search",
+        href: "/data/graph",
+        description: "Explore the Cross Cut Data Model Using Interactive Expandable Nodes",
+        icon: mdiGraphOutline
+      },
+      {
+        title: "Assistant",
+        href: "/data/chat",
+        description: "Let our assistant chatbot get you started with the CFDE Workbench",
+        icon: mdiRobotOutline
+      }
+    ]
+  },
+  {
+    title: "Explore the Ecosystem",
+    links: [
+      {
+        title: "Common Fund Programs",
+        href: "/info/dcc",
+        description: "Learn more about the Common Fund Programs participating in the ecosystem",
+        icon: mdiAccountGroup
+      },
+      {
+        title: "Data Matrix",
+        href: '/data/matrix',
+        description: 'View the different datasets and assets provided by the different Common Fund Programs',
+        icon: mdiDataMatrix
+      },
+      {
+        title: "Centers",
+        href: "/info/centers",
+        description: "Explore the five CFDE centers working towards facilitating improved discovery, reuse, integration of Common Fund Data",
+        icon: mdiHomeGroup
+      },
+      {
+        title: "Partnerships",
+        href: "/info/partnerships",
+        description: "Learn more about the partnerships programs working towards cross-dataset anaylsis across multiple Common Fund Programs.",
+        icon: mdiAccountSwitch
+      },
+      {
+        title: "Publications",
+        href: "/info/publications",
+        description: "View our latest publications",
+        icon: mdiBook
+      }
+    ]
+  },
+  {
+    title: "Analyze",
+    links: [
+      {
+        title: "Gene Set Enrichment",
+        href: "/data/enrichment",
+        description: "Perform enrichment analysis using gene set libraries generated from Common Fund Programs",
+        icon: mdiFormatListGroup
+      },
+      {
+        title: "Gene Set Crossing",
+        href: "/data/cross",
+        description: "Generate hypothesis by crossing and comparing Common Fund gene sets",
+        icon: mdiSetCenter
+      },
+      {
+        title: "Community Tools and Workflows",
+        href: "/data/tools_and_workflows",
+        description: "Explore available tools generated by the ecosystem",
+        icon: mdiHammer
+      },
+      {
+        title: "Use Cases",
+        href: "/data/use_cases",
+        description: "View established use cases that integrate Common Fund Datasets and apply them to your own research.",
+        icon: mdiGesture
+      }
+    ]
+  },
+  {
+    title: "Engage",
+    links: [
+      {
+        title: "Training & Outreach",
+        href: "/info/training_and_outreach",
+        description: "Get to know more about CFDE with our in-person and virtual outreach and training activities",
+        icon: mdiCalendar
+      },
+      {
+        title: "Webinars",
+        href: "/info/training_and_outreach/cfde-webinar-series",
+        description: "Join us in our monthly webinars every end of the month.",
+        icon: mdiLaptop
+      }
+    ]
+  },
+  {
+    title: "Submit",
+    links: [
+      {
+        title: "Submit Assets",
+        href: "/data/submit",
+        description: "Submission portal for data coordination centers",
+        icon: mdiSend
+      }
+    ]
+  },
+{
+  title: "About",
+  links: [
+    {
+      title: "About",
+      href: "/info/about",
+      description: "Learn more about the CFDE and the Data Resource Center",
+      icon: mdiInformation
+    },
+    {
+      title: "Documentation",
+      href: "/data/documentation",
+      description: "Explore protocols, standards, and guides for the CFDE",
+      icon: mdiFileDocument
+    }
+  ]
+}
+]
 
-export default async function Header({ path }: { path: "/info" | "/data" }) {
+
+export default function Header({ session }: {session: Session | null }) {
+  const [open, setOpen] = useState(false)
+  const [subLinks, setSubLinks] = useState<{title: string, links: Array<{title: string, href: string, description: string, icon:string}>} | null>(null)
+  const path:'/info' | '/data' = "/info"
+  const ref = useRef<HTMLElement>(null);
+
   const nav = path === "/info" ? info_nav : data_nav
-  const session = await getServerSession(authOptions)
+  const handleClick = (data: {title: string, links: Array<{title: string, href: string, description: string, icon: string}>}) => {
+    if (subLinks === null) setSubLinks(data)
+    else if (data.title === subLinks.title) {
+      setSubLinks(null)
+    } else {
+      setSubLinks(null)
+      setTimeout(() => {
+        setSubLinks(data)
+      }, 100);
+      
+    }
+  }
   return (
+    <ClickAwayListener onClickAway={()=>setSubLinks(null)}>
+    <div>
     <Container maxWidth="lg">
-      <AppBar position="static" sx={{ color: "#000", display: { xs: "none", sm: "none", md: "block" } }}>
+      <AppBar ref={ref} position="static" sx={{ color: "#2D5986", paddingTop: 2, display: { xs: "none", sm: "none", md: "block" } }}>
         <Toolbar>
           <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
             <Grid item>
-              <Logo title="CFDE Workbench" href={path} size='large' color="secondary" />
+              <Logo title="CFDE Workbench" href={path} size='large' color="inherit" />
             </Grid>
             <Grid item>
               <Stack direction={"row"} alignItems={"center"}>
-                <TopNav path={path} session={session} />
+                <TopNav session={session} />
               </Stack>
             </Grid>
             <Grid item xs={12}>
               <Grid container alignItems={"center"}>
-                <BottomNav nav={nav} path={path} />
+                {options.map(({ title, links }) => (
+                  <Grid item key={title}>
+                    <Button sx={{paddingLeft: 1, paddingRight: 1}}className="navButton" color="secondary" onClick={()=>handleClick({title, links})}>
+                      <TextNav paths={links.map(i=>i.href)} title={title}/>
+                    </Button>
+                  </Grid>
+                ))}
+                {/* <BottomNav nav={nav} path={path} /> */}
               </Grid>
             </Grid>
-
-            <Grid item xs={12} className='flex items-center'>
-              <div className='flex flex-grow'><NavBreadcrumbs /></div>{path === "/data" && <SearchParamSearchField />}
-            </Grid>
+            {/* <Grid item xs={12} className='flex items-center'>
+              <div className='flex flex-grow'><NavBreadcrumbs /></div>
+              {path === "/data" && <SearchParamSearchField />}
+            </Grid> */}
           </Grid>
         </Toolbar>
       </AppBar>
       <Box sx={{ display: { xs: "block", sm: "block", md: "none", lg: "none", xl: "none" } }}>
         <Stack spacing={1}>
           <DRCDrawer path={path} nav={nav} session={session} />
-          {(path === "/data") && <SearchParamSearchField />}
+          {/* {(path === "/data") && <SearchParamSearchField />} */}
         </Stack>
       </Box>
     </Container>
+    <Popper sx={{bgcolor: "#A5B4DB", width:"100%", zIndex: 100}} placement={'bottom-start'} open={subLinks!==null} anchorEl={ref.current}>
+      <Container maxWidth="lg">
+        <List sx={{width: "100%"}}>
+          {(subLinks?.links || []).map(i=>(
+            <ListItemButton onClick={()=>setSubLinks(null)}href={i.href} component={Link} key={i.title}>
+              <ListItemIcon>
+                <Icon path={i.icon} size={1} />
+              </ListItemIcon>
+              <ListItemText primary={i.title} secondary={i.description}/>
+            </ListItemButton>
+          ))}
+        </List>
+      </Container>
+    </Popper>      
+    <Container maxWidth="lg">
+      <Box sx={{marginLeft: 3}}>
+        <NavBreadcrumbs />
+      </Box>
+    </Container>
+    </div>
+    </ClickAwayListener>
   )
 }
