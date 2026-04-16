@@ -161,7 +161,7 @@ const options = [
       {
         title: "Partnerships",
         href: "/info/partnerships",
-        description: "Learn more about the partnerships programs working towards cross-dataset anaylsis across multiple Common Fund Programs.",
+        description: "Learn more about the partnerships programs working towards cross-dataset analysis across multiple Common Fund Programs.",
         icon: mdiAccountSwitch
       },
       {
@@ -207,7 +207,7 @@ const options = [
       {
         title: "Training & Outreach",
         href: "/info/training_and_outreach",
-        description: "Get to know more about CFDE with our in-person and virtual outreach and training activities",
+        description: "Get to know more about CFDE with our in-person, and virtual outreach and training activities",
         icon: mdiCalendar
       },
       {
