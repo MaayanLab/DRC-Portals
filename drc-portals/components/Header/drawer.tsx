@@ -40,7 +40,7 @@ export const DRCDrawer = ({path, nav, session}: {path: "/info"| "/data", nav: Ar
 					{
 						nav.map(({title, href})=>(
 							<Link href={`${href}`} key={title} onClick={()=>setOpen(false)}>
-								<TextNav title={title} path={href.replace(path, '')}/>
+								<TextNav title={title} paths={[href.replace(path, '')]}/>
 							</Link>
 						))
 					}
