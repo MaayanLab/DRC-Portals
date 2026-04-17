@@ -33,28 +33,25 @@ import { Button } from '@mui/material';
 import { ListItemButton } from '@mui/material';
 import { mdiAccountGroup, mdiAccountSwitch, mdiBook, mdiCalendar, mdiDataMatrix, mdiFileDocument, mdiFormatListGroup, mdiGesture, mdiGraphOutline, mdiHammer, mdiHome, mdiHomeGroup, mdiInformation, mdiLaptop, mdiMagnify, mdiRobotOutline, mdiSend, mdiSetCenter } from '@mdi/js';
 import Icon from '@mdi/react';
+import usePathname from '@/utils/pathname';
 export const TopNav = ({ session }: {session: Session | null }) => {
-  // return (
-  //   <>
-  //     <Link href={"/info"}>
-  //       <Typography variant="nav" sx={path === "/info" ? { textDecoration: "underline", textDecorationThickness: 2 } : {}}><b>Information Portal</b></Typography>
-  //     </Link>
-  //     <Link href={"/data"}>
-  //       <Typography variant="nav" sx={path === "/data" ? { textDecoration: "underline", textDecorationThickness: 2 } : {}}><b>Data Portal</b></Typography>
-  //     </Link>
-  //     <Link href={"/info/centers/KC"}>
-  //       <Typography variant="nav"><b>Knowledge Portal</b></Typography>
-  //     </Link>
-  //     <UserComponent session={session} />
-  //   </>
-  // )
+  const [isInfo, setInfo] = useState(false)
+  const [isData, setData] = useState(false)
+  const pathname = usePathname()
+  useEffect(()=>{
+    const isInfo = window && window.location.href.indexOf('/info') > -1 || window.location.hostname === 'info.cfde.cloud'
+    const isData = window && window.location.href.indexOf('/data') > -1 || window.location.hostname === 'data.cfde.cloud'
+    setInfo(isInfo)
+    setData(isData)
+  },[pathname])
+
   return (
     <>
     <Link href={"/info"}>
-      <Typography variant={"nav"}><b>Info</b></Typography>
+      <Typography variant={isInfo ? "nav_highlighted": "nav"}><b>Info</b></Typography>
     </Link>
     <Link href={"/data"}>
-      <Typography variant={"nav"}><b>Data</b></Typography>
+      <Typography variant={isData ? "nav_highlighted": "nav"}><b>Data</b></Typography>
       </Link>
       <Link href={"https://cfdeworkspace.org/"} target="_blank" rel="noopener noreferrer">
         <Typography variant="nav"><b>Cloud</b></Typography>
@@ -261,12 +258,11 @@ export default function Header({ session }: {session: Session | null }) {
     else if (data.title === subLinks.title) {
       setSubLinks(null)
     } else {
-      setSubLinks(null)
-      setTimeout(() => {
-        setSubLinks(data)
-      }, 100);
-      
+      setSubLinks(data)
     }
+    setTimeout(() => {
+        setSubLinks(null)
+    }, 5000);
   }
   return (
     <ClickAwayListener onClickAway={()=>setSubLinks(null)}>
