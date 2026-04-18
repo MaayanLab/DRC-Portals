@@ -8,14 +8,14 @@ export default function ConciergeLayout({
 }) {
   return (
 	<Grid container spacing={2}>
-	  <Grid item xs={12}>
+	  {/* <Grid item xs={12}>
 		<Stack direction={'row'} spacing={1} alignItems={"center"}>
 			<Avatar sx={{backgroundColor: 'secondary.main'}}><Icon path={mdiMagnify} size={1} /></Avatar>
 			<Typography variant="h2" color="secondary">
 			CFDE Workbench Explorer
 			</Typography>
 		</Stack>
-	  </Grid>
+	  </Grid> */}
 	  {/* <Grid item xs={12}>
 		<Typography variant="body1">
 			Hi! I am the CFDE Workbench Concierge. I'm here to provide information about the CFDE 

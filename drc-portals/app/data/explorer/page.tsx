@@ -109,24 +109,6 @@ const Explorer = () => {
   const [articles, setArticles] = useState<{timestamp: string, message: {message_id: string, content: string}}[]>([])
   const scrollRef = useRef<null | HTMLDivElement>(null)
 	const [submit, setSubmit] = useState(false)
-  // useEffect(()=>{
-  //   const get_runnables = async () => {
-  //     setLoading(true)
-  //     setApplicables([])
-  //     const deepDiveOptions = await fetchRunnables(inputList.map(i=>i.label), getAbortController())
-  //     if (deepDiveOptions) {
-  //       const [applicable, runnable, artc ] = deepDiveOptions
-  //       // const runnables = runnable.result.data.items
-  //       setRunnables(runnable.result.data.items)
-  //       if (inputList.length === 1) setApplicables(applicable.result.data)
-  //       else setApplicables(applicable.result.data.filter((i:{method:string})=>i.method !== 'DeepDive'))
-  //       // const articles = artc.result.data.items
-  //     }
-  //     setLoading(false)
-  //   }
-  //   if (inputList.length > 0) get_runnables()
-  // }, [inputList])
-
   const update_input = (entity: string, label: string, type:string="add", values:{up?: string[], down?: string[], gene_set?: string[]}={}, links:{resource: string, description: string, link: string}[]=[]) => {
     setTaskId('')
     if (type === "add") {
@@ -258,26 +240,6 @@ const Explorer = () => {
         style: { strokeWidth: 10},
         type: "default"
       },
-      // {
-      //   id: 'drug-disease',
-      //   source: 'drug',
-      //   target: 'disease',
-      //   // animated: true,
-      //   sourceHandle: "source-b",
-      //   targetHandle: "target-l",
-      //   style: { strokeWidth: 10},
-      //   type: "default"
-      // },
-      // {
-      //   id: 'gs-cell',
-      //   source: 'gs',
-      //   target: 'cell',
-      //   // animated: true,
-      //   sourceHandle: "source-b",
-      //   targetHandle: "target-r",
-      //   style: { strokeWidth: 10},
-      //   type: "default"
-      // },
       {
         id: 'gs-disease',
         source: 'gs',
@@ -368,32 +330,41 @@ const Explorer = () => {
   if (!submit) {
   return (
   <Grid container spacing={1} alignItems='stretch'>
-    
-    {inputList.map(i=>(
-      <Grid item key={i.label}>
-        <Tooltip title={i.label} key={i.label}>
-        <Chip avatar={<Avatar sx={{backgroundColor: i.color}}><Icon path={i.icon} size={1}/></Avatar>}
-          label={i.label}
-          sx={{backgroundColor: i.color}}
-          onDelete={()=>update_input(i.entity, i.label, 'remove')}
-        />
-        </Tooltip>
-      </Grid>
-    ))}
-    {inputList.length > 0 && 
-    <Grid item xs={12}>
-      <Button 
-          sx={{width: "100%"}} 
-          variant="outlined" 
+    <Grid item xs={12} md={3}>
+      <Stack spacing={3} sx={{marginTop: {xs: 1, md: 10}}}>
+        <Typography variant="h1" color={'#2D5986'}><b>Your Research, Amplified.</b></Typography>
+        <Typography variant="subtitle1">
+          Discover, integrate, and catalyze your next hypothesis with the Common Fund’s multi-center data ecosystem.
+        </Typography>
+        <Button 
+          sx={{width: "100%", height: 80}} 
+          variant="contained" 
           color="secondary" 
           // startIcon={<Icon path={mdiFileDocument} size={1}/>}
-          onClick={()=>setSubmit(true)}
+          onClick={()=>{
+            if (inputList.length > 0) setSubmit(true)
+          }}
+          // disabled={inputList.length === 0}
         >
-          Continue 
+          <Typography variant="h5">{inputList.length === 0 ? "Enter a biomedical entity to get started": "Explore CFDE Workbench"}</Typography>
       </Button>
-    </Grid>}
-    <Grid item xs={12}>
+        <Stack spacing={1} justifyContent={"center"}>
+          {inputList.map(i=>(
+            // <Grid item key={i.label}>
+              <Tooltip title={i.label} key={i.label}>
+              <Chip avatar={<Avatar sx={{backgroundColor: i.color}}><Icon path={i.icon} size={1}/></Avatar>}
+                label={i.label}
+                sx={{backgroundColor: i.color}}
+                onDelete={()=>update_input(i.entity, i.label, 'remove')}
+              />
+              </Tooltip>
+            // </Grid>
+          ))}
+        </Stack>
+      </Stack>
       
+    </Grid>
+    <Grid item xs={12} md={9}>
       <Container maxWidth="xl" sx={{height: 700 + geneSetPos, position: "relative"}}>
         <ReactFlow
           nodes={nodes}
@@ -416,34 +387,8 @@ const Explorer = () => {
           proOptions={{hideAttribution: true}}
         />
       </Container>
-      
     </Grid>
-    {runnables.length > 0 && <Grid item xs={12} ref={scrollRef}>
-      <Typography variant="h5">
-        Available Articles
-      </Typography>
-    </Grid>}
-    {/* {runnables.map((i: {[key:string]: any})=>
-      <Grid item xs={12} md={6} key={i.method}>
-        <Card sx={{height: '100%'}}>
-          <CardHeader
-            avatar={
-              <Avatar>
-                <Icon path={mdiFileDocument} size={1}/>
-              </Avatar>
-            }
-            action={
-              <IconButton aria-label="submit" href={`/data/explorer/article/${i.output.runnable_id}`}>
-                <Icon path={mdiOpenInApp} size={1}/>
-              </IconButton>
-            }
-            title={i.output.value.split("\n\n")[0].replace("# ", "").replace("#", "")}
-            subheader={`Created: ${i.output.timestamp.toLocaleString()} using ${methods[i.method].label}`}
-          />
-        </Card>
-        
-      </Grid>
-    )} */}
+    
   </Grid>
   );
 }

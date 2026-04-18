@@ -31,7 +31,7 @@ import NavBreadcrumbs from './breadcrumbs';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@mui/material';
 import { ListItemButton } from '@mui/material';
-import { mdiAccountGroup, mdiAccountSwitch, mdiBook, mdiCalendar, mdiDataMatrix, mdiFileDocument, mdiFormatListGroup, mdiGesture, mdiGraphOutline, mdiHammer, mdiHome, mdiHomeGroup, mdiInformation, mdiLaptop, mdiMagnify, mdiRobotOutline, mdiSend, mdiSetCenter } from '@mdi/js';
+import { mdiAccountGroup, mdiAccountSwitch, mdiBook, mdiCalendar, mdiCompass, mdiDataMatrix, mdiFileDocument, mdiFormatListGroup, mdiGesture, mdiGraphOutline, mdiHammer, mdiHome, mdiHomeGroup, mdiInformation, mdiLaptop, mdiMagnify, mdiRobotOutline, mdiSend, mdiSetCenter } from '@mdi/js';
 import Icon from '@mdi/react';
 import usePathname from '@/utils/pathname';
 export const TopNav = ({ session }: {session: Session | null }) => {
@@ -114,6 +114,12 @@ const options = [
   {
     title: "Search",
     links: [
+      {
+        title: "CFDE Data Explorer",
+        href: '/data/explorer',
+        description: "Explore and integrate CFDE Data",
+        icon: mdiCompass
+      },
       {
         title: "Search Common Fund Data",
         href: '/data',
