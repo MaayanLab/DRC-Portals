@@ -18,7 +18,7 @@ import { mdiDna, mdiEye, mdiEyedropper, mdiFlask, mdiHumanMaleHeightVariant, mdi
 import Icon from '@mdi/react';
 
 import GeneSet from './gene_set';
-import { methods, Search } from './search';
+import { Search } from './search';
 import ExplorerNode from './node';
 
  
@@ -28,7 +28,7 @@ const nodeTypes = {
   node: ExplorerNode
 };
  
-const defaultViewport = { x: 0, y: 0, zoom: 1.5 };
+const defaultViewport = { x: 150, y: 10, zoom: 0.7 };
 
 const ui_elements: {[key: string]: {color: string, icon: string}} = {
   gene: {
@@ -357,8 +357,9 @@ const Explorer = () => {
       
     </Grid>
     <Grid item xs={12} md={9}>
-      <Container maxWidth="xl" sx={{height: 700 + geneSetPos, position: "relative"}}>
+      <Container maxWidth="xl" sx={{height: 500 + geneSetPos, width: "100%", position: "relative"}}>
         <ReactFlow
+          // height={500}
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
