@@ -12,16 +12,11 @@ import {
  
 import '@xyflow/react/dist/style.css';
 // import './xy-theme.css'
-import CustomNode from './custom';
 import { Avatar, Button, Card, CardHeader, Chip, Container, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/material';
-import Gene from './gene';
 import { blue, green, lime, orange, purple, red } from '@mui/material/colors';
 import { mdiDna, mdiEye, mdiEyedropper, mdiFlask, mdiHumanMaleHeightVariant, mdiListBox, mdiPill, mdiVirus } from '@mdi/js';
 import Icon from '@mdi/react';
-import Phenotype from './phenotype';
-import SmallMolecule from './drug';
-import Anatomy from './anatomy';
-import Assay from './assay';
+
 import GeneSet from './gene_set';
 import { methods, Search } from './search';
 import ExplorerNode from './node';
@@ -29,10 +24,7 @@ import ExplorerNode from './node';
  
 const nodeTypes = {
   gene_set: GeneSet,
-  geneNode: Gene,
-  phenotype: Phenotype,
-  small_molecule: SmallMolecule,
-  anatomy: Anatomy,
+
   node: ExplorerNode
 };
  
@@ -129,7 +121,7 @@ const Explorer = () => {
       {
         id: 'gene',
         type: 'node',
-        data: { label: "Genes, Proteins, and Variants", update_input, facet: ['gene', 'protein'], icon: mdiDna, get_links: (newValue:string)=>([
+        data: { label: "Genes, Proteins, and Variants", update_input, facet: 'gene', icon: mdiDna, get_links: (newValue:string)=>([
           gdlpa(newValue, 'gene'),
           gsfm(newValue),
         ]) },
@@ -138,7 +130,7 @@ const Explorer = () => {
 	    {
         id: 'drug',
         type: 'node',
-        data: { label: "Small Molecules, Drugs, and Metabolites", update_input, facet: ['compound', 'metabolite'], icon: mdiPill, get_links: (newValue:string)=>([
+        data: { label: "Small Molecules, Drugs, and Metabolites", update_input, facet: 'drug', icon: mdiPill, get_links: (newValue:string)=>([
           gdlpa(newValue, 'drug'),
         ]) },
         position: { x: -100, y: 0+geneSetPos/2 },
@@ -152,19 +144,19 @@ const Explorer = () => {
       {
         id: 'cell',
         type: 'node',
-        data: { label: "Cell types, Tissues, and Organ", update_input, facet: ['anatomy'], icon: mdiEye, },
+        data: { label: "Cell types, Tissues, and Organ", update_input, facet: 'anatomy', icon: mdiEye, },
         position: { x: -180, y: 350+geneSetPos },
       },
       {
         id: 'disease',
         type: 'node',
-        data: { label: "Phenotypes, and Diseases", update_input, facet: ["disease", "phenotype", "disease or phenotype"], icon: mdiVirus  },
+        data: { label: "Phenotypes, and Diseases", update_input, facet: "disease", icon: mdiVirus  },
         position: { x: 480, y: 355+geneSetPos },
       },
       {
         id: 'assay',
         type: 'node',
-        data: { label: "Assay", update_input, facet: ["asset_type"], icon: mdiFlask },
+        data: { label: "Assay", update_input, facet: "assay", icon: mdiFlask },
         position: { x: 150, y: 530+geneSetPos },
       }
     ]);
@@ -331,10 +323,10 @@ const Explorer = () => {
   return (
   <Grid container spacing={1} alignItems='stretch'>
     <Grid item xs={12} md={3}>
-      <Stack spacing={3} sx={{marginTop: {xs: 1, md: 10}}}>
-        <Typography variant="h1" color={'#2D5986'}><b>Your Research, Amplified.</b></Typography>
+      <Stack spacing={3} sx={{marginTop: {xs: 1, md: 1}}}>
+        <Typography variant="h1" color={'#2D5986'}><b>Discover, Analyze, and Integrate NIH Common Fund Data</b></Typography>
         <Typography variant="subtitle1">
-          Discover, integrate, and catalyze your next hypothesis with the Common Fund’s multi-center data ecosystem.
+          The Common Fund Data Ecosystem (CFDE) aims to facilitate improved discovery, reuse, integration, and analyses of these datasets to form novel hypothesis for accelerating discoveries in biomedical research.
         </Typography>
         <Button 
           sx={{width: "100%", height: 80}} 

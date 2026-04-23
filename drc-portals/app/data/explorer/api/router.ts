@@ -328,5 +328,41 @@ export default router({
 		if (id === '') return []
 		const gene_set = getGeneSet(id)
 		return gene_set
+	}),
+	ontology: procedure.input(
+		z.object({
+			term: z.string(),
+			facet: z.string(),
+		})
+	)
+	.query(async (props)=>{
+		const {term, facet} = props.input
+		const ontologies:{[key:string]: string} = {
+			anatomy: "uberon,cl,clo",
+			disease: "mondo",
+			assay: "edam",
+			drug: "chebi"
+		}
+		if (term.length < 3) return []
+		else if (facet === "gene") {
+			const prom1 = fetch(`https://clinicaltables.nlm.nih.gov/api/genes/v4/search?df=symbol&terms=${term}`)
+			const prom2 = fetch(`https://clinicaltables.nlm.nih.gov/api/variants/v4/search?df=dbSNP&terms=${term}`)
+			const [res1, res2] = await Promise.all([prom1, prom2])
+			const response = [...(await res1.json())[3], ...(await res2.json())[3]]
+			const entities:Array<{type: string, a_label: string}> = []
+			for (const e of response) {
+				const g:string = e[0]
+				if (g!=='') entities.push({type: facet, a_label: g})
+			}
+			return entities
+		}
+		else if (ontologies[facet] === undefined) return []
+		else {
+			const res = await fetch(`https://www.ebi.ac.uk/ols4/api/suggest?ontology=${ontologies[facet]}&q=${term}`)
+			const entities: any = await res.json()
+			if (entities?.response?.docs.length > 0) {
+				return entities.response.docs.map((i:any)=>({type: facet, a_label: i.autosuggest as string}))
+			} else return []
+		}
 	})
 });

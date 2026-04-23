@@ -1,31 +1,30 @@
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Autocomplete, Avatar, Card, CardContent, Grid, Stack, TextField, Typography } from '@mui/material';
+import { Autocomplete, Avatar, Card, CardContent, createFilterOptions, Grid, Stack, TextField, Typography } from '@mui/material';
 import Icon from '@mdi/react';
 import trpc from '@/lib/trpc/client'
- 
+
+const filter = createFilterOptions();
 
 const Node = ({ data, isConnectable }: {data: {
 	update_input: Function,
-	facet: string[],
+	facet: string,
 	label: string,
 	icon: string,
 	get_links?: Function,
 }, isConnectable: boolean}) => {
   const [term, setTerm] = React.useState({type: '', a_label: ''})
   const [inputTerm, setInputTerm] = React.useState('')
-  const { data: options } =  trpc.autocomplete.useQuery({
-		search: inputTerm.toLocaleLowerCase(),
-		facet: data.facet.map(facet=>`type:\"${facet}\"`),
-	}, { staleTime: Infinity, enabled: inputTerm !== '' && inputTerm.length >= 3 })
-  return (
+  const { data: options } =  trpc.ontology.useQuery({facet: data.facet, term: inputTerm.toLocaleLowerCase()})
+  
+	return (
 	<Card elevation={0} sx={{width: 400, bgcolor: '#E7F3F5', borderColor: "#2D5986", borderWidth: 2}}>
 		<Handle
-		type="target"
-		position={Position.Top}
-		onConnect={(params) => console.log('handle onConnect', params)}
-		isConnectable={isConnectable}
-		id="target-t"
+			type="target"
+			position={Position.Top}
+			onConnect={(params) => console.log('handle onConnect', params)}
+			isConnectable={isConnectable}
+			id="target-t"
 	  />
 	  <Handle
 		type="target"
@@ -62,12 +61,27 @@ const Node = ({ data, isConnectable }: {data: {
 			  // PopperComponent={CustomPopper}
 			  className='w-auto'
 			  options={options || []}
+			  filterOptions={(options, params) => {
+					const filtered = filter(options, params);
+					const { inputValue } = params;
+					// Suggest the creation of a new value if it doesn't exist
+					const isExisting = options.some((option) => inputValue === option.a_label);
+					if (inputValue.length > 3 && inputValue !== '' && !isExisting) {
+						return [{
+							type: data.facet,
+							a_label: inputValue,
+							title: `Query "${inputValue}"`,
+						}, ...filtered]
+					}
+
+					return filtered;
+				}}
 			  value={term}
 			  color='secondary'
 			  // onInputChange={handleInputChange}
 			  // filterOption={null}
 			  noOptionsText={inputTerm.length ? `No matching ${data.label.toLowerCase()}`: `Enter ${data.label.toLowerCase()}`}
-			  getOptionLabel={option=>option.a_label}
+			  getOptionLabel={option=>option.title || option.a_label}
 			  onChange={(e: any, newValue: any) => {
 					  
 					  if (newValue) {
