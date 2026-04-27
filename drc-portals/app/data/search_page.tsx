@@ -333,7 +333,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 			gsfm.push(<GSFMButton input={i}/>)
 			gdlpa.push(<GDLPAButton input={i}/>)
 		}
-		if (i.entity === "compound") {
+		if (i.entity === "compound" || i.entity === "drug") {
 			gdlpa.push(<GDLPAButton input={i}/>)
 		}
 		if (i.entity === "gene_set") {

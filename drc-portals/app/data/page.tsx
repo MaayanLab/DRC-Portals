@@ -14,6 +14,7 @@ import { blue, green, lime, orange, purple, red } from "@mui/material/colors"
 import CFPrograms from "@/components/misc/CFPrograms"
 import { ResponsivePaper } from "@/app/info/styled"
 import { BlurSmall } from "@/components/styled/Blur"
+import Summary from "@/app/data/processed/SummaryComponent"
 
 const ui_elements: {[key: string]: {color: string, icon: string}} = {
   gene: {
@@ -80,6 +81,24 @@ export default async function Page({searchParams}: {
       <Grid container spacing={2} alignItems={"flex-start"}>
         <Grid item xs={12}>
             <Explorer />
+        </Grid>
+        <Grid item xs={12}>
+          <Paper sx={{
+                  boxShadow: "none", 
+                  padding: 5, 
+                  background: "#E7F3F5",
+                  width: "100vw", 
+                  marginLeft: "calc((-100vw + 100%) / 2)", 
+                  marginRight: "calc((-100vw + 100%) / 2)",
+                  marginBottom: 10,
+                  position: "relative",
+                  overflow: "hide",
+                  marginTop: 5
+                }}
+              className="flex"
+          >
+            <Summary include={['file', 'kg_assertion', 'gene', 'gene_set', 'compound']} />
+          </Paper>
         </Grid>
         <Grid item xs={12}>
           <Typography variant="h2" color="secondary" sx={{textAlign: "center", mt: 2}}>

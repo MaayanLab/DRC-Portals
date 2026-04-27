@@ -4,7 +4,7 @@ import { ArrowForward } from "@mui/icons-material"
 import { Button, Card, CardHeader, Grid, IconButton, ListItemButton, ListItemIcon, ListItemText } from "@mui/material"
 
 export const GDLPAButton = ({input}: {input: {entity: string, label: string, icon: string, values?: {[key: string]: string[]}}}) => {
-	if (input.entity !== "compound" && input.entity !== "gene") return null
+	if (input.entity !== "compound" && input.entity !== "drug" && input.entity !== "gene") return null
 	// const gdlpa= <Grid item key={input.label + "-gdlpa"}>
 	// 			<Button 
 	// 				key={input.label + "-gdlpa"}
