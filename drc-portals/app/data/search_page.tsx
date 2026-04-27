@@ -3,7 +3,7 @@ import Icon from "@mdi/react";
 import { Grid, Typography, Card, CardHeader, IconButton, CardContent, Skeleton } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { router_push } from "../enrichment/utils";
+import { router_push } from "./enrichment/utils";
 import {  mdiFileDocument, mdiHeadQuestionOutline, mdiHumanMaleBoard, mdiRobotOutline, mdiTextBoxCheckOutline, mdiTimerSand } from '@mdi/js';
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import React from "react";
@@ -22,7 +22,7 @@ const getTaskId = async (method:string, input: {[key:string]: string}, controlle
 		input
 	  }
 	}
-	const res = await fetch(`/data/explorer/api`, {
+	const res = await fetch(`/data/api`, {
 		  method: 'POST',
 		  body: JSON.stringify({
 			methods: 'runRunnable',
@@ -39,7 +39,7 @@ const getTaskId = async (method:string, input: {[key:string]: string}, controlle
 
 const run_runnable = async (method: string, input:{[key: string]:string}, router: AppRouterInstance, getAbortController: Function) => {
 	const taskId = await getTaskId(method, input, getAbortController())
-	if (taskId !== '') router_push(router, `/data/explorer/article/${taskId}`, {})
+	if (taskId !== '') router_push(router, `/data/article/${taskId}`, {})
 }
 
 export const methods: {[key: string]: {label: string, icon: string, description: string}} = {
@@ -92,7 +92,7 @@ export const methods: {[key: string]: {label: string, icon: string, description:
 
 const fetchRunnables = async (search:string[], controller:AbortController) => {
 	  try {
-		const res = await fetch(`/data/explorer/api`, {
+		const res = await fetch(`/data/api`, {
 			  method: 'POST',
 			  body: JSON.stringify({
 				methods: 'getRunnables,getArticles',
@@ -127,7 +127,6 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 	const [articles, setArticles] = useState<{timestamp: string, message: {message_id: string, content: string}}[]>([])
 	const [open, setOpen] = useState('')
 	const abortController = useRef(new AbortController());
-	console.log(inputList)
 	const getAbortController = () => {
 		const controller = abortController.current;
 		if (controller !== undefined) {
@@ -136,7 +135,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 		}
 		return abortController.current
 	};
-
+	
 	useEffect(()=>{
 		const get_runnables = async () => {
 		  setLoading(true)
@@ -262,7 +261,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						}
 						action={
 						<IconButton aria-label="goto"
-							href={`/data/explorer/article/${i.output.runnable_id}`}
+							href={`/data/article/${i.output.runnable_id}`}
 						>
 							<ArrowForward />
 						</IconButton>
@@ -273,7 +272,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 				</Card>
 			</Grid>
 			// <ListItemButton key={i.output.runnable_id} sx={{ pl: 4 }}
-			// 	href={`/data/explorer/article/${i.output.runnable_id}`}
+			// 	href={`/data/article/${i.output.runnable_id}`}
 			// >
 			// 	<ListItemIcon>
 			// 		<Icon style={{backgroundColor: "transparent", color: "#2D5986"}} path={mdiFileDocument} size={1}/>
@@ -406,7 +405,8 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 					</CardContent>
 				</Card>
 			</Grid>
-			{(resources.gdlpa || []).length > 0 && 
+
+			{(gdlpa || []).length > 0 && 
 				<Grid item xs={12}>
 					<Card>
 						<CardHeader
@@ -417,13 +417,13 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						/>
 						<CardContent>
 							<Grid container spacing={2}>
-								{resources.gdlpa}
+								{gdlpa}
 							</Grid>
 						</CardContent>
 					</Card>
 				</Grid>
 			}
-			{(resources.gsfm || []).length > 0 && 
+			{(gsfm || []).length > 0 && 
 				<Grid item xs={12}>
 					<Card>
 						<CardHeader
@@ -434,7 +434,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						/>
 						<CardContent>
 							<Grid container spacing={2}>
-								{resources.gsfm}
+								{gsfm}
 							</Grid>
 						</CardContent>
 					</Card>

@@ -1,7 +1,7 @@
 import { fetchSigComLincsId } from "@/components/Chat/GeneSet/sigComLincs"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { router_push } from "../../enrichment/utils";
+import { router_push } from "../enrichment/utils";
 import { Button, Chip, Grid, ListItemButton, ListItemIcon } from "@mui/material";
 import Icon from "@mdi/react";
 import Image from "@/utils/image";

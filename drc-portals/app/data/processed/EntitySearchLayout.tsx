@@ -27,7 +27,7 @@ export async function generateMetadata(props: { params: Promise<{ search: string
 export default async function Page(props: React.PropsWithChildren<{ params: Promise<{ search: string } & Record<string, string>> }>) {
   const params = await props.params
   for (const k in params) params[k] = decodeURIComponent(params[k])
-  if (!params.search) redirect('/data')
+  if (!params.search) redirect('/data/processed/search')
   const filter: estypes.QueryDslQueryContainer[] = []
   if (params.search) filter.push({ simple_query_string: { query: params.search, fields: ['a_label^10', 'a_*^5', 'm2o_*.a_*'], default_operator: 'AND' } })
   const { data: searchRes, error } = await safeAsync(() => elasticsearch.search<EntityExpandedType, TermAggType<'types' | 'dccs'>>({

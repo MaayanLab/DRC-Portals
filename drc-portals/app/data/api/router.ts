@@ -1,6 +1,6 @@
 import { procedure, router } from '@/lib/trpc'
 import { z } from 'zod'
-import { getGeneSet } from '../../processed/_analyze'
+import { getGeneSet } from '../processed/_analyze'
 
 const METADATA_API = "https://maayanlab.cloud/sigcom-lincs/metadata-api/"
 
@@ -393,6 +393,47 @@ export default router({
 			if (entities?.response?.docs.length > 0) {
 				return entities.response.docs.map((i:any)=>({type: facet, a_label: i.autosuggest as string}))
 			} else return []
+		}
+	}),
+	runDeepDive: procedure.input(
+	  z.object({
+			methods: z.string(),
+			payload: z.any()
+		}),
+	)
+	.mutation(async (props) => {
+		const {methods, payload} = props.input
+		if (typeof methods === 'undefined' || methods === '') {
+			return [{error: `invalid method ${methods}`}]
+		}
+		if (methods === 'runRunnable') {
+			const res = await fetch(`${process.env.DEEPDIVE_URL}/${methods}?batch=1`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Token ${process.env.DEEPDIVE_TOKEN}`
+				},
+				body: JSON.stringify(payload),
+			})
+			if (res.statusText !== 'OK') {
+				return [{error: await res.text()}]
+			} else {
+				return await res.json() as Array<any>
+			}
+		} else {
+			const params = Object.entries(payload).map(([key, val])=>`${key}=${val}`).join("&")
+			const res = await fetch(`${process.env.DEEPDIVE_URL}${methods}?${params}`,{
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': `Token ${process.env.DEEPDIVE_TOKEN}`
+					}
+				}
+			)
+			if (res.statusText !== 'OK') {
+				return [{error: await res.text()}]
+			} else {
+				return await res.json() as Array<any>
+			}
 		}
 	})
 });

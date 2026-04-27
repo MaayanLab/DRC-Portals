@@ -29,7 +29,7 @@ export async function generateMetadata(props: { params: Promise<{ type: string, 
 export default async function Page(props: React.PropsWithChildren<{ params: Promise<{ type: string, search?: string } & Record<string, string>> }>) {
   const params = await props.params
   for (const k in params) params[k] = decodeURIComponent(params[k])
-  if (!params.type) redirect('/data')
+  if (!params.type) redirect('/data/processed/search')
   return (
     <ListingPageLayoutClientSideFacets
       entityLookup={await esDCCs}

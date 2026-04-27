@@ -54,7 +54,7 @@ export default async function Page(props: PageProps) {
       }
     })
   }
-  if (must.length+filter.length === 0) redirect('/data')
+  if (must.length+filter.length === 0) redirect('/data/processed/search')
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
   const searchRes = await elasticsearch.search<EntityExpandedType, FilterAggType<'files'>>({
     index: 'entity_expanded',

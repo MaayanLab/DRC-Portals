@@ -55,7 +55,7 @@ const Article = ({params}: {
 	
 	const runRunnable = async () => {
 		const controller = getAbortController()
-		const res = await fetch(`/data/explorer/api`, {
+		const res = await fetch(`/data/api`, {
 			method: 'POST',
 			body: JSON.stringify({
 			  methods: 'getRunnable',

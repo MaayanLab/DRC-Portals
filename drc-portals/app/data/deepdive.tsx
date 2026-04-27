@@ -7,7 +7,7 @@ import '@xyflow/react/dist/style.css';
 import { Accordion, AccordionDetails, AccordionSummary, Avatar, Button, Card, CardHeader, Grid, IconButton,  Typography } from '@mui/material';
 import { mdiFileDocument, mdiHeadQuestionOutline, mdiHumanMaleBoard, mdiOpenInApp, mdiRobotOutline, mdiTextBoxCheckOutline } from '@mdi/js';
 import Icon from '@mdi/react';
-import { Loading } from '../concierge/[input]/loadingComponent';
+import { Loading } from './concierge/[input]/loadingComponent';
 import ReactMarkdown from "react-markdown";
 import remarkGfm from 'remark-gfm'
 import Link from 'next/link';
@@ -77,7 +77,7 @@ export const RenderRunnables = (props: {search: string[], setTaskId: Function, g
       setLoading(true)
       try {
         const controller = props.getAbortController()
-        const res = await fetch(`/data/explorer/api`, {
+        const res = await fetch(`/data/api`, {
               method: 'POST',
               body: JSON.stringify({
                 methods: 'getRunnables,getArticles,getApplicableRunnables',
@@ -111,7 +111,7 @@ export const RenderRunnables = (props: {search: string[], setTaskId: Function, g
       }
     }
     const controller = props.getAbortController()
-    const res = await fetch(`/data/explorer/api`, {
+    const res = await fetch(`/data/api`, {
           method: 'POST',
           body: JSON.stringify({
             methods: 'runRunnable',
@@ -258,7 +258,7 @@ export const RenderDeepDive = (props: {taskId: string, getAbortController:Functi
   const [deepDiveResults, setDeepDiveResults] = useState<null | RunnableResult[]>(null)
   const runRunnable = async () => {
     const controller = props.getAbortController()
-    const res = await fetch(`/data/explorer/api`, {
+    const res = await fetch(`/data/api`, {
         method: 'POST',
         body: JSON.stringify({
           methods: 'getRunnable',

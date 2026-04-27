@@ -6,7 +6,7 @@ import levenSort from '@/components/Chat/utils/leven-sort';
 import { purple } from '@mui/material/colors';
 import { mdiFormatColumns, mdiListBox, mdiMenu, mdiReceiptTextPlus, mdiSend, mdiTextSearchVariant } from '@mdi/js';
 import Icon from '@mdi/react';
-import EnrichrTermSearch from '../enrichment/enrichr_term_search';
+import EnrichrTermSearch from './enrichment/enrichr_term_search';
 import trpc from '@/lib/trpc/client'
 
 const fetcher = (endpoint: string) => fetch(endpoint).then((res) => res.json())

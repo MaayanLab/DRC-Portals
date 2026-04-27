@@ -116,13 +116,13 @@ const options = [
     links: [
       {
         title: "CFDE Data Explorer",
-        href: '/data/explorer',
+        href: '/data',
         description: "Explore and integrate CFDE Data",
         icon: mdiCompass
       },
       {
         title: "Search Common Fund Data",
-        href: '/data',
+        href: '/data/search',
         description: "Query Common Fund Data Sets",
         icon: mdiMagnify
       },
