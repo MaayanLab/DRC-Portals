@@ -51,7 +51,7 @@ export const TopNav = ({ session }: {session: Session | null }) => {
       <Typography variant={isInfo ? "nav_highlighted": "nav"}><b>Info</b></Typography>
     </Link> */}
     <Link href={"/data"}>
-    <Typography variant={"nav"}><b>Data</b></Typography>
+    <Typography variant={"nav_highlighted"}><b>Data</b></Typography>
     </Link>
     <Link href={"https://cfdeworkspace.org/"} target="_blank" rel="noopener noreferrer">
       <Typography variant="nav"><b>Cloud</b></Typography>
