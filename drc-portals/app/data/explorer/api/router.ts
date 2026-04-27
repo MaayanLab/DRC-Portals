@@ -175,7 +175,12 @@ const addList = async (description:string, gene_set: string[] ) => {
 		return {}
 	}
 
-const gse_query = (userListId: string) => (
+const fetchList = async (userListId: number ) => {
+		const res = await fetch(`https://maayanlab.cloud/Enrichr/view?userListId=${userListId}`)
+		const {genes, description} =  await res.json()
+		return {genes, description}
+	}
+const gse_query = (userListId: number) => (
 	JSON.stringify({
 				userListId: `${userListId}`,
 				search: true,
@@ -225,7 +230,7 @@ const gse_query = (userListId: string) => (
 			})
 )
 export default router({
-  send_gene_set: procedure.input(
+  submit_gene_set: procedure.input(
 	  z.object({
 		// lastEventId is the last event id that the client has received
 		// On the first call, it will be whatever was passed in the initial setup
@@ -245,20 +250,51 @@ export default router({
 	  const {input, description} = props.input
 	  const requests: Promise<{[key: string]: string} | string>[] = []
 	  if (input?.gene_set) {
-		const enrichr_promise: Promise<{[key: string]: string}> = addList(description, input.gene_set || [])
-		const sigcom_promise: Promise<string> = fetchSigComLincsId(input.gene_set || [], [], false, description)
-		const perturbseqr_promise: Promise<string> = perturbseqr_resolve_id(input.gene_set || [], true, url)
-		const [enrichr, sigcom_lincs, perturbseqr] = await Promise.all([enrichr_promise, sigcom_promise, perturbseqr_promise])
+		const res:{[key: string]: string} = await addList(description, input.gene_set || [])
+		return {
+			gene_set_id: res.userListId,
+			description
+		}
+	} else if (input?.up_gene_set && input?.down_gene_set) {
+		const res_up:{[key: string]: string} = await addList(description + " up", input.up_gene_set || [])
+		const res_down:{[key: string]: string} = await addList(description+ " down", input.down_gene_set || [])
+		return {
+			up_gene_set_id: res_up.userListId,
+			down_gene_set_id: res_down.userListId,
+			description
+		}
+	}
+	else return {}
+  }),
+  send_gene_set: procedure.input(
+	  z.object({
+		// lastEventId is the last event id that the client has received
+		// On the first call, it will be whatever was passed in the initial setup
+		// If the client reconnects, it will be the last event id that the client received
+		// The id is the createdAt of the post
+		input: z.object({
+                gene_set_id: z.number().optional().describe("Input gene set id for single gene sets"),
+				up_gene_set_id: z.number().optional().describe("Input up gene set id for querying up and down gene sets"),
+                down_gene_set_id: z.number().optional().describe("Input down gene set id for querying up and down gene sets")
+            }),
+	  }),
+	)
+	.mutation(async (props) => {
+	  // `props.signal` is an AbortSignal that will be aborted when the client disconnects.
+	  const url = 'https://perturbseqr.maayanlab.cloud/'
+	  const {input} = props.input
+	  const requests: Promise<{[key: string]: string} | string>[] = []
+	  if (input?.gene_set_id) {
+		const {genes: gene_set, description} = await fetchList(input.gene_set_id)
+		// const enrichr_promise: Promise<{[key: string]: string}> = addList(description, gene_set || [])
+		const sigcom_promise: Promise<string> = fetchSigComLincsId(gene_set || [], [], false, description)
+		const perturbseqr_promise: Promise<string> = perturbseqr_resolve_id(gene_set || [], true, url)
+		const [sigcom_lincs, perturbseqr] = await Promise.all([sigcom_promise, perturbseqr_promise])
 		return [
-			{
-				"resource": "enrichr",
-				description,
-				link: `https://maayanlab.cloud/Enrichr/enrich?dataset=${enrichr.shortId || ''}` 
-			},
 			{
 				"resource": "gse",
 				description,
-				link: `/data/enrichment?q=${gse_query(enrichr.userListId)}`,
+				link: `/data/enrichment?q=${gse_query(input.gene_set_id)}`,
 			},
 			{
 				"resource": "sigcom-lincs",
@@ -272,33 +308,24 @@ export default router({
 			},
 			
 		]
-	} else if (input?.up_gene_set && input?.down_gene_set) {
-		const enrichr_up_promise: Promise<{[key: string]: string}> = addList(description + " up", input.up_gene_set || [])
-		const enrichr_down_promise: Promise<{[key: string]: string}> = addList(description + " down", input.down_gene_set || [])
-		const sigcom_promise: Promise<string> = fetchSigComLincsId(input.up_gene_set || [], input.down_gene_set || [], true, description)
-		const perturbseqr_up_promise: Promise<string> = perturbseqr_resolve_id(input.up_gene_set || [], true, url)
-		const perturbseqr_down_promise: Promise<string> = perturbseqr_resolve_id(input.down_gene_set || [], false, url)
-		const [enrichr_up, enrichr_down, sigcom_lincs, perturbseqr_up, perturbseqr_down] = await Promise.all([enrichr_up_promise, enrichr_down_promise, sigcom_promise, perturbseqr_up_promise, perturbseqr_down_promise])
+	} else if (input?.up_gene_set_id && input?.down_gene_set_id) {
+		const {genes: up_gene_set, description} = await fetchList(input.up_gene_set_id)
+		const {genes: down_gene_set} = await fetchList(input.down_gene_set_id)
+		
+		const sigcom_promise: Promise<string> = fetchSigComLincsId(up_gene_set || [], down_gene_set || [], true, description.slice(0, description.length - 3))
+		const perturbseqr_up_promise: Promise<string> = perturbseqr_resolve_id(up_gene_set || [], true, url)
+		const perturbseqr_down_promise: Promise<string> = perturbseqr_resolve_id(down_gene_set || [], false, url)
+		const [sigcom_lincs, perturbseqr_up, perturbseqr_down] = await Promise.all([sigcom_promise, perturbseqr_up_promise, perturbseqr_down_promise])
 		return [
 			{
-				"resource": "enrichr",
-				description: description + " up",
-				link: `https://maayanlab.cloud/Enrichr/enrich?dataset=${enrichr_up.shortId || ''}` 
-			},
-			{
-				"resource": "enrichr",
-				description: description + " down",
-				link: `https://maayanlab.cloud/Enrichr/enrich?dataset=${enrichr_down.shortId || ''}` 
-			},
-			{
 				"resource": "gse",
 				description: description + " up",
-				link: `/data/enrichment?q=${gse_query(enrichr_up.userListId)}`,
+				link: `/data/enrichment?q=${gse_query(input.up_gene_set_id)}`,
 			},
 			{
 				"resource": "gse",
 				description: description + " down",
-				link: `/data/enrichment?q=${gse_query(enrichr_down.userListId)}`,
+				link: `/data/enrichment?q=${gse_query(input.down_gene_set_id)}`,
 			},
 			{
 				"resource": "sigcom-lincs",
@@ -312,7 +339,7 @@ export default router({
 			},
 		]
 	}
-	else return ''
+	else return []
 	}),
 	gene_set: procedure.input(
 	  z.object({
@@ -348,11 +375,14 @@ export default router({
 			const prom1 = fetch(`https://clinicaltables.nlm.nih.gov/api/genes/v4/search?df=symbol&terms=${term}`)
 			const prom2 = fetch(`https://clinicaltables.nlm.nih.gov/api/variants/v4/search?df=dbSNP&terms=${term}`)
 			const [res1, res2] = await Promise.all([prom1, prom2])
-			const response = [...(await res1.json())[3], ...(await res2.json())[3]]
 			const entities:Array<{type: string, a_label: string}> = []
-			for (const e of response) {
+			for (const e of (await res1.json())[3]) {
 				const g:string = e[0]
-				if (g!=='') entities.push({type: facet, a_label: g})
+				if (g!=='') entities.push({type: "gene", a_label: g})
+			}
+			for (const e of (await res2.json())[3]) {
+				const g:string = e[0]
+				if (g!=='') entities.push({type: "variant", a_label: g})
 			}
 			return entities
 		}

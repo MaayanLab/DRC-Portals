@@ -47,25 +47,25 @@ export const TopNav = ({ session }: {session: Session | null }) => {
 
   return (
     <>
-    <Link href={"/info"}>
+    {/* <Link href={"/info"}>
       <Typography variant={isInfo ? "nav_highlighted": "nav"}><b>Info</b></Typography>
-    </Link>
+    </Link> */}
     <Link href={"/data"}>
-      <Typography variant={isData ? "nav_highlighted": "nav"}><b>Data</b></Typography>
-      </Link>
-      <Link href={"https://cfdeworkspace.org/"} target="_blank" rel="noopener noreferrer">
-        <Typography variant="nav"><b>Cloud</b></Typography>
-      </Link>
-      <Link href={"https://cfdeknowledge.org/r/kc_landing"}>
-        <Typography variant="nav"><b>Knowledge</b></Typography>
-      </Link>
-      <Link href={"https://orau.org/cfde-trainingcenter/"}>
-        <Typography variant="nav"><b>training</b></Typography>
-      </Link>
-      <Link href={"https://cfdeconnect.org/"}>
-        <Typography variant="nav"><b>coordination</b></Typography>
-      </Link>
-      <UserComponent session={session} />
+    <Typography variant={"nav"}><b>Data</b></Typography>
+    </Link>
+    <Link href={"https://cfdeworkspace.org/"} target="_blank" rel="noopener noreferrer">
+      <Typography variant="nav"><b>Cloud</b></Typography>
+    </Link>
+    <Link href={"https://cfdeknowledge.org/r/kc_landing"}>
+      <Typography variant="nav"><b>Knowledge</b></Typography>
+    </Link>
+    <Link href={"https://orau.org/cfde-trainingcenter/"}>
+      <Typography variant="nav"><b>training</b></Typography>
+    </Link>
+    <Link href={"https://cfdeconnect.org/"}>
+      <Typography variant="nav"><b>coordination</b></Typography>
+    </Link>
+    <UserComponent session={session} />
     </>
   )
 }
@@ -266,9 +266,9 @@ export default function Header({ session }: {session: Session | null }) {
     } else {
       setSubLinks(data)
     }
-    setTimeout(() => {
-        setSubLinks(null)
-    }, 5000);
+    // setTimeout(() => {
+    //     setSubLinks(null)
+    // }, 5000);
   }
   return (
     <ClickAwayListener onClickAway={()=>setSubLinks(null)}>

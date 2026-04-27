@@ -1,3 +1,4 @@
+'use client'
 import Icon from "@mdi/react";
 import { Grid, Typography, Card, CardHeader, IconButton, CardContent, Skeleton } from "@mui/material";
 import { useRouter } from "next/navigation";
@@ -126,7 +127,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 	const [articles, setArticles] = useState<{timestamp: string, message: {message_id: string, content: string}}[]>([])
 	const [open, setOpen] = useState('')
 	const abortController = useRef(new AbortController());
-	
+	console.log(inputList)
 	const getAbortController = () => {
 		const controller = abortController.current;
 		if (controller !== undefined) {
@@ -540,7 +541,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 							avatar={
 								<Icon path={mdiRobotOutline} style={{backgroundColor: "transparent", color: "#2D5986"}} size={1}/>
 							}
-							title={<Typography variant="h3">{`Generate Summary Reports Considering All Selected Terms Using DeepDive2 Workflows`}</Typography>}
+							title={<Typography variant="h3">{`Generate Summary Reports For ${inputList.length === 1 ? inputList[0].label: inputList.map(i=>i.label).slice(0, inputList.length-1).join(", ") + ", and " + inputList[inputList.length - 1].label} Using DeepDive2 Workflows`}</Typography>}
 						/>
 						<CardContent>
 							<Grid container spacing={2}>

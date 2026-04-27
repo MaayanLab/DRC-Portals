@@ -1,38 +1,28 @@
-'use client'
-import React, { useState, useEffect, useCallback, useRef, ReactNode, RefObject } from 'react';
-import {
-  ReactFlow,
-  useNodesState,
-  useEdgesState,
-  addEdge,
-  type Node,
-  type BuiltInEdge,
-  type OnConnect,
-} from '@xyflow/react';
- 
-import '@xyflow/react/dist/style.css';
-// import './xy-theme.css'
-import { Avatar, Button, Card, CardHeader, Chip, Container, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/material';
-import { blue, green, lime, orange, purple, red } from '@mui/material/colors';
-import { mdiDna, mdiEye, mdiEyedropper, mdiFlask, mdiHumanMaleHeightVariant, mdiListBox, mdiPill, mdiVirus } from '@mdi/js';
-import Icon from '@mdi/react';
-
-import GeneSet from './gene_set';
-import { Search } from './search';
-import ExplorerNode from './node';
-
- 
-const nodeTypes = {
-  gene_set: GeneSet,
-
-  node: ExplorerNode
-};
- 
-const defaultViewport = { x: 150, y: 10, zoom: 0.7 };
+import { Box, Button, Card, CardContent, Container, Grid, Paper, Stack, Tooltip, Typography } from "@mui/material"
+import Explorer from "./explorer"
+import Carousel from '@/components/misc/Carousel/ServerCarousel'
+import Image from "@/utils/image"
+import Link from "next/link"
+import Icon from "@mdi/react"
+import { mdiArrowRight, mdiBookOpenVariantOutline, mdiDna, mdiEye, mdiEyedropper, mdiFlask, mdiHumanMaleHeightVariant, mdiLink, mdiListBox, mdiPill, mdiVirus, mdiYoutube } from "@mdi/js"
+import trpc from "@/lib/trpc/server"
+import { Search } from "./search"
+import Summary from "../processed/SummaryComponentVertical"
+import Twitter from "@/components/misc/Twitter"
+import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent"
+import prisma from "@/lib/prisma"
+import { blue, green, lime, orange, purple, red } from "@mui/material/colors"
+import CFPrograms from "@/components/misc/CFPrograms"
+import { ResponsivePaper } from "@/app/info/styled"
+import { BlurSmall } from "@/components/styled/Blur"
 
 const ui_elements: {[key: string]: {color: string, icon: string}} = {
   gene: {
     color: green[100],
+    icon: mdiDna
+  },
+  variant: {
+    color: green[200],
     icon: mdiDna
   },
   protein: {
@@ -77,334 +67,285 @@ const ui_elements: {[key: string]: {color: string, icon: string}} = {
   }
 }
 
-const gdlpa = (newValue:string, type: string) => ({
-    "resource": "gdlpa",
-    "link": `https://cfde-gene-pages.cloud/{type}/${newValue}?CF=false&PS=true`,
-    description: newValue
-  })
-
-const gsfm = (newValue:string) => ({
-    "resource": "gsfm",
-    "link": `https://gsfm.maayanlab.cloud/gene/${newValue}`,
-    description: newValue
-  })
-
-const Explorer = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<BuiltInEdge>([]);
-  const [geneSetPos, setGeneSetPos] = useState(0)
-  const [taskId, setTaskId] = useState('')
-  const [inputList, setInputList] = useState<{entity: string, label: string, color: string, icon: string, values?: {[key: string]: string[]}, links?: {resource: string, description: string, link: string}[]}[]>([])
-  const [loading, setLoading] = useState(false)
-  const [applicables, setApplicables] = useState<{method: string, params: {[key:string]: string}}[]>([])
-  const [runnables, setRunnables] = useState<{timestamp: string, method: string, published: boolean, output: {runnable_id: string, value: string}}[]>([])
-  const [articles, setArticles] = useState<{timestamp: string, message: {message_id: string, content: string}}[]>([])
-  const scrollRef = useRef<null | HTMLDivElement>(null)
-	const [submit, setSubmit] = useState(false)
-  const update_input = (entity: string, label: string, type:string="add", values:{up?: string[], down?: string[], gene_set?: string[]}={}, links:{resource: string, description: string, link: string}[]=[]) => {
-    setTaskId('')
-    if (type === "add") {
-      setInputList(inputList=>{
-        const add = inputList.filter(i=>i.entity === entity && i.label === label).length
-        if (add === 0) return [...inputList, {entity, label, ...ui_elements[entity], values, links}]
-        else if (label === "user_input") {
-          return [...inputList, {entity, label: `${label} ${add}`, ...ui_elements[entity], values, links}]
-        }
-        else return inputList
+export default async function Page({searchParams}: {
+  searchParams: {q: string}
+}) {
+  if (searchParams.q === undefined) {
+    const publications = await prisma.publication.findMany({
+        orderBy: {
+          year: "desc"
+        },
+        take: 9
       })
-    } else {
-      setInputList(inputList=>inputList.filter(i=>(i.entity !== entity || i.label !== label)))
-    }
-  }
-  useEffect(() => {
-    setNodes([
-      {
-        id: 'gene',
-        type: 'node',
-        data: { label: "Genes, Proteins, and Variants", update_input, facet: 'gene', icon: mdiDna, get_links: (newValue:string)=>([
-          gdlpa(newValue, 'gene'),
-          gsfm(newValue),
-        ]) },
-        position: { x: 150, y: 185+geneSetPos },
-      },
-	    {
-        id: 'drug',
-        type: 'node',
-        data: { label: "Small Molecules, Drugs, and Metabolites", update_input, facet: 'drug', icon: mdiPill, get_links: (newValue:string)=>([
-          gdlpa(newValue, 'drug'),
-        ]) },
-        position: { x: -100, y: 0+geneSetPos/2 },
-      },
-      {
-        id: 'gs',
-        type: 'gene_set',
-        data: { label: "Gene Set/ Pathways/ Modules", update_input, setGeneSetPos },
-        position: { x: 400, y: 0 },
-      },
-      {
-        id: 'cell',
-        type: 'node',
-        data: { label: "Cell types, Tissues, and Organ", update_input, facet: 'anatomy', icon: mdiEye, },
-        position: { x: -180, y: 350+geneSetPos },
-      },
-      {
-        id: 'disease',
-        type: 'node',
-        data: { label: "Phenotypes, and Diseases", update_input, facet: "disease", icon: mdiVirus  },
-        position: { x: 480, y: 355+geneSetPos },
-      },
-      {
-        id: 'assay',
-        type: 'node',
-        data: { label: "Assay", update_input, facet: "assay", icon: mdiFlask },
-        position: { x: 150, y: 530+geneSetPos },
+    return (
+      <Grid container spacing={2} alignItems={"center"}>
+        <Grid item xs={12}>
+            <Explorer />
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="h2" color="secondary" sx={{textAlign: "center", mt: 2}}>
+            Learn More About the Common Fund Data Ecosystem
+          </Typography>
+        </Grid>
+        <Grid item xs={12} md={9}>
+          <Carousel/>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <Stack spacing={1}>
+            <Card sx={{width: 270}}>
+              <CardContent>
+                <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">ABOUT THE WORKBENCH</Typography>
+                <Box sx={{width: 233}}>
+                  <Image src="/img/workbench.png" alt="workbench" width={233} height={233}/>
+                </Box>
+                <div className="flex justify-start">
+                  <div>
+                    <Button color="tertiary" sx={{backgroundColor: "#eaedf6", color: "#2D5986"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                      <Link target="_blank" rel="noopener noreferrer" href={"https://www.sciencedirect.com/science/article/pii/S0022283626000045"}>
+                        <Typography variant="caption"><b>READ PAPER</b></Typography>
+                      </Link>
+                    </Button>
+                    
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card sx={{width: 270}}>
+              <CardContent>
+                <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center"}}variant="subtitle1">FEATURED TOOL</Typography>
+                  <Box>
+                    <Image src="https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/pwb-w-062025.png" alt="gsc" width={233} height={233}/>
+                  </Box>
+                  <Stack direction={"row"} spacing={1}>
+                      <Tooltip title="Read publication">
+                        <Button color="secondary">
+                          <Link target="_blank" rel="noopener noreferrer" href={"https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1012901"}>
+                            <Icon path={mdiBookOpenVariantOutline} size={1} />
+                          </Link>
+                        </Button>
+                      </Tooltip>
+                      <Tooltip title="Go to site">
+                        <Button color="secondary">
+                          <Link target="_blank" rel="noopener noreferrer" href={"https://playbook-workflow-builder.cloud"}>
+                            <Icon path={mdiLink} size={1} />
+                          </Link>
+                        </Button>
+                      </Tooltip>
+                      <Tooltip title="Watch tutorial">
+                        <Button  color="secondary">
+                          <Link target="_blank" rel="noopener noreferrer" href={"https://www.youtube.com/watch?v=mHXCdX0kfHE"}>
+                            <Icon path={mdiYoutube} size={1} />
+                          </Link>
+                        </Button>
+                      </Tooltip>
+                    </Stack>
+              </CardContent>
+            </Card>
+          </Stack>
+        </Grid>
+        <Grid item xs={12} md={5}>
+          <Stack spacing={2}>
+            <Typography variant="h2" color="secondary" sx={{textTransform: 'uppercase'}}>
+              Common Fund programs partnered with the CFDE
+            </Typography>
+            <Typography variant="body1" color="secondary" sx={{width: "95%"}}>
+              The NIH Common Fund is a funding entity within the NIH that supports bold scientific programs that catalyze discovery across all biomedical and behavioral research.
+            </Typography>
+            <Link href="/info/dcc">
+              <Button color="secondary" sx={{marginLeft: -2}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                <Typography variant="subtitle1">
+                  Explore CF Programs
+                </Typography>
+              </Button>
+            </Link>
+          </Stack>
+        </Grid>
+        <Grid item xs={12} md={1} sx={{display: {md: "block", sm: "none", xs: "none"}}}></Grid>
+        <Grid item xs={12} md={6}>
+          <CFPrograms baseEndpoint="/info/dcc" spacing={2}/>
+        </Grid>
+        <Grid item xs={12} sx={{
+          marginTop: 10, 
+        }}>
+        <Grid container spacing={2} justifyContent="center" alignItems={"center"}>
+          <Grid item>
+            <Paper sx={{
+              borderRadius: 5, 
+              height: 300, 
+              width: "928px", 
+              color: "#FFF", 
+              background: "#2D5986",
+              border:3,
+              borderColor: "#C3E1E6", 
+              boxShadow: 0,
+              position: "relative",
+              overflow: "hidden",
+              display: {xs: 'none', sm: 'none', md: 'block', lg: 'block', xl: 'block'}
+            }}>
+              <Grid container spacing={2} sx={{height: 300}} justifyContent={"space-around"} alignItems={"center"}>
+                <Grid item sx={{width: 400}}>
+                  <Typography variant={"h1"} sx={{textTransform: "uppercase"}} color="inherit">
+                    Documentation
+                  </Typography>
+                  <Typography variant={"subtitle1"} color="inherit">
+                    Learn more about the standards and protocols for accessing and submitting data to the portal
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Link href="/data/documentation">
+                    <Button variant="contained" sx={{borderRadius: 2}} color="primary">Find Out More</Button>
+                  </Link>
+                </Grid>
+              </Grid>
+              <BlurSmall sx={{
+                backgroundColor: "#C3E1E6",
+                position: 'absolute', 
+                bottom: -180, 
+                right: "30%"
+              }}/>
+            </Paper>
+            <Paper sx={{
+              borderRadius: 5, 
+              minHeight: 200, 
+              color: "#FFF", 
+              background: "#2D5986",
+              border:3,
+              borderColor: "#C3E1E6", 
+              boxShadow: 0,
+              position: "relative",
+              overflow: "hidden",
+              padding: 3,
+              display: {xs: 'block', sm: 'block', md: 'none', lg: 'none', xl: 'none'}
+            }}>
+              <Grid container spacing={2} justifyContent={"space-around"} alignItems={"center"}>
+                <Grid item xs={12}>
+                  <Typography variant={"h2"} sx={{textTransform: "uppercase"}} color="inherit">
+                    Documentation
+                  </Typography>
+                  <Typography variant={"subtitle1"} color="inherit">
+                    Learn more about the standards and protocols for accessing and submitting data to the portal
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Link href="/data/documentation">
+                    <Button variant="contained" sx={{borderRadius: 2}} color="primary">Find Out More</Button>
+                  </Link>
+                </Grid>
+              </Grid>
+              <BlurSmall sx={{
+                backgroundColor: "#C3E1E6",
+                position: 'absolute', 
+                bottom: -180, 
+                right: "30%"
+              }}/>
+            </Paper>
+          </Grid>
+        </Grid>
+      </Grid>
+      <Grid item xs={12} sx={{marginTop: 5}}>
+        <ResponsivePaper sx={{
+                      boxShadow: "none", 
+                      background: '#EDF0F8',
+                      // padding: 10, 
+                      borderRadius: 5, 
+                      color: "#000",
+                    }}>
+          <Container maxWidth="lg">
+              <Grid container spacing={2} justifyContent="center" alignItems={"center"}>
+                <Grid item xs={12} sx={{marginBottom: 10}}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} md={6} className="flex items-center justify-center">
+                        <Link href="https://fairshake.cloud/" target="_blank" rel="noopener noreferrer">
+                          <Image  src="/img/FAIR.png" alt="fair" width={400} height={400}/>
+                        </Link>
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <Typography variant={"h2"} color="secondary">
+                          Make CF data more FAIR
+                        </Typography>
+                        <Typography variant={"subtitle1"}>
+                          The Data Resource and Knowledge Centers are dedicated to enhancing the accessibility and utility of Common Fund-generated data and resources, striving to uphold the FAIR principles. This commitment serves as a catalyst for groundbreaking biomedical discoveries, fostering synergies across the diverse datasets within the Common Fund ecosystem, thereby unlocking novel avenues of research and innovation.
+                        </Typography>
+                        <div  className="mt-5">
+                          <Link href="https://www.nature.com/articles/sdata201618" target="_blank" rel="noopener noreferrer">
+                            <Button color="secondary">
+                              <Typography variant={"subtitle1"}>
+                                What is FAIR?
+                              </Typography>
+                            </Button>
+                          </Link>
+                        </div>
+                        <div  className="ml-8">
+                          <ul>
+                            <li style={{listStyleType: "disc"}}><Typography variant={"subtitle1"}>Findable</Typography></li>
+                            <li style={{listStyleType: "disc"}}><Typography variant={"subtitle1"}>Accessible</Typography></li>
+                            <li style={{listStyleType: "disc"}}><Typography variant={"subtitle1"}>Interoperable</Typography></li>
+                            <li style={{listStyleType: "disc"}}><Typography variant={"subtitle1"}>Reusable</Typography></li>
+                          </ul>
+                        </div>
+                      </Grid>
+                    </Grid>
+                </Grid>
+                <Grid item md={6} xs={12} sx={{display: {sm: "none", xs: "none", md: "block"}}}>
+                  <Twitter/>
+                </Grid>
+                <Grid item md={6} xs={12}>
+                  <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 120}}variant="subtitle1">PUBLICATIONS</Typography>
+                  <SimplePublicationComponent publications={publications}/>
+                  <Link href={"/info/publications"}>
+                    <Button color="secondary" variant="outlined">
+                      Show More
+                    </Button>
+                  </Link>
+                </Grid>
+
+                <Grid item md={6} xs={12} sx={{display: {lg: "none", xl: "none", md: "none"}}}>
+                  <Twitter/>
+                </Grid>
+            </Grid>
+          </Container>
+        </ResponsivePaper>
+      </Grid>
+      </Grid>
+    )
+  } else {
+    const query: {[key:string]: string[] | {[key:string]: {
+      up_gene_set_id?: number,
+      down_gene_set_id?: number,
+      gene_set_id?: number
+    }}} = JSON.parse(searchParams.q || '{}')
+    const inputList:{entity: string, label: string, color: string, icon: string, values?: {[key: string]: string[]}, links?: {resource: string, description: string, link: string}[]}[] = []
+    for (const [entity, v] of Object.entries(query)) {
+      const {color, icon} = ui_elements[entity]
+      if (entity === 'gene_set' && !Array.isArray(v)) {
+        for (const [description, input] of Object.entries(v)) {
+          const linksearch = await trpc.send_gene_set({input})
+          inputList.push({
+            entity,
+            label: description,
+            color,
+            icon,
+            links: linksearch
+          })
+        }
+
+      } else if (Array.isArray(v)) {
+        for (const label of v) {
+          inputList.push({
+            entity,
+            label,
+            color,
+            icon,
+          })
+        }
       }
-    ]);
- 
-    setEdges([
-      {
-        id: 'gene-drug',
-        source: 'gene',
-        target: 'drug',
-        // animated: true,
-        sourceHandle: "source-l",
-        targetHandle: "target-b",
-        style: { strokeWidth: 10},
-        type: "default"
-      },
-      {
-        id: 'gene-gs',
-        source: 'gene',
-        target: 'gs',
-        // animated: true,
-        sourceHandle: "source-r",
-        targetHandle: "target-b",
-        style: { strokeWidth: 10},
-        type: "default"
-      },
-      {
-        id: 'gene-cell',
-        source: 'gene',
-        target: 'cell',
-        // animated: true,
-        sourceHandle: "source-l",
-        targetHandle: "target-t",
-        style: { strokeWidth: 10},
-        type: "default"
-      },
-      {
-        id: 'gene-disease',
-        source: 'gene',
-        target: 'disease',
-        // animated: true,
-        sourceHandle: "source-r",
-        targetHandle: "target-t",
-        style: { strokeWidth: 10},
-        type: "default"
-      },
-      {
-        id: 'gene-assay',
-        source: 'gene',
-        target: 'assay',
-        // animated: true,
-        sourceHandle: "source-b",
-        targetHandle: "target-t",
-        style: { strokeWidth: 10},
-        type: "default"
-      },
-      {
-        id: 'drug-gs',
-        source: 'drug',
-        target: 'gs',
-        // animated: true,
-        sourceHandle: "source-r",
-        targetHandle: "target-l",
-        style: { strokeWidth: 10},
-        type: "default"
-      },
-      {
-        id: 'drug-cell',
-        source: 'drug',
-        target: 'cell',
-        // animated: true,
-        sourceHandle: "source-b",
-        targetHandle: "target-t",
-        style: { strokeWidth: 10},
-        type: "default"
-      },
-      {
-        id: 'gs-disease',
-        source: 'gs',
-        target: 'disease',
-        // animated: true,
-        sourceHandle: "source-b",
-        targetHandle: "target-t",
-        style: { strokeWidth: 10},
-        type: "default"
-      },
-      {
-        id: 'cell-disease',
-        source: 'cell',
-        target: 'disease',
-        // animated: true,
-        sourceHandle: "source-r",
-        targetHandle: "target-l",
-        style: { strokeWidth: 10},
-        type: "default"
-      },
-      {
-        id: 'cell-gs',
-        source: 'cell',
-        target: 'gs',
-        // animated: true,
-        sourceHandle: "source-t",
-        targetHandle: "target-l",
-        style: { strokeWidth: 10},
-        type: "default"
-      },
-      {
-        id: 'disease-drug',
-        source: 'disease',
-        target: 'drug',
-        // animated: true,
-        sourceHandle: "source-t",
-        targetHandle: "target-r",
-        style: { strokeWidth: 10},
-        type: "default"
-      },
-      {
-        id: 'cell-assay',
-        source: 'cell',
-        target: 'assay',
-        // animated: true,
-        sourceHandle: "source-b",
-        targetHandle: "target-l",
-        style: { strokeWidth: 10},
-        type: "default"
-      },
-      {
-        id: 'disease-assay',
-        source: 'disease',
-        target: 'assay',
-        // animated: true,
-        sourceHandle: "source-b",
-        targetHandle: "target-r",
-        style: { strokeWidth: 10},
-        type: "default"
-      },
-      {
-        id: 'drug-assay',
-        source: 'drug',
-        target: 'assay',
-        // animated: true,
-        sourceHandle: "source-b",
-        targetHandle: "target-t",
-        style: { strokeWidth: 10},
-        type: "default"
-      },
-      {
-        id: 'gs-assay',
-        source: 'gs',
-        target: 'assay',
-        // animated: true,
-        sourceHandle: "source-b",
-        targetHandle: "target-t",
-        style: { strokeWidth: 10},
-        type: "default"
-      },
-    ]);
-  }, [geneSetPos]);
- 
-   const onConnect: OnConnect = useCallback(
-      (connection) => setEdges((eds) => addEdge(connection, eds)),
-      [setEdges],
-    );
-  if (!submit) {
-  return (
-  <Grid container spacing={1} alignItems='stretch'>
-    <Grid item xs={12} md={3}>
-      <Stack spacing={3} sx={{marginTop: {xs: 1, md: 1}}}>
-        <Typography variant="h1" color={'#2D5986'}><b>Discover, Analyze, and Integrate NIH Common Fund Data</b></Typography>
-        <Typography variant="subtitle1">
-          The Common Fund Data Ecosystem (CFDE) aims to facilitate improved discovery, reuse, integration, and analyses of these datasets to form novel hypothesis for accelerating discoveries in biomedical research.
-        </Typography>
-        <Button 
-          sx={{width: "100%", height: 80}} 
-          variant="contained" 
-          color="secondary" 
-          // startIcon={<Icon path={mdiFileDocument} size={1}/>}
-          onClick={()=>{
-            if (inputList.length > 0) setSubmit(true)
-          }}
-          // disabled={inputList.length === 0}
-        >
-          <Typography variant="h5">{inputList.length === 0 ? "Enter a biomedical entity to get started": "Explore CFDE Workbench"}</Typography>
-      </Button>
-        <Stack spacing={1} justifyContent={"center"}>
-          {inputList.map(i=>(
-            // <Grid item key={i.label}>
-              <Tooltip title={i.label} key={i.label}>
-              <Chip avatar={<Avatar sx={{backgroundColor: i.color}}><Icon path={i.icon} size={1}/></Avatar>}
-                label={i.label}
-                sx={{backgroundColor: i.color}}
-                onDelete={()=>update_input(i.entity, i.label, 'remove')}
-              />
-              </Tooltip>
-            // </Grid>
-          ))}
-        </Stack>
-      </Stack>
-      
-    </Grid>
-    <Grid item xs={12} md={9}>
-      <Container maxWidth="xl" sx={{height: 500 + geneSetPos, width: "100%", position: "relative"}}>
-        <ReactFlow
-          // height={500}
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          nodeTypes={nodeTypes}
-          snapToGrid={true}
-          snapGrid={[20,20]}
-          defaultViewport={defaultViewport}
-          fitView
-          attributionPosition="bottom-left"
-          nodesDraggable={false}
-          nodesConnectable={false}
-          panOnDrag={false}
-          zoomOnScroll={false}
-          zoomOnDoubleClick={false}
-          zoomOnPinch={false}
-          proOptions={{hideAttribution: true}}
-        />
-      </Container>
-    </Grid>
-    
-  </Grid>
-  );
-}
-else {
-  return(
-    <Grid container spacing={1}>
-      <Grid item xs={12}>
-        <Search inputList={inputList}/>
+    }
+    return (
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+            <Search inputList={inputList} />
+        </Grid>
       </Grid>
-      <Grid item xs={12}>
-        <Button 
-            sx={{width: "100%"}} 
-            variant="outlined" 
-            color="secondary" 
-            // startIcon={<Icon path={mdiFileDocument} size={1}/>}
-            onClick={()=>setSubmit(false)}
-          >
-            Go Back 
-        </Button>
-      </Grid>
-    </Grid>
-  ) 
+    )
+  }
 }
-};
- 
-export default Explorer;
