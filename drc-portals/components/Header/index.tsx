@@ -278,7 +278,7 @@ export default function Header({ session }: {session: Session | null }) {
         <Toolbar>
           <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
             <Grid item>
-              <Logo title="CFDE Workbench" href={path} size='large' color="inherit" />
+              <Logo title="CFDE Workbench" href={"/data"} size='large' color="inherit" />
             </Grid>
             <Grid item>
               <Stack direction={"row"} alignItems={"center"}>
