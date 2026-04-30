@@ -1,7 +1,7 @@
 'use client'
 import Icon from "@mdi/react";
-import { Grid, Typography, Card, CardHeader, IconButton, CardContent, Skeleton, Stack } from "@mui/material";
-import { useRouter } from "next/navigation";
+import { Grid, Typography, Card, CardHeader, IconButton, CardContent, Skeleton, Stack, Tooltip, Chip, Avatar } from "@mui/material";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { router_push } from "./enrichment/utils";
 import {  mdiFileDocument, mdiHeadQuestionOutline, mdiHumanMaleBoard, mdiRobotOutline, mdiSearchWeb, mdiTextBoxCheckOutline, mdiTimerSand } from '@mdi/js';
@@ -121,8 +121,9 @@ function toTitleCase(str:string) {
   );
 }
 
-export const Search = ({inputList}: {inputList: {entity: string, label: string, icon: string, values?: {[key: string]: string[]}, links?: {resource: string, description: string, link: string}[]}[]}) => {
+export const Search = ({inputList}: {inputList: {entity: string, label: string, icon: string, color:string, values?: {[key: string]: string[]}, links?: {resource: string, description: string, link: string}[]}[]}) => {
 	const router = useRouter()
+	const searchParams = useSearchParams()
 	const [controller, setController] = useState<AbortController | null>(null)
 	const [loadingIndex, setLoadingIndex] = useState(-1)
 	const [loading, setLoading] = useState(false)
@@ -162,6 +163,37 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 	useEffect(()=>setDescription(null),[inputList])
 	
 	
+  	const reroute = (entity:string, label: string) => {
+		console.log(inputList)
+		const query: {[key:string]: string[] | {[key:string]: {
+			up_gene_set_id?: number,
+			down_gene_set_id?: number,
+			gene_set_id?: number
+			}}} = JSON.parse(searchParams.get('q') || '{}')
+		if (Array.isArray(query[entity])) {
+			if (query[entity].length === 1) delete query[entity]
+			else query[entity] = query[entity].filter(i=>i!==label)
+		} else {
+			if (Object.keys(query[entity]).length === 1) delete query[entity]
+			else {
+				delete query[entity][label]
+			}
+		}
+		// const query: {[key:string]: string[] | {[key:string]: {
+		// 	up_gene_set_id?: number,
+		// 	down_gene_set_id?: number,
+		// 	gene_set_id?: number
+		// 	}}} = {}
+		// for (const [k,v] of Object.entries(old_query)) {
+		// 	if (k!==entity) query[k] = v
+		// 	else {
+		// 		if (entity !== )
+		// 	}
+		// }
+		
+		router_push(router, `/data`, {q: JSON.stringify(query)})
+	}
+
 	if (inputList.length === 0) return null
 	else {
 		const searches = inputList.map((i, ind)=>(
@@ -400,6 +432,21 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 	  ]
 	  return (
 		<Grid container spacing={2}>
+			<Grid item xs={12}>
+				<Grid container spacing={1} justifyContent={'flex-start'} sx={{marginTop: 1}}>
+					{inputList.map(i=>(
+					<Grid item key={i.label}>
+						<Tooltip title={i.label} key={i.label}>
+							<Chip avatar={<Avatar sx={{backgroundColor: i.color}}><Icon path={i.icon} size={1}/></Avatar>}
+							label={i.label}
+							sx={{backgroundColor: i.color}}
+							onDelete={()=>reroute(i.entity, i.label)}
+							/>
+						</Tooltip>
+					</Grid>
+					))}
+				</Grid>
+			</Grid>
 			<Grid item xs={12}>
 				<Card elevation={0}>
 					<CardHeader
