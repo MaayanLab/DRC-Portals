@@ -306,7 +306,7 @@ export default function Header({ session }: {session: Session | null }) {
       </AppBar>
       <Box sx={{ display: { xs: "block", sm: "block", md: "none", lg: "none", xl: "none" } }}>
         <Stack spacing={1}>
-          <DRCDrawer path={path} nav={nav} session={session} />
+          <DRCDrawer path={path} options={options} session={session} />
           {/* {(path === "/data") && <SearchParamSearchField />} */}
         </Stack>
       </Box>
