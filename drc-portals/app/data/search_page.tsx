@@ -1,10 +1,10 @@
 'use client'
 import Icon from "@mdi/react";
-import { Grid, Typography, Card, CardHeader, IconButton, CardContent, Skeleton } from "@mui/material";
+import { Grid, Typography, Card, CardHeader, IconButton, CardContent, Skeleton, Stack } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { router_push } from "./enrichment/utils";
-import {  mdiFileDocument, mdiHeadQuestionOutline, mdiHumanMaleBoard, mdiRobotOutline, mdiTextBoxCheckOutline, mdiTimerSand } from '@mdi/js';
+import {  mdiFileDocument, mdiHeadQuestionOutline, mdiHumanMaleBoard, mdiRobotOutline, mdiSearchWeb, mdiTextBoxCheckOutline, mdiTimerSand } from '@mdi/js';
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import React from "react";
 
@@ -46,12 +46,12 @@ export const methods: {[key: string]: {label: string, icon: string, description:
   DeepDive: {
 	label: "DeepDive Summary",
 	icon: mdiTextBoxCheckOutline,
-	description: "DeepDive2 queries the top 50 highly cited articles co-mentioning input terms on PubMed and creates a summary report based on these articles."
+	description: "DeepDive2 queries the top 50 highly cited articles co-mentioning input term listed below on PubMed and creates a summary report based on these articles."
   },
   DeepDiveAgent: {
 	label: "DeepDive with RAG Agent",
 	icon: mdiRobotOutline,
-	description: "DeepDive2 uses an LLM RAG agent that can query PubMed and GSFM for input terms and creates a summary from the search results."
+	description: "DeepDive2 uses an LLM RAG agent that can query PubMed and GSFM for input terms listed below and creates a summary from the search results."
 	// ({method, router, params, getAbortController}:{getAbortController: Function, router: AppRouterInstance, method: string, params: {input: string}}) => (
 	// 	<Stack spacing={1}>
 	// 		<Typography variant={"h4"}>
@@ -71,22 +71,22 @@ export const methods: {[key: string]: {label: string, icon: string, description:
   DeepDiveCFDEAgent: {
 	label: "DeepDive with CFDE Workbench Agent",
 	icon: mdiRobotOutline,
-	description: "DeepDive2 uses an LLM RAG agent that can query PubMed, GSFM, and CFDE Workbench for input terms and creates a summary using it."
+	description: "DeepDive2 uses an LLM RAG agent that can query PubMed, GSFM, and CFDE Workbench for input terms listed below and creates a summary using it."
   },
   DeepDiveWithReviewer: {
 	label: "Summarize with Review Process",
 	icon: mdiHumanMaleBoard,
-	description: "An independent LLM Agent will review the generated report from highly cited PubMed articles co-mentioning input terms."
+	description: "An independent LLM Agent will review the generated report from highly cited PubMed articles co-mentioning input terms listed below."
   },
   DeepDiveHypothesis: {
 	label: "Hypothesize Disease Connections",
 	icon: mdiHeadQuestionOutline,
-	description: "DeepDive2 runs a hypothesis generation workflow using highy cited PubMed articles for disease and gene terms, and GSFM predictions on gene terms"
+	description: "DeepDive2 runs a hypothesis generation workflow using highy cited PubMed articles for disease and gene terms, and GSFM predictions on gene terms. Terms are listed below:"
   },
   DeepDiveHypothesisAll: {
 	label: "Hypothesize Term Connections",
 	icon: mdiHeadQuestionOutline,
-	description: "DeepDive2 runs a hypothesis generation workflow using highy cited PubMed articles, GSFM, and CFDE Workbench for the input terms."
+	description: "DeepDive2 runs a hypothesis generation workflow using highy cited PubMed articles, GSFM, and CFDE Workbench for the input terms listed below."
   },
 }
 
@@ -114,7 +114,12 @@ const fetchRunnables = async (search:string[], controller:AbortController) => {
 	  
 }
 
-
+function toTitleCase(str:string) {
+  return str.replace(
+    /\w\S*/g,
+    text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
+  );
+}
 
 export const Search = ({inputList}: {inputList: {entity: string, label: string, icon: string, values?: {[key: string]: string[]}, links?: {resource: string, description: string, link: string}[]}[]}) => {
 	const router = useRouter()
@@ -204,7 +209,12 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 		 				</IconButton>
 		 				}
 		 				title={label}
-		 				subheader={description}
+		 				subheader={<Stack>
+							<Typography variant="caption">{description}</Typography>
+							{inputList.map(i=>(
+								<Typography variant="caption" key={i.label}><b>{i.entity}: </b>{i.label}</Typography>
+							))}
+						</Stack>}
 		 			/>
 		 		</Card>
 		 	</Grid>
@@ -283,7 +293,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 		)
 	const icons: {[key:string]: string} = {
 		enrichr: "/img/Enrichr.png",
-		gse: "/img/CFDE_square.png",
+		gse: "/img/cfde-gse.png",
 		gsfm: "/img/gsfm.png",
 		gdlpa: "/img/gdlpa.png",
 		"sigcom-lincs": "/img/lincs.png",
@@ -391,12 +401,14 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 	  return (
 		<Grid container spacing={2}>
 			<Grid item xs={12}>
-				<Card>
+				<Card elevation={0}>
 					<CardHeader
 						avatar={
-							<Image src="/img/CFDE_square.png" width={30} height={30} alt="cfde"/>
+							<Image src="/img/cfde-search.png" width={50} height={50} alt="cfde"/>
+							// <Icon path={mdiSearchWeb} style={{backgroundColor: "transparent", color: "#2D5986"}} size={2}/>
 						}
 						title={<Typography variant="h3">{`Search CFDE Workbench`}</Typography>}
+						subheader={'Query data and metadata assets generated by Common Fund Programs with wide-array of expertise. '}
 					/>
 					<CardContent>
 						<Grid container spacing={2}>
@@ -408,12 +420,13 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 
 			{(gdlpa || []).length > 0 && 
 				<Grid item xs={12}>
-					<Card>
+					<Card  elevation={0}>
 						<CardHeader
 							avatar={
 								<Image src={icons.gdlpa} width={30} height={30} alt="gdlpa"/>
 							}
 							title={<Typography variant="h3">{`Query Gene and Drug Landing Page Aggregator (GDLPA)`}</Typography>}
+							subheader={'Access links to 53 gene, 18 variant and 19 drug repositories.'}
 						/>
 						<CardContent>
 							<Grid container spacing={2}>
@@ -425,12 +438,13 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 			}
 			{(gsfm || []).length > 0 && 
 				<Grid item xs={12}>
-					<Card>
+					<Card  elevation={0}>
 						<CardHeader
 							avatar={
 								<Image src={icons.gsfm} width={30} height={30} alt="gsfm"/>
 							}
 							title={<Typography variant="h3">{`View Gene Function Prediction on GSFM`}</Typography>}
+							subheader={'View AI-powered predictions about the role of the gene across key contexts such as pathway membership, disease associations, GO biological processes, knockout mouse phenotypes, and more.'}
 						/>
 						<CardContent>
 							<Grid container spacing={2}>
@@ -442,10 +456,10 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 			}
 			{(resources.gse || []).length > 0 && 
 				<Grid item xs={12}>
-					<Card>
+					<Card  elevation={0}>
 						<CardHeader
 							avatar={
-								<Image src={icons.gse} width={30} height={30} alt="gse"/>
+								<Image src={icons.gse} width={50} height={50} alt="gse"/>
 							}
 							title={<Typography variant="h3">{`Perform Enrichment Analysis on CFDE GSE`}</Typography>}
 							subheader={'Enrichment analysis on CFDE Gene Set Libraries'}
@@ -460,7 +474,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 			}
 			{/* {(resources.enrichr || []).length > 0 && 
 				<Grid item xs={12}>
-					<Card>
+					<Card  elevation={0}>
 						<CardHeader
 							avatar={
 								<Image src={icons.enrichr} width={30} height={30} alt="enrichr"/>
@@ -479,7 +493,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 			} */}
 			{/* {(resources['sigcom-lincs'] || []).length > 0 && 
 				<Grid item xs={12}>
-					<Card>
+					<Card  elevation={0}>
 						<CardHeader
 							avatar={
 								<Image src={icons['sigcom-lincs']} width={30} height={30} alt="sigcom"/>
@@ -498,7 +512,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 			} */}
 			{/* {(resources.l2s2 || []).length > 0 && 
 				<Grid item xs={12}>
-					<Card>
+					<Card  elevation={0}>
 						<CardHeader
 							avatar={
 								<Image src={icons.l2s2} width={30} height={30} alt="sigcom"/>
@@ -517,7 +531,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 			} */}
 			{(resources.perturbseqr || []).length > 0 && 
 				<Grid item xs={12}>
-					<Card>
+					<Card  elevation={0}>
 						<CardHeader
 							avatar={
 								<Image src={icons.perturbseqr} width={30} height={30} alt="sigcom"/>
@@ -539,9 +553,11 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 					<Card>
 						<CardHeader
 							avatar={
-								<Icon path={mdiRobotOutline} style={{backgroundColor: "transparent", color: "#2D5986"}} size={1}/>
+								<Icon path={mdiRobotOutline} style={{backgroundColor: "transparent", color: "#2D5986"}} size={2}/>
 							}
-							title={<Typography variant="h3">{`Generate Summary Reports For ${inputList.length === 1 ? inputList[0].label: inputList.map(i=>i.label).slice(0, inputList.length-1).join(", ") + ", and " + inputList[inputList.length - 1].label} Using DeepDive2 Workflows`}</Typography>}
+							// title={<Typography variant="h3">{`Generate Summary Reports For ${inputList.length === 1 ? inputList[0].label: inputList.map(i=>i.label).slice(0, inputList.length-1).join(", ") + ", and " + inputList[inputList.length - 1].label} Using DeepDive2 Workflows`}</Typography>}
+							title={<Typography variant="h3">DeepDive 2 Summary Reports</Typography>}
+							subheader={inputList.length === 1 ? "Generate a summary report with our AI Agents for your search term using PubMed articles and CFDE resources": "Discover connections between your input terms with our AI Agents using PubMed articles and CFDE resources"}
 						/>
 						<CardContent>
 							<Grid container spacing={2}>
@@ -572,9 +588,10 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 					<Card>
 						<CardHeader
 							avatar={
-								<Icon path={mdiRobotOutline} style={{backgroundColor: "transparent", color: "#2D5986"}} size={1}/>
+								<Icon path={mdiRobotOutline} style={{backgroundColor: "transparent", color: "#2D5986"}} size={2}/>
 							}
-							title={<Typography variant="h3">{`View Summary Reports Considering All Selected Terms Using DeepDive2 Workflows`}</Typography>}
+							title={<Typography variant="h3">{`DeepDive2 Articles`}</Typography>}
+							subheader={'View previously created DeepDive2 summary reports for your selected terms'}
 						/>
 						<CardContent>
 							<Grid container spacing={2}>

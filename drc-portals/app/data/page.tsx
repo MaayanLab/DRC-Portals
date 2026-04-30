@@ -45,6 +45,10 @@ const ui_elements: {[key: string]: {color: string, icon: string}} = {
     color: blue[100],
     icon: mdiFlask
   },
+  assay: {
+    color: blue[100],
+    icon: mdiFlask
+  },
   drug: {
     color: lime[100],
     icon: mdiPill
