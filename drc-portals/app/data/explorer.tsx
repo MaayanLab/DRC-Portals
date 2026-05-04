@@ -362,7 +362,7 @@ const Explorer = () => {
           // onClick={()=>{
           //   if (inputList.length > 0) setSubmit(true)
           // }}
-          href={`/data?q=${JSON.stringify({...query, search: true})}`}
+          href={`/data?q=${JSON.stringify(query)}`}
           disabled={inputList.length === 0}
         >
           <Typography variant="h5">{inputList.length === 0 ? "Enter a biomedical entity to get started": "Explore CFDE Workbench"}</Typography>
