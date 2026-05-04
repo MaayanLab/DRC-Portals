@@ -30,53 +30,65 @@ const nodeTypes = {
  
 const defaultViewport = { x: 150, y: 10, zoom: 0.7 };
 
-const ui_elements: {[key: string]: {color: string, icon: string}} = {
+const ui_elements: {[key: string]: {color: string, icon_color: string, icon: string}} = {
   gene: {
     color: green[100],
+    icon_color: green[900],
     icon: mdiDna
   },
   variant: {
     color: green[200],
+    icon_color: green[900],
     icon: mdiDna
   },
   protein: {
     color: green[100],
+    icon_color: green[900],
     icon: mdiDna
   },
   gene_set: {
     color: purple[100],
+    icon_color: purple[900],
     icon: mdiListBox,
   },
   phenotype: {
     color: orange[100],
+    icon_color: orange[900],
     icon: mdiHumanMaleHeightVariant,
   },
   anatomy: {
     color: red[100],
+    icon_color: red[900],
     icon: mdiEye,
   },
   assay_type: {
     color: blue[100],
+    icon_color: blue[900],
     icon: mdiFlask
   },
   drug: {
     color: lime[100],
+    icon_color: lime[900],
     icon: mdiPill
   },
   compound: {
     color: lime[100],
+    icon_color: lime[900],
     icon: mdiPill
   },
   metabolite: {
     color: lime[100],
+    icon_color: lime[900],
     icon: mdiEyedropper
   },
   "disease or phenotype": {
     color: orange[100],
+    icon_color: orange[900],
     icon: mdiVirus,
   },
   disease: {
     color: orange[100],
+    icon_color: orange[900],
     icon: mdiVirus,
   }
 }
@@ -98,7 +110,7 @@ const Explorer = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState<BuiltInEdge>([]);
   const [geneSetPos, setGeneSetPos] = useState(0)
   const [taskId, setTaskId] = useState('')
-  const [inputList, setInputList] = useState<{entity: string, label: string, color: string, icon: string, values?: {[key: string]: string[]}, links?: {resource: string, description: string, link: string}[]}[]>([])
+  const [inputList, setInputList] = useState<{entity: string, label: string, color: string, icon_color: string, icon: string, values?: {[key: string]: string[]}, links?: {resource: string, description: string, link: string}[]}[]>([])
   const [loading, setLoading] = useState(false)
   const [applicables, setApplicables] = useState<{method: string, params: {[key:string]: string}}[]>([])
   const [runnables, setRunnables] = useState<{timestamp: string, method: string, published: boolean, output: {runnable_id: string, value: string}}[]>([])
@@ -350,7 +362,7 @@ const Explorer = () => {
           // onClick={()=>{
           //   if (inputList.length > 0) setSubmit(true)
           // }}
-          href={`/data?q=${JSON.stringify(query)}`}
+          href={`/data?q=${JSON.stringify({...query, search: true})}`}
           disabled={inputList.length === 0}
         >
           <Typography variant="h5">{inputList.length === 0 ? "Enter a biomedical entity to get started": "Explore CFDE Workbench"}</Typography>
@@ -387,7 +399,7 @@ const Explorer = () => {
           {inputList.map(i=>(
             <Grid item key={i.label}>
               <Tooltip title={i.label} key={i.label}>
-              <Chip avatar={<Avatar sx={{backgroundColor: i.color}}><Icon path={i.icon} size={1}/></Avatar>}
+              <Chip avatar={<Avatar sx={{backgroundColor: i.color}}><Icon style={{color: i.icon_color}} path={i.icon} size={1}/></Avatar>}
                 label={i.label}
                 sx={{backgroundColor: i.color}}
                 onDelete={()=>update_input(i.entity, i.label, 'remove')}

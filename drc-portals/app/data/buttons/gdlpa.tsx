@@ -1,9 +1,9 @@
 import Image from "@/utils/image"
 import Icon from "@mdi/react"
 import { ArrowForward } from "@mui/icons-material"
-import { Button, Card, CardHeader, Grid, IconButton, ListItemButton, ListItemIcon, ListItemText } from "@mui/material"
+import { Avatar, Button, Card, CardHeader, Grid, IconButton, ListItemButton, ListItemIcon, ListItemText } from "@mui/material"
 
-export const GDLPAButton = ({input}: {input: {entity: string, label: string, icon: string, values?: {[key: string]: string[]}}}) => {
+export const GDLPAButton = ({input}: {input: {entity: string, label: string, icon: string, icon_color: string, color: string, values?: {[key: string]: string[]}}}) => {
 	if (input.entity !== "compound" && input.entity !== "drug" && input.entity !== "gene") return null
 	// const gdlpa= <Grid item key={input.label + "-gdlpa"}>
 	// 			<Button 
@@ -21,7 +21,7 @@ export const GDLPAButton = ({input}: {input: {entity: string, label: string, ico
 		<Card key={input.label} sx={{height: '100%'}}>
 			<CardHeader
 				avatar={
-					<Icon style={{backgroundColor: "transparent", color: "#2D5986"}} path={input.icon} size={1}/>
+					<Avatar sx={{backgroundColor: input.color}}><Icon style={{backgroundColor: "transparent", color: input.icon_color}} path={input.icon} size={1}/></Avatar>
 				}
 				action={
 				<IconButton aria-label="goto"
@@ -32,6 +32,7 @@ export const GDLPAButton = ({input}: {input: {entity: string, label: string, ico
 				</IconButton>
 				}
 				title={input.label}
+				subheader={`View CFDE resources for ${input.label}`}
 				// subheader={`Search CFDE Workbench ${i.entity.replaceAll("_", " ")} entities`}
 			/>
 		</Card>

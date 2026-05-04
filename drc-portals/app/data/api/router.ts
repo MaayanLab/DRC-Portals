@@ -230,7 +230,80 @@ const gse_query = (userListId: number) => (
 			})
 )
 export default router({
-  submit_gene_set: procedure.input(
+  entity_links: procedure.input(
+	  z.object({
+		// lastEventId is the last event id that the client has received
+		// On the first call, it will be whatever was passed in the initial setup
+		// If the client reconnects, it will be the last event id that the client received
+		// The id is the createdAt of the post
+		input: z.array(z.object({
+			entity: z.string(),
+			label: z.string()
+		})),
+	  }),
+	)
+	.mutation(async (props) => {
+	  // `props.signal` is an AbortSignal that will be aborted when the client disconnects.
+	  const {input} = props.input
+	//   const results: Array<{entity: string, label: string, resource: string, link: string}> = []
+	  const results: {[key:string]: {[key:string]: {resource: string, description: string, link: string}[]}} = {}
+	  for (const i of input) {
+		if (i.entity !== "gene_set") {
+			console.log(i)
+			if (['gene', 'variant', 'disease', 'drug'].indexOf(i.entity) > -1) {
+				if (results[i.entity] === undefined) results[i.entity] = {}
+				const req = await fetch(`https://api.biomarkerkb.org/biomarker/search_simple?query={"operation":"AND","query_type":"biomarker_search_simple","term":"${i.label}","term_category":"any"}`)
+				const res = await (req.json())
+				if (res.list_id !== "") {
+					if (results[i.entity][i.label] === undefined) results[i.entity][i.label] = []
+					results[i.entity][i.label].push({
+						...i,
+						description: i.label,
+						resource: "biomarker-kb",
+						link: `https://biomarkerkb.org/biomarker-list/${res.list_id}`
+					})
+				} 
+			} if (i.entity === 'gene') {
+				if (results[i.entity] === undefined) results[i.entity] = {}
+				if (results[i.entity][i.label] === undefined) results[i.entity][i.label] = []
+				results[i.entity][i.label].push({
+					...i,
+					description: i.label,
+					resource: "dd-kg",
+					link: `https://dd-kg-ui.cfde.cloud/?filter={"start":"Gene","start_field":"label","start_term":"${i.label}"}`
+				})
+			} else if (i.entity === 'drug') {
+				if (results[i.entity] === undefined) results[i.entity] = {}
+				const r = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${i.label}/JSON`)
+				const res = await r.json()
+				if (res.PC_Compounds) {
+					const cid = res.PC_Compounds[0].id.id.cid
+					if (results[i.entity][i.label] === undefined) results[i.entity][i.label] = []
+					results[i.entity][i.label].push({
+						...i,
+						description: i.label,
+						resource: "dd-kg",
+						link: `https://dd-kg-ui.cfde.cloud/?filter={"start":"Compound","start_field":"PUBCHEM","start_term":"${cid}"}`
+					})
+				}
+			} else if (i.entity === 'anatomy') {
+				if (results[i.entity] === undefined) results[i.entity] = {}
+				const r = await fetch(`https://www.ebi.ac.uk/ols4/api/search?q=${i.label}&ontology=uberon`)
+				const res = await r.json()
+				const id = res.response.docs[0].obo_id.split(":")[1]
+				if (results[i.entity][i.label] === undefined) results[i.entity][i.label] = []
+				results[i.entity][i.label].push({
+					...i,
+					description: i.label,
+					resource: "dd-kg",
+					link: `https://dd-kg-ui.cfde.cloud/?filter={"start":"Anatomy","start_field":"PUBCHEM","start_term":"${id}.0"}`
+				})
+			}
+		}
+	  }
+	  return results
+  }),
+    submit_gene_set: procedure.input(
 	  z.object({
 		// lastEventId is the last event id that the client has received
 		// On the first call, it will be whatever was passed in the initial setup
@@ -385,6 +458,13 @@ export default router({
 				if (g!=='') entities.push({type: "variant", a_label: g})
 			}
 			return entities
+		}
+		else if (facet === "drug" || facet === "metabolite") {
+			const p = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/autocomplete/Compound/${term}/JSON`)
+			// const [res1, res2] = await Promise.all([prom1, prom2])
+			const res = await p.json()
+			const results = res?.dictionary_terms?.compound.map((a_label:string)=>({type: facet, a_label}))
+			return results
 		}
 		else if (ontologies[facet] === undefined) return []
 		else {
