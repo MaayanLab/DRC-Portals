@@ -1,6 +1,6 @@
 'use client'
 import Icon from "@mdi/react";
-import { Grid, Typography, Card, CardHeader, IconButton, CardContent, Skeleton, Stack, Tooltip, Chip, Avatar, List, ListItemButton, ListItemIcon, ListItemText, Collapse, Paper } from "@mui/material";
+import { Grid, Typography, Card, CardHeader, IconButton, CardContent, Skeleton, Stack, Tooltip, Chip, Avatar, List, ListItemButton, ListItemIcon, ListItemText, Collapse, Paper, Button } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { router_push } from "./enrichment/utils";
@@ -15,6 +15,7 @@ import { GDLPAButton } from "./buttons/gdlpa";
 import { SigComButtons } from "./buttons/sigcomLincs";
 import { L2S2 } from "./buttons/l2s2like";
 import { EnrichrButtons } from "./buttons/enrichr";
+import { amber, blue, cyan, deepPurple, green, indigo, lightGreen, teal } from "@mui/material/colors";
 const getTaskId = async (method:string, input: {[key:string]: string}, controller: AbortController) => {
 	const payload = {
 	  '0': {
@@ -42,51 +43,48 @@ const run_runnable = async (method: string, input:{[key: string]:string}, router
 	if (taskId !== '') router_push(router, `/data/article/${taskId}`, {})
 }
 
-export const methods: {[key: string]: {label: string, icon: string, description: string}} = {
+export const methods: {[key: string]: {label: string, icon: string, description: string, icon_color: string, color: string}} = {
   DeepDive: {
 	label: "DeepDive Summary",
 	icon: mdiTextBoxCheckOutline,
-	description: "DeepDive2 queries the top 50 highly cited articles co-mentioning input term listed below on PubMed and creates a summary report based on these articles."
+	description: "DeepDive2 queries the top 50 highly cited articles co-mentioning input term listed below on PubMed and creates a summary report based on these articles.",
+	color: indigo[100],
+	icon_color: indigo[900]
   },
   DeepDiveAgent: {
 	label: "DeepDive with RAG Agent",
 	icon: mdiRobotOutline,
-	description: "DeepDive2 uses an LLM RAG agent that can query PubMed and GSFM for input terms listed below and creates a summary from the search results."
-	// ({method, router, params, getAbortController}:{getAbortController: Function, router: AppRouterInstance, method: string, params: {input: string}}) => (
-	// 	<Stack spacing={1}>
-	// 		<Typography variant={"h4"}>
-	// 			Generate Summary With a RAG Agent Using PubMed Articles and GSFM
-	// 		</Typography>
-	// 		<Typography variant="body1">
-	// 			DeepDive2 uses an LLM RAG agent that can query PubMed and GSFM for {params.input} and creates a summary from the search results.
-	// 		</Typography>
-	// 		<Button onClick={()=>{
-    //             run_runnable(method, params, router, getAbortController)
-    //           }} variant="outlined" color="secondary" startIcon={<Icon path={mdiRobotOutline} size={1}/>}>
-	// 			Get Summary
-	// 		  </Button>
-	// 	</Stack>
-	// )
+	description: "DeepDive2 uses an LLM RAG agent that can query PubMed and GSFM for input terms listed below and creates a summary from the search results.",
+	color: teal[100],
+	icon_color: teal[900]
   },
   DeepDiveCFDEAgent: {
 	label: "DeepDive with CFDE Workbench Agent",
 	icon: mdiRobotOutline,
-	description: "DeepDive2 uses an LLM RAG agent that can query PubMed, GSFM, and CFDE Workbench for input terms listed below and creates a summary using it."
+	description: "DeepDive2 uses an LLM RAG agent that can query PubMed, GSFM, and CFDE Workbench for input terms listed below and creates a summary using it.",
+	color: blue[100],
+	icon_color: blue[900]
   },
   DeepDiveWithReviewer: {
 	label: "Summarize with Review Process",
 	icon: mdiHumanMaleBoard,
-	description: "An independent LLM Agent will review the generated report from highly cited PubMed articles co-mentioning input terms listed below."
+	description: "An independent LLM Agent will review the generated report from highly cited PubMed articles co-mentioning input terms listed below.",
+	color: amber[100],
+	icon_color: amber[900]
   },
   DeepDiveHypothesis: {
 	label: "Hypothesize Disease Connections",
 	icon: mdiHeadQuestionOutline,
-	description: "DeepDive2 runs a hypothesis generation workflow using highy cited PubMed articles for disease and gene terms, and GSFM predictions on gene terms. Terms are listed below:"
+	description: "DeepDive2 runs a hypothesis generation workflow using highy cited PubMed articles for disease and gene terms, and GSFM predictions on gene terms. Terms are listed below:",
+	color: cyan[100],
+	icon_color: cyan[900]
   },
   DeepDiveHypothesisAll: {
 	label: "Hypothesize Term Connections",
 	icon: mdiHeadQuestionOutline,
-	description: "DeepDive2 runs a hypothesis generation workflow using highy cited PubMed articles, GSFM, and CFDE Workbench for the input terms listed below."
+	description: "DeepDive2 runs a hypothesis generation workflow using highy cited PubMed articles, GSFM, and CFDE Workbench for the input terms listed below.",
+	color: lightGreen[100],
+	icon_color: lightGreen[900]
   },
 }
 
@@ -224,12 +222,12 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 		))
 		const runs:ReactNode[] = []
 
-		const run_component = ({method, icon, params, label, description}: {method: string, icon: string, params: {[key:string]: string}, label: string, description: string}) => (
+		const run_component = ({method, icon, params, label, description, icon_color, color}: {method: string, icon: string, icon_color: string, color: string, params: {[key:string]: string}, label: string, description: string}) => (
 			<Grid item xs={6} sm={4} key={method}>
 		 		<Card key={method} sx={{height: '100%'}}>
 		 			<CardHeader
 		 				avatar={
-		 				<Icon style={{backgroundColor: "transparent", color: "#2D5986"}} path={icon} size={1}/>
+		 				<Avatar sx={{backgroundColor: color}}><Icon style={{backgroundColor: color, color: icon_color}} path={icon} size={1}/></Avatar>
 		 				}
 		 				action={
 		 				<IconButton aria-label="goto"
@@ -585,207 +583,13 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 				}
 				</List>
 			</Grid>
+			<Grid item xs={12}>
+				<Button variant="outlined" color="secondary" sx={{width: "100%", mb: 2}} href={`/data?q=${searchParams.get('q')}`}>
+					<Typography>Back</Typography>
+				</Button>
+			</Grid>
 		</Grid>
 	  )
-	  return (
-		<Grid container spacing={2}>
-			<Grid item xs={12}>
-				<Grid container spacing={1} justifyContent={'flex-start'} sx={{marginTop: 1}}>
-					{inputList.map(i=>(
-					<Grid item key={i.label}>
-						<Tooltip title={i.label} key={i.label}>
-							<Chip avatar={<Avatar sx={{backgroundColor: i.color}}><Icon style={{color: i.icon_color}} path={i.icon} size={1}/></Avatar>}
-							label={i.label}
-							sx={{backgroundColor: i.color}}
-							onDelete={()=>reroute(i.entity, i.label)}
-							/>
-						</Tooltip>
-					</Grid>
-					))}
-				</Grid>
-			</Grid>
-			<Grid item xs={12}>
-				<Card elevation={0}>
-					<CardHeader
-						avatar={
-							<Image src="/img/cfde-search.png" width={50} height={50} alt="cfde"/>
-							// <Icon path={mdiSearchWeb} style={{backgroundColor: "transparent", color: "#2D5986"}} size={2}/>
-						}
-						title={<Typography variant="h3">{`Search CFDE Workbench`}</Typography>}
-						subheader={'Query data and metadata assets generated by Common Fund Programs with wide-array of expertise. '}
-					/>
-					<CardContent>
-						<Grid container spacing={2}>
-							{searches}
-						</Grid>
-					</CardContent>
-				</Card>
-			</Grid>
-
-			{(gdlpa || []).length > 0 && 
-				<Grid item xs={12}>
-					<Card  elevation={0}>
-						<CardHeader
-							avatar={
-								<Image src={icons.gdlpa} width={30} height={30} alt="gdlpa"/>
-							}
-							title={<Typography variant="h3">{`Query Gene and Drug Landing Page Aggregator (GDLPA)`}</Typography>}
-							subheader={'Access links to 53 gene, 18 variant and 19 drug repositories.'}
-						/>
-						<CardContent>
-							<Grid container spacing={2}>
-								{gdlpa}
-							</Grid>
-						</CardContent>
-					</Card>
-				</Grid>
-			}
-			{(gsfm || []).length > 0 && 
-				<Grid item xs={12}>
-					<Card  elevation={0}>
-						<CardHeader
-							avatar={
-								<Image src={icons.gsfm} width={30} height={30} alt="gsfm"/>
-							}
-							title={<Typography variant="h3">{`View Gene Function Prediction on GSFM`}</Typography>}
-							subheader={'View AI-powered predictions about the role of the gene across key contexts such as pathway membership, disease associations, GO biological processes, knockout mouse phenotypes, and more.'}
-						/>
-						<CardContent>
-							<Grid container spacing={2}>
-								{gsfm}
-							</Grid>
-						</CardContent>
-					</Card>
-				</Grid>
-			}
-			{(resources.gse || []).length > 0 && 
-				<Grid item xs={12}>
-					<Card  elevation={0}>
-						<CardHeader
-							avatar={
-								<Image src={icons.gse} width={50} height={50} alt="gse"/>
-							}
-							title={<Typography variant="h3">{`Perform Enrichment Analysis on CFDE GSE`}</Typography>}
-							subheader={'Enrichment analysis on CFDE Gene Set Libraries'}
-						/>
-						<CardContent>
-							<Grid container spacing={2}>
-								{resources.gse}
-							</Grid>
-						</CardContent>
-					</Card>
-				</Grid>
-			}
-			{(resources.perturbseqr || []).length > 0 && 
-				<Grid item xs={12}>
-					<Card  elevation={0}>
-						<CardHeader
-							avatar={
-								<Image src={icons.perturbseqr} width={30} height={30} alt="sigcom"/>
-							}
-							title={<Typography variant="h3">{`Discover Mimicking and Reversing Signatures on Perturb-Seqr`}</Typography>}
-							subheader={'Query over 400,000 gene sets on Perturb-Seqr'}
-							
-						/>
-						<CardContent>
-							<Grid container spacing={2}>
-								{resources.perturbseqr}
-							</Grid>
-						</CardContent>
-					</Card>
-				</Grid>
-			}
-			{(resources['biomarker-kb'] || []).length > 0 && 
-				<Grid item xs={12}>
-					<Card  elevation={0}>
-						<CardHeader
-							avatar={
-								<Image src={icons['biomarker-kb']} width={30} height={30} alt="gse"/>
-							}
-							title={<Typography variant="h3">{`View Associated Biomarkers`}</Typography>}
-							subheader={'View associated biomarkers cataloged by the Biomarker partnership'}
-						/>
-						<CardContent>
-							<Grid container spacing={2}>
-								{resources['biomarker-kb']}
-							</Grid>
-						</CardContent>
-					</Card>
-				</Grid>
-			}
-			{(resources['dd-kg'] || []).length > 0 && 
-				<Grid item xs={12}>
-					<Card  elevation={0}>
-						<CardHeader
-							avatar={
-								<Image src={icons['dd-kg']} width={50} height={50} alt="gse"/>
-							}
-							title={<Typography variant="h3">{`View Connected Nodes in DD-KG`}</Typography>}
-							subheader={'View subnetwork in the Data Distillery Knowledge Graph'}
-						/>
-						<CardContent>
-							<Grid container spacing={2}>
-								{resources['dd-kg']}
-							</Grid>
-						</CardContent>
-					</Card>
-				</Grid>
-			}
-			<Grid item xs={12}>
-				{runs.length > 0 &&
-					<Card>
-						<CardHeader
-							avatar={
-								<Icon path={mdiRobotOutline} style={{backgroundColor: "transparent", color: "#2D5986"}} size={2}/>
-							}
-							// title={<Typography variant="h3">{`Generate Summary Reports For ${inputList.length === 1 ? inputList[0].label: inputList.map(i=>i.label).slice(0, inputList.length-1).join(", ") + ", and " + inputList[inputList.length - 1].label} Using DeepDive2 Workflows`}</Typography>}
-							title={<Typography variant="h3">DeepDive 2 Summary Reports</Typography>}
-							subheader={inputList.length === 1 ? "Generate a summary report with our AI Agents for your search term using PubMed articles and CFDE resources": "Discover connections between your input terms with our AI Agents using PubMed articles and CFDE resources"}
-						/>
-						<CardContent>
-							<Grid container spacing={2}>
-								{runs}
-							</Grid>
-						</CardContent>
-					</Card>
-				}
-				
-			</Grid>
-			{loading && 
-				<Grid item xs={12}>
-					<Card elevation={0}>
-						<CardHeader
-							avatar={
-								<Icon path={mdiTimerSand} style={{animation: "spin 2s linear infinite"}} size={1}/>
-							}
-							title={"Contacting Deepdive2..."}
-							subheader={`Fetching articles...`}
-						/>
-						<CardContent><Skeleton variant="rectangular" width={'100%'} height={200} /></CardContent>
-					</Card>
-				</Grid>
-			}
-
-			{articles.length > 0 &&
-				<Grid item xs={12}>
-					<Card elevation={0}>
-						<CardHeader
-							avatar={
-								<Icon path={mdiRobotOutline} style={{backgroundColor: "transparent", color: "#2D5986"}} size={2}/>
-							}
-							title={<Typography variant="h3">{`DeepDive2 Articles`}</Typography>}
-							subheader={'View previously created DeepDive2 summary reports for your selected terms'}
-						/>
-						<CardContent>
-							<Grid container spacing={2}>
-								{articles}
-							</Grid>
-						</CardContent>
-					</Card>
-				</Grid>
-			}
-		</Grid>
-	  )
-	
+	  
 }
 }

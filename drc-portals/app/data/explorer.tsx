@@ -105,20 +105,47 @@ const gsfm = (newValue:string) => ({
     description: newValue
   })
 
-const Explorer = () => {
+const Explorer = ({input_query}: {input_query: {[key:string]: string[] | {[key:string]: {
+      up_gene_set_id?: number,
+      down_gene_set_id?: number,
+      gene_set_id?: number
+    }}}}) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<BuiltInEdge>([]);
   const [geneSetPos, setGeneSetPos] = useState(0)
-  const [taskId, setTaskId] = useState('')
-  const [inputList, setInputList] = useState<{entity: string, label: string, color: string, icon_color: string, icon: string, values?: {[key: string]: string[]}, links?: {resource: string, description: string, link: string}[]}[]>([])
-  const [loading, setLoading] = useState(false)
-  const [applicables, setApplicables] = useState<{method: string, params: {[key:string]: string}}[]>([])
-  const [runnables, setRunnables] = useState<{timestamp: string, method: string, published: boolean, output: {runnable_id: string, value: string}}[]>([])
-  const [articles, setArticles] = useState<{timestamp: string, message: {message_id: string, content: string}}[]>([])
-  const scrollRef = useRef<null | HTMLDivElement>(null)
-	const [submit, setSubmit] = useState(false)
-  const update_input = (entity: string, label: string, type:string="add", values:{up?: string[], down?: string[], gene_set?: string[]}={}, links:{resource: string, description: string, link: string}[]=[]) => {
-    setTaskId('')
+  const [inputList, setInputList] = useState<{entity: string, label: string, color: string, icon_color: string, icon: string, values?: {[key: string]: string|number|undefined}, links?: {resource: string, description: string, link: string}[]}[]>([])
+
+  useEffect(()=>{
+    const inputList:{entity: string, label: string, icon_color: string, color: string, icon: string, values?: {[key: string]: string|number|undefined}, links?: {resource: string, description: string, link: string}[]}[] = []
+        for (const [entity, v] of Object.entries(input_query)) {
+          const {color, icon, icon_color} = ui_elements[entity]
+          if (entity === 'gene_set' && !Array.isArray(v)) {
+            for (const [description, input] of Object.entries(v)) {
+              inputList.push({
+                entity,
+                label: description,
+                color,
+                icon,
+                icon_color,
+                values: input
+              })
+            }
+    
+          } else if (Array.isArray(v)) {
+            for (const label of v) {
+              inputList.push({
+                entity,
+                label,
+                color,
+                icon,
+                icon_color,
+              })
+            }
+          }
+        }
+        setInputList(inputList)
+  }, [input_query])
+  const update_input = (entity: string, label: string, type:string="add", values:{[key:string]: string}={}, links:{resource: string, description: string, link: string}[]=[]) => {
     if (type === "add") {
       setInputList(inputList=>{
         const add = inputList.filter(i=>i.entity === entity && i.label === label).length
@@ -362,7 +389,7 @@ const Explorer = () => {
           // onClick={()=>{
           //   if (inputList.length > 0) setSubmit(true)
           // }}
-          href={`/data?q=${JSON.stringify(query)}`}
+          href={`/data?q=${JSON.stringify(query)}&search=true`}
           disabled={inputList.length === 0}
         >
           <Typography variant="h5">{inputList.length === 0 ? "Enter a biomedical entity to get started": "Explore CFDE Workbench"}</Typography>

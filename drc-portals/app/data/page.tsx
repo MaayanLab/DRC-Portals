@@ -85,19 +85,24 @@ const ui_elements: {[key: string]: {color: string, icon_color: string, icon: str
 }
 
 export default async function Page({searchParams}: {
-  searchParams: {q: string}
+  searchParams: {q: string, search?: boolean}
 }) {
-  if (searchParams.q === undefined || !searchParams.q.search) {
+  if (searchParams.q === undefined || searchParams.search === undefined) {
     const publications = await prisma.publication.findMany({
         orderBy: {
           year: "desc"
         },
         take: 9
       })
+    const query: {[key:string]: string[] | {[key:string]: {
+      up_gene_set_id?: number,
+      down_gene_set_id?: number,
+      gene_set_id?: number
+    }}} = JSON.parse(searchParams.q || '{}')
     return (
       <Grid container spacing={2} alignItems={"flex-start"}>
         <Grid item xs={12}>
-            <Explorer />
+            <Explorer input_query={query}/>
         </Grid>
         <Grid item xs={12}>
           <Paper sx={{
@@ -383,7 +388,6 @@ export default async function Page({searchParams}: {
       if (link_dict[i.entity] && link_dict[i.entity][i.label])
         i['links'] = link_dict[i.entity][i.label]
     }
-    console.log(inputList)
     return (
       <Grid container spacing={2}>
         <Grid item xs={12}>
