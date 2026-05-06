@@ -235,12 +235,12 @@ export function create_url({ error, search, search_type, type, type_search, slug
     urlSearchParams.delete('search')
     urlSearchParams.delete('error')
   } else {
+    path += `/processed`
     if (search) searchParams['search'] = search
     searchParams['error'] = error
   }
   Object.entries(searchParams)
     .forEach(([k, v]) => { if (v === null) { urlSearchParams.delete(k) } else { urlSearchParams.set(k, v) } })
   if (urlSearchParams.size > 0) path += `?${urlSearchParams.toString()}`
-  console.log(path)
   return path
 }

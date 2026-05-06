@@ -4,7 +4,7 @@ import trpc from '@/lib/trpc/client'
 import { ArrowForward } from "@mui/icons-material"
 import Icon from "@mdi/react"
 
-export const GSFMButton = ({input}: {input: {entity: string, label: string, icon: string, icon_color: string, color: string, values?: {[key: string]: string[]}}}) => {
+export const GSFMButton = ({input}: {input: {entity: string, label: string, icon: string, icon_color: string, color: string}}) => {
 	if (input.entity !== "gene") return null
 	return <Grid item xs={6} sm={4} key={input.label}>
 		<Card key={input.label} sx={{height: '100%'}}>

@@ -67,7 +67,7 @@ export const DRCDrawer = ({path, options, session}: {path: "/info"| "/data", opt
 							<Collapse in={option.title === openMenu} timeout="auto" unmountOnExit>
 								<List component="div" disablePadding>
 									{option.links.map(link=>
-										<ListItemButton href={link.href} component={Link} sx={{ pl: 4 }}>
+										<ListItemButton key={link.title} href={link.href} component={Link} sx={{ pl: 4 }}>
 											<ListItemIcon>
 												<Icon path={link.icon} size={1} />
 											</ListItemIcon>

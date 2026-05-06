@@ -350,22 +350,22 @@ export default async function Page({searchParams}: {
     )
   } else {
     const query: {[key:string]: string[] | {[key:string]: {
-      up_gene_set_id?: number,
-      down_gene_set_id?: number,
-      gene_set_id?: number
+      [key:string]: number,
+      
     }}} = JSON.parse(searchParams.q || '{}')
-    const inputList:{entity: string, label: string, icon_color: string, color: string, icon: string, values?: {[key: string]: string[]}, links?: {resource: string, description: string, link: string}[]}[] = []
+    const inputList:{entity: string, label: string, icon_color: string, color: string, icon: string, values?: {[key: string]: number}, links?: {resource: string, description: string, link: string}[]}[] = []
     for (const [entity, v] of Object.entries(query)) {
       const {color, icon, icon_color} = ui_elements[entity]
       if (entity === 'gene_set' && !Array.isArray(v)) {
-        for (const [description, input] of Object.entries(v)) {
-          const linksearch = await trpc.send_gene_set({input})
+        for (const [description="user_input", input] of Object.entries(v)) {
+          const linksearch = await trpc.send_gene_set({description, input})
           inputList.push({
             entity,
             label: description,
             color,
             icon,
             links: linksearch,
+            values: input,
             icon_color
           })
         }

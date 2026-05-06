@@ -319,9 +319,7 @@ export default router({
 	)
 	.mutation(async (props) => {
 	  // `props.signal` is an AbortSignal that will be aborted when the client disconnects.
-	  const url = 'https://perturbseqr.maayanlab.cloud/'
 	  const {input, description} = props.input
-	  const requests: Promise<{[key: string]: string} | string>[] = []
 	  if (input?.gene_set) {
 		const res:{[key: string]: string} = await addList(description, input.gene_set || [])
 		return {
@@ -345,6 +343,7 @@ export default router({
 		// On the first call, it will be whatever was passed in the initial setup
 		// If the client reconnects, it will be the last event id that the client received
 		// The id is the createdAt of the post
+		description: z.string(),
 		input: z.object({
                 gene_set_id: z.number().optional().describe("Input gene set id for single gene sets"),
 				up_gene_set_id: z.number().optional().describe("Input up gene set id for querying up and down gene sets"),
@@ -355,11 +354,10 @@ export default router({
 	.mutation(async (props) => {
 	  // `props.signal` is an AbortSignal that will be aborted when the client disconnects.
 	  const url = 'https://perturbseqr.maayanlab.cloud/'
-	  const {input} = props.input
-	  const requests: Promise<{[key: string]: string} | string>[] = []
+	  const {input, description} = props.input
+	  console.log(input, description)
 	  if (input?.gene_set_id) {
-		const {genes: gene_set, description} = await fetchList(input.gene_set_id)
-		// const enrichr_promise: Promise<{[key: string]: string}> = addList(description, gene_set || [])
+		const {genes: gene_set} = await fetchList(input.gene_set_id)
 		const sigcom_promise: Promise<string> = fetchSigComLincsId(gene_set || [], [], false, description)
 		const perturbseqr_promise: Promise<string> = perturbseqr_resolve_id(gene_set || [], true, url)
 		const [sigcom_lincs, perturbseqr] = await Promise.all([sigcom_promise, perturbseqr_promise])
@@ -382,7 +380,7 @@ export default router({
 			
 		]
 	} else if (input?.up_gene_set_id && input?.down_gene_set_id) {
-		const {genes: up_gene_set, description} = await fetchList(input.up_gene_set_id)
+		const {genes: up_gene_set} = await fetchList(input.up_gene_set_id)
 		const {genes: down_gene_set} = await fetchList(input.down_gene_set_id)
 		
 		const sigcom_promise: Promise<string> = fetchSigComLincsId(up_gene_set || [], down_gene_set || [], true, description.slice(0, description.length - 3))
@@ -515,5 +513,17 @@ export default router({
 				return await res.json() as Array<any>
 			}
 		}
-	})
+	}),
+	fetch_gene_set: procedure.input(
+		z.array(z.number())
+	)
+	.query(async (props)=>{
+		const ids = props.input
+		const req: Array<Promise<{genes: string[], description: string}>> = []
+		for (const id of ids) {
+			req.push(fetchList(id))
+		}
+		const values:Array<{genes: string[], description: string}> = await Promise.all(req)
+		return values
+	}) 
 });

@@ -3,7 +3,7 @@ import Icon from "@mdi/react"
 import { ArrowForward } from "@mui/icons-material"
 import { Avatar, Button, Card, CardHeader, Grid, IconButton, ListItemButton, ListItemIcon, ListItemText } from "@mui/material"
 
-export const GDLPAButton = ({input}: {input: {entity: string, label: string, icon: string, icon_color: string, color: string, values?: {[key: string]: string[]}}}) => {
+export const GDLPAButton = ({input}: {input: {entity: string, label: string, icon: string, icon_color: string, color: string}}) => {
 	if (input.entity !== "compound" && input.entity !== "drug" && input.entity !== "gene") return null
 	// const gdlpa= <Grid item key={input.label + "-gdlpa"}>
 	// 			<Button 

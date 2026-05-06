@@ -16,6 +16,7 @@ import { SigComButtons } from "./buttons/sigcomLincs";
 import { L2S2 } from "./buttons/l2s2like";
 import { EnrichrButtons } from "./buttons/enrichr";
 import { amber, blue, cyan, deepPurple, green, indigo, lightGreen, teal } from "@mui/material/colors";
+import { PWBButton } from "./buttons/pwb";
 const getTaskId = async (method:string, input: {[key:string]: string}, controller: AbortController) => {
 	const payload = {
 	  '0': {
@@ -119,7 +120,7 @@ function toTitleCase(str:string) {
   );
 }
 
-export const Search = ({inputList}: {inputList: {entity: string, label: string, icon: string, icon_color: string,  color:string, values?: {[key: string]: string[]}, links?: {resource: string, description: string, link: string}[]}[]}) => {
+export const Search = ({inputList}: {inputList: {entity: string, label: string, icon: string, icon_color: string,  color:string, values?: {[key: string]: number}, links?: {resource: string, description: string, link: string}[]}[]}) => {
 	const router = useRouter()
 	const searchParams = useSearchParams()
 	const [controller, setController] = useState<AbortController | null>(null)
@@ -128,7 +129,6 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 	const [description, setDescription] = useState<{method: string, description: Function, params: {[key:string]: any}} | null>(null)
 	// const [applicables, setApplicables] = useState<{method: string, params: {[key:string]: string}}[]>([])
 	const [runnables, setRunnables] = useState<{timestamp: string, method: string, published: boolean, output: {runnable_id: string, value: string}}[]>([])
-	const [articles, setArticles] = useState<{timestamp: string, message: {message_id: string, content: string}}[]>([])
 	const [open, setOpen] = useState('search')
 	const abortController = useRef(new AbortController());
 	const getAbortController = () => {
@@ -162,7 +162,6 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 	
 	
   	const reroute = (entity:string, label: string) => {
-		console.log(inputList)
 		const query: {[key:string]: string[] | {[key:string]: {
 			up_gene_set_id?: number,
 			down_gene_set_id?: number,
@@ -188,13 +187,16 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 		// 		if (entity !== )
 		// 	}
 		// }
+		if (Object.keys(query).length === 0 ) router_push(router, `/data`, {})
+		else {
+			router_push(router, `/data`, {q: JSON.stringify(query), search: true})
+		}
 		
-		router_push(router, `/data`, {q: JSON.stringify(query)})
 	}
 
 	if (inputList.length === 0) return null
 	else {
-		const searches = inputList.map((i, ind)=>(
+		const searches = inputList.filter(i=>i.entity!=='gene_set').map((i, ind)=>(
 			<Grid item xs={6} sm={4} key={i.label}>
 				<Card key={i.label} sx={{height: '100%'}}>
 					<CardHeader
@@ -203,7 +205,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						}
 						action={
 						<IconButton aria-label="goto"
-							href={`/data/processed/search/${i.label}/${i.entity}`}
+							href={`/data/processed/search/${i.label}`}
 						>
 							<ArrowForward />
 						</IconButton>
@@ -227,7 +229,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 		 		<Card key={method} sx={{height: '100%'}}>
 		 			<CardHeader
 		 				avatar={
-		 				<Avatar sx={{backgroundColor: color}}><Icon style={{backgroundColor: color, color: icon_color}} path={icon} size={1}/></Avatar>
+		 				<Icon style={{backgroundColor: "transparent", color: "#2D5986"}} path={icon} size={1}/>
 		 				}
 		 				action={
 		 				<IconButton aria-label="goto"
@@ -242,7 +244,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 		 				subheader={<Stack>
 							<Typography variant="caption">{description}</Typography>
 							{inputList.map(i=>(
-								<Typography variant="caption" key={i.label}><b>{i.entity}: </b>{i.label}</Typography>
+								<Typography variant="caption" color={i.icon_color} key={i.label}><b>{i.entity}: </b>{i.label}</Typography>
 							))}
 						</Stack>}
 		 			/>
@@ -324,6 +326,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 	const icons: {[key:string]: string} = {
 		enrichr: "/img/Enrichr.png",
 		gse: "/img/cfde-gse.png",
+		pwb: "/img/pwb.png",
 		gsfm: "/img/gsfm.png",
 		gdlpa: "/img/gdlpa.png",
 		"sigcom-lincs": "/img/lincs.png",
@@ -337,6 +340,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 		if (i.links) {
 			for (const l of i.links) {
 				const {resource, description, link} = l
+
 				if (resources[resource] === undefined) resources[resource] = []
 				const desc = resource === 'gse' ?  `Perform enrichment analysis on this gene set`: resource === 'perturbseqr' ? `Find perturbagens that mimic or reverse this gene set`: resource === 'biomarker-kb' ? "View biomarkers associated with this term": "View this term in DD-KG"
 				const props = resource === "gse" ? {}: {target:"_blank", rel:"noopener noreferrer"}
@@ -355,7 +359,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 									<ArrowForward />
 								</IconButton>
 								}
-								title={i.label}
+								title={description}
 								subheader={desc}
 								// subheader={`Search CFDE Workbench ${i.entity.replaceAll("_", " ")} entities`}
 							/>
@@ -367,30 +371,32 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 	  }
 	  const gsfm:ReactNode[] = []
 	  const gdlpa:ReactNode[] = []
-	  const enrichr:ReactNode[] = []
-	  const sigcomLincs:ReactNode[] = []
-	  const l2s2:ReactNode[] = []
+	  const pwb:ReactNode[] = []
+	//   const enrichr:ReactNode[] = []
+	//   const sigcomLincs:ReactNode[] = []
+	//   const l2s2:ReactNode[] = []
 	  for (const i of inputList) {
 		if (i.entity === "gene") {
-			gsfm.push(<GSFMButton input={i}/>)
-			gdlpa.push(<GDLPAButton input={i}/>)
+			gsfm.push(<GSFMButton key={i.label} input={i}/>)
+			gdlpa.push(<GDLPAButton  key={i.label} input={i}/>)
 		}
 		if (i.entity === "compound" || i.entity === "drug") {
-			gdlpa.push(<GDLPAButton input={i}/>)
+			gdlpa.push(<GDLPAButton  key={i.label} input={i}/>)
 		}
-		if (i.entity === "gene_set") {
-			sigcomLincs.push(<SigComButtons input={i}/>)
-			l2s2.push(<L2S2 input={i}/>)
-			enrichr.push(<EnrichrButtons input={i}/>)
+		if (["gene", "variant", "disease", "drug", "metabolite", "anatomy", "gene_set"].indexOf(i.entity) > -1) {
+			pwb.push(<PWBButton input={i}/>)
 		}
+		// if (i.entity === "gene_set") {
+		// 	sigcomLincs.push(<SigComButtons key={i.label} input={i}/>)
+		// 	l2s2.push(<L2S2 input={i}/>)
+		// 	enrichr.push(<EnrichrButtons key={i.label} input={i}/>)
+		// }
 
 	  }
 	  const handleClick = (query:string) => {
 		if (open===query) setOpen('')
 		else setOpen(query)
 	  }
-
-	  inputList.filter(i=>i.entity === 'gene').map(i=><GSFMButton input={i}/>)
 	  return (
 		<Grid container spacing={2}>
 			<Grid item xs={12}>
@@ -414,6 +420,8 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 					component="nav"
 					aria-labelledby="nested-list-subheader"
 				>
+					{searches.length > 0 && 
+					<>
 					<ListItemButton onClick={()=>handleClick('search')}>
 						<ListItemIcon>
 							<Image src="/img/cfde-search.png" width={50} height={50} alt="cfde"/>
@@ -429,6 +437,8 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 							</Grid>
 						</Paper>
 					</Collapse>
+					</>
+					}
 					{(gdlpa || []).length > 0 && 
 					<>
 						<ListItemButton onClick={()=>handleClick('gdlpa')}>
@@ -462,6 +472,25 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 							<Paper elevation={0}>
 								<Grid container spacing={2}>
 									{gsfm}
+								</Grid>
+							</Paper>
+						</Collapse>
+					</>
+					}
+					{(pwb || []).length > 0 && 
+					<>
+						<ListItemButton onClick={()=>handleClick('pwb')}>
+							<ListItemIcon>
+								<Image src={icons.pwb} width={30} height={30} alt="pwb"/>
+							</ListItemIcon>
+							<ListItemText primary={<Typography variant="h3">{`Send to Playbook Workflow Builder`}</Typography>}
+							secondary={'CreaCreate Applications Analyzing Input Terms in Playbook Workflow Builder'} />
+							{open==='pwb' ? <ExpandLess /> : <ExpandMore />}
+						</ListItemButton>
+						<Collapse in={open==='pwb'} timeout="auto" unmountOnExit>
+							<Paper elevation={0}>
+								<Grid container spacing={2}>
+									{pwb}
 								</Grid>
 							</Paper>
 						</Collapse>
