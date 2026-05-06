@@ -249,20 +249,24 @@ export default router({
 	  const results: {[key:string]: {[key:string]: {resource: string, description: string, link: string}[]}} = {}
 	  for (const i of input) {
 		if (i.entity !== "gene_set") {
-			console.log(i)
 			if (['gene', 'variant', 'disease', 'drug'].indexOf(i.entity) > -1) {
 				if (results[i.entity] === undefined) results[i.entity] = {}
-				const req = await fetch(`https://api.biomarkerkb.org/biomarker/search_simple?query={"operation":"AND","query_type":"biomarker_search_simple","term":"${i.label}","term_category":"any"}`)
-				const res = await (req.json())
-				if (res.list_id !== "") {
-					if (results[i.entity][i.label] === undefined) results[i.entity][i.label] = []
-					results[i.entity][i.label].push({
-						...i,
-						description: i.label,
-						resource: "biomarker-kb",
-						link: `https://biomarkerkb.org/biomarker-list/${res.list_id}`
-					})
-				} 
+				try {
+					const req = await fetch(`https://api.biomarkerkb.org/biomarker/search_simple?query={"operation":"AND","query_type":"biomarker_search_simple","term":"${i.label}","term_category":"any"}`)
+					const res = await (req.json())
+					if (res.list_id !== "") {
+						if (results[i.entity][i.label] === undefined) results[i.entity][i.label] = []
+						results[i.entity][i.label].push({
+							...i,
+							description: i.label,
+							resource: "biomarker-kb",
+							link: `https://biomarkerkb.org/biomarker-list/${res.list_id}`
+						})
+					}	
+				} catch (error) {
+					console.error(error)
+				}
+				 
 			} if (i.entity === 'gene') {
 				if (results[i.entity] === undefined) results[i.entity] = {}
 				if (results[i.entity][i.label] === undefined) results[i.entity][i.label] = []
@@ -274,30 +278,48 @@ export default router({
 				})
 			} else if (i.entity === 'drug') {
 				if (results[i.entity] === undefined) results[i.entity] = {}
-				const r = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${i.label}/JSON`)
-				const res = await r.json()
-				if (res.PC_Compounds) {
-					const cid = res.PC_Compounds[0].id.id.cid
-					if (results[i.entity][i.label] === undefined) results[i.entity][i.label] = []
-					results[i.entity][i.label].push({
-						...i,
-						description: i.label,
-						resource: "dd-kg",
-						link: `https://dd-kg-ui.cfde.cloud/?filter={"start":"Compound","start_field":"PUBCHEM","start_term":"${cid}"}`
-					})
+				try {
+					const r = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${i.label}/JSON`)
+					const res = await r.json()
+					if (res.PC_Compounds) {
+						const cid = res.PC_Compounds[0].id.id.cid
+						const r1 = await fetch(`https://dd-kg-ui.cfde.cloud/api/knowledge_graph?filter={"start":"Compound","start_field":"PUBCHEM","start_term":"${cid}"}`)
+						const res1 = await r1.json()
+						if (res1.nodes.length > 0) {
+							if (results[i.entity][i.label] === undefined) results[i.entity][i.label] = []
+							results[i.entity][i.label].push({
+								...i,
+								description: i.label,
+								resource: "dd-kg",
+								link: `https://dd-kg-ui.cfde.cloud/?filter={"start":"Compound","start_field":"PUBCHEM","start_term":"${cid}"}`
+							})
+						}
+					}	
+				} catch (error) {
+					console.error(error)	
 				}
+				
 			} else if (i.entity === 'anatomy') {
 				if (results[i.entity] === undefined) results[i.entity] = {}
-				const r = await fetch(`https://www.ebi.ac.uk/ols4/api/search?q=${i.label}&ontology=uberon`)
-				const res = await r.json()
-				const id = res.response.docs[0].obo_id.split(":")[1]
-				if (results[i.entity][i.label] === undefined) results[i.entity][i.label] = []
-				results[i.entity][i.label].push({
-					...i,
-					description: i.label,
-					resource: "dd-kg",
-					link: `https://dd-kg-ui.cfde.cloud/?filter={"start":"Anatomy","start_field":"PUBCHEM","start_term":"${id}.0"}`
-				})
+				try {
+					const r = await fetch(`https://www.ebi.ac.uk/ols4/api/search?q=${i.label}&ontology=uberon`)
+					const res = await r.json()
+					const id = res.response.docs[0].obo_id.split(":")[1]
+					const r1 = await fetch(`https://dd-kg-ui.cfde.cloud/api/knowledge_graph?filter={"start":"Anatomy","start_field":"UBERON","start_term":"${id}.0"}`)
+					const res1 = await r1.json()
+					if (res1.nodes.length > 0) {
+						if (results[i.entity][i.label] === undefined) results[i.entity][i.label] = []
+						results[i.entity][i.label].push({
+							...i,
+							description: i.label,
+							resource: "dd-kg",
+							link: `https://dd-kg-ui.cfde.cloud/?filter={"start":"Anatomy","start_field":"UBERON","start_term":"${id}.0"}`
+						})	
+					}
+				} catch (error) {
+					console.error(error)
+				}
+				
 			}
 		}
 	  }
@@ -436,7 +458,7 @@ export default router({
 	.query(async (props)=>{
 		const {term, facet} = props.input
 		const ontologies:{[key:string]: string} = {
-			anatomy: "uberon,cl,clo",
+			anatomy: "uberon",
 			disease: "mondo",
 			assay: "edam",
 			drug: "chebi"
