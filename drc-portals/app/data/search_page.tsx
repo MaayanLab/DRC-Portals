@@ -384,7 +384,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 			gdlpa.push(<GDLPAButton  key={i.label} input={i}/>)
 		}
 		if (["gene", "variant", "disease", "drug", "metabolite", "anatomy", "gene_set"].indexOf(i.entity) > -1) {
-			pwb.push(<PWBButton input={i}/>)
+			pwb.push(<PWBButton key={i.label} input={i}/>)
 		}
 		// if (i.entity === "gene_set") {
 		// 	sigcomLincs.push(<SigComButtons key={i.label} input={i}/>)

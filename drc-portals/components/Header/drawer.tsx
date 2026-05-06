@@ -1,5 +1,5 @@
 'use client'
-import { useState } from "react"
+import React, { useState } from "react"
 import Link from "@/utils/link";
 import { Button, Stack, Divider, Typography, Container, List, ListItemButton, ListItemIcon, ListItemText, Collapse } from "@mui/material"
 import Drawer from '@mui/material/Drawer';
@@ -35,19 +35,19 @@ export const DRCDrawer = ({path, options, session}: {path: "/info"| "/data", opt
 			<Drawer open={open} onClose={()=>setOpen(false)}>
 				<Stack spacing={2} sx={{padding: 2}} justifyContent={"flex-start"}>
 					<div className="flex flex-col">
-						<Link onClick={()=>setOpen(false)} href={"/data"}>
+						<Link key={'data'} href={"/data"}>
 							<Typography variant={"nav_highlighted"}><b>Data</b></Typography>
 						</Link>
-						<Link onClick={()=>setOpen(false)} href={"https://cfdeworkspace.org/"} target="_blank" rel="noopener noreferrer">
+						<Link key={'cloud'} href={"https://cfdeworkspace.org/"} target="_blank" rel="noopener noreferrer">
 							  <Typography variant="nav"><b>Cloud</b></Typography>
 						</Link>
-						<Link onClick={()=>setOpen(false)} href={"https://cfdeknowledge.org/r/kc_landing"}>
+						<Link key={'kc'} href={"https://cfdeknowledge.org/r/kc_landing"}>
 							  <Typography variant="nav"><b>Knowledge</b></Typography>
 						</Link>
-						<Link onClick={()=>setOpen(false)} href={"https://orau.org/cfde-trainingcenter/"}>
+						<Link key={'training'} href={"https://orau.org/cfde-trainingcenter/"}>
 							  <Typography variant="nav"><b>training</b></Typography>
 						</Link>
-						<Link onClick={()=>setOpen(false)} href={"https://cfdeconnect.org/"}>
+						<Link key={'coordination'} href={"https://cfdeconnect.org/"}>
 							  <Typography variant="nav"><b>coordination</b></Typography>
 						</Link>
 					</div>
@@ -57,7 +57,7 @@ export const DRCDrawer = ({path, options, session}: {path: "/info"| "/data", opt
 						component="nav"
 					>
 						{options.map(option=>(
-							<>
+							<React.Fragment key={option.title}>
 							<ListItemButton key={option.title} onClick={()=>openMenu === option.title ? setOpenMenu(''): setOpenMenu(option.title)}>
 								
 								<ListItemText>
@@ -76,7 +76,7 @@ export const DRCDrawer = ({path, options, session}: {path: "/info"| "/data", opt
 									)}
 								</List>
 							</Collapse>
-							</>
+							</React.Fragment>
 						))}
 					</List>
 					<Divider/>
