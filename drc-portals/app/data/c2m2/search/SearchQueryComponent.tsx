@@ -236,76 +236,110 @@ export async function SearchQueryComponent(props: PageProps) {
         all_count_limit={super_limit}
         searchText={searchParams.q}
         filters={
-          <ErrorBoundary fallback={<>Loading..</>}>
-            <React.Suspense fallback={<>Loading..</>}>
-              <DiseaseFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
+          <>
+            <ErrorBoundary fallback={<>Loading..</>}>
+              <React.Suspense fallback={<>Loading..</>}>
+                <DiseaseFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+              </React.Suspense>
+            </ErrorBoundary>
 
-            <React.Suspense fallback={<>Loading..</>}>
-              <TaxonomyFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
+            <ErrorBoundary fallback={<>Loading..</>}>
+              <React.Suspense fallback={<>Loading..</>}>
+                <TaxonomyFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+              </React.Suspense>
+            </ErrorBoundary>
 
-            <React.Suspense fallback={<>Loading..</>}>
-              <AnatomyFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
+            <ErrorBoundary fallback={<>Loading..</>}>
+              <React.Suspense fallback={<>Loading..</>}>
+                <AnatomyFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+              </React.Suspense>
+            </ErrorBoundary>
 
-            <React.Suspense fallback={<>Loading..</>}>
-              <BiofluidFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
+            <ErrorBoundary fallback={<>Loading..</>}>
+              <React.Suspense fallback={<>Loading..</>}>
+                <BiofluidFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+              </React.Suspense>
+            </ErrorBoundary>
 
-            <React.Suspense fallback={<>Loading..</>}>
-              <GeneFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
+            <ErrorBoundary fallback={<>Loading..</>}>
+              <React.Suspense fallback={<>Loading..</>}>
+                <GeneFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+              </React.Suspense>
+            </ErrorBoundary>
 
-            <React.Suspense fallback={<>Loading..</>}>
-              <ProteinFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
+            <ErrorBoundary fallback={<>Loading..</>}>
+              <React.Suspense fallback={<>Loading..</>}>
+                <ProteinFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+              </React.Suspense>
+            </ErrorBoundary>
 
-            <React.Suspense fallback={<>Loading..</>}>
-              <CompoundFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
+            <ErrorBoundary fallback={<>Loading..</>}>
+              <React.Suspense fallback={<>Loading..</>}>
+                <CompoundFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+              </React.Suspense>
+            </ErrorBoundary>
 
-            <React.Suspense fallback={<>Loading..</>}>
-              <DataTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
+            <ErrorBoundary fallback={<>Loading..</>}>
+              <React.Suspense fallback={<>Loading..</>}>
+                <DataTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+              </React.Suspense>
+            </ErrorBoundary>
 
-            <React.Suspense fallback={<>Loading..</>}>
-              <AssayTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
+            <ErrorBoundary fallback={<>Loading..</>}>
+              <React.Suspense fallback={<>Loading..</>}>
+                <AssayTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+              </React.Suspense>
+            </ErrorBoundary>
 
-            <React.Suspense fallback={<>Loading..</>}>
-              <FileFormatFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
+            <ErrorBoundary fallback={<>Loading..</>}>
+              <React.Suspense fallback={<>Loading..</>}>
+                <FileFormatFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+              </React.Suspense>
+            </ErrorBoundary>
 
-            <React.Suspense fallback={<>Loading..</>}>
-              <DCCFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
+            <ErrorBoundary fallback={<>Loading..</>}>
+              <React.Suspense fallback={<>Loading..</>}>
+                <DCCFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+              </React.Suspense>
+            </ErrorBoundary>
 
-            <React.Suspense fallback={<>Loading..</>}>
-              <SubjectEthnicityFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
+            <ErrorBoundary fallback={<>Loading..</>}>
+              <React.Suspense fallback={<>Loading..</>}>
+                <SubjectEthnicityFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+              </React.Suspense>
+            </ErrorBoundary>
 
-            <React.Suspense fallback={<>Loading..</>}>
-              <SubjectSexFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
+            <ErrorBoundary fallback={<>Loading..</>}>
+              <React.Suspense fallback={<>Loading..</>}>
+                <SubjectSexFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+              </React.Suspense>
+            </ErrorBoundary>
 
-            <React.Suspense fallback={<>Loading..</>}>
-              <SubjectRaceFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
+            <ErrorBoundary fallback={<>Loading..</>}>
+              <React.Suspense fallback={<>Loading..</>}>
+                <SubjectRaceFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+              </React.Suspense>
+            </ErrorBoundary>
 
-            <React.Suspense fallback={<>Loading..</>}>
-              <PTMTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
+            <ErrorBoundary fallback={<>Loading..</>}>
+              <React.Suspense fallback={<>Loading..</>}>
+                <PTMTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+              </React.Suspense>
+            </ErrorBoundary>
 
-            <React.Suspense fallback={<>Loading..</>}>
-              <PTMSubTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
+            <ErrorBoundary fallback={<>Loading..</>}>
+              <React.Suspense fallback={<>Loading..</>}>
+                <PTMSubTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+              </React.Suspense>
+            </ErrorBoundary>
 
-            <React.Suspense fallback={<>Loading..</>}>
-              <PTMSiteTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
-            </React.Suspense>
+            <ErrorBoundary fallback={<>Loading..</>}>
+              <React.Suspense fallback={<>Loading..</>}>
+                <PTMSiteTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
+              </React.Suspense>
+            </ErrorBoundary>
 
-          </ErrorBoundary>
+          </>
         }
         footer={
           <Link href="/data">
