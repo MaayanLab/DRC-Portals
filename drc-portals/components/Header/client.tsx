@@ -7,7 +7,6 @@ export  function TextNav({title, paths}: {title: string, paths: string[]}) {
 	let variant: 'nav' | 'nav_highlighted' = 'nav'
 	for (const p of paths) {
 		const path = p.replace(/^\/info/, "").replace(/^\/data/, "")
-		console.log(pathname, path)
 		if ((pathname.indexOf(path) !== -1 && path !== '') || ((/^\/(search|c2m2|processed|$)/.exec(pathname) !== null) && path === "") || (path === pathname)) {
 			variant = 'nav_highlighted'
 			break
