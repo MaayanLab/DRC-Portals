@@ -66,6 +66,11 @@ const ui_elements: {[key: string]: {color: string, icon_color: string, icon: str
     icon_color: blue[900],
     icon: mdiFlask
   },
+  assay: {
+    color: blue[100],
+    icon_color: blue[900],
+    icon: mdiFlask
+  },
   drug: {
     color: lime[100],
     icon_color: lime[900],
@@ -118,6 +123,7 @@ const Explorer = ({input_query}: {input_query: {[key:string]: string[] | {[key:s
   useEffect(()=>{
     const inputList:{entity: string, label: string, icon_color: string, color: string, icon: string, values?: {[key: string]: string|number|undefined}, links?: {resource: string, description: string, link: string}[]}[] = []
         for (const [entity, v] of Object.entries(input_query)) {
+          console.log(entity)
           const {color, icon, icon_color} = ui_elements[entity]
           if (entity === 'gene_set' && !Array.isArray(v)) {
             for (const [description, input] of Object.entries(v)) {
