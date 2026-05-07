@@ -148,7 +148,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 		  if (deepDiveOptions) {
 			const [runnable, artc ] = deepDiveOptions
 			// const runnables = runnable.result.data.items
-			setRunnables(runnable.result.data.items)
+			setRunnables(runnable?.result?.data?.items || [])
 			// if (inputList.length === 1) setApplicables(applicable.result.data)
 			// else setApplicables(applicable.result.data.filter((i:{method:string})=>i.method !== 'DeepDive'))
 			// const articles = artc.result.data.items
@@ -484,7 +484,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 								<Image src={icons.pwb} width={30} height={30} alt="pwb"/>
 							</ListItemIcon>
 							<ListItemText primary={<Typography variant="h3">{`Send to Playbook Workflow Builder`}</Typography>}
-							secondary={'CreaCreate Applications Analyzing Input Terms in Playbook Workflow Builder'} />
+							secondary={'Create Applications Analyzing Input Terms in Playbook Workflow Builder'} />
 							{open==='pwb' ? <ExpandLess /> : <ExpandMore />}
 						</ListItemButton>
 						<Collapse in={open==='pwb'} timeout="auto" unmountOnExit>
