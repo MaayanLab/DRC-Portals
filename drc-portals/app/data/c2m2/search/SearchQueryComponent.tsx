@@ -33,6 +33,7 @@ import PTMSubTypeFilterComponent from './PTMSubTypeFilterComponent';
 import PTMSiteTypeFilterComponent from './PTMSiteTypeFilterComponent';
 import React, { Suspense } from "react";
 import { safeAsync } from '@/utils/safe';
+import { ErrorBoundary } from 'react-error-boundary';
 
 
 //------ To debug the database connection if needed, include the code from the file debug_db_connection.tsx, once done, delete only that code from here -------
@@ -157,7 +158,7 @@ const doQueryTotalFilteredCount = React.cache(async (searchParams: any) => {
 export async function SearchQueryComponentTab(props: { search: string }) {
 
   const t0: number = performance.now();
-
+  
   // Call doQueryCount to get the count of records
   const results = await safeAsync(() => doQueryCount({ ...props, searchParams: {} }));
 
@@ -235,7 +236,7 @@ export async function SearchQueryComponent(props: PageProps) {
         all_count_limit={super_limit}
         searchText={searchParams.q}
         filters={
-          <>
+          <ErrorBoundary fallback={<>Loading..</>}>
             <React.Suspense fallback={<>Loading..</>}>
               <DiseaseFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
@@ -304,7 +305,7 @@ export async function SearchQueryComponent(props: PageProps) {
               <PTMSiteTypeFilterComponent q={searchParams.q ?? ''} filterClause={filterClause} maxCount={maxCount} main_table={main_table} />
             </React.Suspense>
 
-          </>
+          </ErrorBoundary>
         }
         footer={
           <Link href="/data">

@@ -8,6 +8,7 @@ import elasticsearch from "@/lib/elasticsearch";
 import { estypes } from "@elastic/elasticsearch";
 import { SearchQueryComponentTab as C2M2SearchQueryComponentTab } from '@/app/data/c2m2/search/SearchQueryComponent'
 import { safeAsync } from "@/utils/safe";
+import { ErrorBoundary } from "react-error-boundary";
 
 export async function generateMetadata(props: { params: Promise<{ search: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params
@@ -56,9 +57,11 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
   return (
     <SearchTabs>
       <FancyTabPlaceholder id="c2m2" label={<>Cross-Cut Metadata Model</>} priority={Infinity}>
+      <ErrorBoundary fallback={<div/>}>
         <React.Suspense fallback={null}>
-          <C2M2SearchQueryComponentTab search={params.search} />
+            <C2M2SearchQueryComponentTab search={params.search} />
         </React.Suspense>
+      </ErrorBoundary>
       </FancyTabPlaceholder>
       <FancyTab
         id={""}
