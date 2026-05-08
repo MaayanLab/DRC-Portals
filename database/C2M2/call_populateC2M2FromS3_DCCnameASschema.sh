@@ -65,6 +65,8 @@ echo -e "After data is ingested in schema c2m2, and also in dcc-name-based schem
 
 count_sql_allf=${logdir}/CountQuery_Crosscheck_ALL.sql
 count_sql_of=${logdir}/CountQuery_Crosscheck_output.log
+mismatchf_tmp=${logdir}/CountQuery_Crosscheck_mismatch_tmp.log
+mismatchf_agg=${logdir}/CountQuery_Crosscheck_mismatch_agg.log
 mismatchf=${logdir}/CountQuery_Crosscheck_mismatch.log
 
 if [ -f "${count_sql_allf}" ]; then
@@ -78,11 +80,13 @@ cat ${logdir}/CountQuery_Crosscheck_*.sql > ${count_sql_allf}
 #exec_sql_codestr="psql -h localhost -U drc -d drc -p [5432|5433] -f ${count_sql_allf} -o ${count_sql_of}"
 dburlstr='"$(python3 dburl.py)"'
 exec_sql_codestr="psql ${dburlstr} -f ${count_sql_allf} -o ${count_sql_of}"
-mismatch_cmdstr="egrep -i -e 'do not match' ${count_sql_of} > ${mismatchf};"
+mismatch_tmp_cmdstr="egrep -i -e 'do not match' ${count_sql_of} > ${mismatchf_tmp};"
+mismatch_agg_cmdstr="./CountQuery_aggregate.sh ${mismatchf_tmp} ${mismatchf_agg};"
+mismatch_cmdstr="egrep -i -e 'do not match' ${mismatchf_agg} > ${mismatchf};"
 
-echo -e "${exec_sql_codestr}\n${mismatch_cmdstr}";
+echo -e "\n${exec_sql_codestr}\n${mismatch_tmp_cmdstr}\n${mismatch_agg_cmdstr}\n${mismatch_cmdstr}";
 
-echo -e "# Next, you can check the file ${mismatchf} by opening it, or by running:\n";
+echo -e "\n# Next, you can check the file ${mismatchf} by opening it, or by running:\n";
 echo -e "wc -l ${mismatchf} #Count of lines in the file\n";
 echo -e "cat ${mismatchf} |more\n";
 
