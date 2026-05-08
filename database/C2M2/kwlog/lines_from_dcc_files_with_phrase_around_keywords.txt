@@ -6,7 +6,7 @@ Line 314: es a conflict between a person's actual physical gender and the gender
 Line 314: herself as.	["DOID:10919","gender dysphoria","gender identify disorder","transsexualism"]
 	================ Matches for 'gender' in ingest/c2m2s/IDG/IDG_C2M2_2024-01-09_datapackage_validated/merged-datapackage_cba63847d02e8ee1ccf150a98ebe814be895333c/data/collection.tsv: =============
 Line 49136: age Collection: DOID:1234	DiseasePage Collection: Gender incongruence (DOID:1234, FILE=tcrd_disease_DOID_0
-	================ Matches for 'gender' in ingest/c2m2s/Metabolomics/MW_submission_packet_20251214/MW_submission_packet_20251214/project.tsv: =============
+	================ Matches for 'gender' in ingest/c2m2s/Metabolomics/MW_submission_packet_20260310/MW_submission_packet_20260310/project.tsv: =============
 Line 38: wn risk factors (such as family history, age, and gender), biological markers supporting diagnosis or pred
 Line 38: s of primary metabolites was conducted on age and gender matched human cerebrospinal fluid (CSF) and plasm
 Line 56: teroids, Sleep and Metabolic Dysfunction in Women	Gender obstructive sleep apnea studies
@@ -18,15 +18,15 @@ Line 349: collect EBC on stable HF patients and in age and gender matched contro
 Line 824: istopathologically normal, donor controls of both genders for comparison. For the first time, we report pe
 Line 824: f both types of HF, and unveil the interaction of gender with HF, including increased nitric oxide-related
 Line 824: arginine metabolism in male hearts, and many gender-specific mitochondrial and X chromosome-linked pr
-Line 1008: ed by indoxyl sulfate and trimethylamine-N-oxide. Gender-specific characteristics of these landscapes were
-Line 1515: ntern mice at 7 days and 14 days post-crush. Both genders included. Metabolites were extracted in serial e
-Line 1690: ocampal proteome and lipidome, adjusting for age, gender, and post-mortem interval. Fibrillar C-terminal T
-Line 1855: distinct differences observed based on different gender, age, and smoking history groups. Male group show
-Line 2113: r (21 individuals) pneumonia, all matched by age, gender and disease severity. The analysis is based on 24
-Line 2260: ptophan ratio (KTR) after the adjustment for age, gender, and BMI, as well as were negatively associated w
-	================ Matches for 'gender' in ingest/c2m2s/SPARC/C2M2_datapackage_20251215/file.tsv: =============
+Line 1009: ed by indoxyl sulfate and trimethylamine-N-oxide. Gender-specific characteristics of these landscapes were
+Line 1517: ntern mice at 7 days and 14 days post-crush. Both genders included. Metabolites were extracted in serial e
+Line 1693: ocampal proteome and lipidome, adjusting for age, gender, and post-mortem interval. Fibrillar C-terminal T
+Line 1858: distinct differences observed based on different gender, age, and smoking history groups. Male group show
+Line 2122: r (21 individuals) pneumonia, all matched by age, gender and disease severity. The analysis is based on 24
+Line 2282: ptophan ratio (KTR) after the adjustment for age, gender, and BMI, as well as were negatively associated w
+	================ Matches for 'gender' in ingest/c2m2s/SPARC/C2M2_datapackage_20260317/file.tsv: =============
 Line 15568: 461f31b5bed3a628893b45468b7d		derivative__DiffExp_Gender.pdf	format:3547		data:2968	OBI:0002119		image/jpx
-	================ Matches for 'gender' in ingest/c2m2s/SPARC/C2M2_datapackage_20251215/project.tsv: =============
+	================ Matches for 'gender' in ingest/c2m2s/SPARC/C2M2_datapackage_20260317/project.tsv: =============
 Line 32: pact of location, lesion severity, chronicity and gender. Our innovative approach and novel application of
 	================ Matches for 'gender' in ingest/c2m2s/ExRNA/exRNA_CFDE_102025/exRNA_CFDE_102025/file.tsv: =============
 Line 103130: gencode_antisense.txt	ERCC-exRNA	EXR-IGHIR1IGHIRANGenderPool1-ST		4/20/20		9342	c9513779af7a75b00f586089a6
@@ -87,104 +87,15 @@ Line 49571: tion: DOID:3429	DiseasePage Collection: Myositis, Inclusion Body (DO
 Line 50367: n: DOID:11259	DiseasePage Collection: cytomegalic inclusion disease (DOID:11259, FILE=tcrd_disease_DOID_01125
 	================ Matches for 'inclusion' in ingest/c2m2s/IDG/IDG_C2M2_2024-01-09_datapackage_validated/merged-datapackage_cba63847d02e8ee1ccf150a98ebe814be895333c/data/compound.tsv: =============
 Line 5372: Z4LPZ", "MLS000069653", "NSC180", "Salicylic acid inclusion complex", "K 537", "NSC-180", "ATA fraction 10, a
-	================ Matches for 'inclusion' in ingest/c2m2s/Metabolomics/MW_submission_packet_20251214/MW_submission_packet_20251214/project.tsv: =============
+	================ Matches for 'inclusion' in ingest/c2m2s/Metabolomics/MW_submission_packet_20260310/MW_submission_packet_20260310/project.tsv: =============
 Line 569: enrolment, were excluded from analysis to prevent inclusion of participants who had incipient or asymptomatic
-Line 1249: tform was used to analyse endogenous analytes for inclusion in subsequent statistical analysis procedures use
-Line 1361: 01483	http://dx.doi.org/10.21228/M81M72			Dietary inclusion of nitrite-containing frankfurter exacerbates col
-Line 1517: s were collected from 88 participants who met the inclusion criteria, of whom 43 control patients were treate
-Line 1748: individuals, and 28 obese individuals who met the inclusion criteria for the study. The plasma samples were a
-Line 1930: nce intervals. Overall, these results support the inclusion of small molecule markers in biodosimetry assays
-Line 2305: ignificance in another dimension of the study, b) inclusion in a common pathway with a highly significant com
-	================ Matches for 'inclusion' in ingest/c2m2s/MoTrPAC/datapackage/submit_03_15_2024/data/file_in_collection.tsv: =============
-Line 5706: bolomics-untargeted/t31-plasma/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 5707: bolomics-untargeted/t31-plasma/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 5708: bolomics-untargeted/t31-plasma/metab-u-lrpneg/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 5709: bolomics-untargeted/t31-plasma/metab-u-lrpneg/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 5783: bolomics-untargeted/t31-plasma/metab-u-lrppos/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 5784: bolomics-untargeted/t31-plasma/metab-u-lrppos/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 5785: bolomics-untargeted/t31-plasma/metab-u-lrppos/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 5786: bolomics-untargeted/t31-plasma/metab-u-lrppos/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 5787: bolomics-untargeted/t31-plasma/metab-u-lrppos/DDA_Inclusion05.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 5788: bolomics-untargeted/t31-plasma/metab-u-lrppos/DDA_Inclusion06.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 5789: bolomics-untargeted/t31-plasma/metab-u-lrppos/DDA_Inclusion07.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 5790: bolomics-untargeted/t31-plasma/metab-u-lrppos/DDA_Inclusion08.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6193: ics-untargeted/t52-hippocampus/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6194: ics-untargeted/t52-hippocampus/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6195: ics-untargeted/t52-hippocampus/metab-u-lrpneg/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6196: ics-untargeted/t52-hippocampus/metab-u-lrpneg/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6269: ics-untargeted/t52-hippocampus/metab-u-lrppos/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6270: ics-untargeted/t52-hippocampus/metab-u-lrppos/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6271: ics-untargeted/t52-hippocampus/metab-u-lrppos/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6272: ics-untargeted/t52-hippocampus/metab-u-lrppos/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6273: ics-untargeted/t52-hippocampus/metab-u-lrppos/DDA_Inclusion05.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6274: ics-untargeted/t52-hippocampus/metab-u-lrppos/DDA_Inclusion06.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6817: s-untargeted/t55-gastrocnemius/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6818: s-untargeted/t55-gastrocnemius/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6819: s-untargeted/t55-gastrocnemius/metab-u-lrpneg/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6820: s-untargeted/t55-gastrocnemius/metab-u-lrpneg/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6893: s-untargeted/t55-gastrocnemius/metab-u-lrppos/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6894: s-untargeted/t55-gastrocnemius/metab-u-lrppos/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6895: s-untargeted/t55-gastrocnemius/metab-u-lrppos/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6896: s-untargeted/t55-gastrocnemius/metab-u-lrppos/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 6897: s-untargeted/t55-gastrocnemius/metab-u-lrppos/DDA_Inclusion05.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 7379: abolomics-untargeted/t58-heart/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 7380: abolomics-untargeted/t58-heart/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 7453: abolomics-untargeted/t58-heart/metab-u-lrppos/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 7454: abolomics-untargeted/t58-heart/metab-u-lrppos/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 7455: abolomics-untargeted/t58-heart/metab-u-lrppos/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 7456: abolomics-untargeted/t58-heart/metab-u-lrppos/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 7457: abolomics-untargeted/t58-heart/metab-u-lrppos/DDA_Inclusion05.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 7870: bolomics-untargeted/t59-kidney/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 7871: bolomics-untargeted/t59-kidney/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 7872: bolomics-untargeted/t59-kidney/metab-u-lrpneg/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 7946: bolomics-untargeted/t59-kidney/metab-u-lrppos/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 7947: bolomics-untargeted/t59-kidney/metab-u-lrppos/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 7948: bolomics-untargeted/t59-kidney/metab-u-lrppos/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 7949: bolomics-untargeted/t59-kidney/metab-u-lrppos/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 7950: bolomics-untargeted/t59-kidney/metab-u-lrppos/DDA_Inclusion05.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 7951: bolomics-untargeted/t59-kidney/metab-u-lrppos/DDA_Inclusion06.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 7952: bolomics-untargeted/t59-kidney/metab-u-lrppos/DDA_Inclusion07.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 7953: bolomics-untargeted/t59-kidney/metab-u-lrppos/DDA_Inclusion08.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 8647: tabolomics-untargeted/t66-lung/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 8648: tabolomics-untargeted/t66-lung/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 8649: tabolomics-untargeted/t66-lung/metab-u-lrpneg/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 8650: tabolomics-untargeted/t66-lung/metab-u-lrpneg/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 8724: tabolomics-untargeted/t66-lung/metab-u-lrppos/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 8725: tabolomics-untargeted/t66-lung/metab-u-lrppos/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 8726: tabolomics-untargeted/t66-lung/metab-u-lrppos/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 8727: tabolomics-untargeted/t66-lung/metab-u-lrppos/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 8728: tabolomics-untargeted/t66-lung/metab-u-lrppos/DDA_Inclusion05.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 8729: tabolomics-untargeted/t66-lung/metab-u-lrppos/DDA_Inclusion06.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 8730: tabolomics-untargeted/t66-lung/metab-u-lrppos/DDA_Inclusion07.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 9216: abolomics-untargeted/t68-liver/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 9217: abolomics-untargeted/t68-liver/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 9296: abolomics-untargeted/t68-liver/metab-u-lrppos/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 9297: abolomics-untargeted/t68-liver/metab-u-lrppos/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 9298: abolomics-untargeted/t68-liver/metab-u-lrppos/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 9299: abolomics-untargeted/t68-liver/metab-u-lrppos/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 9300: abolomics-untargeted/t68-liver/metab-u-lrppos/DDA_Inclusion05.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 9301: abolomics-untargeted/t68-liver/metab-u-lrppos/DDA_Inclusion06.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 9302: abolomics-untargeted/t68-liver/metab-u-lrppos/DDA_Inclusion07.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 9303: abolomics-untargeted/t68-liver/metab-u-lrppos/DDA_Inclusion08.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 9702: s-untargeted/t69-brown-adipose/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 9703: s-untargeted/t69-brown-adipose/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 9764: s-untargeted/t69-brown-adipose/metab-u-lrppos/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 9765: s-untargeted/t69-brown-adipose/metab-u-lrppos/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 9766: s-untargeted/t69-brown-adipose/metab-u-lrppos/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 9767: s-untargeted/t69-brown-adipose/metab-u-lrppos/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 9768: s-untargeted/t69-brown-adipose/metab-u-lrppos/DDA_Inclusion05.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 9769: s-untargeted/t69-brown-adipose/metab-u-lrppos/DDA_Inclusion06.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 10203: s-untargeted/t70-white-adipose/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 10204: s-untargeted/t70-white-adipose/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 10205: s-untargeted/t70-white-adipose/metab-u-lrpneg/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 10279: s-untargeted/t70-white-adipose/metab-u-lrppos/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 10280: s-untargeted/t70-white-adipose/metab-u-lrppos/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 10281: s-untargeted/t70-white-adipose/metab-u-lrppos/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 10282: s-untargeted/t70-white-adipose/metab-u-lrppos/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 10283: s-untargeted/t70-white-adipose/metab-u-lrppos/DDA_Inclusion05.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 10284: s-untargeted/t70-white-adipose/metab-u-lrppos/DDA_Inclusion06.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-Line 10285: s-untargeted/t70-white-adipose/metab-u-lrppos/DDA_Inclusion07.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
-	================ Matches for 'inclusion' in ingest/c2m2s/MoTrPAC/datapackage/submit_03_15_2024/data/file.tsv: =============
+Line 1250: tform was used to analyse endogenous analytes for inclusion in subsequent statistical analysis procedures use
+Line 1362: 01483	http://dx.doi.org/10.21228/M81M72			Dietary inclusion of nitrite-containing frankfurter exacerbates col
+Line 1519: s were collected from 88 participants who met the inclusion criteria, of whom 43 control patients were treate
+Line 1751: individuals, and 28 obese individuals who met the inclusion criteria for the study. The plasma samples were a
+Line 1933: nce intervals. Overall, these results support the inclusion of small molecule markers in biodosimetry assays
+Line 2329: ignificance in another dimension of the study, b) inclusion in a common pathway with a highly significant com
+	================ Matches for 'inclusion' in ingest/c2m2s/MoTrPAC/C2M2_datapackage/file.tsv: =============
 Line 5706: bolomics-untargeted/t31-plasma/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac	e0452370
 Line 5706: a76fb00872a3f07c7c0fc75b2c69a32a71a06bf4aba2		DDA_Inclusion01.raw				OBI:0000366		application/octet-stream
 Line 5707: bolomics-untargeted/t31-plasma/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac	52d11b7e
@@ -361,6 +272,95 @@ Line 10284: s-untargeted/t70-white-adipose/metab-u-lrppos/DDA_Inclusion06.raw	ta
 Line 10284: d6c09d0b05026d28bf9239cbf0bba32ee36b2595678f		DDA_Inclusion06.raw				OBI:0000366		application/octet-stream
 Line 10285: s-untargeted/t70-white-adipose/metab-u-lrppos/DDA_Inclusion07.raw	tag:motrpac-data.org,2023:	motrpac	0392c149
 Line 10285: 6a51c6e017dbfd31cec1e929c4a41fcfe51f891efab5		DDA_Inclusion07.raw				OBI:0000366		application/octet-stream
+	================ Matches for 'inclusion' in ingest/c2m2s/MoTrPAC/C2M2_datapackage/file_in_collection.tsv: =============
+Line 5706: bolomics-untargeted/t31-plasma/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 5707: bolomics-untargeted/t31-plasma/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 5708: bolomics-untargeted/t31-plasma/metab-u-lrpneg/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 5709: bolomics-untargeted/t31-plasma/metab-u-lrpneg/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 5783: bolomics-untargeted/t31-plasma/metab-u-lrppos/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 5784: bolomics-untargeted/t31-plasma/metab-u-lrppos/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 5785: bolomics-untargeted/t31-plasma/metab-u-lrppos/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 5786: bolomics-untargeted/t31-plasma/metab-u-lrppos/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 5787: bolomics-untargeted/t31-plasma/metab-u-lrppos/DDA_Inclusion05.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 5788: bolomics-untargeted/t31-plasma/metab-u-lrppos/DDA_Inclusion06.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 5789: bolomics-untargeted/t31-plasma/metab-u-lrppos/DDA_Inclusion07.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 5790: bolomics-untargeted/t31-plasma/metab-u-lrppos/DDA_Inclusion08.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6193: ics-untargeted/t52-hippocampus/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6194: ics-untargeted/t52-hippocampus/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6195: ics-untargeted/t52-hippocampus/metab-u-lrpneg/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6196: ics-untargeted/t52-hippocampus/metab-u-lrpneg/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6269: ics-untargeted/t52-hippocampus/metab-u-lrppos/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6270: ics-untargeted/t52-hippocampus/metab-u-lrppos/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6271: ics-untargeted/t52-hippocampus/metab-u-lrppos/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6272: ics-untargeted/t52-hippocampus/metab-u-lrppos/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6273: ics-untargeted/t52-hippocampus/metab-u-lrppos/DDA_Inclusion05.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6274: ics-untargeted/t52-hippocampus/metab-u-lrppos/DDA_Inclusion06.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6817: s-untargeted/t55-gastrocnemius/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6818: s-untargeted/t55-gastrocnemius/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6819: s-untargeted/t55-gastrocnemius/metab-u-lrpneg/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6820: s-untargeted/t55-gastrocnemius/metab-u-lrpneg/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6893: s-untargeted/t55-gastrocnemius/metab-u-lrppos/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6894: s-untargeted/t55-gastrocnemius/metab-u-lrppos/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6895: s-untargeted/t55-gastrocnemius/metab-u-lrppos/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6896: s-untargeted/t55-gastrocnemius/metab-u-lrppos/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 6897: s-untargeted/t55-gastrocnemius/metab-u-lrppos/DDA_Inclusion05.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 7379: abolomics-untargeted/t58-heart/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 7380: abolomics-untargeted/t58-heart/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 7453: abolomics-untargeted/t58-heart/metab-u-lrppos/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 7454: abolomics-untargeted/t58-heart/metab-u-lrppos/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 7455: abolomics-untargeted/t58-heart/metab-u-lrppos/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 7456: abolomics-untargeted/t58-heart/metab-u-lrppos/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 7457: abolomics-untargeted/t58-heart/metab-u-lrppos/DDA_Inclusion05.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 7870: bolomics-untargeted/t59-kidney/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 7871: bolomics-untargeted/t59-kidney/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 7872: bolomics-untargeted/t59-kidney/metab-u-lrpneg/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 7946: bolomics-untargeted/t59-kidney/metab-u-lrppos/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 7947: bolomics-untargeted/t59-kidney/metab-u-lrppos/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 7948: bolomics-untargeted/t59-kidney/metab-u-lrppos/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 7949: bolomics-untargeted/t59-kidney/metab-u-lrppos/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 7950: bolomics-untargeted/t59-kidney/metab-u-lrppos/DDA_Inclusion05.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 7951: bolomics-untargeted/t59-kidney/metab-u-lrppos/DDA_Inclusion06.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 7952: bolomics-untargeted/t59-kidney/metab-u-lrppos/DDA_Inclusion07.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 7953: bolomics-untargeted/t59-kidney/metab-u-lrppos/DDA_Inclusion08.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 8647: tabolomics-untargeted/t66-lung/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 8648: tabolomics-untargeted/t66-lung/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 8649: tabolomics-untargeted/t66-lung/metab-u-lrpneg/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 8650: tabolomics-untargeted/t66-lung/metab-u-lrpneg/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 8724: tabolomics-untargeted/t66-lung/metab-u-lrppos/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 8725: tabolomics-untargeted/t66-lung/metab-u-lrppos/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 8726: tabolomics-untargeted/t66-lung/metab-u-lrppos/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 8727: tabolomics-untargeted/t66-lung/metab-u-lrppos/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 8728: tabolomics-untargeted/t66-lung/metab-u-lrppos/DDA_Inclusion05.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 8729: tabolomics-untargeted/t66-lung/metab-u-lrppos/DDA_Inclusion06.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 8730: tabolomics-untargeted/t66-lung/metab-u-lrppos/DDA_Inclusion07.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 9216: abolomics-untargeted/t68-liver/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 9217: abolomics-untargeted/t68-liver/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 9296: abolomics-untargeted/t68-liver/metab-u-lrppos/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 9297: abolomics-untargeted/t68-liver/metab-u-lrppos/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 9298: abolomics-untargeted/t68-liver/metab-u-lrppos/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 9299: abolomics-untargeted/t68-liver/metab-u-lrppos/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 9300: abolomics-untargeted/t68-liver/metab-u-lrppos/DDA_Inclusion05.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 9301: abolomics-untargeted/t68-liver/metab-u-lrppos/DDA_Inclusion06.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 9302: abolomics-untargeted/t68-liver/metab-u-lrppos/DDA_Inclusion07.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 9303: abolomics-untargeted/t68-liver/metab-u-lrppos/DDA_Inclusion08.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 9702: s-untargeted/t69-brown-adipose/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 9703: s-untargeted/t69-brown-adipose/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 9764: s-untargeted/t69-brown-adipose/metab-u-lrppos/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 9765: s-untargeted/t69-brown-adipose/metab-u-lrppos/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 9766: s-untargeted/t69-brown-adipose/metab-u-lrppos/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 9767: s-untargeted/t69-brown-adipose/metab-u-lrppos/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 9768: s-untargeted/t69-brown-adipose/metab-u-lrppos/DDA_Inclusion05.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 9769: s-untargeted/t69-brown-adipose/metab-u-lrppos/DDA_Inclusion06.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 10203: s-untargeted/t70-white-adipose/metab-u-lrpneg/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 10204: s-untargeted/t70-white-adipose/metab-u-lrpneg/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 10205: s-untargeted/t70-white-adipose/metab-u-lrpneg/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 10279: s-untargeted/t70-white-adipose/metab-u-lrppos/DDA_Inclusion01.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 10280: s-untargeted/t70-white-adipose/metab-u-lrppos/DDA_Inclusion02.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 10281: s-untargeted/t70-white-adipose/metab-u-lrppos/DDA_Inclusion03.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 10282: s-untargeted/t70-white-adipose/metab-u-lrppos/DDA_Inclusion04.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 10283: s-untargeted/t70-white-adipose/metab-u-lrppos/DDA_Inclusion05.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 10284: s-untargeted/t70-white-adipose/metab-u-lrppos/DDA_Inclusion06.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
+Line 10285: s-untargeted/t70-white-adipose/metab-u-lrppos/DDA_Inclusion07.raw	tag:motrpac-data.org,2023:	motrpac-pass1b-0
 	================ Matches for 'inclusion' in ingest/c2m2s/ExRNA/exRNA_CFDE_102025/exRNA_CFDE_102025/disease.tsv: =============
 Line 21: ormal proteinaceous (alpha-synuclein) cytoplasmic inclusions, called Lewy bodies, throughout the brain that r
 
@@ -409,13 +409,7 @@ Line 5: DSGCs, including data curated from ChEMBL, Tox21, diversity-oriented syn
 	================ Matches for 'diversity' in ingest/c2m2s/LINCS/datapackage/collection.tsv: =============
 Line 81: were measured for ~18,000 compounds derived from diversity-oriented synthesis activities at the Broad Instit
 Line 175: line treated with ~21 thousands of compounds from diversity-oriented-synthesis (DOS) library.	False
-	================ Matches for 'diversity' in ingest/c2m2s/Metabolomics/MW_submission_packet_20251214/MW_submission_packet_20251214/gene.tsv: =============
-Line 6028: ENSG00000271317	IGHD4OR15-4A	immunoglobulin heavy diversity 4/OR15-4A (non-functional) [Source:HGNC Symbol;Ac
-Line 6397: ENSG00000282373	IGHD3-10	immunoglobulin heavy diversity 3-10 [Source:HGNC Symbol;Acc:HGNC:5495]	["DXP'1",
-Line 6399: ENSG00000282455	IGHD7-27	immunoglobulin heavy diversity 7-27 [Source:HGNC Symbol;Acc:HGNC:5518]	["DHQ52",
-Line 6400: ENSG00000282520	IGHD3OR15-3A	immunoglobulin heavy diversity 3/OR15-3A (non-functional) [Source:HGNC Symbol;Ac
-Line 6411: ENSG00000282754	IGHD3-3	immunoglobulin heavy diversity 3-3 [Source:HGNC Symbol;Acc:HGNC:5498]	["DXP4", "
-	================ Matches for 'diversity' in ingest/c2m2s/Metabolomics/MW_submission_packet_20251214/MW_submission_packet_20251214/project.tsv: =============
+	================ Matches for 'diversity' in ingest/c2m2s/Metabolomics/MW_submission_packet_20260310/MW_submission_packet_20260310/project.tsv: =============
 Line 11: udies	Compare metabolomic, phenotypic and genetic diversity across various groups of Africans.
 Line 126: asibility of metabolomics and to characterize the diversity of ?metabotypes? in the horse, towards discovery
 Line 248: 325	http://dx.doi.org/10.21228/M8788V			Armpit Biodiversity Metabolites and Odors	Diverse communities of micr
@@ -434,46 +428,57 @@ Line 902: te used to adjust for multiple comparisons. Alpha diversity metrics di
 Line 902: ups, with incomplete recovery by days 82-84. Beta diversity and the dysbiosis index differed significantly ov
 Line 909: mmunity. Yet relatively little is known about the diversity or concentration of polar metabolites within mari
 Line 919: obesity, demonstrate the genotypic and phenotypic diversity of the CC for studying complex traits, and highli
-Line 1034: genes on fecal DNA was performed. Alpha and beta diversity metrics were generated using QIIME 2.0. A Kruskal
-Line 1041: ypes, we provide the most comprehensive map of MF diversity to date, along with the global metabolic shifts t
-Line 1105: y analyses have focused on assessing the chemical diversity across the genus. The present study focused on th
-Line 1116: 234	http://dx.doi.org/10.21228/M86H5T			Metabolic diversity of the maize inbred lines	Profiles of primary met
-Line 1141: al heterogeneity in ovarian cancer, the metabolic diversity of a panel of high grade serous ovarian carcinoma
-Line 1283: tions are studied taking advantage of the natural diversity existing within a wild and model species (Arabido
-Line 1349: ns, low analyte concentrations, and high chemical diversity. Here we show that a cation-exchange solid phase
-Line 1358: aracterised in this study expanded the structural diversity over previously reported quick-killing compounds
-Line 1382: essive-like behaviors in mice, the complexity and diversity of the human microbiome has complicated therapeut
-Line 1389: rgy by mid-childhood. Lower infant gut microbiome diversity was associated with peanut allergy development (P
-Line 1435: mal models of WD presented reduced gut microbiota diversity compared to mice with normal copper metabolism. C
-Line 1472: he placebo group showed a significantly greater a diversity index than the control group (p < 0.05). An incre
-Line 1613: Functional divergence of CYP76AKs shapes the chemodiversity of abietane-type diterpenoids in genus Salvia	The
-Line 1613: specific to Salvia and exhibit taxonomic chemical diversity among lineages. To elucidate how ATD chemical div
-Line 1613: ese findings present a unique pattern of chemical diversity in plants that was shaped by the loss of enzyme a
-Line 1693: uisition, competitive performance, and functional diversity, but their potential metabolic interactions with
-Line 1718: ome science has been identifying and studying the diversity of metabolites produced by the gut microbes. Gut
-Line 1937: ast Targeted Metabolomics for Analyzing Metabolic Diversity of Bacterial Indole Derivatives	Disruptions in mi
-Line 1937: es. This study investigates whether the metabolic diversity—the concentration distribution—of bacterial indol
-Line 1937: lysis. This method revealed significant metabolic diversity in indole derivatives among B. uniformis strains
-Line 1937: two distinct B. uniformis clusters. The metabolic diversity between clusters was particularly evident in the
-Line 1937: and indole-3-aldehyde. We explored the metabolic diversity of indole derivatives as potential biomarkers for
-Line 1937: ccess. Our findings suggest that the local indole diversity of tryptophan degradation is a promising biomarke
-Line 1937: nd precise quantitative measurements of metabolic diversity in indole derivatives, facilitating the study of
-Line 1970: nsferases regulating phospholipid composition	The diversity of cellular phospholipids, crucial for membrane h
-Line 1999: .doi.org/10.21228/M8ZR7T			Quantifying acyl-chain diversity in isobaric compound lipids containing monomethyl
-Line 2004: oped using the H2o.ai engine. No differences in β-diversity were observed at either time point between mother
-Line 2004: s relative to normal weight (NW) infants. Simpson diversity at 12 and 34 wk was lower in mothers with LBW inf
-Line 2098: rofile, ensuring a maximum coverage of metabolite diversity to yield extensive insights into the metabolism o
-Line 2193: different regions of Xinjiang	In this study, the diversity of gut microbial profiles and their associations
-Line 2216: tabolomics. Results FMT-AID remodelled mucosal (β-diversity-adonis R2=2.13, p=0.02) and faecal (R2=2.76, p=0.
-Line 2216: cterial communities and enhanced faecal bacterial diversity (p&lt;0.001). FMT-AID enriched the gut with benef
-Line 2311: ctrometer, as well as phytoplankton biovolume and diversity and physicochemical lake’s parameters. Our result
-Line 2414: . Warmer periods correlated with higher bacterial diversity, elevated brominated metabolites, and stronger an
-Line 2445: ey, unlike some other common sweeteners, contains diversity of unique biologically active compounds with pote
-	================ Matches for 'diversity' in ingest/c2m2s/SPARC/C2M2_datapackage_20251215/project.tsv: =============
+Line 1035: genes on fecal DNA was performed. Alpha and beta diversity metrics were generated using QIIME 2.0. A Kruskal
+Line 1042: ypes, we provide the most comprehensive map of MF diversity to date, along with the global metabolic shifts t
+Line 1106: y analyses have focused on assessing the chemical diversity across the genus. The present study focused on th
+Line 1117: 234	http://dx.doi.org/10.21228/M86H5T			Metabolic diversity of the maize inbred lines	Profiles of primary met
+Line 1142: al heterogeneity in ovarian cancer, the metabolic diversity of a panel of high grade serous ovarian carcinoma
+Line 1284: tions are studied taking advantage of the natural diversity existing within a wild and model species (Arabido
+Line 1350: ns, low analyte concentrations, and high chemical diversity. Here we show that a cation-exchange solid phase
+Line 1359: aracterised in this study expanded the structural diversity over previously reported quick-killing compounds
+Line 1384: essive-like behaviors in mice, the complexity and diversity of the human microbiome has complicated therapeut
+Line 1391: rgy by mid-childhood. Lower infant gut microbiome diversity was associated with peanut allergy development (P
+Line 1437: mal models of WD presented reduced gut microbiota diversity compared to mice with normal copper metabolism. C
+Line 1474: he placebo group showed a significantly greater a diversity index than the control group (p < 0.05). An incre
+Line 1615: Functional divergence of CYP76AKs shapes the chemodiversity of abietane-type diterpenoids in genus Salvia	The
+Line 1615: specific to Salvia and exhibit taxonomic chemical diversity among lineages. To elucidate how ATD chemical div
+Line 1615: ese findings present a unique pattern of chemical diversity in plants that was shaped by the loss of enzyme a
+Line 1696: uisition, competitive performance, and functional diversity, but their potential metabolic interactions with
+Line 1721: ome science has been identifying and studying the diversity of metabolites produced by the gut microbes. Gut
+Line 1940: ast Targeted Metabolomics for Analyzing Metabolic Diversity of Bacterial Indole Derivatives	Disruptions in mi
+Line 1940: es. This study investigates whether the metabolic diversity—the concentration distribution—of bacterial indol
+Line 1940: lysis. This method revealed significant metabolic diversity in indole derivatives among B. uniformis strains
+Line 1940: two distinct B. uniformis clusters. The metabolic diversity between clusters was particularly evident in the
+Line 1940: and indole-3-aldehyde. We explored the metabolic diversity of indole derivatives as potential biomarkers for
+Line 1940: ccess. Our findings suggest that the local indole diversity of tryptophan degradation is a promising biomarke
+Line 1940: nd precise quantitative measurements of metabolic diversity in indole derivatives, facilitating the study of
+Line 1973: nsferases regulating phospholipid composition	The diversity of cellular phospholipids, crucial for membrane h
+Line 2003: .doi.org/10.21228/M8ZR7T			Quantifying acyl-chain diversity in isobaric compound lipids containing monomethyl
+Line 2008: oped using the H2o.ai engine. No differences in β-diversity were observed at either time point between mother
+Line 2008: s relative to normal weight (NW) infants. Simpson diversity at 12 and 34 wk was lower in mothers with LBW inf
+Line 2106: rofile, ensuring a maximum coverage of metabolite diversity to yield extensive insights into the metabolism o
+Line 2213: different regions of Xinjiang	In this study, the diversity of gut microbial profiles and their associations
+Line 2237: tabolomics. Results FMT-AID remodelled mucosal (β-diversity-adonis R2=2.13, p=0.02) and faecal (R2=2.76, p=0.
+Line 2237: cterial communities and enhanced faecal bacterial diversity (p&lt;0.001). FMT-AID enriched the gut with benef
+Line 2335: ctrometer, as well as phytoplankton biovolume and diversity and physicochemical lake’s parameters. Our result
+Line 2451: . Warmer periods correlated with higher bacterial diversity, elevated brominated metabolites, and stronger an
+Line 2486: ey, unlike some other common sweeteners, contains diversity of unique biologically active compounds with pote
+Line 2499: biogeography of the rumen microbiome and genetic diversity of ventral rumen among the ruminants remain unkno
+Line 2531: was associated with differences in microbial beta-diversity, suggesting that individual responsiveness to spe
+Line 2578: ell tolerated. Improvement of gut microbial alpha diversity and durable engraftment of anti-inflammatory taxa
+Line 2581: ivileged building blocks for generating molecular diversity on length-scales ranging from small molecules to
+Line 2584: ealed significantly higher microbial richness and diversity (Chao1 and Shannon indices, P &lt; 0.001) in the
+	================ Matches for 'diversity' in ingest/c2m2s/Metabolomics/MW_submission_packet_20260310/MW_submission_packet_20260310/gene.tsv: =============
+Line 2974: ENSG00000282520	IGHD3OR15-3A	immunoglobulin heavy diversity 3/OR15-3A (non-functional) [Source:HGNC Symbol;Ac
+Line 3765: ENSG00000282754	IGHD3-3	immunoglobulin heavy diversity 3-3 [Source:HGNC Symbol;Acc:HGNC:5498]	["DXP4", "
+Line 4274: ENSG00000271317	IGHD4OR15-4A	immunoglobulin heavy diversity 4/OR15-4A (non-functional) [Source:HGNC Symbol;Ac
+Line 4888: ENSG00000282455	IGHD7-27	immunoglobulin heavy diversity 7-27 [Source:HGNC Symbol;Acc:HGNC:5518]	["DHQ52",
+Line 5907: ENSG00000282373	IGHD3-10	immunoglobulin heavy diversity 3-10 [Source:HGNC Symbol;Acc:HGNC:5495]	["DXP'1",
+	================ Matches for 'diversity' in ingest/c2m2s/SPARC/C2M2_datapackage_20260317/project.tsv: =============
 Line 48: e specific anatomical, connectional and molecular diversity of the system in such a way as to directly predic
 Line 59: The functional significance of the neurochemical diversity of renal afferent and efferent nerves represents
 Line 68: Network seeks to provide foundational data on the diversity among cell types that comprise the pain neuraxis.
-	================ Matches for 'diversity' in ingest/c2m2s/SPARC/C2M2_datapackage_20251215/collection.tsv: =============
+	================ Matches for 'diversity' in ingest/c2m2s/SPARC/C2M2_datapackage_20260317/collection.tsv: =============
 Line 16: ganglionic plexus (RAGP) neurons	Transcriptional diversity of single neurons in the porcine RAGP. High throu
 Line 22: org/10.26275/7ph7-1ez4		7ph7_1ez4	Transcriptional diversity of single neurons in the porcine right atrial gan
 	================ Matches for 'diversity' in ingest/c2m2s/ExRNA/exRNA_CFDE_102025/exRNA_CFDE_102025/project.tsv: =============
@@ -512,7 +517,7 @@ Line 7393: , "transdermal patch", "Lyrinel XL", "Oxytrol for Women", "Oxybutynin
 Line 2903: "Regaine For Men", "Minoxidil,(S)", "Regaine For Women", "Prestwick_521", "3-hydroxy-2-imino-6-(1-piperi
 Line 2903: yrimidin-4-amine", "TM-160", "Men''''s Rogaine", "Women''''s rogaine", "Rogaine Extra Strength", "pyrimid
 Line 9052: roxy-2-phenylacetate", "Lyrinel XL", "Oxytrol for Women", "Oxybutynin [USAN:INN:BAN]", "CCRIS 1923", "Oxy
-	================ Matches for 'women' in ingest/c2m2s/Metabolomics/MW_submission_packet_20251214/MW_submission_packet_20251214/project.tsv: =============
+	================ Matches for 'women' in ingest/c2m2s/Metabolomics/MW_submission_packet_20260310/MW_submission_packet_20260310/project.tsv: =============
 Line 30: y area is in Gómez Palacio, Durango, Mexico where women are exposed to levels of iAs in drinking water up
 Line 40: s reporting a decline in reproductive function in women that is coincident with changing patterns of West
 Line 40: technology, it has also been reported that aging women, and those with reduced ovarian reserve, have alt
@@ -549,106 +554,109 @@ Line 795: milk composition between normal weight and obese women. Data generated
 Line 814: gestational age and time to delivery in pregnant women	Metabolism during pregnancy is a constantly chang
 Line 814: es are removed) collected from 30 Danish pregnant women. The study revealed extensive metabolome alterati
 Line 897: ng study, 80 healthy participants (n=40 men, n=40 women), 18-45 y were randomized to receive low-glycemic
-Line 1016: tion includes 844 healthy volunteers of which 183 women and 661 men, with a median age of 43 ± 12 yrs and
-Line 1036: egnancy outcomes, and child development. Pregnant women were enrolled from Boston and New York City hospi
-Line 1037: ontrol study within an ongoing cohort of pregnant women in Puerto Rico (PROTECT), we will explore untarge
-Line 1072: udinal untargeted plasma metabolomics of pregnant women with preeclampsia
-Line 1100: 8/M88H76			Metabolomics profiles of premenopausal women are different based on O-desmethylangolensin meta
-Line 1100: al, which was a cross-over study of premenopausal women consuming six months on a high- and a low-soy die
-Line 1100: all of the 672 samples in the study, 66 of the 84 women had the same ODMA metabotype at seven or all eigh
-Line 1100: amines were conducted in 60 urine samples from 20 women. Partial least-squares discriminant analysis was
-Line 1117: nal Diabetes Mellitus (GDM). Sixty-eight pregnant women with overweight/obesity from a clinical trial of
-Line 1142: cancer (BC) is the most common type of cancer in women and, in most cases, it is hormone-dependent (HD),
-Line 1162: 228/M80Q51			TIPs Metabolomics	Healthy omnivorous women underwent a short-term dietary intervention. Plas
-Line 1167: k Flaxseed Dietary Intervention in Postmenopausal Women	Samples were taken before and after 6 weeks of fl
-Line 1175: ika virus infection on the metabolome of pregnant women: a longitudinal study	Zika virus (ZIKV) is a mosq
-Line 1175: bolomics study on urine of ZIKV-infected pregnant women. We collected samples monthly from the first trim
-Line 1222: 10.21228/M8439K			Exposures to Metals in Pregnant Women and the Impact on Fetal Development and Birth Out
-Line 1222: l elements and non-chemical stressors in pregnant women and the impact on birth and neurodevelopmental ou
-Line 1222: opulation consists of culturally diverse pregnant women (n=1143; ages: 16-49 years) and their babies/chil
-Line 1222: ze exposure to metals in a sub-cohort of pregnant women for whom exposure data are not yet available. Thi
-Line 1261: mon cause of cancer-related deaths, especially in women worldwide. Increased resistance and significant s
-Line 1352: ling data at two time-points in pregnancy for all women in order to identify trimester-specific metabolom
-Line 1387: ling data at two time-points in pregnancy for all women in order to identify trimester-specific metabolom
-Line 1446: ling data at two time-points in pregnancy for all women in order to identify trimester-specific metabolom
-Line 1449: ling data at two time-points in pregnancy for all women in order to identify trimester-specific metabolom
-Line 1483: der with a high mortality affecting about 0.5% of women, where no evidence-based effective treatment exis
-Line 1484: e measured by mass spectrometry in 264 Danes (121 women and 143 men, age 56.6 ± 7.3 years, BMI 29.7 ± 6.0
-Line 1484: ly and in a sex-dimorphic manner, particularly in women, with high exposure to ETs. Moreover, high serum
-Line 1484: ion: Serum concentrations of ETs, particularly in women, were associated with an altered gut microbiome-m
-Line 1496: l. Substantially better results are observed when women with OC are correctly diagnosed and ensured the r
-Line 1502: ent Prematurity and Stillbirth repository for 154 women (105 without HDP and 49 with HDP). Metabotyping w
-Line 1502: and pathway perturbations associated with BMI in women with and without HDP, and to determine metabolite
-Line 1502: and pathway perturbations associated with HDP for women in categories of obese, overweight, and normal we
-Line 1519: is a leading cause of cancer-related deaths among women worldwide. Cancer cell metabolism plays a critica
-Line 1538: (AA) maternal-child cohort that enrolls pregnant women in the early prenatal period and extends dyad fol
-Line 1567: abolism predicts coronary artery calcification in women with systemic lupus erythematosus	Background. Pat
-Line 1567: d lipidome was conducted in a large cohort of 211 women with SLE who underwent a multi-detector computed
-Line 1567: ere independent risk factor for developing CAC in women with SLE. The presence of coronary calcium was as
-Line 1567: ved metabolites, were also associated with CAC in women with SLE. Backward stepwise logistic regression m
-Line 1567: , P<0.001) of the presence of coronary calcium in women with SLE. Conclusion. The present study uncovers
-Line 1572: ling data at two time-points in pregnancy for all women in order to identify trimester-specific metabolom
-Line 1600: bolomics and lung cancer risk among never-smoking women in Shanghai Women’s Health Study	Background: The
-Line 1600: elucidated despite 15% of cases in men and 53% in women worldwide are not smoking-related. Metabolomics p
-Line 1600: ods and Findings: Within the prospective Shanghai Women’s Health Study, we conducted a nested case-contro
-Line 1639: by reduced plasma lipid mediators among lactating women in the Philippines: A pilot study	Low vitamin A (
-Line 1639: VA) status is common among lactating women in low-income countries. Lactation has substantia
-Line 1639: ith low VA status versus VA adequacy in lactating women. Plasma samples from lactating women who particip
-Line 1639: low VA status compared with adequacy in lactating women was characterized by reduced lipid mediator conce
-Line 1720: t malignancies and a leading cause of death among women worldwide. Among its subtypes, triple-negative br
-Line 1743: prometabolic Syndrome of Obesity in Normal Weight Women	Objective: We examined the effects of one month o
-Line 1743: (HFD) on gonadotropin secretion in normal weight women to interrogate the role of free fatty acids and i
-Line 1743: nadism of obesity. Methods: Eighteen eumenorrheic women (BMI 18-25 kg/m2) were studied in the early folli
-Line 1743: tures of Reprometabolic Syndrome in normal weight women. Dietary factors may underly the gonadotrope comp
-Line 1764: ands as the most prevalent gynecological tumor in women worldwide. Notably, differentiation diagnosis of
-Line 1841: ly plasma metabolites in pre- and post-menopausal women	Depression will be the disease with the highest i
-Line 1841: ldwide by 2030. Data indicate that postmenopausal women have a higher incidence of mood disorders, and th
-Line 1841: metabolites and lipids of pre- and postmenopausal women to explore whether the profile is affected by dep
-Line 1841: d consent. 42 premenopausal and 67 postmenopausal women had the depression symptoms assessed by the Beck
-Line 1841: thionine that were up-regulated. In premenopausal women with depression, Oxidized Glutathione was down-re
-Line 1841: affected by depression symptoms in pre-menopausal women PC(36:1)/PC(18:1(9Z)/18:0), PC(19:0/19:0), and LT
-Line 1841: laoyl-PAF were down-regulated. In post-menopausal women PC(16:1(9z)/16:1(9z)) and 14,15-DHET were down-re
-Line 1841: ip in the occurrence of obesity and depression in women the hormonal status influenced the effect of depr
-Line 1841: ession in women and that this status may be taken into account wh
-Line 1913: ast cancer, which is the most diagnosed cancer in women worldwide. We and others have reported a central
-Line 1919: ictive index (PEPI) score. Eligible patients were women with ER+/HER2- primary BC cT2 or greater. Stratif
-Line 1946: ee glutamate concentrations in healthy Ecuadorian women	Project Summary: To examine the differences in mi
-Line 1946: longitudinal cohort study for healthy Ecuadorian women was conducted. This deposition is for the glutama
-Line 1995: se untargeted metabolomics data acquired from 300 women at 3 timepoints during pregnancy whose urine samp
-Line 2004: -Birth Weight in Guatemalan Participants from the Women First Trial	Low birth weight (babies born at less
-Line 2004: ed settings. This was a secondary analysis of the Women First trial conducted in a semi-rural region of G
-Line 2026: C2C			Dysregulated Follicular Fluid Metabolism in Women with Unexplained Infertility	Research Question: A
-Line 2026: lomic alterations in the Follicular fluid (FF) of women with unexplained infertility (UI)? Study Design:
-Line 2026: This case-control study included 20 women undergoing in-vitro fertilization (IVF), comparin
-Line 2026: g 10 women diagnosed with UI to 10 control women whose male partners had abnormal semen parameters
-Line 2026: oocyte maturation, and IVF outcomes. Results: In women with UI, 12 metabolites, including Diacylglycerol
-Line 2026: erization of metabolic dysregulation in the FF of women with UI, offering novel insights into the underly
-Line 2026: essment of vitamin D3 levels in serum/FF of these women.
-Line 2044: llets from liquid-based Pap tests from 29 healthy women were analyzed via ultra-high performance liquid c
-Line 2074: lysis of serum and placenta samples from pregnant women to identify exogenous chemicals.
-Line 2081: 8F83T			Untargeted Lipidomics of African American women at 8-10 months postpartum	Lipid dysregulation is
-Line 2081: cted 8-10 months postpartum from African American women who were diagnosed with cardiometabolic complicat
-Line 2081: eased in the postpartum serum of African American women who experienced cardiometabolic complications of
-Line 2081: these findings demonstrate that African American women who experienced cardiometabolic complications of
-Line 2092: ression changes, and neighborhood disadvantage in women with primary ER+ BC compared to cancer-free contr
-Line 2092: : Pretreatment plasma samples were collected from women with primary ER+ BC (n=98) and cancer-free contro
-Line 2106: and performance, indicate a higher complexity in women and a limitation of previous knowledge to men onl
-Line 2110: regnancy and generally resolved after childbirth. Women with a GDM history are 7 times more subject to de
-Line 2110: elop type 2 diabetes compared to healthy pregnant women. Metabolic alteration during pregnancy has been s
-Line 2110: Metabolomics of collected blood from GDM pregnant women indicate that GDM is associated with alteration o
-Line 2110: fully determined particularly with Middle Eastern women. Developing such data in comparison to published
-Line 2110: ed metabolic pathways and metabolites in pregnant women with GDM compared to healthy pregnant women. Trap
-Line 2110: d on blood samples collected from 32 GDM pregnant women in comparison to 20 healthy pregnant women. This
-Line 2110: control group, which consists of normal pregnant women, the gestational diabetes group had significantly
-Line 2257: rt of newly diagnosed, treat-ment-naive Colombian women. Samples were analyzed using LC-QTOF-MS and GC-QT
-Line 2280: plasma and peritoneal fluid samples obtained from women with endometriosis and compare them to those of t
-Line 2280: group. It involves the collection of samples from women undergoing laparoscopic surgery in several medica
-Line 2337: s the leading cause of cancer-related death among women in the Middle East and North Africa, with particu
-Line 2359: t metabolism. To address this, urine samples from women with PPROM and healthy controls were analyzed usi
-Line 2359: icrobial and metabolic signatures in the urine of women with PPROM and support the utility of urinary mul
-Line 2420: month intermittent fasting in middle-aged men and women with overweight: secondary outcomes of a randomiz
-Line 2420: lar pathways in middle-aged (30-65 years) men and women with overweight (BMI 24.8–35 kg/m²). In this tria
-	================ Matches for 'women' in ingest/c2m2s/SPARC/C2M2_datapackage_20251215/project.tsv: =============
+Line 1017: tion includes 844 healthy volunteers of which 183 women and 661 men, with a median age of 43 ± 12 yrs and
+Line 1037: egnancy outcomes, and child development. Pregnant women were enrolled from Boston and New York City hospi
+Line 1038: ontrol study within an ongoing cohort of pregnant women in Puerto Rico (PROTECT), we will explore untarge
+Line 1073: udinal untargeted plasma metabolomics of pregnant women with preeclampsia
+Line 1101: 8/M88H76			Metabolomics profiles of premenopausal women are different based on O-desmethylangolensin meta
+Line 1101: al, which was a cross-over study of premenopausal women consuming six months on a high- and a low-soy die
+Line 1101: all of the 672 samples in the study, 66 of the 84 women had the same ODMA metabotype at seven or all eigh
+Line 1101: amines were conducted in 60 urine samples from 20 women. Partial least-squares discriminant analysis was
+Line 1118: nal Diabetes Mellitus (GDM). Sixty-eight pregnant women with overweight/obesity from a clinical trial of
+Line 1143: cancer (BC) is the most common type of cancer in women and, in most cases, it is hormone-dependent (HD),
+Line 1163: 228/M80Q51			TIPs Metabolomics	Healthy omnivorous women underwent a short-term dietary intervention. Plas
+Line 1168: k Flaxseed Dietary Intervention in Postmenopausal Women	Samples were taken before and after 6 weeks of fl
+Line 1176: ika virus infection on the metabolome of pregnant women: a longitudinal study	Zika virus (ZIKV) is a mosq
+Line 1176: bolomics study on urine of ZIKV-infected pregnant women. We collected samples monthly from the first trim
+Line 1223: 10.21228/M8439K			Exposures to Metals in Pregnant Women and the Impact on Fetal Development and Birth Out
+Line 1223: l elements and non-chemical stressors in pregnant women and the impact on birth and neurodevelopmental ou
+Line 1223: opulation consists of culturally diverse pregnant women (n=1143; ages: 16-49 years) and their babies/chil
+Line 1223: ze exposure to metals in a sub-cohort of pregnant women for whom exposure data are not yet available. Thi
+Line 1262: mon cause of cancer-related deaths, especially in women worldwide. Increased resistance and significant s
+Line 1353: ling data at two time-points in pregnancy for all women in order to identify trimester-specific metabolom
+Line 1389: ling data at two time-points in pregnancy for all women in order to identify trimester-specific metabolom
+Line 1448: ling data at two time-points in pregnancy for all women in order to identify trimester-specific metabolom
+Line 1451: ling data at two time-points in pregnancy for all women in order to identify trimester-specific metabolom
+Line 1485: der with a high mortality affecting about 0.5% of women, where no evidence-based effective treatment exis
+Line 1486: e measured by mass spectrometry in 264 Danes (121 women and 143 men, age 56.6 ± 7.3 years, BMI 29.7 ± 6.0
+Line 1486: ly and in a sex-dimorphic manner, particularly in women, with high exposure to ETs. Moreover, high serum
+Line 1486: ion: Serum concentrations of ETs, particularly in women, were associated with an altered gut microbiome-m
+Line 1498: l. Substantially better results are observed when women with OC are correctly diagnosed and ensured the r
+Line 1504: ent Prematurity and Stillbirth repository for 154 women (105 without HDP and 49 with HDP). Metabotyping w
+Line 1504: and pathway perturbations associated with BMI in women with and without HDP, and to determine metabolite
+Line 1504: and pathway perturbations associated with HDP for women in categories of obese, overweight, and normal we
+Line 1521: is a leading cause of cancer-related deaths among women worldwide. Cancer cell metabolism plays a critica
+Line 1540: (AA) maternal-child cohort that enrolls pregnant women in the early prenatal period and extends dyad fol
+Line 1569: abolism predicts coronary artery calcification in women with systemic lupus erythematosus	Background. Pat
+Line 1569: d lipidome was conducted in a large cohort of 211 women with SLE who underwent a multi-detector computed
+Line 1569: ere independent risk factor for developing CAC in women with SLE. The presence of coronary calcium was as
+Line 1569: ved metabolites, were also associated with CAC in women with SLE. Backward stepwise logistic regression m
+Line 1569: , P<0.001) of the presence of coronary calcium in women with SLE. Conclusion. The present study uncovers
+Line 1574: ling data at two time-points in pregnancy for all women in order to identify trimester-specific metabolom
+Line 1602: bolomics and lung cancer risk among never-smoking women in Shanghai Women’s Health Study	Background: The
+Line 1602: elucidated despite 15% of cases in men and 53% in women worldwide are not smoking-related. Metabolomics p
+Line 1602: ods and Findings: Within the prospective Shanghai Women’s Health Study, we conducted a nested case-contro
+Line 1641: by reduced plasma lipid mediators among lactating women in the Philippines: A pilot study	Low vitamin A (
+Line 1641: VA) status is common among lactating women in low-income countries. Lactation has substantia
+Line 1641: ith low VA status versus VA adequacy in lactating women. Plasma samples from lactating women who particip
+Line 1641: low VA status compared with adequacy in lactating women was characterized by reduced lipid mediator conce
+Line 1723: t malignancies and a leading cause of death among women worldwide. Among its subtypes, triple-negative br
+Line 1746: prometabolic Syndrome of Obesity in Normal Weight Women	Objective: We examined the effects of one month o
+Line 1746: (HFD) on gonadotropin secretion in normal weight women to interrogate the role of free fatty acids and i
+Line 1746: nadism of obesity. Methods: Eighteen eumenorrheic women (BMI 18-25 kg/m2) were studied in the early folli
+Line 1746: tures of Reprometabolic Syndrome in normal weight women. Dietary factors may underly the gonadotrope comp
+Line 1767: ands as the most prevalent gynecological tumor in women worldwide. Notably, differentiation diagnosis of
+Line 1844: ly plasma metabolites in pre- and post-menopausal women	Depression will be the disease with the highest i
+Line 1844: ldwide by 2030. Data indicate that postmenopausal women have a higher incidence of mood disorders, and th
+Line 1844: metabolites and lipids of pre- and postmenopausal women to explore whether the profile is affected by dep
+Line 1844: d consent. 42 premenopausal and 67 postmenopausal women had the depression symptoms assessed by the Beck
+Line 1844: thionine that were up-regulated. In premenopausal women with depression, Oxidized Glutathione was down-re
+Line 1844: affected by depression symptoms in pre-menopausal women PC(36:1)/PC(18:1(9Z)/18:0), PC(19:0/19:0), and LT
+Line 1844: laoyl-PAF were down-regulated. In post-menopausal women PC(16:1(9z)/16:1(9z)) and 14,15-DHET were down-re
+Line 1844: ip in the occurrence of obesity and depression in women the hormonal status influenced the effect of depr
+Line 1844: ession in women and that this status may be taken into account wh
+Line 1916: ast cancer, which is the most diagnosed cancer in women worldwide. We and others have reported a central
+Line 1922: ictive index (PEPI) score. Eligible patients were women with ER+/HER2- primary BC cT2 or greater. Stratif
+Line 1949: ee glutamate concentrations in healthy Ecuadorian women	Project Summary: To examine the differences in mi
+Line 1949: longitudinal cohort study for healthy Ecuadorian women was conducted. This deposition is for the glutama
+Line 1999: se untargeted metabolomics data acquired from 300 women at 3 timepoints during pregnancy whose urine samp
+Line 2008: -Birth Weight in Guatemalan Participants from the Women First Trial	Low birth weight (babies born at less
+Line 2008: ed settings. This was a secondary analysis of the Women First trial conducted in a semi-rural region of G
+Line 2031: C2C			Dysregulated Follicular Fluid Metabolism in Women with Unexplained Infertility	Research Question: A
+Line 2031: lomic alterations in the Follicular fluid (FF) of women with unexplained infertility (UI)? Study Design:
+Line 2031: This case-control study included 20 women undergoing in-vitro fertilization (IVF), comparin
+Line 2031: g 10 women diagnosed with UI to 10 control women whose male partners had abnormal semen parameters
+Line 2031: oocyte maturation, and IVF outcomes. Results: In women with UI, 12 metabolites, including Diacylglycerol
+Line 2031: erization of metabolic dysregulation in the FF of women with UI, offering novel insights into the underly
+Line 2031: essment of vitamin D3 levels in serum/FF of these women.
+Line 2049: llets from liquid-based Pap tests from 29 healthy women were analyzed via ultra-high performance liquid c
+Line 2059: erently expressed between the OvE patients and HC women. These metabolites can provide a preliminary basi
+Line 2082: lysis of serum and placenta samples from pregnant women to identify exogenous chemicals.
+Line 2089: 8F83T			Untargeted Lipidomics of African American women at 8-10 months postpartum	Lipid dysregulation is
+Line 2089: cted 8-10 months postpartum from African American women who were diagnosed with cardiometabolic complicat
+Line 2089: eased in the postpartum serum of African American women who experienced cardiometabolic complications of
+Line 2089: these findings demonstrate that African American women who experienced cardiometabolic complications of
+Line 2100: ression changes, and neighborhood disadvantage in women with primary ER+ BC compared to cancer-free contr
+Line 2100: : Pretreatment plasma samples were collected from women with primary ER+ BC (n=98) and cancer-free contro
+Line 2115: and performance, indicate a higher complexity in women and a limitation of previous knowledge to men onl
+Line 2119: regnancy and generally resolved after childbirth. Women with a GDM history are 7 times more subject to de
+Line 2119: elop type 2 diabetes compared to healthy pregnant women. Metabolic alteration during pregnancy has been s
+Line 2119: Metabolomics of collected blood from GDM pregnant women indicate that GDM is associated with alteration o
+Line 2119: fully determined particularly with Middle Eastern women. Developing such data in comparison to published
+Line 2119: ed metabolic pathways and metabolites in pregnant women with GDM compared to healthy pregnant women. Trap
+Line 2119: d on blood samples collected from 32 GDM pregnant women in comparison to 20 healthy pregnant women. This
+Line 2119: control group, which consists of normal pregnant women, the gestational diabetes group had significantly
+Line 2171: inked to a higher risk of age-related diseases in women (e.g. osteoporosis, dementia). Intriguingly, earl
+Line 2279: rt of newly diagnosed, treat-ment-naive Colombian women. Samples were analyzed using LC-QTOF-MS and GC-QT
+Line 2302: plasma and peritoneal fluid samples obtained from women with endometriosis and compare them to those of t
+Line 2302: group. It involves the collection of samples from women undergoing laparoscopic surgery in several medica
+Line 2364: s the leading cause of cancer-related death among women in the Middle East and North Africa, with particu
+Line 2390: t metabolism. To address this, urine samples from women with PPROM and healthy controls were analyzed usi
+Line 2390: icrobial and metabolic signatures in the urine of women with PPROM and support the utility of urinary mul
+Line 2457: month intermittent fasting in middle-aged men and women with overweight: secondary outcomes of a randomiz
+Line 2457: lar pathways in middle-aged (30-65 years) men and women with overweight (BMI 24.8–35 kg/m²). In this tria
+Line 2565: study we analyzed the metabolomic profile of 100 women in their third trimester by HIV status using hepa
+	================ Matches for 'women' in ingest/c2m2s/SPARC/C2M2_datapackage_20260317/project.tsv: =============
 Line 33: the prevalence of both conditions being higher in women than in men (female to male ratio: 2:1 for IBS, 5
 Line 39: ence of GI visceral pain syndromes experienced by women. Our team brings an unusually wide ranging and in
 	================ Matches for 'women' in ingest/c2m2s/ExRNA/exRNA_CFDE_102025/exRNA_CFDE_102025/project.tsv: =============
@@ -660,7 +668,7 @@ Line 3: d miRNAs in plasma from pregnant and non-pregnant women were observed wi
 	================ Matches for 'transgen' in ingest/c2m2s/GlyGen/glygen_cfde_2025_dec_data_submission/glygen_cfde_2025_sept_data_submission/protein.tsv: =============
 Line 140760: 9	TASOR_MOUSE	Protein TASOR	["E9PUH2", "Q9CUD3", "Transgene activation suppressor protein"]	NCBI:txid10090
 Line 183466: 1	TASOR_HUMAN	Protein TASOR	["Q9UPP7", "Q9H2F7", "Transgene activation suppressor protein", "Retinoblastoma-
-	================ Matches for 'transgen' in ingest/c2m2s/Metabolomics/MW_submission_packet_20251214/MW_submission_packet_20251214/project.tsv: =============
+	================ Matches for 'transgen' in ingest/c2m2s/Metabolomics/MW_submission_packet_20260310/MW_submission_packet_20260310/project.tsv: =============
 Line 198: se CBS gene and instead contains a human CBS cDNA transgene that is under control of a zinc inducible MT-1 p
 Line 203: 28/M8VC8G			Non targeted meatbolomic profiling of transgenic- humanized amylin producing rats	Non targeted m
 Line 374: urine samples from SS rats and a newly generated transgenic rat that overexpresses fumarase (SS.Fh1+). The
@@ -673,37 +681,39 @@ Line 768: 8/M8ZT30			Lipidome Signatures of Metastasis in a Transgenic Mouse Mod
 Line 841: hodopsins (Chr2) and light stimulation. Using the transgenic Chr2 mouse (Thy1-ChR2-EYFP) as a model of regen
 Line 905: (6 months) versus old (20-24 months) WT and SIRT6-transgenic mice. We used liver tissues of 6h morning-faste
 Line 966: n alteration in the skeletal muscle metabolome in transgenic rabbits	-
-Line 1026: ivation in the nigrostriatal pathway of mice with transgenic Ptn overexpression in the brain (Ptn-Tg) after
-Line 1047: ccur in AD and obesity. APPSwe/PS1?E9 (APP/PSEN1) transgenic mice (to represent familial or early-onset AD)
-Line 1181: nbiased metabolomics in the cardio specific Carns transgenic (Tg) mice and integrated the three data sets. O
-Line 1216: ected from bacterial channel rhodopsin expressing transgenic mouse models subjected to optic nerve crush (ON
-Line 1216: s within the retina, while degenerating axons. In transgenic bacterial channel rhodopsin expressing cells, l
-Line 1216: ched wild-type uninjured optic nerves, or control transgenic mice, were also analyzed. Metabolites were care
-Line 1284: induced mouse model of pancreatitis (Pt) and of a transgenic mouse model of pancreatic cancer (PCa) were use
-Line 1429: ecular changes. We profile the lipid changes in a transgenic line of 1 year old Xenopus laevis Tg(islet2b:gf
-Line 1697: Role of PI3K in Atrial Myopathy: Insights from Transgenic Mouse Models and Identification of a Dysregulat
-Line 1697: ibrosis and thrombi was identified in a subset of transgenic mice with reduced phosphoinositide 3-kinase (PI
-Line 1697: ogical and molecular analyses in cardiac-specific transgenic mice with increased or decreased PI3K to assess
-Line 1701: n-vitro and in-vivo models. Particularly, we used transgenic mice in which the Cgref1 gene is deleted to ena
-Line 1865: t PR has metabolic benefits for 3xTg mice and non-transgenic controls of both sexes, promoting leanness and
-Line 1871: ecular changes. We profile the lipid changes in a transgenic line of 1 year old Xenopus laevis Tg(islet2b:gf
-Line 1891: the metabolite changes in the optic tissues of a transgenic line of 1 year old Xenopus laevis Tg(islet2b:gf
-Line 1920: d mouse peritoneal macrophages isolated from LDAH-transgenic mice and wild-type littermate controls with oxi
-Line 1984: NMR metabolomics applied to assess the direct and transgenerational effects of simvastatin on the metabolism
-Line 1984: rough direct exposure but also through inter- and transgenerational inheritance (in the absence of the insul
-Line 1984: revious studies observed that direct exposure and transgenerational exposure to simvastatin has been found t
-Line 1984: y relevant concentrations of simvastatin (F0) and transgenerational exposure (F3, where only the F0 generati
-Line 1998: ptomic profiles acquired in both wildtype and APP transgenic animals, allowing us to disentangle TREM2 versu
-Line 2003: ate, cardiac-specific expression of a human ADRB3 transgene (β3AR-Tg) and subjected to transverse aortic con
-Line 2016: the proinflammatory mediator LTB4 by macrophages. Transgenic mice were created with a population of cardiac
-Line 2428: tic and cerebral lipidomes in wild-type and fat-1 transgenic (endogenous omega-3 PUFA-producing) mice subjec
-	================ Matches for 'transgen' in ingest/c2m2s/SPARC/C2M2_datapackage_20251215/project.tsv: =============
+Line 1027: ivation in the nigrostriatal pathway of mice with transgenic Ptn overexpression in the brain (Ptn-Tg) after
+Line 1048: ccur in AD and obesity. APPSwe/PS1?E9 (APP/PSEN1) transgenic mice (to represent familial or early-onset AD)
+Line 1182: nbiased metabolomics in the cardio specific Carns transgenic (Tg) mice and integrated the three data sets. O
+Line 1217: ected from bacterial channel rhodopsin expressing transgenic mouse models subjected to optic nerve crush (ON
+Line 1217: s within the retina, while degenerating axons. In transgenic bacterial channel rhodopsin expressing cells, l
+Line 1217: ched wild-type uninjured optic nerves, or control transgenic mice, were also analyzed. Metabolites were care
+Line 1285: induced mouse model of pancreatitis (Pt) and of a transgenic mouse model of pancreatic cancer (PCa) were use
+Line 1431: ecular changes. We profile the lipid changes in a transgenic line of 1 year old Xenopus laevis Tg(islet2b:gf
+Line 1700: Role of PI3K in Atrial Myopathy: Insights from Transgenic Mouse Models and Identification of a Dysregulat
+Line 1700: ibrosis and thrombi was identified in a subset of transgenic mice with reduced phosphoinositide 3-kinase (PI
+Line 1700: ogical and molecular analyses in cardiac-specific transgenic mice with increased or decreased PI3K to assess
+Line 1704: n-vitro and in-vivo models. Particularly, we used transgenic mice in which the Cgref1 gene is deleted to ena
+Line 1868: t PR has metabolic benefits for 3xTg mice and non-transgenic controls of both sexes, promoting leanness and
+Line 1874: ecular changes. We profile the lipid changes in a transgenic line of 1 year old Xenopus laevis Tg(islet2b:gf
+Line 1894: the metabolite changes in the optic tissues of a transgenic line of 1 year old Xenopus laevis Tg(islet2b:gf
+Line 1923: d mouse peritoneal macrophages isolated from LDAH-transgenic mice and wild-type littermate controls with oxi
+Line 1988: NMR metabolomics applied to assess the direct and transgenerational effects of simvastatin on the metabolism
+Line 1988: rough direct exposure but also through inter- and transgenerational inheritance (in the absence of the insul
+Line 1988: revious studies observed that direct exposure and transgenerational exposure to simvastatin has been found t
+Line 1988: y relevant concentrations of simvastatin (F0) and transgenerational exposure (F3, where only the F0 generati
+Line 2002: ptomic profiles acquired in both wildtype and APP transgenic animals, allowing us to disentangle TREM2 versu
+Line 2007: ate, cardiac-specific expression of a human ADRB3 transgene (β3AR-Tg) and subjected to transverse aortic con
+Line 2021: the proinflammatory mediator LTB4 by macrophages. Transgenic mice were created with a population of cardiac
+Line 2467: tic and cerebral lipidomes in wild-type and fat-1 transgenic (endogenous omega-3 PUFA-producing) mice subjec
+Line 2491: in a cardiomyocyte-specific manner in 8-week-old transgenic mice by a single tamoxifen injection, and their
+Line 2562: rial transfer in vivo was also demonstrated using transgenic mice where macrophage mitochondria were tagged
+	================ Matches for 'transgen' in ingest/c2m2s/SPARC/C2M2_datapackage_20260317/project.tsv: =============
 Line 7: mans. Mice will be utilized for studies involving transgenic, optogenetics and viral tracing approaches. Thi
 Line 10: herapy. Studies in Aim 1 will use combinations of transgenic mouse models and fluorescent neuronal tracers t
 Line 36: ity to genetically modify the system to develop a transgenic model that can be stimulated with light to targ
 Line 43: mans. Mice will be utilized for studies involving transgenic, optogenetics and viral tracing approaches. Thi
 Line 44: pproach to identify the pain pathways using novel transgenic and viral vector tracing strategies. We expect
-	================ Matches for 'transgen' in ingest/c2m2s/SPARC/C2M2_datapackage_20251215/collection.tsv: =============
+	================ Matches for 'transgen' in ingest/c2m2s/SPARC/C2M2_datapackage_20260317/collection.tsv: =============
 Line 27: c plexus (RAGP)	Animal study (C57BL/6J background transgenic mice) to determine the involvement of the super
 	================ Matches for 'transgen' in ingest/c2m2s/4DN/251215_4dn_c2m2_submission/251215_4dn_c2m2_submission/project.tsv: =============
 Line 7: NUCLEAR NICHE(S) USING NOVEL PROTEOMIC, GENOMIC, TRANSGENIC, AND LIVE-CELL MICROSCOPY TECHNOLOGIES

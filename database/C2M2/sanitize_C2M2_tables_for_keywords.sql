@@ -115,11 +115,13 @@ BEGIN
 END;
 $$;
 
+--- Not used
 CREATE OR REPLACE FUNCTION select_matching_rows_searchable_tsvector(
     schema_name TEXT,
     table_name TEXT,
     keyword TEXT
 )
+RETURNS VOID
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -143,14 +145,14 @@ DECLARE
     table_name text;
     keyword_from_array text;
     /* Select one of the schema lines from below, keep others commented */
-    --- schemas text[] := ARRAY['_4dn', 'exrna', 'gtex', 'glygen', 'hmp', 'hubmap', 'idg', 'kidsfirst', 'lincs', 'metabolomics', 'motrpac', 'sparc', 'sennet', 'scge'];  -- your schema names
+    schemas text[] := ARRAY['_4dn', 'bridge2ai', 'exrna', 'gtex', 'glygen', 'hmp', 'hubmap', 'idg', 'kidsfirst', 'lincs', 'metabolomics', 'motrpac', 'sparc', 'sennet', 'scge'];  -- your schema names
     /* To manually/artificially parallelize, you can break this list into two, select one of them in one call.
         Then, select the other line here, and call in another terminal, change the name of the log file when calling.
     */
     --- schemas text[] := ARRAY['_4dn', 'exrna', 'gtex', 'glygen', 'hmp', 'hubmap'];  -- your schema names
     --- schemas text[] := ARRAY['idg', 'kidsfirst', 'lincs', 'metabolomics', 'motrpac', 'sparc', 'sennet'];  -- your schema names
     --- schemas text[] := ARRAY['motrpac'];  -- your schema names
-    schemas text[] := ARRAY['c2m2'];  --- BE CAREFUL WITH THIS ONE AS THIS IS THE MAIN SCHEMA -- your schema names
+    --- schemas text[] := ARRAY['c2m2'];  --- BE CAREFUL WITH THIS ONE AS THIS IS THE MAIN SCHEMA -- your schema names
 
     --- To get the names all schemas
     /*
@@ -268,16 +270,33 @@ See also the script sanitize_tables_for_keywords.sql in the parent folder (datab
 DO $$
 DECLARE
     drop_specific_rows_from_c2M2_tables INT := 1;
+    schemas text[] := ARRAY['c2m2', '_4dn', 'bridge2ai', 'exrna', 'gtex', 'glygen', 'hmp', 'hubmap', 'idg', 'kidsfirst', 'lincs', 'metabolomics', 'motrpac', 'sparc', 'sennet', 'scge'];  -- your schema names
+    disease_id_array text[] := ARRAY['DOID:1234', 'DOID:10919'];
+    schema_name text;
+    disease_id text;
 BEGIN
+    RAISE NOTICE '----------------------- Removing specific disease terms -----------------------';
     IF drop_specific_rows_from_c2M2_tables > 0 THEN
-        --- BEGIN; --- Use only if running directly on psql prompt
-        --- DELETE FROM c2m2.subject_sex where id = 'cfde_subject_sex:3'; --- not needed 
-        DELETE FROM c2m2.disease where id = 'DOID:1234'; --- gender/sex incongruence
-        DELETE FROM c2m2.disease where id = 'DOID:10919'; --- gender/sex dysphoria
+        FOREACH schema_name IN ARRAY schemas
+        LOOP
+            RAISE NOTICE 'Processing schema: %', schema_name;
 
-        --- ROLLBACK;
-        --- COMMIT; --- Use only if running directly on psql prompt
+            --- BEGIN; --- Use only if running directly on psql prompt
+            --- DELETE FROM c2m2.subject_sex where id = 'cfde_subject_sex:3'; --- not needed 
+            --- DELETE FROM c2m2.disease where id = 'DOID:1234'; --- gender/sex incongruence
+            --- DELETE FROM c2m2.disease where id = 'DOID:10919'; --- gender/sex dysphoria
+
+            --- execute statement version
+            FOREACH disease_id IN ARRAY disease_id_array
+            LOOP
+                EXECUTE format('DELETE FROM %I.%I WHERE id = %L', schema_name, 'disease', disease_id);
+            END LOOP;
+
+            --- ROLLBACK;
+            --- COMMIT; --- Use only if running directly on psql prompt
+        END LOOP;
     END IF;
+    RAISE NOTICE '----------------------- Done: Removing specific disease terms -----------------';
 END $$;
 ---*/
 --- #############################################################################
