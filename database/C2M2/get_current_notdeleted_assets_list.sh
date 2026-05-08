@@ -28,10 +28,10 @@ ast_str="${asset_type// /_}"
 
 f1="${dir_path}/Dcc_${ast_str}.tsv"
 f2="${dir_path}/validDcc_${ast_str}.tsv"
-#head -n 1 $f|cut -d$'\t' -f1,3,8,9 > ${f1} && cat $f | grep C2M2 | egrep -e "202[0-5]-[0-9][0-9]" | cut -d$'\t' -f1,3,8,9|sort >> ${f1}
+#head -n 1 $f|cut -d$'\t' -f1,3,8,9 > ${f1} && cat $f | grep C2M2 | egrep -e "202[0-9]-[0-9][0-9]" | cut -d$'\t' -f1,3,8,9|sort >> ${f1}
 #awk -F'\t' '$2 == "True" && $3 == "False"' ${f1} > ${f2}
 # Include drcapproved and dccapproved too
-head -n 1 $fpath|cut -d$'\t' -f1,3,6,7,8,9 > ${f1} && cat $fpath | egrep -e "/${asset_type}/" | egrep -e "202[0-5]-[0-9][0-9]" | cut -d$'\t' -f1,3,6,7,8,9|sort >> ${f1}
+head -n 1 $fpath|cut -d$'\t' -f1,3,6,7,8,9 > ${f1} && cat $fpath | egrep -e "/${asset_type}/" | egrep -e "202[0-9]-[0-9][0-9]" | cut -d$'\t' -f1,3,6,7,8,9|sort >> ${f1}
 head -n 1 ${f1} > ${f2}
 if [[ "${asset_type}" == "C2M2" ]]; then
         # current, drcapproved, dccapproved, not deleted
