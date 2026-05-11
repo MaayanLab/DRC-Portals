@@ -50,7 +50,7 @@ export const TopNav = ({ session }: {session: Session | null }) => {
     {/* <Link href={"/info"}>
       <Typography variant={isInfo ? "nav_highlighted": "nav"}><b>Info</b></Typography>
     </Link> */}
-    <Link href={"/data"}>
+    <Link href={"/"}>
     <Typography variant={"nav_highlighted"}><b>Data</b></Typography>
     </Link>
     <Link href={"https://cfdeworkspace.org/"} target="_blank" rel="noopener noreferrer">
@@ -116,13 +116,13 @@ const options = [
     links: [
       {
         title: "CFDE Data Explorer",
-        href: '/data',
+        href: '/',
         description: "Query the CFDE databases and tools to find knowledge about genes, drugs, phenotypes, cells, gene sets, and assays",
         icon: mdiCompass
       },
       {
         title: "Search Common Fund Data",
-        href: '/data/search',
+        href: '/data',
         description: "Query the CFDE Workbench Data Portal database to find files and other assets from participating Common Fund programs",
         icon: mdiMagnify
       },
@@ -198,7 +198,7 @@ const options = [
       },
       {
         title: "Use Cases",
-        href: "/data/use_cases",
+        href: "/data/usecases",
         description: "Explore a collection of CFDE generated use cases that integrate datasets from multiple Common Fund programs",
         icon: mdiGesture
       }
@@ -278,7 +278,7 @@ export default function Header({ session }: {session: Session | null }) {
         <Toolbar>
           <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
             <Grid item>
-              <Logo title="CFDE Workbench" href={"/data"} size='large' color="inherit" />
+              <Logo title="CFDE Workbench" size='large' color="inherit" />
             </Grid>
             <Grid item>
               <Stack direction={"row"} alignItems={"center"}>
@@ -325,11 +325,11 @@ export default function Header({ session }: {session: Session | null }) {
         </List>
       </Container>
     </Popper>      
-    <Container maxWidth="lg">
+    {/* <Container maxWidth="lg">
       <Box sx={{marginLeft: 3}}>
         <NavBreadcrumbs />
       </Box>
-    </Container>
+    </Container> */}
     </div>
     </ClickAwayListener>
   )

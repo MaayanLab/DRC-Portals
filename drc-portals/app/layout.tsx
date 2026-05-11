@@ -14,6 +14,9 @@ import NavBreadcrumbs from '@/components/Header/breadcrumbs'
 import CFDEWheel from 'cfde-wheel'
 import Icon from '@mdi/react'
 import { mdiRobot } from '@mdi/js'
+import Footer  from '@/components/Footer/info'
+import Background from '@/components/styled/background'
+
 export const metadata: Metadata = {
   title: 'CFDE Data Portal',
   description: '',
@@ -38,7 +41,17 @@ export default async function RootLayout({
           <Header session={session}/>
           <Grid container justifyContent={'space-between'} direction={"column"} sx={{ minWidth: '400px', maxWidth: '100vw', minHeight: "100vh", overflow: 'hidden' }}>
             {/* <Grid item sx={{paddingTop: 2, background: "#fff"}}></Grid> */}
-            {children}
+            <>
+                  {/* <Grid item><Header path={"/data"}/></Grid> */}
+                  
+                  <Grid item container className="grow overflow-hidden">
+                    <Background background="#E7F3F5">
+                      <NavBreadcrumbs/>
+                      {children}
+                    </Background>
+                  </Grid>
+                  <Grid item><Footer/></Grid>
+                </>
             <Tooltip title="Open CFDE Workbench Chatbot">
               <Fab href='/data/chat' sx={{
                 position: 'fixed',

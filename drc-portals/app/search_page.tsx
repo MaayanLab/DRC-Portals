@@ -187,9 +187,9 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 		// 		if (entity !== )
 		// 	}
 		// }
-		if (Object.keys(query).length === 0 ) router_push(router, `/data`, {})
+		if (Object.keys(query).length === 0 ) router_push(router, `/`, {})
 		else {
-			router_push(router, `/data`, {q: JSON.stringify(query), search: true})
+			router_push(router, `/`, {q: JSON.stringify(query), search: true})
 		}
 		
 	}
@@ -416,7 +416,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 			</Grid>
 			<Grid item xs={12}>
 				 <List
-					sx={{ width: '100%', bgcolor: 'background.paper' }}
+					sx={{ width: '100%', bgcolor: 'transparent' }}
 					component="nav"
 					aria-labelledby="nested-list-subheader"
 				>
@@ -431,7 +431,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						{open==='search' ? <ExpandLess /> : <ExpandMore />}
 					</ListItemButton>
 					<Collapse in={open==='search'} timeout="auto" unmountOnExit>
-						<Paper elevation={0}>
+						<Paper elevation={0} sx={{background: 'transparent'}}>
 							<Grid container spacing={2}>
 								{searches}
 							</Grid>
@@ -450,7 +450,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 							{open==='gdlpa' ? <ExpandLess /> : <ExpandMore />}
 						</ListItemButton>
 						<Collapse in={open==='gdlpa'} timeout="auto" unmountOnExit>
-							<Paper elevation={0}>
+							<Paper elevation={0} sx={{background: 'transparent'}}>
 								<Grid container spacing={2}>
 									{gdlpa}
 								</Grid>
@@ -469,7 +469,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 							{open==='gsfm' ? <ExpandLess /> : <ExpandMore />}
 						</ListItemButton>
 						<Collapse in={open==='gsfm'} timeout="auto" unmountOnExit>
-							<Paper elevation={0}>
+							<Paper elevation={0} sx={{background: 'transparent'}}>
 								<Grid container spacing={2}>
 									{gsfm}
 								</Grid>
@@ -488,7 +488,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 							{open==='pwb' ? <ExpandLess /> : <ExpandMore />}
 						</ListItemButton>
 						<Collapse in={open==='pwb'} timeout="auto" unmountOnExit>
-							<Paper elevation={0}>
+							<Paper elevation={0} sx={{background: 'transparent'}}>
 								<Grid container spacing={2}>
 									{pwb}
 								</Grid>
@@ -507,7 +507,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 								{open==='gse' ? <ExpandLess /> : <ExpandMore />}
 							</ListItemButton>
 							<Collapse in={open==='gse'} timeout="auto" unmountOnExit>
-								<Paper elevation={0}>
+								<Paper elevation={0} sx={{background: 'transparent'}}>
 									<Grid container spacing={2}>
 										{resources.gse}
 									</Grid>
@@ -526,7 +526,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 								{open==='perturbseqr' ? <ExpandLess /> : <ExpandMore />}
 							</ListItemButton>
 							<Collapse in={open==='perturbseqr'} timeout="auto" unmountOnExit>
-								<Paper elevation={0}>
+								<Paper elevation={0} sx={{background: 'transparent'}}>
 									<Grid container spacing={2}>
 										{resources.perturbseqr}
 									</Grid>
@@ -545,7 +545,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 								{open==='biomarker-kb' ? <ExpandLess /> : <ExpandMore />}
 							</ListItemButton>
 							<Collapse in={open==='biomarker-kb'} timeout="auto" unmountOnExit>
-								<Paper elevation={0}>
+								<Paper elevation={0} sx={{background: 'transparent'}}>
 									<Grid container spacing={2}>
 										{resources['biomarker-kb']}
 									</Grid>
@@ -564,7 +564,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 								{open==='dd-kg' ? <ExpandLess /> : <ExpandMore />}
 							</ListItemButton>
 							<Collapse in={open==='dd-kg'} timeout="auto" unmountOnExit>
-								<Paper elevation={0}>
+								<Paper elevation={0} sx={{background: 'transparent'}}>
 									<Grid container spacing={2}>
 										{resources['dd-kg']}
 									</Grid>
@@ -583,7 +583,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 								{open==='deepdive' ? <ExpandLess /> : <ExpandMore />}
 							</ListItemButton>
 							<Collapse in={open==='deepdive'} timeout="auto" unmountOnExit>
-								<Paper elevation={0}>
+								<Paper elevation={0} sx={{background: 'transparent'}}>
 									<Grid container spacing={2}>
 										{runs}
 									</Grid>
@@ -602,7 +602,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 							{open==='deepdive-article' ? <ExpandLess /> : <ExpandMore />}
 						</ListItemButton>
 						<Collapse in={open==='deepdive-article'} timeout="auto" unmountOnExit>
-							<Paper elevation={0}>
+							<Paper elevation={0} sx={{background: 'transparent'}}>
 								<Grid container spacing={2}>
 									{articles}
 								</Grid>
@@ -613,7 +613,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 				</List>
 			</Grid>
 			<Grid item xs={12}>
-				<Button variant="outlined" color="secondary" sx={{width: "100%", mb: 2}} href={`/data?q=${searchParams.get('q')}`}>
+				<Button variant="outlined" color="secondary" sx={{width: "100%", mb: 2}} href={`/?q=${searchParams.get('q')}`}>
 					<Typography>Back</Typography>
 				</Button>
 			</Grid>

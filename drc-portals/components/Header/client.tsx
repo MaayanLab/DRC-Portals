@@ -3,11 +3,11 @@ import { Typography } from "@mui/material"
 import { usePathname } from "next/navigation"
 
 export  function TextNav({title, paths}: {title: string, paths: string[]}) {
-	const pathname = usePathname().replace(/^\/info/, "").replace(/^\/data/, "")
+	const pathname = usePathname()
 	let variant: 'nav' | 'nav_highlighted' = 'nav'
-	for (const p of paths) {
-		const path = p.replace(/^\/info/, "").replace(/^\/data/, "")
-		if ((pathname.indexOf(path) !== -1 && path !== '') || ((/^\/(search|c2m2|processed|$)/.exec(pathname) !== null) && path === "") || (path === pathname)) {
+	for (const path of paths) {
+		// const path = p.replace(/^\/info/, "").replace(/^\/data/, "")
+		if ((pathname.indexOf(path) !== -1 && path !== '/' && path !== '/data' && path !== '/info') || ((/^\/data\/(search|c2m2|processed|$)/.exec(pathname) !== null) && path === "/data") || (path === pathname)) {		
 			variant = 'nav_highlighted'
 			break
 		}

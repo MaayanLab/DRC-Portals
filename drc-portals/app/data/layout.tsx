@@ -93,13 +93,11 @@ export default function DataLayout({
       />
       {/* <Grid item><Header path={"/data"}/></Grid> */}
       <Grid item container className="grow overflow-hidden">
-        <Background background="#E7F3F5">
           {/* <NavBreadcrumbs/> */}
           {children}
-        </Background>
       </Grid>
       <CartFab />
-      <Grid item><Footer/></Grid>
+      {/* <Grid item><Footer/></Grid> */}
     </>
   )
 }

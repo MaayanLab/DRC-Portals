@@ -20,6 +20,9 @@ import Icon from '@mdi/react';
 import GeneSet from './gene_set';
 import { Search } from './search_page';
 import ExplorerNode from './node';
+import { redirect } from 'next/navigation';
+import { router_push } from './data/enrichment/utils';
+import { useRouter } from 'next/navigation';
 
  
 const nodeTypes = {
@@ -119,7 +122,7 @@ const Explorer = ({input_query}: {input_query: {[key:string]: string[] | {[key:s
   const [edges, setEdges, onEdgesChange] = useEdgesState<BuiltInEdge>([]);
   const [geneSetPos, setGeneSetPos] = useState(0)
   const [inputList, setInputList] = useState<{entity: string, label: string, color: string, icon_color: string, icon: string, values?: {[key: string]: string|number|undefined}, links?: {resource: string, description: string, link: string}[]}[]>([])
-
+  const router = useRouter()
   useEffect(()=>{
     const inputList:{entity: string, label: string, icon_color: string, color: string, icon: string, values?: {[key: string]: string|number|undefined}, links?: {resource: string, description: string, link: string}[]}[] = []
         for (const [entity, v] of Object.entries(input_query)) {
@@ -395,10 +398,10 @@ const Explorer = ({input_query}: {input_query: {[key:string]: string[] | {[key:s
           // onClick={()=>{
           //   if (inputList.length > 0) setSubmit(true)
           // }}
-          href={`/data?q=${JSON.stringify(query)}&search=true`}
+          href={`/?q=${JSON.stringify(query)}&search=true`}
           disabled={inputList.length === 0}
         >
-          <Typography variant="h5">{inputList.length === 0 ? "Enter a biomedical entity to get started": "Explore CFDE Workbench"}</Typography>
+          <Typography variant="h5">{inputList.length === 0 ? "Enter a biomedical entity to get started": "Submit"}</Typography>
       </Button>
         
       </Stack>
@@ -431,10 +434,13 @@ const Explorer = ({input_query}: {input_query: {[key:string]: string[] | {[key:s
       <Grid container spacing={1} justifyContent={'center'}>
           {inputList.map(i=>(
             <Grid item key={i.label}>
-              <Tooltip title={i.label} key={i.label}>
+              <Tooltip title={"Submit"} key={i.label}>
               <Chip avatar={<Avatar sx={{backgroundColor: i.color}}><Icon style={{color: i.icon_color}} path={i.icon} size={1}/></Avatar>}
                 label={i.label}
-                sx={{backgroundColor: i.color}}
+                sx={{backgroundColor: i.color,
+                  '&:hover': {backgroundColor: i.color,}
+                }}
+                onClick={()=>router_push(router, '/', {q: JSON.stringify(query), search: true})}
                 onDelete={()=>update_input(i.entity, i.label, 'remove')}
               />
               </Tooltip>

@@ -89,7 +89,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
     return (
     <Paper sx={{
         boxShadow: "none", 
-        background: `linear-gradient(180deg, #FFFFFF 0%, #EDF0F8 10%, #EDF0F8 100%)`,
+        background: `transparent`,
         padding: 5, 
         borderRadius: 0, 
         minHeight: "50vh",
@@ -100,7 +100,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
         <Container maxWidth="lg">
             <Grid container spacing={2} alignItems={"flex-start"} justifyContent={"flex-start"}>
                 <Grid item xs={12}>
-                    <Card elevation={0} sx={{background: `linear-gradient(180deg, #FFFFFF 0%, #EDF0F8 10%, #EDF0F8 100%)`,}}>
+                    <Card elevation={0} sx={{background: `transparent`,}}>
                         {dcc.icon &&
                             <CardHeader
                                 avatar={<Image alt={dcc.id} width={200} height={200} src={dcc.icon} />}
