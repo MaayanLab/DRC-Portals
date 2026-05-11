@@ -235,7 +235,6 @@ export function create_url({ error, search, search_type, type, type_search, slug
     urlSearchParams.delete('search')
     urlSearchParams.delete('error')
   } else {
-    path += `/processed`
     if (search) searchParams['search'] = search
     searchParams['error'] = error
   }
