@@ -114,7 +114,7 @@ export const PWBButton = ({input}: {input: {entity: string, label: string, icon:
 				</IconButton>
 				}
 				title={input.label}
-				subheader={`Create applications analyzing ${input.label}`}
+				subheader={`Build workflows starting with the term ${input.label}`}
 			/>
 		</Card>
 	</Grid>

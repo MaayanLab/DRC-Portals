@@ -32,7 +32,7 @@ export const GDLPAButton = ({input}: {input: {entity: string, label: string, ico
 				</IconButton>
 				}
 				title={input.label}
-				subheader={`View CFDE resources for ${input.label}`}
+				subheader={`Submit ${input.label} to GDLPA`}
 				// subheader={`Search CFDE Workbench ${i.entity.replaceAll("_", " ")} entities`}
 			/>
 		</Card>

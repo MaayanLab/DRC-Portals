@@ -21,7 +21,7 @@ export const GSFMButton = ({input}: {input: {entity: string, label: string, icon
 				</IconButton>
 				}
 				title={input.label}
-				subheader={`View functional predictions for ${input.label}`}
+				subheader={`View GSFM predictions for ${input.label}`}
 			/>
 		</Card>
 	</Grid>
