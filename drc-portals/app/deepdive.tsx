@@ -7,7 +7,7 @@ import '@xyflow/react/dist/style.css';
 import { Accordion, AccordionDetails, AccordionSummary, Avatar, Button, Card, CardHeader, Grid, IconButton,  Typography } from '@mui/material';
 import { mdiFileDocument, mdiHeadQuestionOutline, mdiHumanMaleBoard, mdiOpenInApp, mdiRobotOutline, mdiTextBoxCheckOutline } from '@mdi/js';
 import Icon from '@mdi/react';
-import { Loading } from './concierge/[input]/loadingComponent';
+import { Loading } from './data/concierge/[input]/loadingComponent';
 import ReactMarkdown from "react-markdown";
 import remarkGfm from 'remark-gfm'
 import Link from 'next/link';

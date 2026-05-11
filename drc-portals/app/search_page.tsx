@@ -3,7 +3,7 @@ import Icon from "@mdi/react";
 import { Grid, Typography, Card, CardHeader, IconButton, CardContent, Skeleton, Stack, Tooltip, Chip, Avatar, List, ListItemButton, ListItemIcon, ListItemText, Collapse, Paper, Button } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { router_push } from "./enrichment/utils";
+import { router_push } from "./data/enrichment/utils";
 import {  mdiFileDocument, mdiHeadQuestionOutline, mdiHumanMaleBoard, mdiRobotOutline, mdiSearchWeb, mdiTextBoxCheckOutline, mdiTimerSand } from '@mdi/js';
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import React from "react";
