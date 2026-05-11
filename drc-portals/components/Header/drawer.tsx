@@ -25,7 +25,7 @@ export const DRCDrawer = ({path, options, session}: {path: "/info"| "/data", opt
 		<>
 			<Container>
 				<Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
-					<Logo title="CFDE Workbench" href={"/data"} size={matches ? 'large': 'small'} color="secondary"/>
+					<Logo title="CFDE Workbench" size={matches ? 'large': 'small'} color="secondary"/>
 					<div className="flex">
 						<Button color="secondary" onClick={()=>setOpen(!open)}><MenuIcon/></Button>
 						{session !== null &&  <UserComponent session={session}/>}
@@ -80,7 +80,7 @@ export const DRCDrawer = ({path, options, session}: {path: "/info"| "/data", opt
 						))}
 					</List>
 					<Divider/>
-					<Logo title="CFDE Workbench" href={path} size={'small'} color="secondary"/>
+					<Logo title="CFDE Workbench" size={'small'} color="secondary"/>
 					{session === null &&  <UserComponent session={session}/>}
 				</Stack>
 			</Drawer>
