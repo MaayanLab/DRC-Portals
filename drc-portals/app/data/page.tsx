@@ -280,7 +280,7 @@ export default async function Home({ searchParams }: { searchParams: { search?: 
             </Container>
           </ResponsivePaper>
         </Grid>
-        <Grid item>
+        {/* <Grid item>
           <Link href={"/data/chat"}>
           <Tooltip title={"CFDE WORKBENCH ASSISTANT"}>
               <Fab sx={{
@@ -292,7 +292,7 @@ export default async function Home({ searchParams }: { searchParams: { search?: 
               </Fab>
             </Tooltip>
           </Link>
-        </Grid>
+        </Grid> */}
       </Grid>
     </main>
   );
