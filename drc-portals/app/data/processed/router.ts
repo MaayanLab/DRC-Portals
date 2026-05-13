@@ -1,19 +1,55 @@
 import { procedure, router } from '@/lib/trpc'
 import elasticsearch from "@/lib/elasticsearch"
-import { EntityExpandedType, TermAggType } from '@/app/data/processed/utils'
+import { EntityExpandedType, FilterAggType, TermAggType } from '@/app/data/processed/utils'
 import { estypes } from '@elastic/elasticsearch'
 import { z } from 'zod'
 import { groupby } from '@/utils/array'
+import { TRPCError } from '@trpc/server'
+import { esDCCs } from './dccs'
 
 const limit = 100
 
 export default router({
+  dccs: procedure.query(async (props) => {
+    return await esDCCs
+  }),
+  types: procedure.input(z.object({
+    search: z.string(),
+  })).query(async (props) => {
+    const filter: estypes.QueryDslQueryContainer[] = []
+    if (props.input.search) filter.push({ simple_query_string: { query: props.input.search, fields: ['a_label^10', 'a_*^5', 'm2o_*.a_*'], default_operator: 'AND' } })
+    const searchRes = await elasticsearch.search<EntityExpandedType, TermAggType<'types' | 'dccs'>>({
+      index: 'entity_expanded',
+      query: {
+        bool: {
+          filter,
+        },
+      },
+      aggs: {
+        types: {
+          terms: {
+            field: 'type',
+            size: 1000,
+          },
+        },
+      },
+      size: 0,
+      rest_total_hits_as_int: true,
+    })
+    if (!searchRes?.hits.total) throw new TRPCError({ code: 'NOT_FOUND' })
+    return {
+      types: searchRes.aggregations?.types.buckets,
+      total: Number(searchRes.hits.total)
+    }
+  }),
   search: procedure.input(z.object({
     source_id: z.string().optional(),
     search: z.string().optional(),
     facet: z.string().array().optional(),
     cursor: z.string().optional(),
-  })).mutation(async (props) => {
+    reverse: z.boolean().optional().default(false),
+    size: z.number().default(10).transform(size => Math.max(0, Math.min(size, limit))),
+  })).query(async (props) => {
     const must: estypes.QueryDslQueryContainer[] = []
     const filter: estypes.QueryDslQueryContainer[] = []
     if (props.input.source_id) filter.push({ query_string: { query: `${props.input.source_id}`, fields: ['m2o_*.id', 'm2m_*'] } })
@@ -25,7 +61,8 @@ export default router({
         )).map(([_, F]) => `(${F.join(' OR ')})`).join(' AND '),
       }
     })
-    const searchRes = await elasticsearch.search<EntityExpandedType>({
+    if (must.length + filter.length === 0) throw new TRPCError({ code: 'NOT_FOUND' })
+    const searchRes = await elasticsearch.search<EntityExpandedType, FilterAggType<'files'>>({
       index: 'entity_expanded',
       query: {
         function_score: {
@@ -46,19 +83,33 @@ export default router({
           boost_mode: "sum"
         },
       },
-      sort: [
+      aggs: {
+        files: {
+          filter: {
+            exists: { field: 'a_access_url' }
+          },
+        },
+      },
+      sort: !props.input.reverse ? [
         {'_score': {'order': 'desc'}},
         {'id': {'order': 'asc'} },
+      ] : [
+        {'_score': {'order': 'asc'}},
+        {'id': {'order': 'desc'} },
       ],
-      size: limit,
+      size: props.input.size,
       search_after: props.input.cursor ? JSON.parse(props.input.cursor) : undefined,
       rest_total_hits_as_int: true,
     })
-    const next = searchRes.hits.hits.length === limit ? JSON.stringify(searchRes.hits.hits[searchRes.hits.hits.length-1].sort) : undefined
+    if (props.input.reverse) searchRes.hits.hits.reverse()
+    const first = searchRes.hits.hits.length === props.input.size ? JSON.stringify(searchRes.hits.hits[0].sort) : undefined
+    const next = searchRes.hits.hits.length === props.input.size ? JSON.stringify(searchRes.hits.hits[searchRes.hits.hits.length-1].sort) : undefined
     const items = searchRes.hits.hits.map(hit => hit._source).filter((hit): hit is EntityExpandedType => !!hit)
     return {
       items,
       total: searchRes.hits.total,
+      total_accessible: searchRes.aggregations?.files.doc_count,
+      first,
       next,
     }
   }),
