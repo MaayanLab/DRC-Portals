@@ -70,7 +70,7 @@ const Node = ({ data, isConnectable }: {data: {
 						return [{
 							type: data.facet,
 							a_label: inputValue,
-							title: `Query "${inputValue}"`,
+							title: inputValue,
 						}, ...filtered]
 					}
 
