@@ -26,7 +26,7 @@ export const esDCCs = singleton('esDCCs', async () => {
       bool: {
         filter: {
           query_string: {
-            query: '+type:dcc',
+            query: 'type:dcc',
           }
         }
       },

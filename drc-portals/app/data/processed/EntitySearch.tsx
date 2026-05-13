@@ -1,9 +1,7 @@
 import React from 'react'
-import elasticsearch from "@/lib/elasticsearch"
-import { estypes } from '@elastic/elasticsearch'
-import { categoryLabel, create_url, EntityExpandedType, EntityType, FilterAggType, itemDescription, itemIcon, itemLabel, predicateLabel } from "@/app/data/processed/utils"
+import trpc from '@/lib/trpc/server'
+import { categoryLabel, create_url, EntityType, itemDescription, itemIcon, itemLabel } from "@/app/data/processed/utils"
 import SearchablePagedTable, { SearchablePagedTableCell, SearchablePagedTableCellIcon, LinkedTypedNode, Description, SearchablePagedTableHeader } from "@/app/data/processed/SearchablePagedTable";
-import { redirect } from 'next/navigation';
 import { ensure_array, groupby } from '@/utils/array';
 import { esDCCs } from '@/app/data/processed/dccs';
 import { DRSCartButton, FetchDRSCartButton } from '@/app/data/processed/cart/DRSCartButton';
@@ -20,68 +18,22 @@ export default async function Page(props: PageProps) {
     const v = searchParams[k]
     searchParams[k] = Array.isArray(v) ? v.map(decodeURIComponent) : decodeURIComponent(v)
   }
-  const must: estypes.QueryDslQueryContainer[] = []
-  const filter: estypes.QueryDslQueryContainer[] = []
-  if (params.search) must.push({ simple_query_string: { query: params.search, fields: ['a_label^10', 'a_*^5', 'm2o_*.a_*'], default_operator: 'AND' } })
-  if (searchParams?.facet && ensure_array(searchParams.facet).length > 0) {
-    filter.push({
-      query_string: {
-        query: Object.entries(groupby(
-          ensure_array(searchParams.facet).filter(f => !!f), f => f.substring(0, f.indexOf(':'))
-        )).map(([_, F]) => `(${F.join(' OR ')})`).join(' AND '),
-      }
-    })
-  }
-  if (params.type) filter.push({ query_string: { query: `+type:"${params.type}"` } })
-  if (params.search_type) filter.push({ query_string: { query: `+type:"${params.search_type}"` } })
-  if (must.length+filter.length === 0) redirect('/data')
   const display_per_page = Math.min(Number(searchParams?.display_per_page ?? 10), 50)
-  const searchRes = await elasticsearch.search<EntityExpandedType, FilterAggType<'files'>>({
-    index: 'entity_expanded',
-    query: {
-      function_score: {
-        query: {
-          bool: {
-            must,
-            filter,
-          },
-        },
-        functions: [
-          {
-            field_value_factor: {
-              field: 'pagerank',
-              missing: 1,
-            }
-          }
-        ],
-        boost_mode: "sum",
-      },
-    },
-    aggs: {
-      files: {
-        filter: {
-          exists: { field: 'a_access_url' }
-        },
-      },
-    },
-    sort: searchParams?.reverse === undefined ? [
-      {'_score': {'order': 'desc'}},
-      {'id': {'order': 'asc'} },
-    ] :  [
-      {'_score': {'order': 'asc'}},
-      {'id': {'order': 'desc'} },
+  const searchRes = await trpc.search({
+    search: params.search,
+    facet: [
+      ...(params.type ? [`type:"${params.type}"`] : []),
+      ...(params.search_type ? [`type:"${params.search_type}"`] : []),
+      ...ensure_array(searchParams?.facet),
     ],
-    search_after: searchParams?.cursor ? JSON.parse(searchParams.cursor as string) : undefined,
     size: display_per_page,
-    rest_total_hits_as_int: true,
+    reverse: !!searchParams?.reverse,
+    cursor: searchParams?.cursor as string | undefined,
   })
-  if (searchParams?.reverse !== undefined) {
-    searchRes.hits.hits.reverse()
-  }
   const entityLookup: Record<string, EntityType> = Object.fromEntries([
-    ...searchRes.hits.hits.flatMap((hit) => [
-      [hit._id, hit._source],
-      ...Object.entries(hit._source as EntityExpandedType).flatMap(([key, value]) => {
+    ...searchRes.items.flatMap((hit) => [
+      [hit.id, hit],
+      ...Object.entries(hit).flatMap(([key, value]) => {
         if (key.startsWith('m2o_')) {
           return [[(value as EntityType).id, value as EntityType]]
         } else {
@@ -93,7 +45,7 @@ export default async function Page(props: PageProps) {
   ])
   return (
     <>
-      {params.type && searchRes.hits.total === 0 && <FancyTab id={params.type} label={<>{categoryLabel(params.type)}<br />0</>} priority={0} />}
+      {params.type && searchRes.total === 0 && <FancyTab id={params.type} label={<>{categoryLabel(params.type)}<br />0</>} priority={0} />}
       <SearchablePagedTable
         tableHeader={
           params.type && <SearchablePagedTableHeader
@@ -112,17 +64,16 @@ export default async function Page(props: PageProps) {
           <>Description</>,
           <>&nbsp;</>,
         ]}
-        rows={searchRes.hits.hits.map((hit) => {
-          if (!hit._source) return []
-          const href = create_url({ type: hit._source.type, slug: hit._source.slug })
+        rows={searchRes.items.map((hit_source) => {
+          const href = create_url({ type: hit_source.type, slug: hit_source.slug })
           return [
-            <SearchablePagedTableCellIcon href={href} src={itemIcon(hit._source, entityLookup)} alt={categoryLabel(hit._source.type)} />,
-            <SearchablePagedTableCell><LinkedTypedNode href={href} type={hit._source.type} label={itemLabel(hit._source)} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,
-            <SearchablePagedTableCell sx={{maxWidth: 'unset'}}><Description description={itemDescription(hit._source, entityLookup)} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,
-            hit._source.a_access_url && <SearchablePagedTableCell><DRSCartButton access_url={hit._source.a_access_url} responsive /></SearchablePagedTableCell>,
+            <SearchablePagedTableCellIcon href={href} src={itemIcon(hit_source, entityLookup)} alt={categoryLabel(hit_source.type)} />,
+            <SearchablePagedTableCell><LinkedTypedNode href={href} type={hit_source.type} label={itemLabel(hit_source)} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,
+            <SearchablePagedTableCell sx={{maxWidth: 'unset'}}><Description description={itemDescription(hit_source, entityLookup)} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,
+            hit_source.a_access_url && <SearchablePagedTableCell><DRSCartButton access_url={hit_source.a_access_url} responsive /></SearchablePagedTableCell>,
           ]
         }) ?? []}
-        tableFooter={!!searchRes.aggregations?.files.doc_count &&
+        tableFooter={!!searchRes.total_accessible &&
           <div className="flex flex-row justify-end">
             <FetchDRSCartButton
               search={params.search}
@@ -132,7 +83,7 @@ export default async function Page(props: PageProps) {
                 ...ensure_array(searchParams?.facet),
                 '_exists_:a_access_url',
               ]}
-              count={searchRes.aggregations.files.doc_count}
+              count={searchRes.total_accessible}
             />
           </div>
         }
@@ -142,10 +93,10 @@ export default async function Page(props: PageProps) {
             reverse={searchParams?.reverse !== undefined}
             display_per_page={display_per_page}
             page={Number(searchParams?.page || 1)}
-            total={Number(searchRes.hits.total)}
+            total={Number(searchRes.total)}
             cursors={[
-              searchRes.hits.hits.length && searchRes.hits.hits[0].sort ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[0].sort)) : undefined,
-              searchRes.hits.hits.length && searchRes.hits.hits[searchRes.hits.hits.length-1] ? encodeURIComponent(JSON.stringify(searchRes.hits.hits[searchRes.hits.hits.length-1].sort)) : undefined,
+              searchRes.first ? encodeURIComponent(searchRes.first) : undefined,
+              searchRes.next ? encodeURIComponent(searchRes.next) : undefined,
             ]}
           />
         }
