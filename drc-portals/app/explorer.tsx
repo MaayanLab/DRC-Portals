@@ -13,14 +13,13 @@ import {
 import '@xyflow/react/dist/style.css';
 // import './xy-theme.css'
 import { Avatar, Box, Button, Card, CardHeader, Chip, Container, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/material';
-import { blue, green, lime, orange, purple, red } from '@mui/material/colors';
+import { blue, green, lime, orange, purple, teal } from '@mui/material/colors';
 import { mdiDna, mdiEye, mdiEyedropper, mdiFlask, mdiHumanMaleHeightVariant, mdiListBox, mdiPill, mdiVirus } from '@mdi/js';
 import Icon from '@mdi/react';
 
 import GeneSet from './gene_set';
 import { Search } from './search_page';
 import ExplorerNode from './node';
-import { redirect } from 'next/navigation';
 import { router_push } from './data/enrichment/utils';
 import { useRouter } from 'next/navigation';
 
@@ -60,8 +59,8 @@ const ui_elements: {[key: string]: {color: string, icon_color: string, icon: str
     icon: mdiHumanMaleHeightVariant,
   },
   anatomy: {
-    color: red[100],
-    icon_color: red[900],
+    color: teal[100],
+    icon_color: teal[900],
     icon: mdiEye,
   },
   assay_type: {

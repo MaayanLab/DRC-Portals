@@ -10,7 +10,7 @@ import { Search } from "./search_page"
 import Twitter from "@/components/misc/Twitter"
 import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent"
 import prisma from "@/lib/prisma"
-import { blue, green, lime, orange, purple, red } from "@mui/material/colors"
+import { blue, green, lime, orange, teal, purple, red } from "@mui/material/colors"
 import CFPrograms from "@/components/misc/CFPrograms"
 import { ResponsivePaper } from "@/app/info/styled"
 import { BlurSmall } from "@/components/styled/Blur"
@@ -43,8 +43,8 @@ const ui_elements: {[key: string]: {color: string, icon_color: string, icon: str
     icon: mdiHumanMaleHeightVariant,
   },
   anatomy: {
-    color: red[100],
-    icon_color: red[900],
+    color: teal[100],
+    icon_color: teal[900],
     icon: mdiEye,
   },
   assay_type: {
