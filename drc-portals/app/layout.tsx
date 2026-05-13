@@ -63,7 +63,18 @@ export default async function RootLayout({
                 padding: 0
               }}><Icon path={mdiRobot} size={2} /></Fab>
             </Tooltip>
-            <CFDEWheel/>
+            <Tooltip title="Open CFDE Wheel">
+              <Fab href='/data/chat' sx={{
+                position: 'fixed',
+                bottom: 50,
+                right: 50,
+                height: 70,
+                width: 70,
+                padding: 0
+              }}>
+              <CFDEWheel/>
+              </Fab>
+            </Tooltip>
           </Grid>
         </TrpcProvider>
         <AdministrationDirectives style={{ minWidth: '400px', maxWidth: '100vw' }} />
