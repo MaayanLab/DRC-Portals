@@ -111,6 +111,20 @@ export const cfde_theme = createTheme({
             // textDecorationThickness: 2,
             // textDecorationColor: "#FFF"
         },
+        nav_clicked: {
+            fontSize: 16,
+            fontStyle: "normal",
+            fontWeight: 600,
+            textTransform: "uppercase",
+            color: "#000",
+            backgroundColor: "#A5B4DB",
+            paddingLeft: 5,
+            paddingRight: 5,
+            marginRight: 2,
+            // textDecoration: 'underline',
+            // textDecorationThickness: 2,
+            // textDecorationColor: "#FFF"
+        },
         footer: {
             fontFamily: dm_sans.style.fontFamily,
             fontSize: 16,
@@ -296,6 +310,7 @@ declare module '@mui/material/styles' {
       cfde_small: React.CSSProperties;
       nav: React.CSSProperties;
       nav_highlighted: React.CSSProperties;
+      nav_clicked: React.CSSProperties;
       footer: React.CSSProperties;
       stats_h3: React.CSSProperties;
       stats_sub: React.CSSProperties;
@@ -308,6 +323,7 @@ declare module '@mui/material/styles' {
       cfde_small?: React.CSSProperties;
       nav?: React.CSSProperties;
       nav_highlighted?: React.CSSProperties;
+      nav_clicked?: React.CSSProperties;
       footer?: React.CSSProperties;
       stats_h3?: React.CSSProperties;
       stats_sub?: React.CSSProperties;
@@ -342,6 +358,7 @@ declare module '@mui/material/styles' {
       cfde_small: true;
       nav: true;
       nav_highlighted: true;
+      nav_clicked: true;
       footer: true;
       stats_h3: true;
       stats_sub: true;

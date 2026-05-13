@@ -2,7 +2,7 @@
 import { Typography } from "@mui/material"
 import { usePathname } from "next/navigation"
 
-export  function TextNav({title, paths}: {title: string, paths: string[]}) {
+export  function TextNav({title, paths, clicked}: {title: string, paths: string[], clicked?: boolean}) {
 	const pathname = usePathname()
 	let variant: 'nav' | 'nav_highlighted' = 'nav'
 	for (const path of paths) {
@@ -16,6 +16,6 @@ export  function TextNav({title, paths}: {title: string, paths: string[]}) {
 		// }
 	}
 	return(
-		<Typography variant={variant}><b>{title}</b></Typography>
+		<Typography variant={clicked ? 'nav_clicked': variant}><b>{title}</b></Typography>
 	)
 }

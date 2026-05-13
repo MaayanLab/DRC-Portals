@@ -290,7 +290,7 @@ export default function Header({ session }: {session: Session | null }) {
                 {options.map(({ title, links }) => (
                   <Grid item key={title}>
                     <Button sx={{paddingLeft: 1, paddingRight: 1}}className="navButton" color="secondary" onClick={()=>handleClick({title, links})}>
-                      <TextNav paths={links.map(i=>i.href)} title={title}/>
+                      <TextNav paths={links.map(i=>i.href)} clicked={subLinks?.title === title} title={title}/>
                     </Button>
                   </Grid>
                 ))}
