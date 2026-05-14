@@ -56,7 +56,7 @@ const GeneSet = ({ data, isConnectable }: {data: {update_input: Function, setGen
           <Stack direction={"row"} spacing={1} alignItems={"center"}>
             <Avatar sx={{backgroundColor:'transparent', color: "#2D5986"}}><Icon path={mdiListBox} size={2}/></Avatar>
             <Typography variant='h3'>Gene Sets, Pathways, and Modules</Typography>
-            <Tooltip title={search === 'term' ? "Add your own gene set": "Search Enrichr gene sets"}>
+            <Tooltip title={search === 'term' ? "Add your own gene set": "Search gene sets"}>
               <Button variant='outlined' color="secondary" onClick={()=>{
                 if (search==='term') {
                   setSearch('input')
