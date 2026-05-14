@@ -56,13 +56,13 @@ export const TopNav = ({ session }: {session: Session | null }) => {
     <Link href={"https://cfdeworkspace.org/"} target="_blank" rel="noopener noreferrer">
       <Typography variant="nav"><b>Cloud</b></Typography>
     </Link>
-    <Link href={"https://cfdeknowledge.org/r/kc_landing"}>
+    <Link href={"https://cfdeknowledge.org/r/kc_landing"}  target="_blank" rel="noopener noreferrer">
       <Typography variant="nav"><b>Knowledge</b></Typography>
     </Link>
-    <Link href={"https://orau.org/cfde-trainingcenter/"}>
+    <Link href={"https://orau.org/cfde-trainingcenter/"}  target="_blank" rel="noopener noreferrer">
       <Typography variant="nav"><b>training</b></Typography>
     </Link>
-    <Link href={"https://cfdeconnect.org/"}>
+    <Link href={"https://cfdeconnect.org/"}  target="_blank" rel="noopener noreferrer">
       <Typography variant="nav"><b>coordination</b></Typography>
     </Link>
     <UserComponent session={session} />
