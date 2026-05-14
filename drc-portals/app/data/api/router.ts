@@ -487,7 +487,7 @@ export default router({
 			return results
 		}
 		else if (facet === "anatomy") {
-			const p = await fetch(`https://www.ebi.ac.uk/ols4/api/select?q=${term}&ontology=uberon&ontology=clo&type=class&type=property&fieldList=label&obsoletes=false&local=false&allChildrenOf=http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0001062&allChildrenOf=http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FBFO_0000001&rows=10&start=0&lang=en`)
+			const p = await fetch(`https://www.ebi.ac.uk/ols4/api/select?q=${term}&ontology=uberon&ontology=clo&type=class&type=property&fieldList=label&obsoletes=false&local=true&allChildrenOf=http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0001062&allChildrenOf=http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FBFO_0000001`)
 			// const [res1, res2] = await Promise.all([prom1, prom2])
 			const res = await p.json()
 			const results = res?.response?.docs.map(({label}: {label:string})=>({type: facet, a_label: label}))
