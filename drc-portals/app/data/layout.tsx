@@ -68,11 +68,11 @@ export const metadata: Metadata = {
 const jsonLd: WithContext<WebSite> = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "url": 'https://data.cfde.cloud',
+  "url": 'https://cfde.cloud/data',
   "potentialAction": [
     {
       "@type": "SearchAction",
-      "target": 'https://data.cfde.cloud/processed/search/{query}',
+      "target": 'https://cfde.cloud/data/processed/search/{query}',
       "query": "required"
     }
   ]

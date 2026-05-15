@@ -35,16 +35,7 @@ import { mdiAccountGroup, mdiAccountSwitch, mdiBook, mdiCalendar, mdiCompass, md
 import Icon from '@mdi/react';
 import usePathname from '@/utils/pathname';
 export const TopNav = ({ session }: {session: Session | null }) => {
-  const [isInfo, setInfo] = useState(false)
-  const [isData, setData] = useState(false)
-  const pathname = usePathname()
-  useEffect(()=>{
-    const isInfo = window && window.location.href.indexOf('/info') > -1 || window.location.hostname === 'info.cfde.cloud'
-    const isData = window && window.location.href.indexOf('/data') > -1 || window.location.hostname === 'data.cfde.cloud'
-    setInfo(isInfo)
-    setData(isData)
-  },[pathname])
-
+  
   return (
     <>
     {/* <Link href={"/info"}>
