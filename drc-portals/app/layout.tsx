@@ -16,13 +16,77 @@ import Icon from '@mdi/react'
 import { mdiRobot } from '@mdi/js'
 import Footer  from '@/components/Footer/info'
 import Background from '@/components/styled/background'
+import { WithContext, WebSite } from 'schema-dts'
 
 export const metadata: Metadata = {
   title: 'CFDE Data Portal',
-  description: '',
-  icons: {
-    icon: '/img/favicon.png', // /public path
-  },
+  description: 'Search Common Fund program metadata and processed datasets',
+  keywords: [ // TODO: some of these keywords probably should just come in at a lower level for more specific pages
+    'big data',
+    'bioinformatics',
+    'bone',
+    'c2m2',
+    'cancer',
+    'cell line',
+    'cfde',
+    'common fund data ecosystem',
+    'common fund',
+    'data ecosystem',
+    'data portal',
+    'data',
+    'dataset',
+    'diabetes',
+    'disease',
+    'drug discovery',
+    'drug',
+    'enrichment analysis',
+    'gene set library',
+    'gene set',
+    'gene',
+    'genomics',
+    'glycan',
+    'heart',
+    'kidney',
+    'knowledge',
+    'liver',
+    'machine learning',
+    'metabolomics',
+    'motifs',
+    'neurons',
+    'nih common fund',
+    'peturbation',
+    'pharmacology',
+    'phenotype',
+    'protein',
+    'proteomics',
+    'RNA-seq',
+    'RNAseq',
+    'scRNA-seq',
+    'single cell',
+    'skin',
+    'standard',
+    'systems biology',
+    'target discovery',
+    'target',
+    'therapeutics',
+    'tissue',
+    'transcriptomics',
+    'variants',
+    'workbench',
+  ].join(', ')
+}
+
+const jsonLd: WithContext<WebSite> = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "url": 'https://cfde.cloud/data',
+  "potentialAction": [
+    {
+      "@type": "SearchAction",
+      "target": 'https://cfde.cloud/data/processed/search/{query}',
+      "query": "required"
+    }
+  ]
 }
 
 export default async function RootLayout({
@@ -64,16 +128,7 @@ export default async function RootLayout({
               }}><Icon path={mdiRobot} size={2} /></Fab>
             </Tooltip>
             <Tooltip title="Open CFDE Wheel">
-              <Fab sx={{
-                position: 'fixed',
-                bottom: 50,
-                right: 50,
-                height: 70,
-                width: 70,
-                padding: 0
-              }}>
               <CFDEWheel/>
-              </Fab>
             </Tooltip>
           </Grid>
         </TrpcProvider>
