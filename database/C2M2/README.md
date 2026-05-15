@@ -113,8 +113,10 @@ mkdir -p ${logdir}
 echo -e "actually_read_tables = 1\n" > set_actually_read_tables.py
 python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_ingestion_${ymd}.log; ${python_cmd} populateC2M2FromS3.py 2>&1 | tee ${logf} ; date_div >> ${logf}; 
 # Check for any warning or errors
-egrep -i -e "Warning" ${logf} > ${logdir}/warning_in_schemaC2M2_ingestion_${ymd}.log; 
+egrep -i -e "Warning" ${logf} > ${logdir}/warning_in_schemaC2M2_ingestion_${ymd}.log;
+cat ${logdir}/warning_in_schemaC2M2_ingestion_${ymd}.log;
 egrep -i -e "Error" ${logf} > ${logdir}/error_in_schemaC2M2_ingestion_${ymd}.log;
+cat ${logdir}/error_in_schemaC2M2_ingestion_${ymd}.log;
 
 # If one wanted to print the sql statements to find records or their counts with matching keywords,
 # one could use the linux command: this is generally for information purposes only unless the delete 
@@ -136,16 +138,6 @@ date_div >> ${logf};
 # To be added if needed: using python script: I am using \COPY inside the sql file, so
 # with self.connection as cursor: cursor.executescript(open("ingest_CV.sql", "r").read())
 # will not work unless absolute path for the source tsv file is used.
-
-#------------------------------------
-# To sanitize the C2M2 tables by deleting records with matching keywords
-#logf=${logdir}/log_sanitize_C2M2_tables_for_keywords_C2M2_2.log
-logf=${logdir}/log_sanitize_C2M2_tables_for_keywords_ALL.log
-# psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql -L ${logf};
-date_div > ${logf};
-psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql 2>&1 | tee ${logf};
-#psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql;
-date_div >> ${logf};
 
 # For use with Prisma, on varchar searchable, gin-based index (without gin_trgm_ops in 
 # file populateC2M2FromS3.py) was causing issue in "npx prisma db pull 
@@ -201,6 +193,23 @@ python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} $
 #python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} ${logdir} GlyGen
 # The above run provides additional instructions at the end for more crosschecks 
 # between data in tables in the c2m2 schema and the tables in the DCC-name-specific schema.
+
+#------------------------------------
+# To sanitize the C2M2 tables by deleting records with matching keywords
+# To sanitize tables from other schema, in the sql script, uncomment the line:
+# schemas text[] := ARRAY['_4dn', 'bridge2ai', 'exrna', ...
+# Later, comment that line and uncomment the line: schemas text[] := ARRAY['c2m2'];
+# Thus the command below needs to be run twice, if also ingested in dcc-specific schema
+# and will compare the counts between c2m2 schema and dcc-specific schema later
+#
+#logf=${logdir}/log_sanitize_C2M2_tables_for_keywords_C2M2_2.log
+logf=${logdir}/log_sanitize_C2M2_tables_for_keywords_C2M2.log
+logf=${logdir}/log_sanitize_C2M2_tables_for_keywords_ALL.log
+# psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql -L ${logf};
+date_div > ${logf};
+psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql 2>&1 | tee ${logf};
+#psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql;
+date_div >> ${logf};
 
 # If there is a need to to remove .0 from columns size_in_bytes and uncompressed_size_in_bytes 
 # of file tables of various schema: the script populateC2M2FromS3.py has been updated to address this.
