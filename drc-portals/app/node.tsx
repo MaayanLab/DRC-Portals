@@ -15,7 +15,7 @@ const Node = ({ data, isConnectable }: {data: {
 }, isConnectable: boolean}) => {
   const [term, setTerm] = React.useState({type: '', a_label: ''})
   const [inputTerm, setInputTerm] = React.useState('')
-  const { data: options } =  trpc.ontology.useQuery({facet: data.facet, term: inputTerm.toLocaleLowerCase()})
+  const { data: options} =  trpc.ontology.useQuery({facet: data.facet, term: inputTerm.toLocaleLowerCase()}, {enabled: inputTerm !== ''})
   
 	return (
 	<Card elevation={0} sx={{width: 400, bgcolor: '#E7F3F5', borderColor: "#2D5986", borderWidth: 2}}>
