@@ -22,16 +22,42 @@ import { TextNav } from "./client"
 import { Session, getServerSession } from "next-auth"
 import NavBreadcrumbs from './breadcrumbs';
 export const TopNav = async ({ path, session }: { path: "/info" | "/data", session: Session | null }) => {
+  // return (
+  //   <>
+  //     <Link href={"/info"}>
+  //       <Typography variant="nav" sx={path === "/info" ? { textDecoration: "underline", textDecorationThickness: 2 } : {}}><b>Information Portal</b></Typography>
+  //     </Link>
+  //     <Link href={"/data"}>
+  //       <Typography variant="nav" sx={path === "/data" ? { textDecoration: "underline", textDecorationThickness: 2 } : {}}><b>Data Portal</b></Typography>
+  //     </Link>
+  //     <Link href={"/info/centers/KC"}>
+  //       <Typography variant="nav"><b>Knowledge Portal</b></Typography>
+  //     </Link>
+  //     <UserComponent session={session} />
+  //   </>
+  // )
   return (
     <>
-      <Link href="/info">
-        <Typography variant="nav" sx={path === "/info" ? { textDecoration: "underline", textDecorationThickness: 2 } : {}}><b>Information Portal</b></Typography>
+    <Link href={"/info"}>
+      <Typography variant="nav" sx={path === "/info" ? { textDecoration: "underline", textDecorationThickness: 2 } : {}}><b>Info</b></Typography>
+    </Link>
+    <Link href={"/data"}>
+      <Typography variant="nav" sx={path === "/data" ? { textDecoration: "underline", textDecorationThickness: 2 } : {}}><b>Data</b></Typography>
       </Link>
-      <Link href={"/data"}>
-        <Typography variant="nav" sx={path === "/data" ? { textDecoration: "underline", textDecorationThickness: 2 } : {}}><b>Data Portal</b></Typography>
+      {/* <Link href={path === "/info" ? "/data": "/info"}>
+        <Typography variant="nav"><b>Data</b></Typography>
+      </Link> */}
+      <Link href={"https://cfdeworkspace.org/"} target="_blank" rel="noopener noreferrer">
+        <Typography variant="nav"><b>Cloud</b></Typography>
       </Link>
-      <Link href={"/info/centers/KC"}>
-        <Typography variant="nav"><b>Knowledge Portal</b></Typography>
+      <Link href={"https://cfdeknowledge.org/r/kc_landing"} target="_blank" rel="noopener noreferrer">
+        <Typography variant="nav"><b>Knowledge</b></Typography>
+      </Link>
+      <Link href={"https://orau.org/cfde-trainingcenter/"} target="_blank" rel="noopener noreferrer">
+        <Typography variant="nav"><b>training</b></Typography>
+      </Link>
+      <Link href={"https://cfdeconnect.org/"} target="_blank" rel="noopener noreferrer">
+        <Typography variant="nav"><b>coordination</b></Typography>
       </Link>
       <UserComponent session={session} />
     </>

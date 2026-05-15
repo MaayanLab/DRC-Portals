@@ -134,7 +134,9 @@ export const parsePathwayTree = (
   const patterns: string[] = [];
   const filterMap = new Map<string, string[]>();
   const nodeIds = new Set<string>();
+  const hiddenNodeIds = new Set<string>();
   const relIds = new Set<string>();
+  const hiddenRelIds = new Set<string>();
   const outgoingCnxns = new Map<string, Map<string, string[]>>();
   const incomingCnxns = new Map<string, Map<string, string[]>>();
   const nodes: PathwayNode[] = [];
@@ -166,6 +168,10 @@ export const parsePathwayTree = (
     if (!nodeIds.has(node.id)) {
       nodeIds.add(node.id);
       nodes.push(node);
+
+      if (!node.visible) {
+        hiddenNodeIds.add(node.id);
+      }
     }
 
     if (node.parentRelationship !== undefined && parent !== undefined) {
@@ -183,6 +189,10 @@ export const parsePathwayTree = (
 
       const escapedRelId = escapeCypherString(node.parentRelationship.id);
       relIds.add(node.parentRelationship.id);
+
+      if (!parent.visible || !node.visible) {
+        hiddenRelIds.add(node.parentRelationship.id);
+      }
 
       currentPattern += `${relIsIncoming ? "<" : ""}-[${escapedRelId}:${type}]-${!relIsIncoming ? ">" : ""}`;
 
@@ -239,7 +249,9 @@ export const parsePathwayTree = (
     patterns,
     filterMap,
     nodeIds,
+    hiddenNodeIds,
     relIds,
+    hiddenRelIds,
     nodes,
     outgoingCnxns,
     incomingCnxns,

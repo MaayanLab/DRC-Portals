@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { get_playbook_description } from "./utils.js";
+import { fetch_playbook, get_playbook_description } from "./utils.js";
 
 const GlyGenbyGlyTouCan = [
   "GlyGenbyGlyTouCan",
@@ -13,7 +13,11 @@ const GlyGenbyGlyTouCan = [
         "function": z.string().describe("Function to run"),
         "inputType": z.string().describe("The type of input"),
         "methods": z.array(z.string()).describe("Methods describing the workflow"),
-        "glycan": z.string().optional().nullable().describe("glycan to be analyzed.")
+        "glycan": z.string().optional().nullable().describe("glycan to be analyzed."),
+        "id": z.string(),
+        "output": z.array(z.looseObject({
+                    id: z.string(),
+                  })).describe("Analysis returned by the Playbook Workflow Builder"),
     }
   },
   async ({glycan}: {glycan: string}) => {
@@ -43,7 +47,7 @@ const GlyGenbyGlyTouCan = [
             }
         ]
     }
-    const methods = await get_playbook_description(body)
+    const {methods, output, id} = await fetch_playbook(body)
     return {
       content: [
         {
@@ -52,7 +56,9 @@ const GlyGenbyGlyTouCan = [
               function: "GlyGenbyGlyTouCan",
               inputType: "GlycanInput",
               methods: methods.usability_domain || [],
-              glycan
+              glycan,
+              output,
+              id
           })
         }
       ],
@@ -60,7 +66,9 @@ const GlyGenbyGlyTouCan = [
           function: "GlyGenbyGlyTouCan",
           inputType: "GlycanInput",
           methods: methods.usability_domain || [],
-          glycan
+          glycan,
+          output,
+          id
       }
     }
   }

@@ -39,6 +39,7 @@ export interface PathwayNode {
   id: string;
   label: string;
   children: PathwayNode[];
+  visible: boolean;
   props?: { [key: string]: any };
   parentRelationship?: PathwayRelationship;
 }
@@ -60,7 +61,9 @@ export interface TreeParseResult {
   patterns: string[];
   filterMap: Map<string, string[]>;
   nodeIds: Set<string>;
+  hiddenNodeIds: Set<string>;
   relIds: Set<string>;
+  hiddenRelIds: Set<string>;
   nodes: PathwayNode[];
   outgoingCnxns: Map<string, Map<string, string[]>>;
   incomingCnxns: Map<string, Map<string, string[]>>;

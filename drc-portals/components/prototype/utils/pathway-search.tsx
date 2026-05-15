@@ -82,6 +82,7 @@ export const createTree = (elements: PathwaySearchElement[]): PathwayNode => {
     return {
       id: root.data.id,
       label: root.data.dbLabel,
+      visible: root.data.visible,
       props: root.data.props,
       parentRelationship: undefined,
       children: [],
@@ -104,6 +105,7 @@ export const createTree = (elements: PathwaySearchElement[]): PathwayNode => {
     return {
       id: root.data.id,
       label: root.data.dbLabel,
+      visible: root.data.visible,
       props: root.data.props,
       parentRelationship:
         parentEdge === undefined
@@ -121,8 +123,7 @@ export const createTree = (elements: PathwaySearchElement[]): PathwayNode => {
         elements.filter(
           (el) =>
             childIds.has(el.data.id) && // el is a child of the root
-            !isPathwaySearchEdgeElement(el) && // el is not an edge
-            el.classes?.includes("path-element") // el is part of the path
+            !isPathwaySearchEdgeElement(el) // el is not an edge
         ) as PathwaySearchNode[]
       )
         .map((node) => createTreeFromRoot(node))
@@ -233,6 +234,7 @@ export const getColumnDataFromTree = (tree: PathwayNode): ColumnData[] => {
     const nodeId = node.id;
     const label = node.label;
     const labelCount = labelCounts.get(label);
+    const visible = node.visible;
     let postfix, valueGetter, displayProp;
 
     if (labelCount === undefined) {
@@ -330,6 +332,7 @@ export const getColumnDataFromTree = (tree: PathwayNode): ColumnData[] => {
     return {
       key: nodeId,
       label,
+      visible,
       displayProp,
       postfix,
       valueGetter,

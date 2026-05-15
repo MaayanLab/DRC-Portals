@@ -6,11 +6,13 @@ import DownloadIcon from "@mui/icons-material/Download";
 import IndeterminateCheckBoxIcon from "@mui/icons-material/IndeterminateCheckBox";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import ViewColumnIcon from "@mui/icons-material/ViewColumn";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import {
   Box,
   Button,
   Checkbox,
-  CircularProgress,
   FormControl,
   IconButton,
   ListItemIcon,
@@ -51,6 +53,8 @@ import { getPropertyListFromNodeLabel } from "@/components/prototype/utils/pathw
 import { downloadBlob } from "@/components/prototype/utils/shared";
 
 import ReturnBtn from "../ReturnBtn";
+
+import ColumnsPanel from "./ColumnsPanel";
 import PathwayTablePagination from "./PathwayTablePagination";
 
 interface TableViewProps {
@@ -66,7 +70,8 @@ interface TableViewProps {
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
   onOrderByChange: (column: number | undefined, order: Order) => void;
-  onColumnChange: (column: number, changes: Partial<ColumnData>) => void;
+  onColumnPropertyChange: (column: number, changes: Partial<ColumnData>) => void;
+  onColumnVisibilityChange: (columns: ColumnData[]) => void;
   onDownloadAll: () => Promise<void>;
 }
 
@@ -84,7 +89,8 @@ export default function TableView(cmpProps: TableViewProps) {
     onPageChange,
     onLimitChange,
     onOrderByChange,
-    onColumnChange,
+    onColumnPropertyChange,
+    onColumnVisibilityChange,
     onDownloadAll,
   } = cmpProps;
   const [selected, setSelected] = useState<boolean[]>(
@@ -97,14 +103,19 @@ export default function TableView(cmpProps: TableViewProps) {
   );
   const [colMenuColumn, setColMenuColumn] = useState<number>();
   const colMenuOpen = Boolean(colMenuAnchorEl);
+  const [colVisibilityMenuAnchorEl, setColVisibilityMenuAnchorEl] =
+    useState<null | HTMLElement>(null);
+  const colVisibilityMenuOpen = Boolean(colVisibilityMenuAnchorEl);
 
-  const drsBundleData = useMemo(() =>
-    data
-      .filter((_, idx) => selected[idx])
-      .flat()
-      .filter((element) => !isRelationshipResult(element))
-      .map(node => node.properties)
-    , [data, selected])
+  const drsBundleData = useMemo(
+    () =>
+      data
+        .filter((_, idx) => selected[idx])
+        .flat()
+        .filter((element) => !isRelationshipResult(element))
+        .map((node) => node.properties),
+    [data, selected]
+  );
 
   const getColumnHeaderText = (column: ColumnData) => {
     return (
@@ -142,6 +153,16 @@ export default function TableView(cmpProps: TableViewProps) {
     setColMenuAnchorEl(null);
   };
 
+  const handleColVisibilityMenuClick = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    setColVisibilityMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleColVisibilityMenuClose = () => {
+    setColVisibilityMenuAnchorEl(null);
+  };
+
   const colMenuFnWrapper = <Args extends any[]>(
     fn: (...args: Args) => void,
     ...args: Args
@@ -155,10 +176,20 @@ export default function TableView(cmpProps: TableViewProps) {
   };
 
   const handleColMenuPropertyUpdate = (column: number, property: string) => {
-    colMenuFnWrapper(onColumnChange, column, {
+    colMenuFnWrapper(onColumnPropertyChange, column, {
       displayProp: property,
     });
   };
+
+  const handleColumnVisibilitySwitch = useCallback(
+    (changedColumn: number) => {
+      const newColumns = columns.map((col, idx) =>
+        idx === changedColumn ? { ...col, visible: !columns[changedColumn].visible } : { ...col }
+      );
+      onColumnVisibilityChange(newColumns);
+    },
+    [columns]
+  );
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
@@ -174,8 +205,10 @@ export default function TableView(cmpProps: TableViewProps) {
       let newOrderBy: number | undefined = column;
 
       if (sortedColumn === column) {
-        if (order === "asc") newOrder = "desc"; // order column by desc
-        else if (order === "desc") newOrderBy = undefined; // unorder column
+        if (order === "asc")
+          newOrder = "desc"; // order column by desc
+        else if (order === "desc")
+          newOrderBy = undefined; // unorder column
         else newOrder = "asc"; // order column by asc
       } else {
         newOrder = "asc"; // order column by asc
@@ -206,15 +239,50 @@ export default function TableView(cmpProps: TableViewProps) {
 
   return (
     <>
-      {/* Start table */}
+      {/* Start table header */}
       <TableContainer
         component={Paper}
         elevation={0}
-        variant="rounded-top"
-        sx={{ flexGrow: 1 }}
+        sx={{ flexGrow: 1, borderRadius: 0 }}
       >
         <Table size="small" sx={{ borderCollapse: "separate" }}>
-          <TableHead sx={{ position: "sticky", top: "0px", zIndex: 4 }}>
+          <TableHead sx={{ position: "sticky", top: "0px", zIndex: 5 }}>
+            {/*Table Toolbar*/}
+            <TableRow>
+              <StyledHeaderCell
+                // 2 extra columns for the checkbox and row #
+                colSpan={columns.length + 2}
+                sx={{
+                  position: "sticky",
+                  left: 0,
+                  zIndex: 3,
+                  borderTopLeftRadius: "4px",
+                  borderTopRightRadius: "4px",
+                  backgroundColor: "#fff",
+                  border: "1px solid #DCDBDC",
+                  borderBottomColor: "#CAD2E9",
+                  paddingBottom: 0
+                }}
+              >
+                <Button
+                  sx={{
+                    backgroundColor: "#CAD2E9",
+                    borderBottomLeftRadius: 0,
+                    borderBottomRightRadius: 0,
+                    padding: "5px 12px",
+                    '&:hover': {
+                      backgroundColor: '#C3E1E6', // Hover background color
+                    },
+                  }}
+                  color="secondary"
+                  size="small"
+                  startIcon={<ViewColumnIcon />}
+                  onClick={handleColVisibilityMenuClick}
+                >
+                  Columns
+                </Button>
+              </StyledHeaderCell>
+            </TableRow>
             <TableRow>
               <StyledHeaderCell
                 padding="checkbox"
@@ -232,41 +300,46 @@ export default function TableView(cmpProps: TableViewProps) {
                   onChange={handleSelectAllClick}
                 />
               </StyledHeaderCell>
-              {/* width: 1% forces minimal use of space */}
               <StyledHeaderCellWithDivider
                 sx={{ width: "1%", padding: "6px 10px" }}
               >
                 <Typography variant="body1">#</Typography>
               </StyledHeaderCellWithDivider>
-              {columns.map((col, idx) => (
-                <StyledHeaderCellWithDivider key={col.key}>
-                  <Box
-                    sx={{ display: "flex", justifyContent: "space-between" }}
-                  >
-                    <TableSortLabel
-                      disabled={false}
-                      active={sortedColumn === idx && order !== undefined}
-                      direction={sortedColumn === idx ? order : "asc"}
-                      onClick={(event) => handleSortBtnClicked(event, idx)}
+              {columns
+                .map((col, idx) => (
+                  <StyledHeaderCellWithDivider key={col.key}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
                     >
-                      {getColumnHeaderText(col)}
-                      {sortedColumn === idx ? (
-                        <Box component="span" sx={visuallyHidden}>
-                          {order === "desc"
-                            ? "sorted descending"
-                            : "sorted ascending"}
-                        </Box>
-                      ) : null}
-                    </TableSortLabel>
-                    <IconButton
-                      size="small"
-                      onClick={(event) => handleColMenuClick(event, idx)}
-                    >
-                      <MoreVertIcon fontSize="inherit" />
-                    </IconButton>
-                  </Box>
-                </StyledHeaderCellWithDivider>
-              ))}
+                      <TableSortLabel
+                        disabled={false}
+                        active={sortedColumn === idx && order !== undefined}
+                        direction={sortedColumn === idx ? order : "asc"}
+                        onClick={(event) => handleSortBtnClicked(event, idx)}
+                      >
+                        {getColumnHeaderText(col)}
+                        {sortedColumn === idx ? (
+                          <Box component="span" sx={visuallyHidden}>
+                            {order === "desc"
+                              ? "sorted descending"
+                              : "sorted ascending"}
+                          </Box>
+                        ) : null}
+                      </TableSortLabel>
+                      <IconButton
+                        size="small"
+                        onClick={(event) => handleColMenuClick(event, idx)}
+                      >
+                        <MoreVertIcon fontSize="inherit" />
+                      </IconButton>
+                    </Box>
+                  </StyledHeaderCellWithDivider>
+                ))
+                .filter((_, j) => columns[j].visible) // Skip hidden columns
+              }
             </TableRow>
           </TableHead>
           <TableBody sx={{ zIndex: 4 }}>
@@ -282,16 +355,21 @@ export default function TableView(cmpProps: TableViewProps) {
                   />
                 </StyledTableCell>
                 <StyledTableCell>{(page - 1) * limit + i + 1}</StyledTableCell>
-                {row
-                  .filter((col) => !isRelationshipResult(col))
-                  .map((nodeCol, j) => (
-                    <StyledDataCell key={j}>
-                      {columns[j].valueGetter(
-                        nodeCol as NodeResult,
-                        columns[j].displayProp
-                      )}
-                    </StyledDataCell>
-                  ))}
+                {
+                  row
+                    .filter((col) => !isRelationshipResult(col)) // Skip relationship data (this shrinks the row width to match the length of `columns`)
+                    .map((nodeCol, j) => {
+                      const visibleColumns = columns.filter(col => col.visible);
+                      return (
+                        <StyledDataCell key={j}>
+                          {visibleColumns[j].valueGetter(
+                            nodeCol as NodeResult,
+                            visibleColumns[j].displayProp
+                          )}
+                        </StyledDataCell>
+                      )
+                    })
+                }
               </TableRow>
             ))}
           </TableBody>
@@ -366,31 +444,59 @@ export default function TableView(cmpProps: TableViewProps) {
         <ReturnBtn onClick={onReturnBtnClick} />
       </Stack>
       <Menu
+        id="col-visibility-menu"
+        anchorEl={colVisibilityMenuAnchorEl}
+        open={colVisibilityMenuOpen}
+        onClose={handleColVisibilityMenuClose}
+        slotProps={{
+          paper: {
+            style: {
+              maxHeight: 48 * 4.5,
+              width: "20ch",
+            },
+          },
+        }}
+      >
+        <ColumnsPanel
+          columns={columns}
+          onSwitch={handleColumnVisibilitySwitch}
+        />
+      </Menu>
+      {/* Individual Column Menu */}
+      <Menu
         id="col-menu"
         anchorEl={colMenuAnchorEl}
         open={colMenuOpen}
         onClose={handleColMenuClose}
       >
         {colMenuColumn !== undefined ? (
-          <NestedMenuItem
-            rightIcon={<KeyboardArrowRightIcon />}
-            parentMenuOpen={colMenuOpen}
-            renderLabel={() => "Set column property"}
-            sx={{ paddingX: "16px" }}
-          >
-            {getPropertyListFromNodeLabel(columns[colMenuColumn].label).map(
-              (property, idx) => (
-                <MenuItem
-                  key={`column-menu-prop-select-${idx}`}
-                  onClick={() =>
-                    handleColMenuPropertyUpdate(colMenuColumn, property)
-                  }
-                >
-                  {property}
-                </MenuItem>
-              )
-            )}
-          </NestedMenuItem>
+          <>
+            <MenuItem onClick={() => handleColumnVisibilitySwitch(colMenuColumn)}>
+              <ListItemIcon>
+                <VisibilityOffIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Hide Column</ListItemText>
+            </MenuItem>
+            <NestedMenuItem
+              rightIcon={<KeyboardArrowRightIcon />}
+              parentMenuOpen={colMenuOpen}
+              renderLabel={() => "Set column property"}
+              sx={{ paddingX: "16px" }}
+            >
+              {getPropertyListFromNodeLabel(columns[colMenuColumn].label).map(
+                (property, idx) => (
+                  <MenuItem
+                    key={`column-menu-prop-select-${idx}`}
+                    onClick={() =>
+                      handleColMenuPropertyUpdate(colMenuColumn, property)
+                    }
+                  >
+                    {property}
+                  </MenuItem>
+                )
+              )}
+            </NestedMenuItem>
+          </>
         ) : null}
         {colMenuColumn !== sortedColumn ||
           order === undefined ||

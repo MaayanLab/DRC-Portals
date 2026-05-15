@@ -10,7 +10,7 @@ export default function PlaybookButton({id}: {id:string}) {
     return (
         <>
         <Link href={ENDPOINT + '/report/' + id} target='_blank'>
-            <Button variant='outlined'>
+            <Button variant='outlined' color="secondary">
                 <div className='flex-row'>
                 Open in the Playbook Workflow Builder
                 </div>

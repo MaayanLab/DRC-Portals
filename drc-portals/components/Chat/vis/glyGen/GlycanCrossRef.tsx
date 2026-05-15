@@ -9,7 +9,7 @@ export function GlycanCrossRef({ crossref }: {crossref: any}) {
     }
   
     return (
-      <div className="prose text-white">
+      <div className="prose">
         {pubMedCrossRefs.map((entry: any) => (
           <div key={entry.id}>
             <b>{entry.database}: </b>

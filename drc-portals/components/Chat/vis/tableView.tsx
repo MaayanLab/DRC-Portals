@@ -45,7 +45,7 @@ export default function TableView(rowData: any) {
 
     return (
         <div className=''>
-            <table className="table-xs text-slate-200 border-b-2">
+            <table className="table-xs border-b-2">
                 <thead>
                     <tr>
                         {tableHeader}

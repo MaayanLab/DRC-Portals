@@ -403,7 +403,6 @@ export const PATHWAY_SEARCH_STYLESHEET: any[] = [
         }
 
       },
-      opacity: TRANSPARENT_OPACITY,
     },
   },
   {
@@ -421,17 +420,9 @@ export const PATHWAY_SEARCH_STYLESHEET: any[] = [
           ? ""
           : ` (${element.data("count")})`
         }`,
-      opacity: TRANSPARENT_OPACITY,
     },
   },
   ...STYLESHEET_CLASSES, // Classes must be last so they are not overwritten by selector styles!
-  {
-    selector: ".path-element",
-    style: {
-      opacity: SOLID_OPACITY,
-      "z-index": HIGH_Z_INDEX,
-    },
-  },
   {
     selector: "node.prune-candidate",
     style: {
@@ -2890,22 +2881,6 @@ export const SCHEMA_STYLESHEET: any[] = [
   {
     selector: `edge#${PHENOTYPE_ASSOCIATED_WITH_DISEASE_EDGE_ID}`,
     style: {},
-  },
-  {
-    selector: "node.path-element",
-    style: {
-      "border-color": PATH_COLOR,
-      "border-width": NODE_BORDER_WIDTH,
-      opacity: SOLID_OPACITY,
-    },
-  },
-  {
-    selector: "edge.path-element",
-    style: {
-      "line-color": PATH_COLOR,
-      "target-arrow-color": PATH_COLOR,
-      opacity: SOLID_OPACITY,
-    },
   },
 ];
 

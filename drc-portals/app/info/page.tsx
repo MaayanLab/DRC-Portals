@@ -75,7 +75,7 @@ export default async function Home() {
                       <Stack spacing={2}>
                         <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}} variant="subtitle1">CFDE NAVIGATION WHEEL</Typography>
                         <div style={{marginLeft: 40}}>
-                          <CFDEWheel button={true}/>
+                          <CFDEWheel button={true} new_window={true}/>
                         </div>
                         <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">ABOUT THE WORKBENCH</Typography>
                         <Box sx={{width: 233}}>

@@ -140,8 +140,7 @@ export default async function CenterDataPage({ params }: { params: { center: str
                                 remarkPlugins={[remarkGfm]}
                                 components={{ 
                                     p: PRenderer,
-                                }}
-                                className="prose max-w-none">
+                                }}>
                                     {center.description?.replace("<br/>", "&nbsp;\n\n")}
                             </ReactMarkdown>
                             {center.video_tutorial && <>

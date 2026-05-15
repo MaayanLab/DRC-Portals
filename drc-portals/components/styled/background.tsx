@@ -5,7 +5,6 @@ import { Container } from '@mui/material'
 
 export default function Background({children, background="#DBE0ED"}: {children: React.ReactNode, background?: string}) {
     const pathname = usePathname()
-    console.log(pathname)
     if ( pathname !== '/data' && pathname !== '/info') {
         return(
             <div style={{

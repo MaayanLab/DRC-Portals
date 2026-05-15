@@ -1,7 +1,11 @@
-import React, { ReactNode } from "react"
+import React, { ReactNode, Suspense } from "react"
 import { Grid, Stack, Typography } from "@mui/material"
 import Link from "@/utils/link"
 import Image from "@/utils/image"
+import { MarkdownStatic } from "@/components/misc/MarkdownComponent"
+import Icon from "@mdi/react"
+import { mdiTimerSand } from "@mdi/js"
+import GeneSummary from "./GeneSummary"
 
 export default function LandingPageLayout(props: React.PropsWithChildren<{
   title: React.ReactNode,
@@ -9,6 +13,7 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
   description?: React.ReactNode,
   metadata?: ({label: React.ReactNode, value: ReactNode} | null)[],
   icon?: { src: string, href: string, alt: string },
+  summary?: {[key: string]: string}
 }>) {
   return (
     <Grid container rowGap={2}>
@@ -29,6 +34,10 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
         <Stack>
           {props.metadata?.map((item, i) => item && item.value ? <div key={i} className="prose max-w-none flex flex-row gap-1 place-items-start"><span className="text-nowrap"><strong>{item.label}</strong>:</span>{item.value}</div> : null)}
           {props.description ? <div className="prose max-w-none"><strong>Description</strong>: {props.description}</div> : null}
+          {props.summary ? 
+              <GeneSummary summary={props.summary}/>
+          :null  
+          }
         </Stack>
       </Grid>
       <Grid item container xs={12}>

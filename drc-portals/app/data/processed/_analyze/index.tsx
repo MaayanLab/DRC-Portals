@@ -15,7 +15,7 @@ import G2SGButton from './G2SGButton';
 import GSEButton from './GSEButton';
 import elasticsearch from '@/lib/elasticsearch';
 
-const getGeneSet = React.cache(async (id: string) => {
+export const getGeneSet = React.cache(async (id: string) => {
   const searchRes = await elasticsearch.search<EntityExpandedType>({
     index: 'entity_expanded',
     query: {

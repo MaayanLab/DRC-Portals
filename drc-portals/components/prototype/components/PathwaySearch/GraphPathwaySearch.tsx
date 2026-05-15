@@ -4,11 +4,13 @@ import ContentCutIcon from "@mui/icons-material/ContentCut";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import HelpIcon from '@mui/icons-material/Help';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import HelpIcon from "@mui/icons-material/Help";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import SearchIcon from "@mui/icons-material/Search";
-import StopIcon from '@mui/icons-material/Stop';
+import StopIcon from "@mui/icons-material/Stop";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import {
   Box,
   Button,
@@ -38,7 +40,11 @@ import {
   useState,
 } from "react";
 
-import { ADMIN_LABELS, FILTER_LABELS, NAME_FILTER_LABELS, TERM_LABELS } from "@/lib/neo4j/constants";
+import {
+  ADMIN_LABELS,
+  FILTER_LABELS,
+  TERM_LABELS,
+} from "@/lib/neo4j/constants";
 import { NodeResult } from "@/lib/neo4j/types";
 
 import {
@@ -52,16 +58,30 @@ import {
 } from "../../constants/pathway-search";
 import { SearchBarContainer } from "../../constants/search-bar";
 import { CFDE_DARK_BLUE, VisuallyHiddenInput } from "../../constants/shared";
-import { ADD_CONNECTION_ITEM_ID, PRUNE_ID, SHOW_FILTERS_ID } from "../../constants/cxt-menu";
+import {
+  ADD_CONNECTION_ITEM_ID,
+  SHOW_HIDE_NODE_ID,
+  PRUNE_ID,
+  SHOW_FILTERS_ID,
+} from "../../constants/cxt-menu";
 import { CxtMenuItem } from "../../interfaces/cxt-menu";
 import { CytoscapeEvent } from "../../interfaces/cy";
 import {
   ConnectionMenuItem,
   PathwaySearchNode,
 } from "../../interfaces/pathway-search";
-import { CustomToolbarFnFactory } from "../../types/cy";
-import { PathwaySearchElement, PropertyConfigs, PropertyValueType } from "../../types/pathway-search";
-import { getRootFromElements, isPathwaySearchEdgeElement, updatePathwayNodeProps } from "../../utils/pathway-search";
+import { CustomToolbarFnFactory, CytoscapeReference } from "../../types/cy";
+import {
+  PathwaySearchElement,
+  PropertyConfigs,
+  PropertyValueType,
+} from "../../types/pathway-search";
+import { downloadChartPNG } from "../../utils/cy";
+import {
+  getRootFromElements,
+  isPathwaySearchEdgeElement,
+  updatePathwayNodeProps,
+} from "../../utils/pathway-search";
 
 import CytoscapeChart from "../CytoscapeChart/CytoscapeChart";
 import ChartCxtMenuItem from "../CytoscapeChart/ChartCxtMenuItem";
@@ -83,6 +103,7 @@ interface GraphPathwaySearchProps {
   onPruneSelected: (node: NodeSingular) => void;
   onPruneConfirm: () => void;
   onPruneCancel: () => void;
+  onShowHideSelected: (node: NodeSingular) => void;
   onReset: () => void;
   onStopLoading: () => void;
   onDownload: () => void;
@@ -103,6 +124,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
     onPruneSelected,
     onPruneConfirm,
     onPruneCancel,
+    onShowHideSelected,
     onReset,
     onStopLoading,
     onDownload,
@@ -157,7 +179,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
           const nodesToAnimate = loadingNodes.reduce(
             (prev, curr) => cy.getElementById(curr).union(prev),
             cy.collection()
-          )
+          );
 
           // Cytoscape crashes if you try to animate empty collections
           if (nodesToAnimate.size() > 0) {
@@ -218,13 +240,20 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
   );
 
   const handleNodeFilterChange = useCallback(
-    <K extends keyof PropertyConfigs>(value: PropertyValueType<PropertyConfigs[K]>, propName: K) => {
+    <K extends keyof PropertyConfigs>(
+      value: PropertyValueType<PropertyConfigs[K]>,
+      propName: K
+    ) => {
       if (selectedNode !== undefined) {
         const newSelectedNode: PathwaySearchNode = {
           classes: [...(selectedNode.classes || [])],
           data: {
             ...selectedNode.data,
-            props: updatePathwayNodeProps(selectedNode.data.props, propName, value),
+            props: updatePathwayNodeProps(
+              selectedNode.data.props,
+              propName,
+              value
+            ),
           },
         };
         setSelectedNode(newSelectedNode);
@@ -252,31 +281,51 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
   const showFilterNode = useCallback(
     (event: EventObjectNode) => {
       const root = getRootFromElements(elements);
-      return event.target.data("id") !== root?.data.id && FILTER_LABELS.has(event.target.data("dbLabel"))
-    }, [elements]
+      return (
+        event.target.data("id") !== root?.data.id &&
+        FILTER_LABELS.has(event.target.data("dbLabel"))
+      );
+    },
+    [elements]
   );
 
+  const handleShowHideNodeSelected = (event: EventObjectNode) => {
+    onShowHideSelected(event.target);
+  }
 
-  const showExpandNode = useCallback((event: EventObjectNode) => {
-    const root = getRootFromElements(elements);
-    const nodeLabel: string = event.target.data("dbLabel");
-    const nodeId: string = event.target.data("id");
+  const showExpandNode = useCallback(
+    (event: EventObjectNode) => {
+      const root = getRootFromElements(elements);
+      const nodeLabel: string = event.target.data("dbLabel");
+      const nodeId: string = event.target.data("id");
 
-    // If the node is the root...
-    if (nodeId === root?.data.id) {
-      if (elements.filter(isPathwaySearchEdgeElement).some((edge) => edge.data.source === nodeId || edge.data.target === nodeId)) {
-        // Don't allow expansion if already has some connection
-        return false
+      // If the node is the root...
+      if (nodeId === root?.data.id) {
+        if (
+          elements
+            .filter(isPathwaySearchEdgeElement)
+            .some(
+              (edge) =>
+                edge.data.source === nodeId || edge.data.target === nodeId
+            )
+        ) {
+          // Don't allow expansion if already has some connection
+          return false;
+        }
+      } else {
+        // If the node is NOT the root...
+        if (
+          ADMIN_LABELS.includes(nodeLabel) ||
+          TERM_LABELS.includes(nodeLabel)
+        ) {
+          // Don't allow expansion if the node has an admin label or a term label
+          return false;
+        }
       }
-    } else {
-      // If the node is NOT the root...
-      if (ADMIN_LABELS.includes(nodeLabel) || TERM_LABELS.includes(nodeLabel)) {
-        // Don't allow expansion if the node has an admin label or a term label
-        return false;
-      }
-    }
-    return true;
-  }, [elements]);
+      return true;
+    },
+    [elements]
+  );
 
   const handlePruneNodeSelected = (event: EventObjectNode) => {
     setSnackbarOpen(true);
@@ -299,36 +348,45 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       () => {
         return (
           <Fragment key="pathway-search-chart-toolbar-reset-search">
-            {
-              elements.length === 0
-                ? <IconButton aria-label="start-over" disabled onClick={handleReset}>
+            {elements.length === 0 ? (
+              <IconButton
+                aria-label="start-over"
+                disabled
+                onClick={handleReset}
+              >
+                <RestartAltIcon />
+              </IconButton>
+            ) : (
+              <Tooltip title="Start Over" arrow placement="left">
+                <IconButton aria-label="start-over" onClick={handleReset}>
                   <RestartAltIcon />
                 </IconButton>
-                : <Tooltip title="Start Over" arrow placement="left">
-                  <IconButton aria-label="start-over" onClick={handleReset}>
-                    <RestartAltIcon />
-                  </IconButton>
-                </Tooltip>
-            }
-
+              </Tooltip>
+            )}
           </Fragment>
         );
       },
       () => {
         return (
           <Fragment key="pathway-search-chart-toolbar-stop-loading">
-            {
-              loadingNodes.length === 0
-                ? <IconButton aria-label="stop-loading" disabled onClick={handleStopLoading}>
+            {loadingNodes.length === 0 ? (
+              <IconButton
+                aria-label="stop-loading"
+                disabled
+                onClick={handleStopLoading}
+              >
+                <StopIcon />
+              </IconButton>
+            ) : (
+              <Tooltip title="Stop Loading" arrow placement="left">
+                <IconButton
+                  aria-label="stop-loading"
+                  onClick={handleStopLoading}
+                >
                   <StopIcon />
                 </IconButton>
-                : <Tooltip title="Stop Loading" arrow placement="left">
-                  <IconButton aria-label="stop-loading" onClick={handleStopLoading}>
-                    <StopIcon />
-                  </IconButton>
-                </Tooltip>
-            }
-
+              </Tooltip>
+            )}
           </Fragment>
         );
       },
@@ -384,6 +442,12 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
           </Fragment>
         );
       },
+      (cyRef: CytoscapeReference) =>
+        downloadChartPNG(
+          "search-chart-toolbar-download-png",
+          "Download PNG",
+          cyRef
+        ),
       () => (
         <Divider
           key="pathway-search-chart-toolbar-divider-1"
@@ -428,48 +492,10 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         },
       },
       {
-        event: "tap",
-        target: "edge",
-        callback: (event: EventObjectEdge) => {
-          const targetNode = event.target.source().hasClass("path-element")
-            ? event.target.target()
-            : event.target.source();
-          handleSelectedNodeChange(targetNode.id(), event.cy);
-        },
-      },
-      {
         event: "cxttap",
         target: "node",
         callback: (event: EventObjectNode) => {
           handleSelectedNodeChange(event.target.id(), event.cy);
-        },
-      },
-      {
-        event: "mouseover",
-        target: "node",
-        callback: (event: EventObjectNode) => {
-          event.target.neighborhood().addClass("solid");
-        },
-      },
-      {
-        event: "mouseout",
-        target: "node",
-        callback: (event: EventObjectNode) => {
-          event.target.neighborhood().removeClass("solid");
-        },
-      },
-      {
-        event: "mouseover",
-        target: "edge",
-        callback: (event: EventObjectEdge) => {
-          event.target.connectedNodes().addClass("solid");
-        },
-      },
-      {
-        event: "mouseout",
-        target: "edge",
-        callback: (event: EventObjectEdge) => {
-          event.target.connectedNodes().removeClass("solid");
         },
       },
     ],
@@ -479,55 +505,94 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
   const nodeCxtMenuItems: CxtMenuItem[] = useMemo(
     () => [
       {
-        content: <AddConnectionMenuItem
-          id={ADD_CONNECTION_ITEM_ID}
-          key={ADD_CONNECTION_ITEM_ID}
-          elements={elements}
-          onConnectionSelected={onConnectionSelected}
-          showFn={showExpandNode}
-        ></AddConnectionMenuItem>,
+        content: (
+          <AddConnectionMenuItem
+            id={ADD_CONNECTION_ITEM_ID}
+            key={ADD_CONNECTION_ITEM_ID}
+            elements={elements}
+            onConnectionSelected={onConnectionSelected}
+            showFn={showExpandNode}
+          ></AddConnectionMenuItem>
+        ),
         tree: {
           id: ADD_CONNECTION_ITEM_ID,
           children: [],
           open: false,
-        }
+        },
       },
       {
-        content: <ChartCxtMenuItem
-          id={SHOW_FILTERS_ID}
-          key={SHOW_FILTERS_ID}
-          renderContent={(event) => (
-            <Box sx={{ display: "flex" }}>
-              <FilterAltIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
-              Filters
-            </Box>
-          )}
-          action={handleFilterNodeSelected}
-          showFn={showFilterNode}
-        ></ChartCxtMenuItem>,
+        content: (
+          <ChartCxtMenuItem
+            id={SHOW_FILTERS_ID}
+            key={SHOW_FILTERS_ID}
+            renderContent={(event) => (
+              <Box sx={{ display: "flex" }}>
+                <FilterAltIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
+                Filters
+              </Box>
+            )}
+            action={handleFilterNodeSelected}
+            showFn={showFilterNode}
+          ></ChartCxtMenuItem>
+        ),
         tree: {
           id: SHOW_FILTERS_ID,
           children: [],
           open: false,
-        }
+        },
       },
       {
-        content: <ChartCxtMenuItem
-          id={PRUNE_ID}
-          key={PRUNE_ID}
-          renderContent={(event) => (
-            <Box sx={{ display: "flex" }}>
-              <ContentCutIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
-              Prune
-            </Box>
-          )}
-          action={handlePruneNodeSelected}
-        ></ChartCxtMenuItem>,
+        content: (
+          <ChartCxtMenuItem
+            id={SHOW_HIDE_NODE_ID}
+            key={SHOW_HIDE_NODE_ID}
+            renderContent={(event: EventObjectNode) => (
+              <Tooltip title={"Node column will be " + (event.target.data("visible") ? "hidden" : "shown") + " in tabular results view."} arrow placement="right">
+                <Box sx={{ display: "flex" }}>
+                  {event.target.data("visible") ? (
+                    <>
+                      <VisibilityOffIcon
+                        sx={{ color: "#6f6e77", marginRight: 1 }}
+                      />{" "}
+                      Hide Node
+                    </>
+                  ) : (
+                    <>
+                      <VisibilityIcon sx={{ color: "#6f6e77", marginRight: 1 }} />{" "}
+                      Show Node
+                    </>
+                  )}
+                </Box>
+              </Tooltip>
+            )}
+            action={handleShowHideNodeSelected}
+          ></ChartCxtMenuItem>
+        ),
+        tree: {
+          id: SHOW_HIDE_NODE_ID,
+          children: [],
+          open: false,
+        },
+      },
+      {
+        content: (
+          <ChartCxtMenuItem
+            id={PRUNE_ID}
+            key={PRUNE_ID}
+            renderContent={(event) => (
+              <Box sx={{ display: "flex" }}>
+                <ContentCutIcon sx={{ color: "#6f6e77", marginRight: 1 }} />
+                Prune
+              </Box>
+            )}
+            action={handlePruneNodeSelected}
+          ></ChartCxtMenuItem>
+        ),
         tree: {
           id: PRUNE_ID,
           children: [],
           open: false,
-        }
+        },
       },
     ],
     [elements]
@@ -594,14 +659,16 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
       ) : null}
 
       {loadingInitial ? (
-        <Box sx={{
-          flexGrow: 1,
-          display: "flex",
-          position: "absolute",
-          top: "50%",
-          right: "50%",
-          zIndex: 1,
-        }}>
+        <Box
+          sx={{
+            flexGrow: 1,
+            display: "flex",
+            position: "absolute",
+            top: "50%",
+            right: "50%",
+            zIndex: 1,
+          }}
+        >
           <Box sx={{ position: "relative" }}>
             <CircularProgress color="secondary" size="60px" />
           </Box>

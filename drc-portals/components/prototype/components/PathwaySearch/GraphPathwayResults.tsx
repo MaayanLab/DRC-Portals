@@ -33,13 +33,14 @@ import TableViewSkeleton from "./PathwayResults/TableViewSkeleton";
 
 interface GraphPathwayResultsProps {
   tree: PathwayNode;
+  onVisibilityChange: (columns: ColumnData[]) => void;
   onReturnBtnClick: () => void;
 }
 
 export default function GraphPathwayResults(
   cmpProps: GraphPathwayResultsProps
 ) {
-  const { tree, onReturnBtnClick } = cmpProps;
+  const { tree, onVisibilityChange, onReturnBtnClick } = cmpProps;
   const [paths, setPaths] = useState<PathwaySearchResultRow[]>([]);
   const [page, setPage] = useState<number>(1);
   const [lowerPageBound, setLowerPageBound] = useState<number>(Math.max(page - 5, 1));
@@ -78,6 +79,10 @@ export default function GraphPathwayResults(
 
     return { data: await response.json(), status: response.status };
   };
+
+  const handleReturnBtnClick = () => {
+    onReturnBtnClick()
+  }
 
   const handlePageChange = useCallback(
     async (newPage: number) => {
@@ -167,7 +172,7 @@ export default function GraphPathwayResults(
     [tree, limit, page, columns]
   );
 
-  const handleColumnChange = useCallback(
+  const handleColumnPropertyChange = useCallback(
     async (changedColumn: number, changes: Partial<ColumnData>) => {
       try {
         const newColumns = columns.map((col, idx) =>
@@ -199,6 +204,10 @@ export default function GraphPathwayResults(
     },
     [tree, limit, page, columns, orderBy, order]
   );
+
+  const handleColumnVisibilityChange = (columns: ColumnData[]) => {
+    onVisibilityChange(columns);
+  }
 
   const handleDownloadAllClicked = useCallback(async () => {
     try {
@@ -233,10 +242,13 @@ export default function GraphPathwayResults(
   };
 
   useEffect(() => {
+    const newColumns = getColumnDataFromTree(tree)
+    const columnData =
+      orderBy === undefined ? undefined : newColumns[orderBy];
     setLoading(true);
-    setColumns(getColumnDataFromTree(tree));
+    setColumns(newColumns);
     Promise.all([
-      getPathwaySearchResults(tree, page, limit),
+      getPathwaySearchResults(tree, page, limit, columnData?.key, columnData?.displayProp, order),
     ]).then(([searchResult]) => {
       setLoading(false);
       setPaths(searchResult.data.paths);
@@ -266,7 +278,7 @@ export default function GraphPathwayResults(
                 lowerPageBound={lowerPageBound}
                 upperPageBound={upperPageBound}
                 columns={columns}
-                onReturnBtnClick={onReturnBtnClick}
+                onReturnBtnClick={handleReturnBtnClick}
               />
             ) : (
               <TableView
@@ -278,11 +290,12 @@ export default function GraphPathwayResults(
                 order={order}
                 orderBy={orderBy}
                 columns={columns}
-                onReturnBtnClick={onReturnBtnClick}
+                onReturnBtnClick={handleReturnBtnClick}
                 onPageChange={handlePageChange}
                 onLimitChange={handleLimitChange}
                 onOrderByChange={handleOrderByChange}
-                onColumnChange={handleColumnChange}
+                onColumnPropertyChange={handleColumnPropertyChange}
+                onColumnVisibilityChange={handleColumnVisibilityChange}
                 onDownloadAll={handleDownloadAllClicked}
               ></TableView>
             )}
@@ -291,7 +304,7 @@ export default function GraphPathwayResults(
         <PathwayResultTabPanel value={1}>
           <GraphView
             paths={paths}
-            onReturnBtnClick={onReturnBtnClick}
+            onReturnBtnClick={handleReturnBtnClick}
           ></GraphView>
         </PathwayResultTabPanel>
       </Tabs>

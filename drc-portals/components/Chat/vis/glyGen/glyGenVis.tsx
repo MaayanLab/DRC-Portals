@@ -8,7 +8,7 @@ export default function GlyGenVis({ data }: { data: any }) {
     const glyGenLink = `http://www.glygen.org/glycan/${data.glytoucan.glytoucan_ac}`
 
     return (
-      <div className="prose text-white">
+      <div className="prose">
         <div>GlyTouCan Accession:
           <b>
             <a href={glyGenLink} target='_blank' rel='noopener nonreferrer' style={{ color: 'blue' }}> <u style={{ color: 'blue' }}>{data.glytoucan.glytoucan_ac}</u></a>
