@@ -98,14 +98,12 @@ export default async function RootLayout({
   const session = await getServerSession(authOptions)
   return (
     <html lang="en">
-      <Head>
-        <script
+      <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
         }}
       />
-      </Head>
       
       <body>
         <AppProgressProvider>
