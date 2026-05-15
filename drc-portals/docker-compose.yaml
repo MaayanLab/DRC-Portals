@@ -2,7 +2,7 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:0.26.7
+    image: maayanlab/drc-portal:1.0.0
     deploy:
       replicas: 3
       resources:
@@ -12,9 +12,7 @@ services:
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
-        maayanlab.cloud/ingress: https://dev.cfde.cloud
-        nginx.ingress.kubernetes.io/configuration-snippet: |
-          more_set_headers "X-Robots-Tag: noindex";
+        maayanlab.cloud/ingress: https://cfde.cloud
     ports:
       - 3000:3000
     environment:
@@ -115,7 +113,8 @@ services:
       - 80
     environment:
       nginx_server_name: data.cfde.cloud
-      nginx_redirect_00: /(.*) https://cfde.cloud/$$1
+      nginx_redirect_00: / https://cfde.cloud/
+      nginx_redirect_01: /(.+) https://cfde.cloud/data/$$1
       nginx_buffering: 0
 
   drc-portal-info-proxy:
@@ -128,7 +127,8 @@ services:
       - 80
     environment:
       nginx_server_name: info.cfde.cloud
-      nginx_redirect_00: /(.*) https://cfde.cloud/$$1
+      nginx_redirect_00: / https://cfde.cloud/
+      nginx_redirect_01: /(.+) https://cfde.cloud/info/$$1
       # nginx_redirect_00: /documentation(/.*)? https://data.cfde.cloud/documentation$$1
       nginx_buffering: 0
 
@@ -142,7 +142,8 @@ services:
       - 80
     environment:
       nginx_server_name: cfde.info
-      nginx_redirect_00: /(.*) https://cfde.cloud/$$1
+      nginx_redirect_00: / https://cfde.cloud/
+      nginx_redirect_01: /(.+) https://cfde.cloud/info/$$1
 
   drc-portal-postgres:
     image: postgres:16
