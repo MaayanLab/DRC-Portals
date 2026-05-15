@@ -17,9 +17,10 @@ import { mdiRobot } from '@mdi/js'
 import Footer  from '@/components/Footer/info'
 import Background from '@/components/styled/background'
 import { WithContext, WebSite } from 'schema-dts'
+import Head from 'next/head'
 
 export const metadata: Metadata = {
-  title: 'CFDE Data Portal',
+  title: 'CFDE Workbench',
   description: 'Search Common Fund program metadata and processed datasets',
   keywords: [ // TODO: some of these keywords probably should just come in at a lower level for more specific pages
     'big data',
@@ -97,12 +98,15 @@ export default async function RootLayout({
   const session = await getServerSession(authOptions)
   return (
     <html lang="en">
-      <script
+      <Head>
+        <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
         }}
       />
+      </Head>
+      
       <body>
         <AppProgressProvider>
         <ThemeRegistry options={{ key: 'mui' }}>
