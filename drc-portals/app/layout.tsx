@@ -64,7 +64,7 @@ export default async function RootLayout({
               }}><Icon path={mdiRobot} size={2} /></Fab>
             </Tooltip>
             <Tooltip title="Open CFDE Wheel">
-              <Fab href='/data/chat' sx={{
+              <Fab sx={{
                 position: 'fixed',
                 bottom: 50,
                 right: 50,
