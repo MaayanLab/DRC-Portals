@@ -125,7 +125,7 @@ services:
     environment:
       nginx_server_name: info.cfde.cloud
       nginx_proxy_00: /(.*) http://drc-portal-proxy/$$1
-      nginx_redirect_00: /documentation(/.*)? https://data.cfde.cloud/documentation$$1
+      # nginx_redirect_00: /documentation(/.*)? https://data.cfde.cloud/documentation$$1
       nginx_buffering: 0
 
   drc-portal-proxy:
@@ -144,8 +144,8 @@ services:
     environment:
       nginx_server_name: cfde.cloud
       nginx_proxy_00: /(.*) http://drc-portal-app:3000/$$1
-      nginx_redirect_00: /info(/.*)? https://info.cfde.cloud$$1
-      nginx_redirect_01: /data(/.*)? https://data.cfde.cloud$$1
+      # nginx_redirect_00: /info(/.*)? https://info.cfde.cloud$$1
+      # nginx_redirect_01: /data(/.*)? https://data.cfde.cloud$$1
       nginx_buffering: 0
 
   drc-portal-cfde-info-redirect:
@@ -158,7 +158,7 @@ services:
       - 80
     environment:
       nginx_server_name: cfde.info
-      nginx_redirect_00: /(.*) https://info.cfde.cloud/$$1
+      nginx_redirect_00: /(.*) https://cfde.cloud/$$1
 
   drc-portal-postgres:
     image: postgres:16
