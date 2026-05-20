@@ -10,13 +10,15 @@ import React from "react";
 
 import Image from "@/utils/image";
 import { ArrowForward, ExpandLess, ExpandMore } from "@mui/icons-material";
-import { GSFMButton } from "./buttons/gsfm";
-import { GDLPAButton } from "./buttons/gdlpa";
-import { SigComButtons } from "./buttons/sigcomLincs";
-import { L2S2 } from "./buttons/l2s2like";
-import { EnrichrButtons } from "./buttons/enrichr";
 import { amber, blue, cyan, deepPurple, green, indigo, lightGreen, teal } from "@mui/material/colors";
-import { PWBButton } from "./buttons/pwb";
+import { ExpandableComponent, search_card } from "@/components/Explorer/search";
+import { gdlpa } from "@/components/Explorer/gdlpa";
+import { gsfm } from "@/components/Explorer/gsfm";
+import { pwb } from "@/components/Explorer/pwb";
+import { gse } from "@/components/Explorer/gse";
+import { perturbseqr } from "@/components/Explorer/perturbseqr";
+import { biomarkerkb } from "@/components/Explorer/biomarkerkb";
+import { ddkg } from "@/components/Explorer/ddkg";
 const getTaskId = async (method:string, input: {[key:string]: string}, controller: AbortController) => {
 	const payload = {
 	  '0': {
@@ -369,30 +371,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 			}
 		}
 	  }
-	  const gsfm:ReactNode[] = []
-	  const gdlpa:ReactNode[] = []
-	  const pwb:ReactNode[] = []
-	//   const enrichr:ReactNode[] = []
-	//   const sigcomLincs:ReactNode[] = []
-	//   const l2s2:ReactNode[] = []
-	  for (const i of inputList) {
-		if (i.entity === "gene") {
-			gsfm.push(<GSFMButton key={i.label} input={i}/>)
-			gdlpa.push(<GDLPAButton  key={i.label} input={i}/>)
-		}
-		if (i.entity === "compound" || i.entity === "drug") {
-			gdlpa.push(<GDLPAButton  key={i.label} input={i}/>)
-		}
-		if (["gene", "variant", "disease", "drug", "metabolite", "anatomy", "gene_set"].indexOf(i.entity) > -1) {
-			pwb.push(<PWBButton key={i.label} input={i}/>)
-		}
-		// if (i.entity === "gene_set") {
-		// 	sigcomLincs.push(<SigComButtons key={i.label} input={i}/>)
-		// 	l2s2.push(<L2S2 input={i}/>)
-		// 	enrichr.push(<EnrichrButtons key={i.label} input={i}/>)
-		// }
-
-	  }
+	  
 	  const handleClick = (query:string) => {
 		if (open===query) setOpen('')
 		else setOpen(query)
@@ -420,158 +399,71 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 					component="nav"
 					aria-labelledby="nested-list-subheader"
 				>
-					{searches.length > 0 && 
-					<>
-					<ListItemButton onClick={()=>handleClick('search')}>
-						<ListItemIcon>
-							<Image src="/img/cfde-search.png" width={50} height={50} alt="cfde"/>
-						</ListItemIcon>
-						<ListItemText primary={<Typography variant="h3">{`Search the CFDE Workbench`}</Typography>}
-						secondary={'Query data and metadata assets produced by the Common Fund programs that participate in the CFDE'} />
-						{open==='search' ? <ExpandLess /> : <ExpandMore />}
-					</ListItemButton>
-					<Collapse in={open==='search'} timeout="auto" unmountOnExit>
-						<Paper elevation={0} sx={{background: 'transparent'}}>
-							<Grid container spacing={2}>
-								{searches}
-							</Grid>
-						</Paper>
-					</Collapse>
-					</>
-					}
-					{(gdlpa || []).length > 0 && 
-					<>
-						<ListItemButton onClick={()=>handleClick('gdlpa')}>
-							<ListItemIcon>
-								<Image src={icons.gdlpa} width={30} height={30} alt="gdlpa"/>
-							</ListItemIcon>
-							<ListItemText primary={<Typography variant="h3">{`Query Gene and Drug Landing Page Aggregator (GDLPA)`}</Typography>}
-							secondary={'GDLPA aggregated links to databases that have gene, drug, and variant landing pages including some created by Common Fund programs'} />
-							{open==='gdlpa' ? <ExpandLess /> : <ExpandMore />}
-						</ListItemButton>
-						<Collapse in={open==='gdlpa'} timeout="auto" unmountOnExit>
-							<Paper elevation={0} sx={{background: 'transparent'}}>
-								<Grid container spacing={2}>
-									{gdlpa}
-								</Grid>
-							</Paper>
-						</Collapse>
-					</>
-					}
-					{(gsfm || []).length > 0 && 
-					<>
-						<ListItemButton onClick={()=>handleClick('gsfm')}>
-							<ListItemIcon>
-								<Image src={icons.gsfm} width={30} height={30} alt="gsfm"/>
-							</ListItemIcon>
-							<ListItemText primary={<Typography variant="h3">{`View Gene Function Predictions with GSFM`}</Typography>}
-							secondary={'GSFM is an AI foundation trained by finding the embeddings of 1 million gene sets. It can be used to reliably predict the function of genes and proteins '} />
-							{open==='gsfm' ? <ExpandLess /> : <ExpandMore />}
-						</ListItemButton>
-						<Collapse in={open==='gsfm'} timeout="auto" unmountOnExit>
-							<Paper elevation={0} sx={{background: 'transparent'}}>
-								<Grid container spacing={2}>
-									{gsfm}
-								</Grid>
-							</Paper>
-						</Collapse>
-					</>
-					}
-					{(pwb || []).length > 0 && 
-					<>
-						<ListItemButton onClick={()=>handleClick('pwb')}>
-							<ListItemIcon>
-								<Image src={icons.pwb} width={30} height={30} alt="pwb"/>
-							</ListItemIcon>
-							<ListItemText primary={<Typography variant="h3">{`Build a Workflow with Playbook Workflow Builder`}</Typography>}
-							secondary={'The Playbook Workflow Builder is an environemt that enables users to build workflows by clicking on cards or interfacing with an LLM-powered chatbot'} />
-							{open==='pwb' ? <ExpandLess /> : <ExpandMore />}
-						</ListItemButton>
-						<Collapse in={open==='pwb'} timeout="auto" unmountOnExit>
-							<Paper elevation={0} sx={{background: 'transparent'}}>
-								<Grid container spacing={2}>
-									{pwb}
-								</Grid>
-							</Paper>
-						</Collapse>
-					</>
-					}
-					{(resources.gse || []).length > 0 && 
-						<>
-							<ListItemButton onClick={()=>handleClick('gse')}>
-								<ListItemIcon>
-									<Image src={icons.gse} width={50} height={50} alt="gse"/>
-								</ListItemIcon>
-								<ListItemText primary={<Typography variant="h3">{`Perform Enrichment Analysis with CFDE GSE`}</Typography>}
-									secondary={'CFDE Gene Set Enrichment (GSE) is an enrichment analysis tool made with gene set libraries created from data produced by Common Fund programs'} />
-								{open==='gse' ? <ExpandLess /> : <ExpandMore />}
-							</ListItemButton>
-							<Collapse in={open==='gse'} timeout="auto" unmountOnExit>
-								<Paper elevation={0} sx={{background: 'transparent'}}>
-									<Grid container spacing={2}>
-										{resources.gse}
-									</Grid>
-								</Paper>
-							</Collapse>
-						</>
-					}
-					{(resources.perturbseqr || []).length > 0 && 
-						<>
-							<ListItemButton onClick={()=>handleClick('perturbseqr')}>
-								<ListItemIcon>
-									<Image src={icons.perturbseqr} width={30} height={30} alt="perturbseqr"/>
-								</ListItemIcon>
-								<ListItemText primary={<Typography variant="h3">{`Discover Mimickers and Reversers with Perturb-Seqr`}</Typography>}
-									secondary={'Perturb-Seqr aggregates single gene and single drug pertrubations followed by expression Connectivity Maps from over 15 databases and datasets'} />
-								{open==='perturbseqr' ? <ExpandLess /> : <ExpandMore />}
-							</ListItemButton>
-							<Collapse in={open==='perturbseqr'} timeout="auto" unmountOnExit>
-								<Paper elevation={0} sx={{background: 'transparent'}}>
-									<Grid container spacing={2}>
-										{resources.perturbseqr}
-									</Grid>
-								</Paper>
-							</Collapse>
-						</>
-					}
-					{(resources['biomarker-kb'] || []).length > 0 && 
-						<>
-							<ListItemButton onClick={()=>handleClick('biomarker-kb')}>
-								<ListItemIcon>
-									<Image src={icons['biomarker-kb']} width={30} height={30} alt="biomarker-kb"/>
-								</ListItemIcon>
-								<ListItemText primary={<Typography variant="h3">{`Explore Biomarkers in the CFDE BiomarkerKB`}</Typography>}
-									secondary={'BiomarkerKB integrates biomarker information using a data model that is stored as a knowledge graph database'} />
-								{open==='biomarker-kb' ? <ExpandLess /> : <ExpandMore />}
-							</ListItemButton>
-							<Collapse in={open==='biomarker-kb'} timeout="auto" unmountOnExit>
-								<Paper elevation={0} sx={{background: 'transparent'}}>
-									<Grid container spacing={2}>
-										{resources['biomarker-kb']}
-									</Grid>
-								</Paper>
-							</Collapse>
-						</>
-					}
-					{(resources['dd-kg'] || []).length > 0 && 
-						<>
-							<ListItemButton onClick={()=>handleClick('dd-kg')}>
-								<ListItemIcon>
-									<Image src={icons['dd-kg']} width={30} height={30} alt="dd-kg"/>
-								</ListItemIcon>
-								<ListItemText primary={<Typography variant="h3">{`Explore Connections in the CFDE DD-KG`}</Typography>}
-									secondary={'The Data Distillery Knowledge Graph (DD-KG) is a massive knowledge graph that integrate data from Common Fund programs and other sources'} />
-								{open==='dd-kg' ? <ExpandLess /> : <ExpandMore />}
-							</ListItemButton>
-							<Collapse in={open==='dd-kg'} timeout="auto" unmountOnExit>
-								<Paper elevation={0} sx={{background: 'transparent'}}>
-									<Grid container spacing={2}>
-										{resources['dd-kg']}
-									</Grid>
-								</Paper>
-							</Collapse>
-						</>
-					}
+					<ExpandableComponent inputList={inputList.filter(i=>i.entity!=='gene_set')} 
+						collapsed={false}
+						child_function={search_card}
+						combine={true}
+						icon="/img/cfde-search.png" 
+						title="Search the CFDE Workbench"
+						description="Query data and metadata assets produced by the Common Fund programs that participate in the CFDE"/>
+					<ExpandableComponent inputList={inputList.filter(i=>i.entity === 'gene' || i.entity === 'variant' || i.entity === 'compound' || i.entity === 'drug')} 
+						collapsed={true}
+						child_function={gdlpa}
+						combine={false}
+						icon={icons.gdlpa}
+						title="Query Gene and Drug Landing Page Aggregator (GDLPA)"
+						description="GDLPA aggregated links to databases that have gene, drug, and variant landing pages including some created by Common Fund programs"/>
+					<ExpandableComponent inputList={inputList.filter(i=>i.entity === 'gene' || i.entity === 'gene_set')} 
+						collapsed={true}
+						child_function={gsfm}
+						combine={false}
+						icon={icons.gsfm}
+						title="View Gene Function Predictions with GSFM"
+						description="GSFM is an AI foundation trained by finding the embeddings of 1 million gene sets. It can be used to reliably predict the function of genes and proteins"/>
+					<ExpandableComponent inputList={
+						inputList.filter(i=>["gene", "variant", "disease", "drug", "metabolite", "anatomy", "gene_set"].indexOf(i.entity) > -1)} 
+						collapsed={true}
+						child_function={pwb}
+						combine={false}
+						icon={icons.pwb}
+						title="Build a Workflow with Playbook Workflow Builder"
+						description="The Playbook Workflow Builder is an environemt that enables users to build workflows by clicking on cards or interfacing with an LLM-powered chatbot"/>
+					<ExpandableComponent inputList={inputList.filter(i=>i.entity === 'gene_set')} 
+						collapsed={true}
+						child_function={gse}
+						combine={false}
+						icon={icons.gse}
+						title="Perform Enrichment Analysis with CFDE GSE"
+						description="CFDE Gene Set Enrichment (GSE) is an enrichment analysis tool made with gene set libraries created from data produced by Common Fund programs"/>
+					
+					<ExpandableComponent inputList={inputList.filter(i=>i.entity === 'gene_set')} 
+						collapsed={true}
+						child_function={perturbseqr}
+						combine={false}
+						width={30}
+						height={30}
+						icon={icons.perturbseqr}
+						title="Discover Mimickers and Reversers with Perturb-Seqr"
+						description="Discover Mimickers and Reversers with Perturb-Seqr"/>
+					<ExpandableComponent inputList={inputList.filter(i=>["gene", "variant", "disease", "drug", "metabolite", "anatomy"].indexOf(i.entity) > -1)} 
+						collapsed={true}
+						child_function={biomarkerkb}
+						combine={false}
+						width={30}
+						height={30}
+						icon={icons['biomarker-kb']}
+						title="Explore Biomarkers in the CFDE BiomarkerKB"
+						description="BiomarkerKB integrates biomarker information using a data model that is stored as a knowledge graph database"/>
+					<ExpandableComponent inputList={inputList.filter(i=>["gene", "disease", "drug", "metabolite", "anatomy"].indexOf(i.entity) > -1)} 
+						collapsed={true}
+						child_function={ddkg}
+						combine={false}
+						width={40}
+						height={40}
+						icon={icons['dd-kg']}
+						title="Explore Connections in the CFDE DD-KG"
+						description="The Data Distillery Knowledge Graph (DD-KG) is a massive knowledge graph that integrate data from Common Fund programs and other sources"/>
+
 					{runs.length > 0 &&
 					<>
 							<ListItemButton onClick={()=>handleClick('deepdive')}>
