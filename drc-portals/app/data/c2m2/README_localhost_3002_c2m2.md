@@ -9,7 +9,7 @@ Search: liver, filter: DCC/CF program: SPARC
 
 http://localhost:3002/data/search/liver/c2m2?p=1&t=dcc%3AStimulating+Peripheral+Activity+to+Relieve+Conditions
 
-This file is obtained by these replacements (after making copy) in the file without _c2m2 in the filename. This is so that the testing of C2M2 search can be tested even though a local repo may not be functional with respect to other assets and Elasticsearch.
+This file is obtained by these replacements (after making copy) in the file without _c2m2 in the filename. This is so that C2M2 search can be tested even though a local repo may not be functional with respect to other assets and Elasticsearch.
 
 1) Replace /data/search/ with /data/c2m2/search/
 2) Replace /c2m2?p=1 with ?p=1
