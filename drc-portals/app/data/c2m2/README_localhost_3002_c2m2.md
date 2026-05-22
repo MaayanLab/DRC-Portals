@@ -421,7 +421,7 @@ With t in q:
 http://localhost:3002/data/c2m2/search/record_info?q=metabolic%20disease%20male%20%22UCSD%20Metabolomics%20Workbench%22%20%22PR001570%22%20%22asthma%22%20%22Mus%20musculus%22%20%22lung%22%20%22Mass%20spectrometry%20data%22%20%22liquid%20chromatography%20mass%20spectrometry%20assay%22%20%22ZIP%20format%22&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001570|disease_name:asthma|ncbi_taxonomy_name:Mus%20musculus|anatomy_name:lung|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay|subject_ethnicity_name:Unspecified|subject_sex_name:Unspecified|subject_race_name:Unspecified|file_format_name:ZIP%20format|ptm_type_name:Unspecified|ptm_subtype_name:Unspecified|ptm_site_type_name:Unspecified
 
 #### Search hispanic female cancer, and apply some filters:
-http://localhost:3002/data/c2m2/search/hispanic%20female%20cancer/c2m2 -->
+http://localhost:3002/data/c2m2/search/hispanic%20female%20cancer -->
 
 http://localhost:3002/data/c2m2/search/hispanic%20female%20cancer?p=1&t=subject_ethnicity%3AHispanic+or+Latino%7Cassay_type%3Aexome+sequencing+assay%7Csubject_sex%3AFemale%7Cdata_type%3ASequence+variations%7Canatomy%3Abrain
 
