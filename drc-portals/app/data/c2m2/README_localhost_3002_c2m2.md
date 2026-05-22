@@ -14,6 +14,11 @@ This file is obtained by these replacements (after making copy) in the file with
 1) Replace /data/search/ with /data/c2m2/search/
 2) Replace /c2m2?p=1 with ?p=1
 3) Replace /c2m2? with ?
+4) Replace /c2m2$ (i.e., at the end of line) with empty string
+
+Linux sed commad will be:
+sed -i 's#/data/search/#/data/c2m2/search/#; s#/c2m2?p=1#?p=1#; s#/c2m2?#?#; s#/c2m2$##' filename
+
 
 Thus,
 
@@ -86,7 +91,7 @@ With t in q:
 http://localhost:3002/data/c2m2/search/record_info?q=liver%20%22Illuminating%20the%20Druggable%20Genome%22%20%22idg_tcrd_diseases%22%20%22liver%20cancer%22%20%22JSON%22&t=dcc_name:Illuminating%20the%20Druggable%20Genome|project_local_id:idg_tcrd_diseases|disease_name:liver%20cancer|ncbi_taxonomy_name:Unspecified|anatomy_name:Unspecified|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:Unspecified|subject_ethnicity_name:Unspecified|subject_sex_name:Unspecified|subject_race_name:Unspecified|file_format_name:JSON|ptm_type_name:Unspecified|ptm_subtype_name:Unspecified|ptm_site_type_name:Unspecified
 
 ### Search: parkinson
-http://localhost:3002/data/c2m2/search/parkinson/c2m2
+http://localhost:3002/data/c2m2/search/parkinson
 
 Select some records:
 http://localhost:3002/data/c2m2/search/record_info?q=parkinson&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR001964|disease_name:Parkinson%27s%20disease|ncbi_taxonomy_name:Homo%20sapiens|biofluid_name:blood%20serum|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:liquid%20chromatography%20mass%20spectrometry%20assay
@@ -111,7 +116,7 @@ With t in q:
 http://localhost:3002/data/c2m2/search/record_info?q=parkinson%20%22The%20Extracellular%20Communication%20Consortium%20Data%20Coordination%20Center%22%20%22EXR-KJENS1ADPD0000-ST%22%20%22Alzheimer%27s%20disease%22%20%22Homo%20sapiens%22%20%22brain%20ventricle%22%20%22cerebrospinal%20fluid%22%20%22Matrix%22%20%22small%20RNA%20sequencing%20assay%22%20%22Female%22%20%22TSV%22&t=dcc_name:The%20Extracellular%20Communication%20Consortium%20Data%20Coordination%20Center|project_local_id:EXR-KJENS1ADPD0000-ST|disease_name:Alzheimer%27s%20disease|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:brain%20ventricle|biofluid_name:cerebrospinal%20fluid|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Matrix|assay_type_name:small%20RNA%20sequencing%20assay|subject_ethnicity_name:Unspecified|subject_sex_name:Female|subject_race_name:Unspecified|file_format_name:TSV|ptm_type_name:Unspecified|ptm_subtype_name:Unspecified|ptm_site_type_name:Unspecified
 
 ### Search: intestine homo sapiens female cancer
-http://localhost:3002/data/c2m2/search/intestine%20homo%20sapiens%20female%20cancer/c2m2
+http://localhost:3002/data/c2m2/search/intestine%20homo%20sapiens%20female%20cancer
 
 Select a record:
 
@@ -123,7 +128,7 @@ With t in q:
 http://localhost:3002/data/c2m2/search/record_info?q=intestine%20homo%20sapiens%20female%20cancer%20%22The%20Extracellular%20Communication%20Consortium%20Data%20Coordination%20Center%22%20%22EXR-DGALA1GUTPLASM-ST%22%20%22colorectal%20cancer%22%20%22Homo%20sapiens%22%20%22cardiovascular%20system%22%20%22seminal%20fluid%22%20%22Matrix%22%20%22small%20RNA%20sequencing%20assay%22%20%22Female%22%20%22White%22%20%22TSV%22&t=dcc_name:The%20Extracellular%20Communication%20Consortium%20Data%20Coordination%20Center|project_local_id:EXR-DGALA1GUTPLASM-ST|disease_name:colorectal%20cancer|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:cardiovascular%20system|biofluid_name:seminal%20fluid|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Matrix|assay_type_name:small%20RNA%20sequencing%20assay|subject_ethnicity_name:Unspecified|subject_sex_name:Female|subject_race_name:White|file_format_name:TSV|ptm_type_name:Unspecified|ptm_subtype_name:Unspecified|ptm_site_type_name:Unspecified
 
 ### Search: intestine homo sapiens
-http://localhost:3002/data/c2m2/search/intestine%20homo%20sapiens/c2m2
+http://localhost:3002/data/c2m2/search/intestine%20homo%20sapiens
 
 Apply DCC filter 4DN and select a row:
 http://localhost:3002/data/c2m2/search/record_info?q=intestine%20homo%20sapiens&t=dcc_name:4D%20NUCLEOME%20DATA%20COORDINATION%20AND%20INTEGRATION%20CENTER|project_local_id:12a92962-8265-4fc0-b2f8-cf14f05db58b|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:colon|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:imaging%20assay
@@ -141,7 +146,7 @@ http://localhost:3002/data/c2m2/search/record_info?q=intestine%20homo%20sapiens&
 http://localhost:3002/data/c2m2/search/record_info?q=intestine%20homo%20sapiens&t=dcc_name:GlyGen|project_local_id:Portal|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:Unspecified|gene_name:Unspecified|protein_name:CUBN_HUMAN|compound_name:Unspecified|data_type_name:Protein%20name%20(UniProt)|assay_type_name:Unspecified
 
 ### Search: sterol
-http://localhost:3002/data/c2m2/search/sterol/c2m2
+http://localhost:3002/data/c2m2/search/sterol
 
 http://localhost:3002/data/c2m2/search/record_info?q=sterol&t=dcc_name:GlyGen|project_local_id:Portal|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:Unspecified|gene_name:Unspecified|protein_name:ERG24_HUMAN|compound_name:Unspecified|data_type_name:GlyTouCan%20accession|assay_type_name:Unspecified
 
@@ -192,7 +197,7 @@ http://localhost:3002/data/c2m2/search/record_info?q=atorvastatin&t=dcc_name:Lib
 
 ### Search: myeloid cell
 
-http://localhost:3002/data/c2m2/search/myeloid%20cell/c2m2
+http://localhost:3002/data/c2m2/search/myeloid%20cell
 
 #### Apply filters anatomy: blood
 http://localhost:3002/data/c2m2/search/myeloid%20cell?t=anatomy%3Ablood&p=1
@@ -217,7 +222,7 @@ With t in q:
 http://localhost:3002/data/c2m2/search/record_info?q=myeloid%20cell%20%22The%20Gabriella%20Miller%20Kids%20First%20Pediatric%20Research%20Program%22%20%22SD_46RR9ZR6%22%20%22cancer%22%20%22Homo%20sapiens%22%20%22Data%20index%22%20%22exome%20sequencing%20assay%22%20%22BAI%22&t=dcc_name:The%20Gabriella%20Miller%20Kids%20First%20Pediatric%20Research%20Program|project_local_id:SD_46RR9ZR6|disease_name:cancer|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:Unspecified|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Data%20index|assay_type_name:exome%20sequencing%20assay|subject_ethnicity_name:Unspecified|subject_sex_name:Unspecified|subject_race_name:Unspecified|file_format_name:BAI|ptm_type_name:Unspecified|ptm_subtype_name:Unspecified|ptm_site_type_name:Unspecified
 
 ### Search: COVID
-http://localhost:3002/data/c2m2/search/covid/c2m2
+http://localhost:3002/data/c2m2/search/covid
 
 #### Apply species and DCC flter
 http://localhost:3002/data/c2m2/search/covid?t=ncbi_taxonomy%3AHomo+sapiens%7Cdcc%3AThe+Gabriella+Miller+Kids+First+Pediatric+Research+Program&p=1
@@ -231,7 +236,7 @@ With t in q:
 http://localhost:3002/data/c2m2/search/record_info?q=covid%20%22The%20Gabriella%20Miller%20Kids%20First%20Pediatric%20Research%20Program%22%20%22SD_FFVQ3T38%22%20%22COVID-19%22%20%22Homo%20sapiens%22%20%22Data%22%20%22Hispanic%20or%20Latino%22%20%22Female%22%20%22JSON%22&t=dcc_name:The%20Gabriella%20Miller%20Kids%20First%20Pediatric%20Research%20Program|project_local_id:SD_FFVQ3T38|disease_name:COVID-19|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:Unspecified|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Data|assay_type_name:Unspecified|subject_ethnicity_name:Hispanic%20or%20Latino|subject_sex_name:Female|subject_race_name:Unspecified|file_format_name:JSON|ptm_type_name:Unspecified|ptm_subtype_name:Unspecified|ptm_site_type_name:Unspecified
 
 ### Search: throat cancer
-http://localhost:3002/data/c2m2/search/throat%20cancer/c2m2
+http://localhost:3002/data/c2m2/search/throat%20cancer
 
 #### Filters and then Record Info  page:
 http://localhost:3002/data/c2m2/search/throat%20cancer?t=anatomy%3Asaliva&p=1
@@ -307,7 +312,7 @@ With t in q:
 http://localhost:3002/data/c2m2/search/record_info?q=islet%20of%20langerhans%20%22UCSD%20Metabolomics%20Workbench%22%20%22PR000662%22%20%22Mus%20musculus%22%20%22islet%20of%20Langerhans%22%20%22Mass%20spectrometry%20data%22%20%22gas%20chromatography%20mass%20spectrometry%20assay%22%20%22ZIP%20format%22&t=dcc_name:UCSD%20Metabolomics%20Workbench|project_local_id:PR000662|disease_name:Unspecified|ncbi_taxonomy_name:Mus%20musculus|anatomy_name:islet%20of%20Langerhans|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Mass%20spectrometry%20data|assay_type_name:gas%20chromatography%20mass%20spectrometry%20assay|subject_ethnicity_name:Unspecified|subject_sex_name:Unspecified|subject_race_name:Unspecified|file_format_name:ZIP%20format|ptm_type_name:Unspecified|ptm_subtype_name:Unspecified|ptm_site_type_name:Unspecified
 
 ### Search: exercise obese
-http://localhost:3002/data/c2m2/search/exercise%20obese/c2m2
+http://localhost:3002/data/c2m2/search/exercise%20obese
 
 http://localhost:3002/data/c2m2/search/exercise%20obese?t=dcc%3AThe+Extracellular+Communication+Consortium+Data+Coordination+Center&p=1
 
@@ -319,12 +324,12 @@ With t in q:
 http://localhost:3002/data/c2m2/search/record_info?q=exercise%20obese%20%22The%20Extracellular%20Communication%20Consortium%20Data%20Coordination%20Center%22%20%22EXR-SADAS1EXERs1-ST%22%20%22Homo%20sapiens%22%20%22anatomical%20system%22%20%22seminal%20fluid%22%20%22Matrix%22%20%22small%20RNA%20sequencing%20assay%22%20%22Female%22%20%22TSV%22&t=dcc_name:The%20Extracellular%20Communication%20Consortium%20Data%20Coordination%20Center|project_local_id:EXR-SADAS1EXERs1-ST|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:anatomical%20system|biofluid_name:seminal%20fluid|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Matrix|assay_type_name:small%20RNA%20sequencing%20assay|subject_ethnicity_name:Unspecified|subject_sex_name:Female|subject_race_name:Unspecified|file_format_name:TSV|ptm_type_name:Unspecified|ptm_subtype_name:Unspecified|ptm_site_type_name:Unspecified
 
 ### Search: tobacco
-http://localhost:3002/data/c2m2/search/tobacco/c2m2
+http://localhost:3002/data/c2m2/search/tobacco
 
 http://localhost:3002/data/c2m2/search/record_info?q=tobacco&t=dcc_name%3AUCSD+Metabolomics+Workbench%7Cproject_local_id%3APR000808%7Cdisease_name%3AUnspecified%7Cncbi_taxonomy_name%3AHomo+sapiens%7Cbiofluid_name%3Ablood+plasma%7Cgene_name%3AUnspecified%7Cprotein_name%3AUnspecified%7Ccompound_name%3AUnspecified%7Cdata_type_name%3AMass+spectrometry+data%7Cassay_type_name%3Aliquid+chromatography+mass+spectrometry+assay
 
 ### Example of biofluid filter: Search tuberculosis
-http://localhost:3002/data/c2m2/search/tuberculosis/c2m2
+http://localhost:3002/data/c2m2/search/tuberculosis
 
 #### biofluid filter: urine
 http://localhost:3002/data/c2m2/search/tuberculosis?t=biofluid%3Aurine&p=1
@@ -335,13 +340,13 @@ http://localhost:3002/data/c2m2/search/record_info?q=tuberculosis&t=dcc_name:UCS
 ### Examples of records with more than one file format
 
 #### Search for 91b694c3-f4d7-4ddd-8278-16f94e15c1c5 (from 4DN) and select the first record
-http://localhost:3002/data/c2m2/search/91b694c3-f4d7-4ddd-8278-16f94e15c1c5/c2m2
+http://localhost:3002/data/c2m2/search/91b694c3-f4d7-4ddd-8278-16f94e15c1c5
 
 http://localhost:3002/data/c2m2/search/record_info?q=91b694c3-f4d7-4ddd-8278-16f94e15c1c5&t=dcc_name:4D%20NUCLEOME%20DATA%20COORDINATION%20AND%20INTEGRATION%20CENTER|project_local_id:91b694c3-f4d7-4ddd-8278-16f94e15c1c5|disease_name:Unspecified|ncbi_taxonomy_name:Homo%20sapiens|anatomy_name:blood%20cell|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Annotation%20track|assay_type_name:DamID-seq
 
 #### Another example: search: PR000319 (from Metabolomics Workbench)
 
-http://localhost:3002/data/c2m2/search/PR000319/c2m2
+http://localhost:3002/data/c2m2/search/PR000319
 
 Try first record:
 
@@ -349,7 +354,7 @@ http://localhost:3002/data/c2m2/search/record_info?q=PR000319&t=dcc_name:UCSD%20
 
 #### From SPARC: search: OT2OD023847
 
-http://localhost:3002/data/c2m2/search/OT2OD023847/c2m2
+http://localhost:3002/data/c2m2/search/OT2OD023847
 
 Try first or any other record
 
