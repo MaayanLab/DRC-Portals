@@ -108,7 +108,7 @@ Once ingest is successful, it should be uploaded to our s3 bucket. It can then b
 
 ```bash
 # setup terminal
-ELASTICSEARCH_URL=http://elastic:drcpass@localhost:9200
+ELASTICSEARCH_URL=<(dotenv -f ../drc-portals/.env get ELASTICSEARCH_URL)
 es() {
   method=$1; shift
   path=$1; shift
