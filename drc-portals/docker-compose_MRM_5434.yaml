@@ -151,6 +151,7 @@ services:
   drc-portal-elasticsearch_MRM:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.1.5
     container_name: drc-portal-elasticsearch_MRM
+    # network_mode: host # This messes up
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     # comment ulimits block for rootless docker
@@ -178,10 +179,16 @@ services:
       - xpack.security.http.ssl.enabled=false
       - xpack.security.transport.ssl.enabled=false
       - ES_JAVA_OPTS=-Xms3g -Xmx3g
+      - AWS_ACCESS_KEY_ID=${ELASTICSEARCH_S3_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${ELASTICSEARCH_S3_SECRET_ACCESS_KEY}
     # Delete or comment the user line in production
     #user: "${MY_UID_in_elasticsearch}:${MY_GID_in_elasticsearch}"
     ports:
       - 9200:9200
+    dns:
+      - 198.202.75.26
+      - 8.8.8.8
+      - 1.1.1.1
     volumes:
       # For volume to be at the non-standard location, specify direct bind mount
       - drc-portal-elasticsearch:/usr/share/elasticsearch/data
