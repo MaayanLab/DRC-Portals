@@ -90,6 +90,18 @@ def ingest_c2m2_datapackage(es_bulk, c2m2):
       filetype=c2m2['filetype'],
     ), pk=c2m2['link'])
     helper.upsert_m2o(dcc_asset_id, 'dcc', dcc_id)
+
+    # save DCC table attributes for the top level project
+    project_lookup = {}
+    rc_name = 'dcc'
+    rc = pkg.get_resource(rc_name)
+    for row in tqdm(rc.read(keyed=True), desc=f"Reading {rc_name} records..."):
+      row.pop('id')
+      row['id_namespace'] = row.pop('project_id_namespace')
+      row['local_id'] = row.pop('project_local_id')
+      pk = ':'.join([row['id_namespace'], row['local_id']])
+      project_lookup[pk] = row
+
     #
     # We rely on the fact that upsert_entity will merge with an entity
     #  with the same pk.
@@ -100,9 +112,9 @@ def ingest_c2m2_datapackage(es_bulk, c2m2):
     # process cv records first, store them in memory
     # TODO: if we could just use the id as the slug we could avoid storing any of this in memory
     #       but we'll need to update the other ingest steps to rely on C2M2 CV terms
-    cv_lookup = {}
     #
     # the reference tables are pseudo-cv term tables but enums were used instead, we'll just treat them the same as cv tables
+    cv_lookup = {}
     for rc_name, rc in c2m2_reference_tables.items():
       if 'association_type' in rc_name: continue
       for _, row in rc.iterrows():
@@ -110,13 +122,11 @@ def ingest_c2m2_datapackage(es_bulk, c2m2):
         cv_lookup[row['id']] = helper.upsert_entity(rc_name, row, pk=row['id'])
     #
     for rc_name in pkg.resource_names:
+      if rc_name in {'dcc', 'id_namespace'}: continue
       rc = pkg.get_resource(rc_name)
       if {field.name for field in rc.schema.fields} >= {'id'}:
         for row in tqdm(rc.read(keyed=True), desc=f"Reading {rc_name} records..."):
-          if rc_name == 'dcc':
-            row['label'] = c2m2['short_label']
-            cv_lookup[row['id']] = helper.upsert_entity(rc_name, row, slug=c2m2['short_label'])
-          elif rc_name == 'gene':
+          if rc_name == 'gene':
             gene = row['id']
             row['label'] = row.pop('name')
             if gene in gene_labels:
@@ -137,6 +147,7 @@ def ingest_c2m2_datapackage(es_bulk, c2m2):
     #
     # then process entities and m2m
     for rc_name in pkg.resource_names:
+      if rc_name in {'dcc', 'id_namespace'}: continue
       rc = pkg.get_resource(rc_name)
       for row in tqdm(rc.read(keyed=True), desc=f"Reading {rc_name} records..."):
         fks = [*rc.schema.foreign_keys]
@@ -155,8 +166,11 @@ def ingest_c2m2_datapackage(es_bulk, c2m2):
             if not row['access_url']:
               if persistent_id_probably_access_url(row.get('persistent_id')):
                 row['access_url'] = row['persistent_id']
-          #
-          source_id = helper.upsert_entity(rc_name, row, pk=':'.join([row['id_namespace'], row['local_id']]))
+          # add dcc info to top-level-project
+          pk = ':'.join([row['id_namespace'], row['local_id']])
+          if rc_name == 'project' and pk in project_lookup:
+            row.update(project_lookup[pk])
+          source_id = helper.upsert_entity(rc_name, row, pk=pk)
           helper.upsert_m2o(source_id, 'dcc_asset', dcc_asset_id)
           helper.upsert_m2o(source_id, 'dcc', dcc_id)
         elif {field.name for field in rc.schema.fields} >= {'id'}:
@@ -203,6 +217,7 @@ def ingest_c2m2_datapackage(es_bulk, c2m2):
         #
         # add foreign key relationships
         for fk in fks:
+          if fk['reference']['resource'] == 'id_namespace': continue
           # get fk
           local_key = tuple([row[k] for k in fk['fields']])
           # skip missing attributes
