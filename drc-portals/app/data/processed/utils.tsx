@@ -85,8 +85,8 @@ function pearson_hash(s: string) {
     const dword = s.charCodeAt(i)
     const hword = (dword >> 8) & 0xff
     const lword = dword & 0xff
-    h = pearson_hash_T[h^hword]
-    h = pearson_hash_T[h^lword]
+    h = pearson_hash_T[h ^ hword]
+    h = pearson_hash_T[h ^ lword]
   }
   return h
 }
@@ -107,14 +107,14 @@ export function predicateLabel(type: string) {
   else if (type === 'target') type = 'target node'
   else if (type === 'source') type = 'source node'
   else if (type.startsWith('inv_')) type = `${type.substring(4)} of`
-  return titleCapitalize(type.replaceAll('_',' '))
+  return titleCapitalize(type.replaceAll('_', ' '))
 }
 
 export function facetLabel(facet: string) {
   if (facet.startsWith('target.')) facet = facet.substring('target.'.length)
   if (facet.startsWith('m2o_')) facet = facet.substring('m2o_'.length)
-  if (facet.endsWith('.id')) facet = facet.substring(0, facet.length-'.id'.length)
-  return predicateLabel(facet.replaceAll('_',' '))
+  if (facet.endsWith('.id')) facet = facet.substring(0, facet.length - '.id'.length)
+  return predicateLabel(facet.replaceAll('_', ' '))
 }
 
 export function categoryLabel(type: string) {
@@ -128,7 +128,7 @@ export function categoryLabel(type: string) {
   else if (type === 'dcc_asset') return 'Processed File'
   else if (type === 'processed') return 'Processed Data'
   else if (type === 'c2m2') return 'Cross-Cut Metadata'
-  else return entity_type_map[type] ?? titleCapitalize(type.replaceAll('_',' '))
+  else return entity_type_map[type] ?? titleCapitalize(type.replaceAll('_', ' '))
 }
 
 export function itemIcon(item: EntityExpandedType, lookup?: Record<string, EntityType>) {
@@ -154,16 +154,16 @@ export function itemLabel(item: EntityExpandedType) {
 
 export function humanBytesSize(size: number) {
   if (size < 1e3) return `${(size).toPrecision(3)} B`
-  if (size < 1e6) return `${(size/1e3).toPrecision(3)} KB`
-  if (size < 1e9) return `${(size/1e6).toPrecision(3)} MB`
-  if (size < 1e12) return `${(size/1e9).toPrecision(3)} GB`
-  return `${(size/1e12).toPrecision(3)} TB`
+  if (size < 1e6) return `${(size / 1e3).toPrecision(3)} KB`
+  if (size < 1e9) return `${(size / 1e6).toPrecision(3)} MB`
+  if (size < 1e12) return `${(size / 1e9).toPrecision(3)} GB`
+  return `${(size / 1e12).toPrecision(3)} TB`
 }
 
 export function itemDescription(item: EntityExpandedType, lookup?: Record<string, EntityType>) {
-  if (item['type'] === 'file') return `A${item.a_size_in_bytes ? ` ${humanBytesSize(Number(item.a_size_in_bytes))}` : ''} file${lookup && item.m2o_dcc && item.m2o_dcc.id in lookup ? ` from ${lookup[item.m2o_dcc.id].a_label}` : ''}${item.a_assay_type ? ` produced from ${item.a_assay_type}` : ''} as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
-  if (item['type'] === 'biosample') return `A biosample${lookup && item.m2o_dcc && item.m2o_dcc.id in lookup ? ` from ${lookup[item.m2o_dcc.id].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
-  if (item['type'] === 'subject') return `A subject${lookup && item.m2o_dcc && item.m2o_dcc.id in lookup ? ` from ${lookup[item.m2o_dcc.id].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
+  if (item['type'] === 'file') return `A${item.a_size_in_bytes ? ` ${humanBytesSize(Number(item.a_size_in_bytes))}` : ''} file${lookup && item.m2o_dcc && item.m2o_dcc.id in lookup ? ` from ${lookup[item.m2o_dcc.id].a_label}` : ''}${item.a_assay_type ? ` produced from ${item.a_assay_type}` : ''} as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-', ' ')} project`
+  if (item['type'] === 'biosample') return `A biosample${lookup && item.m2o_dcc && item.m2o_dcc.id in lookup ? ` from ${lookup[item.m2o_dcc.id].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-', ' ')} project`
+  if (item['type'] === 'subject') return `A subject${lookup && item.m2o_dcc && item.m2o_dcc.id in lookup ? ` from ${lookup[item.m2o_dcc.id].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-', ' ')} project`
   if (item['type'] === 'dcc_asset') return `A contributed ${item.a_filetype}${lookup && item.m2o_dcc && item.m2o_dcc.id in lookup ? ` from ${lookup[item.m2o_dcc.id].a_label}` : ''}`
   if (item['type'] === 'dcc') return `The ${item.a_label} data coordinating center`
   if (item.a_description) {
@@ -200,18 +200,19 @@ export function linkify(value: string) {
 }
 
 export function parse_url(location: { pathname?: string, search?: ReadonlyURLSearchParams | URLSearchParams | string } = typeof window === 'undefined' ? {} : window.location): Record<string, string | null> {
-  const m = /^(\/data)?\/processed(\/search\/(?<search>[^\/]+?)(\/(?<search_type>[^\/]+?))?|\/entity\/(?<type>[^\/]+?)(\/search\/(?<type_search>[^\/]+?)|\/(?<slug>[^\/]+?)(\/search\/(?<entity_search>[^\/]+?))?)?)$/.exec(location.pathname ?? '')
+  const m = /^(?<basePath>\/[^\/]+)?\/processed(\/search\/(?<search>[^\/]+?)(\/(?<search_type>[^\/]+?))?|\/entity\/(?<type>[^\/]+?)(\/search\/(?<type_search>[^\/]+?)|\/(?<slug>[^\/]+?)(\/search\/(?<entity_search>[^\/]+?))?)?)$/.exec(location.pathname ?? '')
   return Object.fromEntries([
     ...(new URLSearchParams(location.search)).entries(),
-    ...Object.entries(m?.groups ?? {}).map(([k,v]) => [k, typeof v === 'string' ? decodeURIComponent(v) : v]),
+    ...Object.entries(m?.groups ?? {}).map(([k, v]) => [k, typeof v === 'string' ? decodeURIComponent(v) : v]),
   ])
 }
-export function create_url({ error, search, search_type, type, type_search, slug, entity_search, ...searchParams }: {
+export function create_url({ basePath, error, search, search_type, type, type_search, slug, entity_search, ...searchParams }: {
+  basePath?: string,
   type?: string, slug?: string,
   search?: string, filter?: string,
   error?: string,
 } & Record<string, string | null>) {
-  let path = typeof window !== 'undefined' && window.location.origin === 'data.cfde.cloud' ? '' : '/data'
+  let path = typeof window !== 'undefined' && window.location.origin === 'data.cfde.cloud' ? '' : (basePath ?? '/data')
   const urlSearchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : undefined)
   if (!error) {
     path += `/processed`

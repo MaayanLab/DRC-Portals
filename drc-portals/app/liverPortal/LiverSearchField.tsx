@@ -12,7 +12,7 @@ export function LiverSearchForm({ children, name }: React.PropsWithChildren<{ na
             const formData = new FormData(evt.currentTarget)
             const value = formData.get(name)
             const search = value ? `${value.toString()} liver` : 'liver'
-            router.push(`/liverPortal/search/${encodeURIComponent(search)}`)
+            router.push(`/liverPortal/processed/search/${encodeURIComponent(search)}`)
         }}>
             {children}
             <input className="hidden" type="submit" />
