@@ -39,6 +39,7 @@ export const esDCCs = singleton('esDCCs', async () => {
       const esDCC = dcc._source as EntityType
       const prismaDCC = await getPrismaDCC(esDCC.slug)
       if (prismaDCC?.icon) esDCC.a_icon = prismaDCC.icon
+      esDCC.a_info_url = `${process.env.PUBLIC_URL ?? ''}/info/dcc/${esDCC.slug}`
       return [dcc._id, esDCC] as [string, EntityType]
     })
   ))
