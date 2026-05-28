@@ -38,7 +38,7 @@ map_type = {
 
 def ingest_kg(es_bulk, file, version="staging"):
   # assemble the full file path for the DCC's asset
-  file_path = files_path/file['short_label']/f"{urllib.parse.quote(file['sha256checksum'], safe='')}/{urllib.parse.quote(file['filename'], safe='')}"
+  file_path = files_path/file['short_label']/f"{urllib.parse.quote(str(file['sha256checksum']), safe='')}/{urllib.parse.quote(file['filename'], safe='')}"
   if(debug >0):
     print(f"file_path:{file_path}");
   file_path.parent.mkdir(parents=True, exist_ok=True)
