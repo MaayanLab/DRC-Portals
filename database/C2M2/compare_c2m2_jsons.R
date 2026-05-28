@@ -11,6 +11,12 @@ j1j3_true = isTRUE(all.equal(j1,j3))
 j2j3_true = isTRUE(all.equal(j2,j3))
 
 
+# > names(j2$resources[[1]])
+# [1] "profile"     "name"        "title"       "path"        "dialect"    
+# [6] "description" "schema"      "encoding"   
+# > names(j1$resources[[1]])
+# [1] "profile"     "name"        "title"       "path"        "dialect"    
+#[6] "description" "schema"     
 
 # More detailed appraoch, to check after adding field encoding = utf-8
 
