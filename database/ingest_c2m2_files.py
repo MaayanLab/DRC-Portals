@@ -63,7 +63,6 @@ files = dcc_assets[dcc_assets['filetype'] == 'C2M2']
 files_path = ingest_path / 'c2m2s'
 
 def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
-  if file['short_label'] == 'Bridge2AI': return
   file_path = files_path/file['short_label']/f"{urllib.parse.quote(str(file['sha256checksum']), safe='')}/{urllib.parse.quote(file['filename'], safe='')}"
   file_path.parent.mkdir(parents=True, exist_ok=True)
   print("file['link'] object:"); print(file['link']); ##
