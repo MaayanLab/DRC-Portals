@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ELASTICSEARCH_URL=$(dotenv -f ../drc-portals/.env get ELASTICSEARCH_URL)
-export INDEX_VERSION=v18
+export INDEX_VERSION=v18.1
 
 es() {
   method=$1; shift
@@ -25,6 +25,7 @@ es_put PUT "/m2m_${INDEX_VERSION}/_settings" <<< '{"index":{"refresh_interval":"
 uv run ingest_dcc_assets.py
 uv run ingest_gmts.py
 uv run ingest_c2m2_files.py
+uv run ingest_c2m2_index.py
 uv run ingest_kg.py
 
 es POST "/entity_${INDEX_VERSION}/_refresh"
