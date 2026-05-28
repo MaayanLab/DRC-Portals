@@ -1,4 +1,5 @@
 #%%
+import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from ingest_common import current_dcc_assets
 
 #%%

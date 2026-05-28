@@ -9,6 +9,7 @@ import urllib.request, urllib.parse
 from tqdm.auto import tqdm
 from frictionless import Package
 
+import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
 from ingest_entity_common import gene_labels, gene_descriptions, gene_entrez
 

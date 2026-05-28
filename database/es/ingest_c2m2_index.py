@@ -10,6 +10,7 @@ import subprocess
 import sqlite3
 from tqdm.auto import tqdm
 
+import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
 
 #%%
