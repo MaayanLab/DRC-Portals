@@ -4,7 +4,7 @@ import pathlib
 import subprocess
 import urllib.request, urllib.parse
 from tqdm.auto import tqdm
-from datapackage import Package
+from frictionless import Package
 
 from ingest_common import ingest_path, current_dcc_assets
 
@@ -44,10 +44,10 @@ def check_c2m2_datapackage(file):
   pkg = Package(str(c2m2_datapackage_json))
   print(f"  {str(c2m2_datapackage_json.parent)}")
   for rc_name in pkg.resource_names:
-    rc = pkg.get_resource(rc_name)
     print(f"      {rc_name}")
-    for _ in rc.read(keyed=True):
-      pass
+    with pkg.get_resource(rc_name) as rc:
+      for _ in rc.row_stream:
+        pass
 
 def main():
   for short_label, dcc_files in files.groupby('short_label'):

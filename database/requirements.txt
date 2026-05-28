@@ -7,6 +7,6 @@ python-dotenv
 requests
 tqdm
 elasticsearch>=9,<10
-datapackage
+frictionless
 nltk
 pyyaml
