@@ -393,3 +393,10 @@ Make sure to replace the value of C2M2_DATABASE_URL with the correct connection 
 
 
 # .. and other scripts above
+
+#
+# In the C2M2_datapackage.json, the field encoding = utf-8 was adding using jq command:
+# jq '.resources[].encoding="utf-8"' < C2M2_datapackage.json > C2M2_datapackage_utf8.json
+# After verification using the R script compare_c2m2_jsons.R (running only selecting parts manually),
+# cp C2M2_datapackage_utf8.json C2M2_datapackage.json
+#
