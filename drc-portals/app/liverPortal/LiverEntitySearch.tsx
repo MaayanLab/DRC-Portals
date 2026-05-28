@@ -87,7 +87,7 @@ export default async function Page(props: PageProps) {
             <>&nbsp;</>,
           ]}
           rows={searchRes.items.map((hit_source) => {
-            const href = create_url({ type: hit_source.type, slug: hit_source.slug })
+            const href = create_url({ basePath: '/liverPortal', type: hit_source.type, slug: hit_source.slug })
             return [
               <SearchablePagedTableCellIcon href={href} src={itemIcon(hit_source, entityLookup)} alt={categoryLabel(hit_source.type)} />,
               <SearchablePagedTableCell><LinkedTypedNode href={href} type={hit_source.type} label={itemLabel(hit_source)} search={searchParams?.q as string ?? ''} /></SearchablePagedTableCell>,

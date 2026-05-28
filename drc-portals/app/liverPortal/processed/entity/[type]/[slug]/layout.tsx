@@ -1,0 +1,1 @@
+export { default } from '@/app/data/processed/entity/[type]/[slug]/layout'
