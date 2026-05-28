@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ELASTICSEARCH_URL=$(dotenv -f ../drc-portals/.env get ELASTICSEARCH_URL)
-INDEX_VERSION=v18
+export INDEX_VERSION=v18
 
 es() {
   method=$1; shift
@@ -17,26 +17,9 @@ es_put() {
 es_put PUT /entity_${INDEX_VERSION} < es/index/entity.json
 es_put PUT "/entity_${INDEX_VERSION}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
 
-es_put POST /_aliases << EOF
-{ "actions": [{ "remove": { "index": "*", "alias": "entity_staging" } }] }
-EOF
-
-es_put POST /_aliases << EOF
-{ "actions": [{ "add": { "index": "entity_${INDEX_VERSION}", "alias": "entity_staging" } }] }
-EOF
-
 # create index for m2m
 es_put PUT /m2m_${INDEX_VERSION} < es/index/m2m.json
 es_put PUT "/m2m_${INDEX_VERSION}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
-
-es_put POST /_aliases << EOF
-{ "actions": [{ "remove": { "index": "*", "alias": "m2m_staging" } }] }
-EOF
-
-es_put POST /_aliases << EOF
-{ "actions": [{ "add": { "index": "m2m_${INDEX_VERSION}", "alias": "m2m_staging" } }] }
-EOF
-
 
 # actually ingest data (can happen in parallel)
 uv run ingest_dcc_assets.py
@@ -44,23 +27,16 @@ uv run ingest_gmts.py
 uv run ingest_c2m2_files.py
 uv run ingest_kg.py
 
-es POST "/entity_staging/_refresh"
-es POST "/m2m_staging/_refresh"
+es POST "/entity_${INDEX_VERSION}/_refresh"
+es POST "/m2m_${INDEX_VERSION}/_refresh"
 
 # compute pagerank
 uv run pagerank.py
 
-es POST "/entity_staging/_refresh"
+es POST "/entity_${INDEX_VERSION}/_refresh"
 
 es_put PUT /entity_${INDEX_VERSION}_expanded < es/index/entity_expanded.json
 es_put PUT "/entity_${INDEX_VERSION}_expanded/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
-
-es_put POST /_aliases << EOF
-{"actions": [{ "remove": { "index": "*", "alias": "entity_expanded" } }]}
-EOF
-es_put POST /_aliases << EOF
-{"actions": [{ "add": { "index": "entity_${INDEX_VERSION}_expanded", "alias": "entity_expanded" } }]}
-EOF
 
 uv run add_m2o_and_m2m.py
 

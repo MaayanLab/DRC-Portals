@@ -1,9 +1,12 @@
 #%%
 import re
+import traceback
 import zipfile
 import pathlib
 import pandas as pd
+import subprocess
 import concurrent.futures
+import urllib.request, urllib.parse
 from tqdm.auto import tqdm
 from datapackage import Package
 
@@ -31,7 +34,6 @@ def persistent_id_probably_access_url(access_url):
 #%%
 # get reference tables
 if not pathlib.Path('ingest/c2m2_reference_tables').exists():
-  import urllib.request
   urllib.request.urlretrieve("https://files.osf.io/v1/resources/m3a85/providers/osfstorage/?zip=", 'ingest/c2m2_reference_tables.zip')
   with zipfile.ZipFile('ingest/c2m2_reference_tables.zip', 'r') as c2m2_zip:
     c2m2_zip.extractall('ingest/c2m2_reference_tables')
@@ -58,21 +60,21 @@ dcc_assets = current_dcc_assets()
 #%%
 # Ingest C2M2
 
-c2m2s = dcc_assets[dcc_assets['filetype'] == 'C2M2']
-c2m2s_path = ingest_path / 'c2m2s'
+files = dcc_assets[dcc_assets['filetype'] == 'C2M2']
+files_path = ingest_path / 'c2m2s'
 
-def ingest_c2m2_datapackage(es_bulk, c2m2):
-  c2m2_path = c2m2s_path/c2m2['short_label']/c2m2['filename']
-  c2m2_path.parent.mkdir(parents=True, exist_ok=True)
-  print("c2m2['link'] object:"); print(c2m2['link']); ##
+def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
+  if file['short_label'] == 'Bridge2AI': return
+  file_path = files_path/file['short_label']/f"{urllib.parse.quote(file['sha256checksum'], safe='')}/{urllib.parse.quote(file['filename'], safe='')}"
+  file_path.parent.mkdir(parents=True, exist_ok=True)
+  print("file['link'] object:"); print(file['link']); ##
 
-  if not c2m2_path.exists():
-    import urllib.request
-    urllib.request.urlretrieve(c2m2['link'].replace(' ', '%20'), c2m2_path); # quote to handle space etc in the URL
+  if not file_path.exists():
+    urllib.request.urlretrieve(file['link'].replace(' ', '%20'), file_path); # quote to handle space etc in the URL
   #
-  c2m2_extract_path = c2m2_path.parent / c2m2_path.stem
+  c2m2_extract_path = file_path.parent / file_path.stem
   if not c2m2_extract_path.exists():
-    with zipfile.ZipFile(c2m2_path, 'r') as c2m2_zip:
+    with zipfile.ZipFile(file_path, 'r') as c2m2_zip:
       c2m2_zip.extractall(c2m2_extract_path)
   #
   c2m2_datapackage_json, *_ = (
@@ -80,15 +82,15 @@ def ingest_c2m2_datapackage(es_bulk, c2m2):
     | set(pathlib.Path(c2m2_extract_path).rglob('datapackage.json'))
   )
   pkg = Package(str(c2m2_datapackage_json))
-  with pdp_helper(es_bulk) as helper:
+  with pdp_helper(es_bulk, version=version) as helper:
     dcc_id = helper.upsert_entity('dcc', dict(
-      label=c2m2['short_label']
-    ), slug=c2m2['short_label'])
+      label=file['short_label']
+    ), slug=file['short_label'])
     dcc_asset_id = helper.upsert_entity('dcc_asset', dict(
-      label=c2m2['filename'],
-      access_url=c2m2['link'],
-      filetype=c2m2['filetype'],
-    ), pk=c2m2['link'])
+      label=file['filename'],
+      access_url=file['link'],
+      filetype=file['filetype'],
+    ), pk=file['link'])
     helper.upsert_m2o(dcc_asset_id, 'dcc', dcc_id)
 
     # save DCC table attributes for the top level project
@@ -239,10 +241,18 @@ def ingest_c2m2_datapackage(es_bulk, c2m2):
           except Exception as e:
             raise RuntimeError(f"{rc_name=}, {fk['reference']['resource']=}") from e
 
-with es_helper() as es_bulk:
-  with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-    for fut in tqdm(concurrent.futures.as_completed((
-      pool.submit(ingest_c2m2_datapackage, es_bulk, c2m2)
-      for _, c2m2 in c2m2s.iterrows()
-    )), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
-      fut.result()
+def main(version='staging'):
+  with es_helper() as es_bulk:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+      for fut in tqdm(concurrent.futures.as_completed((
+        pool.submit(ingest_c2m2_datapackage, es_bulk, file, version=version)
+        for _, file in files.iterrows()
+      )), total=files.shape[0], desc='Processing C2M2 Files...'):
+        err = fut.exception()
+        if err is not None:
+          traceback.print_exception(type(err), err, err.__traceback__)
+
+#%%
+if __name__ == '__main__':
+  import os
+  main(version=os.getenv('INDEX_VERSION', 'staging'))

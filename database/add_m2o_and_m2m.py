@@ -5,15 +5,15 @@ from ingest_common import es_connect, es_helper
 
 es = es_connect()
 
-def count_all_entities():
+def count_all_entities(version="staging"):
   res = es.count(**{
-    'index': 'entity_staging',
+    'index': f"entity_{version}",
   })
   return res['count']
 
-def extract_all_entity_ids():
+def extract_all_entity_ids(version="staging"):
   base_query = {
-    'index': 'entity_staging',
+    'index': f"entity_{version}",
     '_source': {
       'includes': ['id'],
     },
@@ -28,16 +28,16 @@ def extract_all_entity_ids():
     for hit in res['hits']['hits']:
       if 'id' not in hit['_source']: continue
       yield hit['_source']['id']
-      pbar.update(1)
+      # pbar.update(1)
     after_key = res['hits']['hits'][-1]['sort'] if res['hits']['hits'] else None
     if after_key is None: break
 
-def extract_unexpanded_entity_ids():
+def extract_unexpanded_entity_ids(version="staging"):
   ''' filter entity ids by those already in entity_expanded
   '''
   for ids in chunk(extract_all_entity_ids(), 128):
     res = es.search(**{
-      'index': 'entity_expanded',
+      'index': f"entity_{version}",
       '_source': {
         'includes': 'id',
       },
@@ -50,10 +50,10 @@ def extract_unexpanded_entity_ids():
     })
     yield from (set(ids) - {hit['_source']['id'] for hit in res['hits']['hits']})
 
-def extract_entities_by_ids(all_ids):
+def extract_entities_by_ids(all_ids, version="staging"):
   for ids in chunk(all_ids, 128):
     res = es.search(**{
-      'index': 'entity_staging',
+      'index': f"entity_{version}",
       'query': {
         'ids': {
           'values': list(ids),
@@ -65,9 +65,9 @@ def extract_entities_by_ids(all_ids):
     for hit in res['hits']['hits']:
       yield hit['_source']
 
-def extract_m2m_values(source_id):
+def extract_m2m_values(source_id, version="staging"):
   base_query = {
-    'index': 'm2m_staging',
+    'index': f"m2m_{version}",
     'query': { 'bool': {
       'filter': [
         { 'term': { 'source_id': source_id } },
@@ -99,17 +99,18 @@ def extract_m2m_values(source_id):
   #
   yield predicate, targets
 
-def expand_entity_index(es_bulk, entity_ids):
+def expand_entity_index(es_bulk, entity_ids, version="staging"):
   for entity_id in entity_ids:
-    links = { predicate: source_ids for predicate, source_ids in extract_m2m_values(entity_id)}
+    links = { predicate: source_ids for predicate, source_ids in extract_m2m_values(entity_id, version=version)}
     entities = {
       hit['id']: hit
-      for hit in extract_entities_by_ids(set.union({entity_id}, *map(set, links.values())))
+      for hit in extract_entities_by_ids(set.union({entity_id}, *map(set, links.values())), version=version)
       if 'id' in hit # hack but should be fixed
     }
     entity = entities[entity_id]
     for predicate, source_ids in links.items():
       if predicate.startswith('m2o_'):
+        assert len(source_ids) == 1, f"{entity.get('type')}/{entity.get('id')}:{entity.get('a_label')} has {', '.join([entities.get(source_id, {}).get('type')+'/'+source_id+':'+entities.get(source_id, {}).get('a_label') for source_id in source_ids])} for {predicate}"
         source_id, = source_ids
         if source_id in entities:
           entity[predicate] = entities[source_id]
@@ -127,7 +128,7 @@ def expand_entity_index(es_bulk, entity_ids):
     #
     es_bulk.put(dict(
       _op_type='index',
-      _index='entity_expanded',
+      _index=f"entity_{version}_expanded",
       _id=entity['id'],
       _source=entity,
     ))
@@ -142,19 +143,24 @@ def chunk(L, cs):
   if buf:
     yield buf
 
-jobs = 16
+def main(version="staging"):
+  jobs = 16
 
-n = count_all_entities()
-with tqdm(total=n) as pbar:
-  with es_helper() as es_bulk:
-    with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
-      futures = set()
-      # grab a chunk of entities
-      for entity_id_chunk in chunk(extract_unexpanded_entity_ids(), 128):
-        # trigger a job with that chunk to extract the entity relationships
-        futures.add(pool.submit(expand_entity_index, es_bulk, entity_id_chunk))
-        if len(futures) >= jobs:
-          done, futures = concurrent.futures.wait(futures, return_when=concurrent.futures.FIRST_COMPLETED)
-          for item in done:
-            item.result()
-          pbar.update(len(done))
+  n = count_all_entities()
+  with tqdm(total=n) as pbar:
+    with es_helper() as es_bulk:
+      with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
+        futures = set()
+        # grab a chunk of entities
+        for entity_id_chunk in chunk(extract_unexpanded_entity_ids(version=version), 128):
+          # trigger a job with that chunk to extract the entity relationships
+          futures.add(pool.submit(expand_entity_index, es_bulk, entity_id_chunk, version=version))
+          if len(futures) >= jobs:
+            done, futures = concurrent.futures.wait(futures, return_when=concurrent.futures.FIRST_COMPLETED)
+            for item in done:
+              item.result()
+            pbar.update(len(done))
+
+if __name__ == '__main__':
+  import os
+  main(version=os.getenv('INDEX_VERSION', "staging"))

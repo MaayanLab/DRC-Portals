@@ -179,7 +179,7 @@ def es_helper():
     bulk_insert_thread.join()
 
 @contextlib.contextmanager
-def pdp_helper(es_bulk):
+def pdp_helper(es_bulk, version='staging'):
   resolved_ids = set()
   registered_ids = set()
   m2o = {}
@@ -213,7 +213,7 @@ def pdp_helper(es_bulk):
     registered_ids.add(id)
     es_bulk.put(dict(
       _op_type='update',
-      _index='entity_staging',
+      _index=f"entity_{version}",
       _id=id,
       doc=entity,
       doc_as_upsert=True,
@@ -233,13 +233,13 @@ def pdp_helper(es_bulk):
     # create links
     es_bulk.put(dict(
       _op_type='index',
-      _index='m2m_staging',
+      _index=f"m2m_{version}",
       _id=f"{source_id}:m2o_{predicate}:{target_id}",
       _source=dict(source_id=source_id, predicate=f"m2o_{predicate}", target_id=target_id),
     ))
     es_bulk.put(dict(
       _op_type='index',
-      _index='m2m_staging',
+      _index=f"m2m_{version}",
       _id=f"{target_id}:o2m_{predicate}:{source_id}",
       _source=dict(source_id=target_id, predicate=f"o2m_{predicate}", target_id=source_id),
     ))
@@ -249,14 +249,14 @@ def pdp_helper(es_bulk):
     assert target_id in resolved_ids or target_id in registered_ids
     es_bulk.put(dict(
       _op_type='index',
-      _index='m2m_staging',
+      _index=f"m2m_{version}",
       _id=f"{source_id}:m2m_{predicate}:{target_id}",
       _source=dict(source_id=source_id, predicate=f"m2m_{predicate}", target_id=target_id),
       doc_as_upsert=True,
     ))
     es_bulk.put(dict(
       _op_type='index',
-      _index='m2m_staging',
+      _index=f"m2m_{version}",
       _id=f"{target_id}:m2m_{predicate}:{source_id}",
       _source=dict(source_id=target_id, predicate=f"m2m_{predicate}", target_id=source_id),
       doc_as_upsert=True,
