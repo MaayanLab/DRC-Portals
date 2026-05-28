@@ -77,18 +77,9 @@ def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
     with zipfile.ZipFile(file_path, 'r') as c2m2_zip:
       c2m2_zip.extractall(c2m2_extract_path)
   #
-  c2m2_file_table, = set(pathlib.Path(c2m2_extract_path).rglob('file.tsv'))
-  c2m2_datapackage_json = c2m2_file_table.parent / 'C2M2_datapackage.json'
+  c2m2_datapackage_json, = pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.json')
   c2m2_datapackage_db = c2m2_datapackage_json.parent/'C2M2_datapackage.sqlite'
-  if not c2m2_datapackage_json.exists():
-    subprocess.run(['cfde-c2m2', 'init'], cwd=str(c2m2_datapackage_json.parent.absolute()), check=True)
-    subprocess.run(['cfde-c2m2', 'prepare'], cwd=str(c2m2_datapackage_json.parent.absolute()), check=True)
-  if not c2m2_datapackage_db.exists():
-    try:
-      subprocess.run(['cfde-c2m2', 'validate'], cwd=str(c2m2_datapackage_json.parent.absolute()), check=True)
-    except:
-      if c2m2_datapackage_db.exists(): c2m2_datapackage_db.unlink()
-      raise
+  assert c2m2_datapackage_db.exists(), 'You should have run check_c2m2_files first'
   pkg = Package(str(c2m2_datapackage_json))
   with pdp_helper(es_bulk, version=version) as helper:
     dcc_id = helper.upsert_entity('dcc', dict(
