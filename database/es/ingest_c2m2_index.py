@@ -6,7 +6,7 @@ This script obtains & adds second hop relationships for files in the C2M2.
 import zipfile
 import pathlib
 import concurrent.futures
-import subprocess
+import urllib, urllib.parse, urllib.request
 import sqlite3
 from tqdm.auto import tqdm
 
@@ -28,7 +28,6 @@ def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
   print("file['link'] object:"); print(file['link']); ##
 
   if not file_path.exists():
-    import urllib.request
     urllib.request.urlretrieve(file['link'].replace(' ', '%20'), file_path); # quote to handle space etc in the URL
   #
   c2m2_extract_path = file_path.parent / file_path.stem

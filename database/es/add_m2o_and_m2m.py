@@ -24,7 +24,7 @@ def extract_all_entity_ids(version="staging"):
     '_source': {
       'includes': ['id'],
     },
-    'sort': [{'id': 'desc'}],
+    'sort': [{'pagerank': 'desc'}, {'id': 'desc'}],
   }
   # with tqdm(total=res['hits']['total']) as pbar:
   after_key = None
