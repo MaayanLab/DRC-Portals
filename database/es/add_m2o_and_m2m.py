@@ -36,9 +36,9 @@ def extract_all_entity_ids(version="staging"):
 def extract_unexpanded_entity_ids(version="staging"):
   ''' filter entity ids by those already in entity_expanded
   '''
-  for ids in chunk(extract_all_entity_ids(), 128):
+  for ids in chunk(extract_all_entity_ids(version=version), 128):
     res = es.search(**{
-      'index': f"entity_{version}",
+      'index': f"entity_{version}_expanded",
       '_source': {
         'includes': 'id',
       },
@@ -147,8 +147,7 @@ def chunk(L, cs):
 def main(version="staging"):
   jobs = 16
 
-  n = count_all_entities()
-  with tqdm(total=n) as pbar:
+  n = count_all_entities(version=version)
     with es_helper() as es_bulk:
       with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
         futures = set()
