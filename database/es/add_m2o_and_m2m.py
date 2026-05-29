@@ -12,6 +12,12 @@ def count_all_entities(version="staging"):
   })
   return res['count']
 
+def count_all_expanded_entities(version="staging"):
+  res = es.count(**{
+    'index': f"entity_{version}_expanded",
+  })
+  return res['count']
+
 def extract_all_entity_ids(version="staging"):
   base_query = {
     'index': f"entity_{version}",
@@ -148,11 +154,14 @@ def main(version="staging"):
   jobs = 16
 
   n = count_all_entities(version=version)
+  current = count_all_expanded_entities(version=version)
+  entity_ids = extract_unexpanded_entity_ids(version=version) if current > 0 else extract_all_entity_ids(version=version)
+  with tqdm(total=n-current) as pbar:
     with es_helper() as es_bulk:
       with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
         futures = set()
         # grab a chunk of entities
-        for entity_id_chunk in chunk(extract_unexpanded_entity_ids(version=version), 128):
+        for entity_id_chunk in chunk(entity_ids, 128):
           # trigger a job with that chunk to extract the entity relationships
           futures.add(pool.submit(expand_entity_index, es_bulk, entity_id_chunk, version=version))
           if len(futures) >= jobs:
