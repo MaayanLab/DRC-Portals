@@ -160,6 +160,10 @@ def main(version="staging"):
             for item in done:
               item.result()
             pbar.update(len(done))
+        # wait for remaining items
+        for item in concurrent.futures.as_completed(futures):
+          item.result()
+          pbar.update(1)
 
 if __name__ == '__main__':
   import os
