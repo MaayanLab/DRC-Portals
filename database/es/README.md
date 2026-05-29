@@ -126,3 +126,39 @@ es_put POST /_aliases << EOF
 {"actions": [{ "add": { "index": "entity_${INDEX_VERSION}_expanded", "alias": "entity_expanded" } }]}
 EOF
 ```
+
+## Helpful Elasticsearch Commands
+```bash
+source es/ingest_common.sh
+
+# get current indexes
+es GET /_cat/indices?v
+es GET /_aliases
+
+# delete old index
+es DELETE /entity_${INDEX_VERSION}
+es DELETE /m2m_${INDEX_VERSION}
+es DELETE /entity_${INDEX_VERSION}_expanded
+
+# run a query
+es GET /entity_${INDEX_VERSION}/_search << EOF
+{
+  "query": {
+    "simple_query": {
+      "query": "type:dcc"
+    }
+  }
+}
+EOF
+
+# delete all results satisfying a query
+es GET /entity_${INDEX_VERSION}/_delete_by_query << EOF
+{
+  "query": {
+    "simple_query": {
+      "query": "type:dcc"
+    }
+  }
+}
+EOF
+```
