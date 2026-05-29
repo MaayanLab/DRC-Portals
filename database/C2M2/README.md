@@ -62,7 +62,7 @@ ymd=$(date +%y%m%d);
 date_div() { echo "============= $(date) =============";}
 
 scripts_ran_dir=scripts_ran/scripts_${ymd}; mkdir -p ${scripts_ran_dir}; mkdir -p ${scripts_ran_dir}/ingest
-cp --preserve=mode,ownership,timestamps *.sql *.py *.sh *.md ${scripts_ran_dir}/.
+cp --preserve=mode,ownership,timestamps *.sql *.py *.R *.sh *.json *.md ${scripts_ran_dir}/.
 cp --preserve=mode,ownership,timestamps ingest/*.tsv ${scripts_ran_dir}/ingest/.
 
 ########################### clean up by key words
@@ -320,13 +320,12 @@ date_div >> ${logf};
 # It is better to do direct ingest into the public schema, but others such as _4dn, metabolomics, etc. (DCC-name specific schema which have metadata only from that DCC) and c2m2 (which has metadata from all the DCCs) can be copied over to the other DB.
 #host1=sc-cfdedb.sdsc.edu; host2=localhost; dbname=drc; sch=Metabolomics;
 #host1=localhost; host2=sc-cfdedb.sdsc.edu; dbname=drc; sch=c2m2;
-host1=localhost; host2=sc-cfdedbdev.sdsc.edu; port1=5433; port2=5432; dbname=drc; sch=c2m2;
+host1=localhost; host2=sc-cfdedbdev.sdsc.edu; port1=5434; port2=5432; dbname=drc; sch=c2m2;
 # Example of 
 ymd=$(date +%y%m%d);
 logf=${logdir}/main_pg_dump_log_${ymd}.log
 #date_div > ${logf};
-./pg_dump_host1_to_host2.sh ${host1} ${host2} ${port1} ${port2} ${dbname} ${logdir} ${sch} > \
-${logdir}/main_pg_dump_log_${ymd}.log 2>&1
+./pg_dump_host1_to_host2.sh ${host1} ${host2} ${port1} ${port2} ${dbname} ${logdir} ${sch} > ${logf} 2>&1
 date_div >> ${logf};
 
 #-------------------------------------------------------------------------------------------------------
