@@ -112,6 +112,7 @@ export function predicateLabel(type: string) {
 
 export function facetLabel(facet: string) {
   if (facet.startsWith('target.')) facet = facet.substring('target.'.length)
+  if (facet.startsWith('m2m_')) facet = facet.substring('m2m_'.length)
   if (facet.startsWith('m2o_')) facet = facet.substring('m2o_'.length)
   if (facet.endsWith('.id')) facet = facet.substring(0, facet.length-'.id'.length)
   return predicateLabel(facet.replaceAll('_',' '))

@@ -33,7 +33,7 @@
     },
     "dynamic_templates": [
       {
-        "attributes": {
+        "a_": {
           "match_mapping_type": "string",
           "path_match": "a_*",
           "mapping": {
@@ -49,7 +49,7 @@
         }
       },
       {
-        "relationships": {
+        "m2o_": {
           "match_mapping_type": "object",
           "path_match": "m2o_*",
           "mapping": {
@@ -63,7 +63,7 @@
         }
       },
       {
-        "m2o": {
+        "m2o_a_": {
           "match_mapping_type": "string",
           "path_match": "m2o_*.a_*",
           "mapping": {
@@ -79,9 +79,18 @@
         }
       },
       {
-        "m2m": {
+        "m2m_id": {
+          "match_mapping_type": "string",
+          "path_match": "m2m_*.id",
+          "mapping": {
+            "type": "keyword"
+          }
+        }
+      },
+      {
+        "m2m_a_": {
           "match_mapping_type": "object",
-          "path_match": "m2m_*",
+          "path_match": "m2m_*.a_",
           "mapping": {
             "type": "text",
             "analyzer": "custom_analyzer"

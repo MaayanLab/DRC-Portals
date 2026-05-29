@@ -1,5 +1,5 @@
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-import yaml
+import json
 import concurrent.futures
 from tqdm.auto import tqdm
 from ingest_common import es_connect, es_helper
@@ -24,7 +24,7 @@ def extract_all_entity_ids(version="staging"):
     '_source': {
       'includes': ['id'],
     },
-    'sort': [{'pagerank': 'desc'}, {'id': 'desc'}]
+    'sort': [{'id': 'desc'}],
   }
   # with tqdm(total=res['hits']['total']) as pbar:
   after_key = None
@@ -66,8 +66,7 @@ def extract_entities_by_ids(all_ids, version="staging"):
           'values': list(ids),
         }
       },
-      'size': len(ids),
-      'sort': [{'id': 'asc'}]
+      'size': len(ids)
     })
     for hit in res['hits']['hits']:
       yield hit['_source']
@@ -111,7 +110,7 @@ def expand_entity_index(es_bulk, entity_ids, version="staging"):
     links = { predicate: source_ids for predicate, source_ids in extract_m2m_values(entity_id, version=version)}
     entities = {
       hit['id']: hit
-      for hit in extract_entities_by_ids(set.union({entity_id}, *map(set, links.values())), version=version)
+      for hit in extract_entities_by_ids(set.union({entity_id}, *links.values()), version=version)
       if 'id' in hit # hack but should be fixed
     }
     entity = entities[entity_id]
@@ -121,15 +120,25 @@ def expand_entity_index(es_bulk, entity_ids, version="staging"):
         source_id, = source_ids
         if source_id in entities:
           entity[predicate] = entities[source_id]
+          entity[f"{predicate.replace('m2o_', 'm2m_')}.id"] = entity.get(f"{predicate.replace('m2o_', 'm2m_')}.id", []) + [source_id]
+          entity[f"{predicate.replace('m2o_', 'm2m_')}.a_"] = '\n'.join([
+            entity.get(f"{predicate.replace('m2o_', 'm2m_')}.a_", ''),
+            ' '.join(f"{k}:{json.dumps(v)}" for k, v in entities[source_id].items() if k.startswith('a_')),
+          ]).lstrip('\n')
         else:
           if predicate != 'm2o_project': # TODO: figure out what's going wrong here
             print(f"WARN: {predicate=} {source_id=} is missing from {entity_id=}")
       elif predicate.startswith('m2m_'):
-        entity[predicate] = yaml.safe_dump_all(
-          entities[source_id]
+        entity[f"{predicate}.id"] = entity.get(f"{predicate}.id", []) + [
+          source_id
           for source_id in source_ids
           if source_id in entities # hack but should be fixed
-        )
+        ]
+        entity[f"{predicate}.a_"] = '\n'.join([entity.get(f"{predicate}.a_", '')] + [
+          ' '.join(f"{k}:{json.dumps(v)}" for k, v in entities[source_id].items() if k.startswith('a_'))
+          for source_id in source_ids
+          if source_id in entities # hack but should be fixed
+        ]).lstrip('\n')
       else:
         raise NotImplementedError(predicate)
     #
@@ -139,6 +148,8 @@ def expand_entity_index(es_bulk, entity_ids, version="staging"):
       _id=entity['id'],
       _source=entity,
     ))
+  #
+  return len(entity_ids)
 
 def chunk(L, cs):
   buf = []
@@ -167,12 +178,10 @@ def main(version="staging"):
           if len(futures) >= jobs:
             done, futures = concurrent.futures.wait(futures, return_when=concurrent.futures.FIRST_COMPLETED)
             for item in done:
-              item.result()
-            pbar.update(len(done))
+              pbar.update(item.result())
         # wait for remaining items
         for item in concurrent.futures.as_completed(futures):
-          item.result()
-          pbar.update(1)
+          pbar.update(item.result())
 
 if __name__ == '__main__':
   import os
