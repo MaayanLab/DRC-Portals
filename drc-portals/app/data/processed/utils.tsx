@@ -176,7 +176,7 @@ export function itemDescription(item: EntityExpandedType, lookup?: Record<string
 }
 
 export function linkify(value: string) {
-  const uriMatch = /^(https?|drs):\/\/(.+)/.exec(value)
+  const uriMatch = /^(https?|drs):\/\/(.+)/i.exec(value)
   if (uriMatch === null) {
     const nsPfMatch = /^(OBI|UBERON|data|format):(\w+)$/.exec(value)
     if (nsPfMatch !== null && nsPfMatch[1] === 'OBI') {
