@@ -23,14 +23,14 @@ es_put PUT /_snapshot/s3 << EOF
 EOF
 
 # create snapshot from relevant index
-es_put POST '/_snapshot/s3/entity_${INDEX_VERSION}_expanded?wait_for_completion=true' << EOF
+es_put POST "/_snapshot/s3/entity_${INDEX_VERSION_OUTPUT}_expanded?wait_for_completion=true" << EOF
 {
-  "indices": "entity_v18_expanded",
+  "indices": "entity_${INDEX_VERSION_OUTPUT}_expanded",
   "ignore_unavailable": false,
   "include_global_state": false,
   "metadata": {
     "taken_by": "danieljbclarke",
-    "taken_because": "speedup c2m2 reingestion"
+    "taken_because": "c2m2 update"
   }
 }
 EOF
@@ -52,7 +52,7 @@ es_put PUT /_snapshot/s3 << EOF
 EOF
 
 # restore 
-es_put POST '/_snapshot/s3/entity_${INDEX_VERSION}_expanded/_restore?wait_for_completion=true' << EOF
+es_put POST '/_snapshot/s3/entity_${INDEX_VERSION_OUTPUT}_expanded/_restore?wait_for_completion=true' << EOF
 {
   "indices": "*",
   "ignore_unavailable": false,
@@ -60,6 +60,7 @@ es_put POST '/_snapshot/s3/entity_${INDEX_VERSION}_expanded/_restore?wait_for_co
 }
 EOF
 
+es GET /_snapshot/s3/_all
 es GET /_cat/indices?v
 
 es_put POST /_aliases << EOF
