@@ -102,6 +102,75 @@ uv run ingestion.py
 
 To populate C2M2 related tables, see [the C2M2 README.md](C2M2/README.md).
 
+## Elasticsearch Snapshots
+
+Once ingest is successful, it should be uploaded to our s3 bucket. It can then be used by other from the same bucket.
+
+```bash
+# setup terminal
+ELASTICSEARCH_URL="$(dotenv -f ../drc-portals/.env get ELASTICSEARCH_URL)"
+es() {
+  method=$1; shift
+  path=$1; shift
+  curl -H'Content-Type: application/json' -X${method} ${ELASTICSEARCH_URL}${path} $@
+}
+es_put() {
+  es $@ -d @-
+}
+```
+
+### On Dev
+```bash
+# setup s3 bucket for snapshots
+# relies on AWS_ACCESS_KEY_ID // AWS_SECRET_ACCESS_KEY in .env
+es_put PUT /_snapshot/s3 << EOF
+{
+  "type": "s3",
+  "settings": {
+    "bucket": "cfde-elasticsearch-backup"
+  }
+}
+EOF
+
+# create snapshot from relevant index
+es_put POST '/_snapshot/s3/entity_v17_expanded?wait_for_completion=true' << EOF
+{
+  "indices": "entity_v17_expanded",
+  "ignore_unavailable": false,
+  "include_global_state": false,
+  "metadata": {
+    "taken_by": "<YOUR NAME>",
+    "taken_because": "<YOUR REASON>"
+  }
+}
+EOF
+```
+
+### In Prod
+```bash
+# relies on AWS_ACCESS_KEY_ID // AWS_SECRET_ACCESS_KEY in .env
+es_put PUT /_snapshot/s3 << EOF
+{
+  "type": "s3",
+  "settings": {
+    "bucket": "cfde-elasticsearch-backup",
+    "readonly": true
+  }
+}
+EOF
+
+# restore 
+es_put POST '/_snapshot/s3/entity_v17_expanded/_restore?wait_for_completion=true' << EOF
+{
+  "indices": "*",
+  "ignore_unavailable": false,
+  "include_global_state": false
+}
+EOF
+
+es GET /_cat/indices?v
+```
+
 ## Running FAIR Assessment 
 
 Update the DCCAssets.tsv, FileAssets.tsv and CodeAssets.tsv file paths in the ingest_commmon.py script to contain all the currently uploaded assets. Running these files should perform the fair assessments:
