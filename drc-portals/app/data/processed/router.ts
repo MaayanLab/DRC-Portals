@@ -44,6 +44,9 @@ export default router({
     type: z.string(),
     slug: z.string(),
   })).query(async (props) => {
+    if (props.input.type === 'dcc') {
+      return (await esDCCs)[props.input.slug]
+    }
     const itemRes = await elasticsearch.search<EntityExpandedType>({
       index: 'entity_expanded',
         query: {
