@@ -109,21 +109,21 @@ uv run es/pagerank.py
 es POST "/entity_${INDEX_VERSION}/_refresh"
 
 # create index in elastic search for final one-hop expanded form
-es_put PUT /entity_${INDEX_VERSION}_expanded < es/index/entity_expanded.json
-es_put PUT "/entity_${INDEX_VERSION}_expanded/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
+es_put PUT /entity_${INDEX_VERSION_OUTPUT}_expanded < es/index/entity_expanded.json
+es_put PUT "/entity_${INDEX_VERSION_OUTPUT}_expanded/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
 
 # actually build the expanded index
 uv run es/add_m2o_and_m2m.py
 
 # re-calculate stuff in elasticsearch
-es POST "/entity_${INDEX_VERSION}_expanded/_refresh"
+es POST "/entity_${INDEX_VERSION_OUTPUT}_expanded/_refresh"
 
 # swap out "entity_expanded" alias for the latest version (this is what's used on the frontend)
 es_put POST /_aliases << EOF
 {"actions": [{ "remove": { "index": "*", "alias": "entity_expanded" } }]}
 EOF
 es_put POST /_aliases << EOF
-{"actions": [{ "add": { "index": "entity_${INDEX_VERSION}_expanded", "alias": "entity_expanded" } }]}
+{"actions": [{ "add": { "index": "entity_${INDEX_VERSION_OUTPUT}_expanded", "alias": "entity_expanded" } }]}
 EOF
 ```
 
@@ -138,7 +138,7 @@ es GET /_aliases
 # delete old index
 es DELETE /entity_${INDEX_VERSION}
 es DELETE /m2m_${INDEX_VERSION}
-es DELETE /entity_${INDEX_VERSION}_expanded
+es DELETE /entity_${INDEX_VERSION_OUTPUT}_expanded
 
 # run a query
 es GET /entity_${INDEX_VERSION}/_search << EOF
