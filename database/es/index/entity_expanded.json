@@ -53,28 +53,8 @@
           "match_mapping_type": "object",
           "path_match": "m2o_*",
           "mapping": {
-            "properties": {
-              "id": {"type": "keyword"},
-              "type": {"type": "keyword"},
-              "slug": {"type": "keyword"},
-              "pagerank": {"type": "long"}
-            }
-          }
-        }
-      },
-      {
-        "m2o_a_": {
-          "match_mapping_type": "string",
-          "path_match": "m2o_*.a_*",
-          "mapping": {
-            "type": "text",
-            "analyzer": "custom_analyzer",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
-            }
+            "type": "object",
+            "enabled": false
           }
         }
       },

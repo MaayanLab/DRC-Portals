@@ -195,6 +195,7 @@ services:
 
   drc-portal-elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.1.5
+    restart: unless-stopped
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     ulimits:

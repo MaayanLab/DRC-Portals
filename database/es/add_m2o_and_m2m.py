@@ -6,25 +6,36 @@ from ingest_common import es_connect, es_helper
 
 es = es_connect()
 
-def count_all_entities(version="staging"):
+def chunk(L, cs):
+  buf = []
+  for el in L:
+    buf.append(el)
+    if len(buf) >= cs:
+      yield buf
+      buf = []
+  if buf:
+    yield buf
+
+def count_all_entities(input_version="staging"):
   res = es.count(**{
-    'index': f"entity_{version}",
+    'index': f"entity_{input_version}",
   })
   return res['count']
 
-def count_all_expanded_entities(version="staging"):
+def count_all_expanded_entities(output_version="staging"):
   res = es.count(**{
-    'index': f"entity_{version}_expanded",
+    'index': f"entity_{output_version}_expanded",
   })
   return res['count']
 
-def extract_all_entity_ids(version="staging"):
+def extract_all_entity_ids(input_version="staging"):
   base_query = {
-    'index': f"entity_{version}",
+    'index': f"entity_{input_version}",
     '_source': {
       'includes': ['id'],
     },
-    'sort': [{'pagerank': 'desc'}, {'id': 'desc'}],
+    'sort': [{'id': 'desc'}],
+    # 'sort': [{'pagerank': 'desc'}, {'id': 'desc'}],
   }
   # with tqdm(total=res['hits']['total']) as pbar:
   after_key = None
@@ -39,12 +50,12 @@ def extract_all_entity_ids(version="staging"):
     after_key = res['hits']['hits'][-1]['sort'] if res['hits']['hits'] else None
     if after_key is None: break
 
-def extract_unexpanded_entity_ids(version="staging"):
+def extract_unexpanded_entity_ids(input_version="staging", output_version='staging'):
   ''' filter entity ids by those already in entity_expanded
   '''
-  for ids in chunk(extract_all_entity_ids(version=version), 128):
+  for ids in chunk(extract_all_entity_ids(input_version=input_version), 128):
     res = es.search(**{
-      'index': f"entity_{version}_expanded",
+      'index': f"entity_{output_version}_expanded",
       '_source': {
         'includes': 'id',
       },
@@ -57,10 +68,10 @@ def extract_unexpanded_entity_ids(version="staging"):
     })
     yield from (set(ids) - {hit['_source']['id'] for hit in res['hits']['hits']})
 
-def extract_entities_by_ids(all_ids, version="staging"):
+def extract_entities_by_ids(all_ids, input_version="staging"):
   for ids in chunk(all_ids, 128):
     res = es.search(**{
-      'index': f"entity_{version}",
+      'index': f"entity_{input_version}",
       'query': {
         'ids': {
           'values': list(ids),
@@ -71,9 +82,9 @@ def extract_entities_by_ids(all_ids, version="staging"):
     for hit in res['hits']['hits']:
       yield hit['_source']
 
-def extract_m2m_values(source_id, version="staging"):
+def extract_m2m_values(source_id, input_version="staging"):
   base_query = {
-    'index': f"m2m_{version}",
+    'index': f"m2m_{input_version}",
     'query': { 'bool': {
       'filter': [
         { 'term': { 'source_id': source_id } },
@@ -105,76 +116,81 @@ def extract_m2m_values(source_id, version="staging"):
   #
   yield predicate, targets
 
-def expand_entity_index(es_bulk, entity_ids, version="staging"):
-  for entity_id in entity_ids:
-    links = { predicate: source_ids for predicate, source_ids in extract_m2m_values(entity_id, version=version)}
-    entities = {
-      hit['id']: hit
-      for hit in extract_entities_by_ids(set.union({entity_id}, *links.values()), version=version)
-      if 'id' in hit # hack but should be fixed
-    }
-    entity = entities[entity_id]
-    for predicate, source_ids in links.items():
-      if predicate.startswith('m2o_'):
-        assert len(source_ids) == 1, f"{entity.get('type')}/{entity.get('id')}:{entity.get('a_label')} has {', '.join([entities.get(source_id, {}).get('type')+'/'+source_id+':'+entities.get(source_id, {}).get('a_label') for source_id in source_ids])} for {predicate}"
-        source_id, = source_ids
-        if source_id in entities:
-          entity[predicate] = entities[source_id]
-          entity[f"{predicate.replace('m2o_', 'm2m_')}.id"] = entity.get(f"{predicate.replace('m2o_', 'm2m_')}.id", []) + [source_id]
-          entity[f"{predicate.replace('m2o_', 'm2m_')}.a_"] = '\n'.join([
-            entity.get(f"{predicate.replace('m2o_', 'm2m_')}.a_", ''),
-            ' '.join(f"{k}:{json.dumps(v)}" for k, v in entities[source_id].items() if k.startswith('a_')),
-          ]).lstrip('\n')
-        else:
-          if predicate != 'm2o_project': # TODO: figure out what's going wrong here
-            print(f"WARN: {predicate=} {source_id=} is missing from {entity_id=}")
-      elif predicate.startswith('m2m_'):
-        entity[f"{predicate}.id"] = entity.get(f"{predicate}.id", []) + [
-          source_id
-          for source_id in source_ids
-          if source_id in entities # hack but should be fixed
-        ]
-        entity[f"{predicate}.a_"] = '\n'.join([entity.get(f"{predicate}.a_", '')] + [
-          ' '.join(f"{k}:{json.dumps(v)}" for k, v in entities[source_id].items() if k.startswith('a_'))
-          for source_id in source_ids
-          if source_id in entities # hack but should be fixed
-        ]).lstrip('\n')
+def expand_entity(entity_id, input_version="staging"):
+  links = { predicate: source_ids for predicate, source_ids in extract_m2m_values(entity_id, input_version=input_version)}
+  entities = {
+    hit['id']: hit
+    for hit in extract_entities_by_ids(set.union({entity_id}, *links.values()), input_version=input_version)
+    if 'id' in hit # hack but should be fixed
+  }
+  entity = entities[entity_id]
+  for predicate, source_ids in links.items():
+    if predicate.startswith('m2o_'):
+      assert len(source_ids) == 1, f"{entity.get('type')}/{entity.get('id')}:{entity.get('a_label')} has {', '.join([entities.get(source_id, {}).get('type')+'/'+source_id+':'+entities.get(source_id, {}).get('a_label') for source_id in source_ids])} for {predicate}"
+      source_id, = source_ids
+      if source_id in entities:
+        entity[predicate] = entities[source_id]
+        entity[f"{predicate.replace('m2o_', 'm2m_')}.id"] = entity.get(f"{predicate.replace('m2o_', 'm2m_')}.id", []) + [source_id]
+        entity[f"{predicate.replace('m2o_', 'm2m_')}.a_"] = set.union(
+          entity.get(f"{predicate.replace('m2o_', 'm2m_')}.a_", set()),
+          {f"{k}:{json.dumps(v)}" for k, v in entities[source_id].items() if k.startswith('a_')}
+        )
       else:
-        raise NotImplementedError(predicate)
-    #
+        if predicate != 'm2o_project': # TODO: figure out what's going wrong here
+          print(f"WARN: {predicate=} {source_id=} is missing from {entity_id=}")
+    elif predicate.startswith('m2m_'):
+      if len(source_ids) > 1000:
+        # these aren't useful to capture
+        continue
+      entity[f"{predicate}.id"] = entity.get(f"{predicate}.id", []) + [
+        source_id
+        for source_id in source_ids
+        if source_id in entities # hack but should be fixed
+      ]
+      entity[f"{predicate}.a_"] = set.union(entity.get(f"{predicate}.a_", set()), {
+        f"{k}:{json.dumps(v)}"
+        for source_id in source_ids
+        if source_id in entities # hack but should be fixed
+        for k, v in entities[source_id].items() if k.startswith('a_')
+      })
+      if len(entity[f"{predicate}.id"]) == 1:
+        # collapse m2m into m2o when there is only one
+        source_id, = entity[f"{predicate}.id"]
+        entity[f"{predicate.replace('m2m_', 'm2o_')}"] = entities[source_id]
+    else:
+      raise NotImplementedError(predicate)
+  for k in entity:
+    if type(entity[k]) == set:
+      entity[k] = ' '.join(entity[k])
+  return entity
+
+def expand_entity_index(es_bulk, entity_ids, input_version='staging', output_version="staging"):
+  for entity_id in entity_ids:
+    entity = expand_entity(entity_id, input_version=input_version)
     es_bulk.put(dict(
       _op_type='index',
-      _index=f"entity_{version}_expanded",
+      _index=f"entity_{output_version}_expanded",
       _id=entity['id'],
       _source=entity,
     ))
   #
   return len(entity_ids)
 
-def chunk(L, cs):
-  buf = []
-  for el in L:
-    buf.append(el)
-    if len(buf) >= cs:
-      yield buf
-      buf = []
-  if buf:
-    yield buf
-
-def main(version="staging"):
+def main(input_version="staging", output_version=None):
+  if output_version is None: output_version = input_version
   jobs = 16
 
-  n = count_all_entities(version=version)
-  current = count_all_expanded_entities(version=version)
-  entity_ids = extract_unexpanded_entity_ids(version=version) if current > 0 else extract_all_entity_ids(version=version)
-  with tqdm(total=n-current) as pbar:
+  total = count_all_entities(input_version=input_version)
+  current = count_all_expanded_entities(output_version=output_version)
+  entity_ids = extract_unexpanded_entity_ids(input_version=input_version, output_version=output_version) if current > 0 else extract_all_entity_ids(input_version=input_version)
+  with tqdm(total=total-current) as pbar:
     with es_helper() as es_bulk:
       with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
         futures = set()
         # grab a chunk of entities
         for entity_id_chunk in chunk(entity_ids, 128):
           # trigger a job with that chunk to extract the entity relationships
-          futures.add(pool.submit(expand_entity_index, es_bulk, entity_id_chunk, version=version))
+          futures.add(pool.submit(expand_entity_index, es_bulk, entity_id_chunk, input_version=input_version, output_version=output_version))
           if len(futures) >= jobs:
             done, futures = concurrent.futures.wait(futures, return_when=concurrent.futures.FIRST_COMPLETED)
             for item in done:
@@ -185,4 +201,7 @@ def main(version="staging"):
 
 if __name__ == '__main__':
   import os
-  main(version=os.getenv('INDEX_VERSION', "staging"))
+  main(
+    input_version=os.getenv('INDEX_VERSION', "staging"),
+    output_version=os.getenv('INDEX_VERSION_OUTPUT', None),
+  )
