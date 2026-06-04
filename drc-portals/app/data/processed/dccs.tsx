@@ -36,7 +36,7 @@ export const esDCCs = singleton('esDCCs', async () => {
     size: 200,
     track_total_hits: false,
   })
-  const dcc_lookup: Record<string, EntityType & {l_primary_project?: EntityType[]}> = {}
+  const dcc_lookup: Record<string, EntityExpandedType & {l_primary_project?: EntityType[]}> = {}
   await Promise.allSettled(
     dccs.hits.hits.map(async (dcc) => {
       const esDCC = dcc._source as EntityExpandedType
@@ -50,7 +50,7 @@ export const esDCCs = singleton('esDCCs', async () => {
         if (prismaDCC?.homepage && !esDCC.a_homepage) esDCC.a_homepage = prismaDCC?.homepage
         esDCC.a_info_url = `${process.env.PUBLIC_URL ?? ''}/info/dcc/${esDCC.slug}`
       } else if (esDCC.type === 'project') {
-        if (!(esDCC.m2o_dcc.slug in dcc_lookup)) dcc_lookup[esDCC.m2o_dcc.slug] = { l_primary_project: [] } as unknown as EntityType
+        if (!(esDCC.m2o_dcc.slug in dcc_lookup)) dcc_lookup[esDCC.m2o_dcc.slug] = { l_primary_project: [] } as unknown as EntityExpandedType & {l_primary_project?: EntityType[]}
         if (!dcc_lookup[esDCC.m2o_dcc.slug].l_primary_project) dcc_lookup[esDCC.m2o_dcc.slug].l_primary_project = []
         dcc_lookup[esDCC.m2o_dcc.slug].l_primary_project?.push(esDCC)
       }

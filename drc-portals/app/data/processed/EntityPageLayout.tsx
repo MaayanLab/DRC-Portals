@@ -112,7 +112,7 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
           }
           return []
         }),
-        ...('l_primary_project' in item && item.l_primary_project !== undefined ? [
+        ...('l_primary_project' in item && item.l_primary_project ? [
         {
           label: 'Primary Project' + (item.l_primary_project.length > 1 ? 's' : ''),
           value: <div className="flex flex-row flex-wrap gap-4">{item.l_primary_project

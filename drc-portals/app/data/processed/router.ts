@@ -1,6 +1,6 @@
 import { procedure, router } from '@/lib/trpc'
 import elasticsearch from "@/lib/elasticsearch"
-import { EntityExpandedType, FilterAggType, TermAggType } from '@/app/data/processed/utils'
+import { EntityExpandedType, EntityType, FilterAggType, TermAggType } from '@/app/data/processed/utils'
 import { estypes } from '@elastic/elasticsearch'
 import { z } from 'zod'
 import { groupby } from '@/utils/array'
@@ -43,7 +43,7 @@ export default router({
   entity: procedure.input(z.object({
     type: z.string(),
     slug: z.string(),
-  })).query(async (props) => {
+  })).query(async (props): Promise<(EntityExpandedType & {l_primary_project?: EntityType[]}) | undefined> => {
     if (props.input.type === 'dcc') {
       return (await esDCCs)[props.input.slug]
     }
