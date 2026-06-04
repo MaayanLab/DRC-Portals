@@ -8,26 +8,26 @@ import Button from "@mui/material/Button";
 import DDIcon from '@/public/img/DD.png'
 import GDLPAIcon from '@/public/img/icons/gdlpa.png'
 import GeneCentricIcon from '@/public/img/icons/gene-centric-partnership.png'
-import { EntityType, capitalize } from '@/app/data/processed/utils';
+import { EntityExpandedType, EntityType, capitalize } from '@/app/data/processed/utils';
 import CardButton from ".//CardButton";
 import PWBButton from ".//PWBButton";
 import G2SGButton from './G2SGButton';
 import GSEButton from './GSEButton';
-import trpc from '@/lib/trpc/server'
+import elasticsearch from '@/lib/elasticsearch';
 
 export const getGeneSet = React.cache(async (id: string) => {
-  const geneSet: string[] = []
-  let searchRes
-  do {
-    searchRes = await trpc.search({
-      source_id: id,
-      facet: ['type:gene'],
-      cursor: searchRes?.next,
-      size: 100,
-    })
-    geneSet.push(...searchRes.items.map(item => item.a_label))
-  } while (searchRes.next)
-    return geneSet
+  const searchRes = await elasticsearch.search<EntityExpandedType>({
+    index: 'entity_expanded',
+    query: {
+      query_string: {
+        query: `${id} type:gene`,
+        default_operator: 'AND',
+      },
+    },
+    // maybe we should page but I don't think any gene set should be this big
+    size: 10000,
+  })
+  return searchRes.hits.hits.map(hit => hit._source?.a_label as string)
 })
 
 const modules: {
