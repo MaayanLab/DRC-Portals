@@ -57,7 +57,11 @@ export function SearchField({ name = 'search', defaultValue, InputProps, placeho
         const matches = match(option, inputValue, { insideWords: true })
         const parts = parse(option, matches)
         return (
-          <li {...props} className={classNames(props.className, 'text-nowrap overflow-hidden')}>
+          <li
+            {...props}
+            className={classNames(props.className, 'text-nowrap')}
+            title={`${option}${!autocomplete?.type ? `(${categoryLabel(filteredOptionTypes[option])})` : ''}`}
+          >
             {parts.map((part, index) => (
               <span
                 key={index}
@@ -66,10 +70,11 @@ export function SearchField({ name = 'search', defaultValue, InputProps, placeho
                   fontWeight: part.highlight ? 700 : 400,
                 }}
               >
-                {part.text}
+                {/^[^\w]/.exec(part.text) !== null ? <>&nbsp;</> : null}
+                {part.text.replace(/^[^\w]/, '')}
               </span>
             ))}
-            {!autocomplete?.type && <>&nbsp;({categoryLabel(filteredOptionTypes[option])})</>}
+            {!autocomplete?.type && <span className="text-ellipsis overflow-hidden">&nbsp;({categoryLabel(filteredOptionTypes[option])})</span>}
           </li>
         )
       }}
