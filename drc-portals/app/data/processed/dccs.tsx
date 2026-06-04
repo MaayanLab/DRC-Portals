@@ -39,11 +39,12 @@ export const esDCCs = singleton('esDCCs', async () => {
   const dcc_lookup: Record<string, EntityExpandedType & {l_primary_project?: EntityType[]}> = {}
   await Promise.allSettled(
     dccs.hits.hits.map(async (dcc) => {
-      const esDCC = dcc._source as EntityExpandedType
+      let esDCC = dcc._source as EntityExpandedType
       if (esDCC.type === 'dcc') {
         if (!(esDCC.slug in dcc_lookup)) dcc_lookup[esDCC.slug] = dcc_lookup[esDCC.id] = esDCC
         else dcc_lookup[esDCC.id] = dcc_lookup[esDCC.slug]
         Object.assign(dcc_lookup[esDCC.id], esDCC)
+        esDCC = dcc_lookup[esDCC.id]
         const prismaDCC = await getPrismaDCC(esDCC.slug)
         if (prismaDCC?.icon) esDCC.a_icon = prismaDCC.icon
         if (prismaDCC?.description && !esDCC.a_description) esDCC.a_description = prismaDCC?.description
