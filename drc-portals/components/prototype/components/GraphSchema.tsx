@@ -28,8 +28,8 @@ export default function GraphSchema() {
   ];
 
   return (
-    <Box sx={{ height: "640px" }}>
-      <Box sx={{ position: "relative", height: "inherit" }}>
+    <Box sx={{ height: "640px", width: "100%" }}>
+      <Box sx={{ position: "relative", height: "inherit"}}>
         <CytoscapeChart
           cyRef={cyRef}
           elements={SCHEMA_ELEMENTS}
