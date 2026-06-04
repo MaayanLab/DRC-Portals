@@ -1,4 +1,5 @@
 from tqdm.auto import tqdm
+import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from ingest_common import es_connect, es_helper
 
 es = es_connect()
