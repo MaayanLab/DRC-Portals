@@ -18,6 +18,7 @@ import Footer  from '@/components/Footer/info'
 import Background from '@/components/styled/background'
 import { WithContext, WebSite } from 'schema-dts'
 import Head from 'next/head'
+import SearchParamSearchField from './data/processed/SearchParamSearchField'
 
 export const metadata: Metadata = {
   title: 'CFDE Workbench',
@@ -118,7 +119,10 @@ export default async function RootLayout({
                   
                   <Grid item container className="grow overflow-hidden">
                     <Background background="#E7F3F5">
-                      <NavBreadcrumbs/>
+                        <div className='flex items-center'>
+                          <div className='flex flex-grow'><NavBreadcrumbs /></div>
+                          <SearchParamSearchField />
+                        </div>
                       {children}
                     </Background>
                   </Grid>
