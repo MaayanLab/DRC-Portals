@@ -6,7 +6,7 @@ import levenSort from '@/components/Chat/utils/leven-sort';
 import { purple } from '@mui/material/colors';
 import { mdiFormatColumns, mdiListBox, mdiMenu, mdiReceiptTextPlus, mdiSend, mdiTextSearchVariant } from '@mdi/js';
 import Icon from '@mdi/react';
-import EnrichrTermSearch from '../enrichment/enrichr_term_search';
+import EnrichrTermSearch from './data/enrichment/enrichr_term_search';
 import trpc from '@/lib/trpc/client'
 
 const fetcher = (endpoint: string) => fetch(endpoint).then((res) => res.json())
@@ -18,30 +18,10 @@ const CustomPopper = function (props: any) {
 const GeneSet = ({ data, isConnectable }: {data: {update_input: Function, setGeneSetPos: Function}, isConnectable: boolean}) => {
   const [search, setSearch] = useState<'term'|'input' | 'double'>('term')
   const [userInput, setUserInput] = useState<{description: string, value:{gene_set?: string[], up?: string[], down?:string[]}}>({description: '', value: {}})
-  const [term, setTerm] = React.useState<{type?: string, a_label?: string, id?: string}>({a_label: "", id: ""})
-  const [inputTerm, setInputTerm] = React.useState('')
-  // const { data: options } =  trpc.autocomplete.useQuery({
-  //       search: inputTerm.toLocaleLowerCase(),
-  //       facet: ["type:\"gene_set\"",],
-  //   }, { staleTime: Infinity, enabled: inputTerm !== '' && inputTerm.length >= 3 })
   
-  // const {data: genes} = trpc.gene_set.useQuery({
-  //   id: term.id || ''
-  // }, { staleTime: Infinity, enabled: term.id !== undefined && term.id !== '' && term.id.length >= 3 })
-  
-  // useEffect(()=>{
-  //   setUserInput({description: '', value: {}})
-  // }, [search])
-  
-  // useEffect(()=>{
-  //   if ((genes || []).length > 0) {
-  //     data.update_input('gene_set', term.a_label, "add", {gene_set: genes})
-  //     setTerm({a_label: "", id: ""})
-  //   }
-  // }, [genes])
-  const linksearch = trpc.send_gene_set.useMutation()
+  const linksearch = trpc.submit_gene_set.useMutation()
   return (
-    <Card sx={{width: 400, backgroundColor: purple[100]}}>
+    <Card sx={{width: 400, bgcolor: '#E7F3F5', borderColor: "#2D5986", borderWidth: 2}}>
 	    <Handle
         type="target"
         position={Position.Top}
@@ -74,13 +54,13 @@ const GeneSet = ({ data, isConnectable }: {data: {update_input: Function, setGen
 	    <Grid container alignItems={"center"} spacing={2}>
         <Grid item xs={12}>
           <Stack direction={"row"} spacing={1} alignItems={"center"}>
-            <Avatar sx={{backgroundColor: purple[100], color: 'black'}}><Icon path={mdiListBox} size={2}/></Avatar>
+            <Avatar sx={{backgroundColor:'transparent', color: "#2D5986"}}><Icon path={mdiListBox} size={2}/></Avatar>
             <Typography variant='h3'>Gene Sets, Pathways, and Modules</Typography>
-            <Tooltip title={search === 'term' ? "Add your own gene set": "Search Enrichr gene sets"}>
+            <Tooltip title={search === 'term' ? "Add your own gene set": "Search gene sets"}>
               <Button variant='outlined' color="secondary" onClick={()=>{
                 if (search==='term') {
                   setSearch('input')
-                  data.setGeneSetPos(70)
+                  data.setGeneSetPos(120)
                 } else {
                   setSearch('term')
                   data.setGeneSetPos(0)
@@ -92,14 +72,14 @@ const GeneSet = ({ data, isConnectable }: {data: {update_input: Function, setGen
         <Grid item xs={12}>
           {search === 'term' ?
           <EnrichrTermSearch setInput={async (d:any)=>{
-            const {description, genes} = d
+            const {description='user_input', genes} = d
             const res = await linksearch.mutateAsync({
                 input: {
                   gene_set: genes,
                 },
                 description,
             })         
-            data.update_input('gene_set', description, "add", {gene_set: genes}, res)
+            data.update_input('gene_set', description, "add", res)
           }} hideText={true} background='transparent'/>
           // <Autocomplete
           //     sx={{width: 350, borderColor: "black"}}
@@ -153,7 +133,7 @@ const GeneSet = ({ data, isConnectable }: {data: {update_input: Function, setGen
                     disabled={search==='input' ? userInput.value.gene_set === undefined : (userInput.value.up === undefined || userInput.value.down === undefined)}
                     onClick={async ()=>{
                       const {description, value} = userInput
-                      const res = await linksearch.mutateAsync({
+                      const res: {[key:string]: string} = await linksearch.mutateAsync({
                           input: {
                             gene_set: value.gene_set,
                             up_gene_set: value.up,
@@ -161,7 +141,8 @@ const GeneSet = ({ data, isConnectable }: {data: {update_input: Function, setGen
                           },
                           description,
                       })  
-                      data.update_input('gene_set', description || 'user_input', "add", value, res)
+                      const {description: desc, ...results} = res
+                      data.update_input('gene_set', description || 'user_input', "add", results)
                       setUserInput({description: '', value: {}})
                     }}
                   ><Icon path={mdiSend} size={1}/></Button>

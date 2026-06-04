@@ -49,7 +49,7 @@ export class App extends React.Component {
           id: "kc-header-wrapper",
         }, React.createElement('div', {
         }, React.createElement('img', {
-          src: "https://data.cfde.cloud/img/favicon.png",
+          src: "https://cfde.cloud/img/favicon.png",
         })), '\u00A0CFDE Workbench'))
       ),
       headerTools: /*#__PURE__*/React.createElement(PageHeaderTool, null),

@@ -119,7 +119,7 @@ export default async function Home({searchParams}: {
             }
         }
         const payload = {
-            'url': `https://data.cfde.cloud/enrichment?q=${searchParams.q}`,
+            'url': `https://cfde.cloud/data/enrichment?q=${searchParams.q}`,
             'apikey': process.env.TURL_CRED  
         }
         console.log("Getting short url")

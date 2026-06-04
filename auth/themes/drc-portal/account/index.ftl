@@ -75,6 +75,8 @@
                 l18nMsg['backTo'] = 'the Information Portal'
             } else if (referrerUri.startsWith('https://data.cfde.cloud')) {
                 l18nMsg['backTo'] = 'the Data Portal'
+            } else {
+                l18nMsg['backTo'] = 'the CFDE Workbench'
             }
         </script>
 

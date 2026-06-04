@@ -68,11 +68,11 @@ export const metadata: Metadata = {
 const jsonLd: WithContext<WebSite> = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "url": 'https://data.cfde.cloud',
+  "url": 'https://cfde.cloud/data',
   "potentialAction": [
     {
       "@type": "SearchAction",
-      "target": 'https://data.cfde.cloud/processed/search/{query}',
+      "target": 'https://cfde.cloud/data/processed/search/{query}',
       "query": "required"
     }
   ]
@@ -91,15 +91,13 @@ export default function DataLayout({
           __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
         }}
       />
-      <Grid item><Header path={"/data"}/></Grid>
+      {/* <Grid item><Header path={"/data"}/></Grid> */}
       <Grid item container className="grow overflow-hidden">
-        <Background background="#E7F3F5">
           {/* <NavBreadcrumbs/> */}
           {children}
-        </Background>
       </Grid>
       <CartFab />
-      <Grid item><Footer/></Grid>
+      {/* <Grid item><Footer/></Grid> */}
     </>
   )
 }

@@ -5,7 +5,6 @@ import { headers } from "next/headers";
 
 export async function POST(request: Request) {
 	const {methods, payload} = await request.json();
-	console.log(methods, payload)
 	if (typeof methods === 'undefined' || methods === '') {
 		return new Response(JSON.stringify({error: "Invalid Method"}), {
 			status: 404,

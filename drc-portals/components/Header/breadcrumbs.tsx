@@ -27,13 +27,13 @@ export default function NavBreadcrumbs() {
         <Breadcrumbs aria-label="breadcrumb" separator="›">
             {format_path_split.map((p, i) => (
                 i === path_split.length - 1 ? (
-                    <Typography key={i} variant='caption' sx={{ textTransform: 'uppercase', cursor: 'pointer' }} color='secondary'>{p}</Typography> // leaf node breadcrumb not clickable
+                    <Typography key={i} variant='caption' sx={{ textTransform: 'uppercase', cursor: 'pointer' }} color='secondary'>{p.replace('dcc', 'cf programs').replace('centers', 'cfde centers').replaceAll("_", " ").replace("cfde-webinar-series", "webinars").replace('chat', 'assistant').replace("matrix","data matrix").replace('usecases', 'use cases')}</Typography> // leaf node breadcrumb not clickable
                 ) : (
                     <Link
                         key={i}
                         href={`/${path_split.slice(0, i + 1).join("/")}`}
                     >
-                        <Typography variant='caption' sx={{ textTransform: 'uppercase' }} color='inherit'>{p}</Typography>
+                        <Typography variant='caption' sx={{ textTransform: 'uppercase' }} color='inherit'>{p.replace('dcc', 'cf programs').replace('centers', 'cfde centers').replaceAll("_", " ").replace("cfde-webinar-series", "webinars").replace('chat', 'assistant').replace("matrix","data matrix").replace('usecases', 'use cases')}</Typography>
                     </Link>
                 )
             ))}

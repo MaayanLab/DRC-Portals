@@ -92,7 +92,38 @@ export const cfde_theme = createTheme({
             fontStyle: "normal",
             fontWeight: 600,
             textTransform: "uppercase",
-            color: "#2D5986"
+            // color: "#2D5986",
+            paddingLeft: 5,
+            paddingRight: 5,
+            marginRight: 2,
+        },
+        nav_highlighted: {
+            fontSize: 16,
+            fontStyle: "normal",
+            fontWeight: 600,
+            textTransform: "uppercase",
+            color: "#FFF",
+            backgroundColor: "#2D5986",
+            paddingLeft: 5,
+            paddingRight: 5,
+            marginRight: 2,
+            // textDecoration: 'underline',
+            // textDecorationThickness: 2,
+            // textDecorationColor: "#FFF"
+        },
+        nav_clicked: {
+            fontSize: 16,
+            fontStyle: "normal",
+            fontWeight: 600,
+            textTransform: "uppercase",
+            color: "#000",
+            backgroundColor: "#A5B4DB",
+            paddingLeft: 5,
+            paddingRight: 5,
+            marginRight: 2,
+            // textDecoration: 'underline',
+            // textDecorationThickness: 2,
+            // textDecorationColor: "#FFF"
         },
         footer: {
             fontFamily: dm_sans.style.fontFamily,
@@ -278,6 +309,8 @@ declare module '@mui/material/styles' {
       cfde: React.CSSProperties;
       cfde_small: React.CSSProperties;
       nav: React.CSSProperties;
+      nav_highlighted: React.CSSProperties;
+      nav_clicked: React.CSSProperties;
       footer: React.CSSProperties;
       stats_h3: React.CSSProperties;
       stats_sub: React.CSSProperties;
@@ -289,6 +322,8 @@ declare module '@mui/material/styles' {
       cfde?: React.CSSProperties;
       cfde_small?: React.CSSProperties;
       nav?: React.CSSProperties;
+      nav_highlighted?: React.CSSProperties;
+      nav_clicked?: React.CSSProperties;
       footer?: React.CSSProperties;
       stats_h3?: React.CSSProperties;
       stats_sub?: React.CSSProperties;
@@ -322,6 +357,8 @@ declare module '@mui/material/styles' {
       cfde: true;
       cfde_small: true;
       nav: true;
+      nav_highlighted: true;
+      nav_clicked: true;
       footer: true;
       stats_h3: true;
       stats_sub: true;

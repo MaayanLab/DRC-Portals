@@ -68,7 +68,7 @@ export default async function CenterDataPage({ params }: { params: { center: str
     return (
         <Paper sx={{
             boxShadow: "none", 
-            background: `linear-gradient(180deg, #FFFFFF 0%, #EDF0F8 5%, #EDF0F8 100%)`,
+            background: `transparent`,
             padding: 5, 
             borderRadius: 0, 
             minHeight: "50vh",

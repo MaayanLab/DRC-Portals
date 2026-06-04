@@ -2,8 +2,8 @@ import Image from '@/utils/image';
 import Link from '@/utils/link';
 import Typography from '@mui/material/Typography'
 import { ElevatedIconButton } from "./Buttons";
-export const Logo = ({title, color, size, href}: {title: string, color: "primary"| "secondary" | "inherit", size?: "small" | "large", href:"/info"|"/data"}) => (
-    <Link href={href} className='flex items-center space-x-3'>
+export const Logo = ({title, color, size}: {title: string, color: "primary"| "secondary" | "inherit", size?: "small" | "large"}) => (
+    <Link href={'/'} className='flex items-center space-x-3'>
         <div>
         <ElevatedIconButton
             aria-label="menu"

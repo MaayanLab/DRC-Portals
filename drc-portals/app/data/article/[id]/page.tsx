@@ -12,7 +12,7 @@ const Markdown = (props: {children: string | null | undefined}) =>
 	components={{
 	  h1: (props: {[key:string]: any}) => <Typography sx={{mt: 2, mb: 2}} variant="h1">{props.children}</Typography>,
 	  h2: (props: {[key:string]: any}) => props.id === 'footnote-label' ? <Typography sx={{mt: 2, mb: 2}} variant="h3">References</Typography> : <Typography variant="h2" {...props} />,
-	  ol: (props: {[key:string]: any}) => <ol style={{listStyle: 'decimal', marginLeft: 10}}>{props.children}</ol>,
+	  ol: (props: {[key:string]: any}) => <ol style={{listStyle: 'decimal', marginLeft: 20}}>{props.children}</ol>,
 	  ul: (props: {[key:string]: any}) => <ul style={{listStyle: 'square'}}>{props.children}</ul>,
 	  a: (props: {[key:string]: any}) => props.className === 'data-footnote-backref' ? null: <Link href={props.href} {...props}>{props.children} </Link>,
 	  p: (props: {[key:string]: any}) => <Typography variant="body1" mb={2} mt={2}>{props.children}</Typography>,
@@ -55,7 +55,7 @@ const Article = ({params}: {
 	
 	const runRunnable = async () => {
 		const controller = getAbortController()
-		const res = await fetch(`/data/explorer/api`, {
+		const res = await fetch(`/data/api`, {
 			method: 'POST',
 			body: JSON.stringify({
 			  methods: 'getRunnable',

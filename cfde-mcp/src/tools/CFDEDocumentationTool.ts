@@ -167,7 +167,7 @@ const CFDEDocumentationTool = [
 			results["dccs"] = dccs.map((dcc)=>({
 				label: dcc.label,
 				short_label: dcc.short_label,
-				portal_page: `https://info.cfde.cloud/dcc/${dcc.short_label}`,
+				portal_page: `https://cfde.cloud/info/dcc/${dcc.short_label}`,
 				description: dcc.description,
 				homepage: dcc.homepage,
 				cf_site: dcc.cf_site,
@@ -185,7 +185,7 @@ const CFDEDocumentationTool = [
 			results["centers"] = centers.map((center)=>({
 				label: center.label,
 				short_label: center.short_label,
-				portal_page: `https://info.cfde.cloud/center/${center.short_label}`,
+				portal_page: `https://cfde.cloud/info/center/${center.short_label}`,
 				description: center.description,
 				homepage: center.homepage,
 			}))

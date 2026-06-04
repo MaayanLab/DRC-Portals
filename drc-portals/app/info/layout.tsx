@@ -16,17 +16,17 @@ export default function InfoLayout({
 }) {
   return (
     <>
-      <Grid item><Header path="/info"/></Grid>
+      {/* <Grid item><Header path="/info"/></Grid> */}
       <Grid item className="flex grow">
-        <Background background='#EDF0F8'>
+        {/* <Background background='#E7F3F5'> */}
           {/* <NavBreadcrumbs/> */}
           {children}
-        </Background>
+        {/* </Background> */}
       </Grid>
-      <Grid item>
+      {/* <Grid item>
           <Wheel/>
       </Grid>
-      <Grid item><Footer/></Grid>
+      <Grid item><Footer/></Grid> */}
     </>
   )
 }

@@ -75,8 +75,8 @@ export default async function Home({ searchParams }: { searchParams: { search?: 
                         }}
                   className="flex"
             >
-              <BlurBig sx={{position: "absolute", left: "-20%"}} className="pointer-events-none" />
-              <BlurBig sx={{position: "absolute", right: "-15%"}} className="pointer-events-none" />
+              <BlurBig sx={{position: "absolute", left: "-15%", zIndex: 100}} className="pointer-events-none" />
+              <BlurBig sx={{position: "absolute", right: "-15%", zIndex: 100}} className="pointer-events-none" />
               <Container maxWidth="lg" className="m-auto">
                 <Grid container spacing={2} alignItems={"center"}>
                   <Grid item xs={12}>
@@ -146,7 +146,7 @@ export default async function Home({ searchParams }: { searchParams: { search?: 
           <Paper sx={{
                           boxShadow: "none", 
                           padding: 5, 
-                          background: "#E7F3F5",
+                        //   background: "#E7F3F5",
                           width: "100vw", 
                           marginLeft: "calc((-100vw + 100%) / 2)", 
                           marginRight: "calc((-100vw + 100%) / 2)",
@@ -280,7 +280,7 @@ export default async function Home({ searchParams }: { searchParams: { search?: 
             </Container>
           </ResponsivePaper>
         </Grid>
-        <Grid item>
+        {/* <Grid item>
           <Link href={"/data/chat"}>
           <Tooltip title={"CFDE WORKBENCH ASSISTANT"}>
               <Fab sx={{
@@ -292,7 +292,7 @@ export default async function Home({ searchParams }: { searchParams: { search?: 
               </Fab>
             </Tooltip>
           </Link>
-        </Grid>
+        </Grid> */}
       </Grid>
     </main>
   );
