@@ -224,6 +224,17 @@ const options = [
     ]
   },
 {
+  title: "Documentation",
+  links: [
+    {
+      title: "Documentation",
+      href: "/data/documentation",
+      description: "Explore protocols, standards, and guidelines related to the CFDE",
+      icon: mdiFileDocument
+    }
+  ]
+},
+{
   title: "About",
   links: [
     {
@@ -231,12 +242,6 @@ const options = [
       href: "/info/about",
       description: "Learn more about the CFDE and the Data Resource Center",
       icon: mdiInformation
-    },
-    {
-      title: "Documentation",
-      href: "/data/documentation",
-      description: "Explore protocols, standards, and guidelines related to the CFDE",
-      icon: mdiFileDocument
     }
   ]
 }
