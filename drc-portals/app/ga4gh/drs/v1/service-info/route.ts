@@ -10,10 +10,10 @@ export async function GET(request: Request) {
     "description": "This service provides DRS for the CFDE submitted files.",
     "organization": {
       "name": "CFDE DRC",
-      "url": "https://info.cfde.cloud"
+      "url": "https://cfde.cloud"
     },
     "contactUrl": "mailto:avi.maayan@mssm.edu",
-    "documentationUrl": "https://info.cfde.cloud",
+    "documentationUrl": "https://cfde.cloud",
     "createdAt": '2024-02-02T13:00:00Z',
     "environment": "production",
     "version": "1.0.0"

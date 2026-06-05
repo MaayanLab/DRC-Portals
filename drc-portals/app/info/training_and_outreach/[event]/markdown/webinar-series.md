@@ -13,7 +13,7 @@ Friday, May 31st, 2024, 1-2 PM ET
 - CFDE Workbench *Avi Ma’ayan*
 - *More details will be added once ready*
 
-#### Presenting Entity: [LINCS](https://info.cfde.cloud/dcc/LINCS) DCC and Data Resource Center (DRC)
+#### Presenting Entity: [LINCS](https://cfde.cloud/info/dcc/LINCS) DCC and Data Resource Center (DRC)
 
 
 ## Friday, June 28, 2024 at 1 PM ET
@@ -54,7 +54,7 @@ The mission of the CFDE Knowledge Center (KC) is to curate, analyze, and integra
 
 
 #### Presented by
-[Metabolomics](https://info.cfde.cloud/dcc/Metabolomics) DCC and [Knowledge Center(KC)](https://hugeamp.org/research.html?pageid=kc_landing) on April 26, 2024
+[Metabolomics](https://cfde.cloud/info/dcc/Metabolomics) DCC and [Knowledge Center(KC)](https://hugeamp.org/research.html?pageid=kc_landing) on April 26, 2024
 
 
 #### Recordings

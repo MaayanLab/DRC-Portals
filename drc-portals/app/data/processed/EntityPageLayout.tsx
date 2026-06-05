@@ -84,6 +84,8 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
             if (!value) return []
             if (`m2o_${m[2]}` in item) return []
             if (/_?(id_namespace|local_id)$/.exec(m[2]) != null) return []
+            if (m[2] === 'a_abbreviation' && item.a_dcc_abbreviation) return []
+            if (m[2] === 'a_description' && item.a_dcc_description) return []
             if (m[2] === 'label') return []
             if (m[2] === 'entrez') value = <a className="text-blue-600 cursor:pointer underline" href={`https://www.ncbi.nlm.nih.gov/gene/${item[predicate as `a_${string}`]}`} target="_blank" rel="noopener noreferrer">{item[predicate as `a_${string}`]}</a>
             else if (m[2] === 'ensembl') value = <a className="text-blue-600 cursor:pointer underline" href={`https://www.ensembl.org/id/${item[predicate as `a_${string}`]}`} target="_blank" rel="noopener noreferrer">{item[predicate as `a_${string}`]}</a>
@@ -109,7 +111,17 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
             }]
           }
           return []
-        })
+        }),
+        ...('l_primary_project' in item && item.l_primary_project ? [
+        {
+          label: 'Primary Project' + (item.l_primary_project.length > 1 ? 's' : ''),
+          value: <div className="flex flex-row flex-wrap gap-4">{item.l_primary_project
+            .map(neighbor => entityLookup[neighbor.id] ?? neighbor)
+            .map(neighbor =>
+              neighbor?.type ? <LinkedTypedNode key={neighbor.id} href={create_url({ type: neighbor.type, slug: neighbor.slug })} type={neighbor.type} label={itemLabel(neighbor)} />
+              : neighbor.a_label)}</div>
+          ,
+        }] : []),
       ]}
     >
       <EntityPageAnalyze item={item} />

@@ -33,7 +33,7 @@
     },
     "dynamic_templates": [
       {
-        "attributes": {
+        "a_": {
           "match_mapping_type": "string",
           "path_match": "a_*",
           "mapping": {
@@ -49,39 +49,28 @@
         }
       },
       {
-        "relationships": {
+        "m2o_": {
           "match_mapping_type": "object",
           "path_match": "m2o_*",
           "mapping": {
-            "properties": {
-              "id": {"type": "keyword"},
-              "type": {"type": "keyword"},
-              "slug": {"type": "keyword"},
-              "pagerank": {"type": "long"}
-            }
+            "type": "object",
+            "enabled": false
           }
         }
       },
       {
-        "m2o": {
+        "m2m_id": {
           "match_mapping_type": "string",
-          "path_match": "m2o_*.a_*",
+          "path_match": "m2m_*.id",
           "mapping": {
-            "type": "text",
-            "analyzer": "custom_analyzer",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
-            }
+            "type": "keyword"
           }
         }
       },
       {
-        "m2m": {
+        "m2m_a_": {
           "match_mapping_type": "object",
-          "path_match": "m2m_*",
+          "path_match": "m2m_*.a_",
           "mapping": {
             "type": "text",
             "analyzer": "custom_analyzer"

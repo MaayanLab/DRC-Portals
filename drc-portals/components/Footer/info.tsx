@@ -56,7 +56,7 @@ export default async function InfoFooter() {
         <Grid container justifyContent={"space-around"}>
           <Grid item>
             <Stack direction={"column"} spacing={2}>
-              <Logo title="CFDE Workbench" href="/info" color="inherit"/>
+              <Logo title="CFDE Workbench" color="inherit"/>
               <Divider sx={{borderColor: "#FFF"}}/>
               {/* <Link href="https://github.com/MaayanLab/DRC-Portals/" target="_blank" rel="noopener noreferrer">
                 <div className='flex items-center space-x-1'>
@@ -118,7 +118,7 @@ export default async function InfoFooter() {
           <Resources />
           <Divider sx={{borderColor: "#FFF"}}/>
           <Stack direction={"column"} spacing={2}>
-            <Logo title="CFDE Workbench" href="/info" color="inherit"/>
+            <Logo title="CFDE Workbench" color="inherit"/>
             <div className='flex items-center space-x-3'>
               <SocialMedia/>
               <Link href="https://github.com/MaayanLab/DRC-Portal-Issues/issues/new" target="_blank" rel="noopener noreferrer">

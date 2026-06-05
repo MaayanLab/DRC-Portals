@@ -55,7 +55,7 @@
 <div id="kc-header" class="${properties.kcHeaderClass!}">
     <div id="kc-header-wrapper"
              class="${properties.kcHeaderWrapperClass!}">
-             <div><img src="https://data.cfde.cloud/img/favicon.png"></div>&nbsp;CFDE Workbench
+             <div><img src="https://cfde.cloud/img/favicon.png"></div>&nbsp;CFDE Workbench
         </div>
     </div>
 </div>

@@ -30,12 +30,12 @@ const nextConfig = {
         {
           has: [{ type: "host", value: "data.cfde.cloud" }],
           source: "/",
-          destination: "/data",
+          destination: "/",
         },
         {
           has: [{ type: "host", value: "info.cfde.cloud" }],
           source: "/",
-          destination: "/info",
+          destination: "/",
         },
       ],
       afterFiles: [
@@ -62,6 +62,11 @@ const nextConfig = {
       {
         source: "/data/contribute/:path*",
         destination: "/data/submit/:path*",
+        permanent: false,
+      },
+      {
+        source: "/info/documentation/:path*",
+        destination: "/data/documentation/:path*",
         permanent: false,
       },
       {
@@ -93,12 +98,12 @@ const nextConfig = {
         destination: "https://cfde.cloud/auth/:path*",
         permanent: false,
       },
-      {
-        has: [{ type: "host", value: "cfde.cloud" }],
-        source: "/",
-        destination: "https://info.cfde.cloud",
-        permanent: false,
-      },
+      // {
+      //   has: [{ type: "host", value: "cfde.cloud" }],
+      //   source: "/",
+      //   destination: "https://info.cfde.cloud",
+      //   permanent: false,
+      // },
       {
         source: "/info/documentation",
         destination: "/data/documentation",

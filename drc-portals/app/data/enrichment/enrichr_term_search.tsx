@@ -85,7 +85,7 @@ export const EnrichrTermSearch = ({setInput, hideText, background}: {setInput: F
                     {...params} 
                     inputProps={{...params.inputProps, value: term}}
                     sx={{backgroundColor: background || "#FFF"}}
-                    placeholder="Search Enrichr Term" 
+                    placeholder="Search gene sets" 
                     onChange={(e)=>setTerm(e.target.value)} />
                 }}
                 noOptionsText={`Can't find ${term}`}

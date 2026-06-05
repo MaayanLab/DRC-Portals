@@ -1820,15 +1820,8 @@
                 {
                     "component": "link",
                     "props": {
-                        "text": "Information Portal",
-                        "href": "https://info.cfde.cloud/"
-                    }
-                },
-                {
-                    "component": "link",
-                    "props": {
-                        "text": "Data Portal",
-                        "href": "https://data.cfde.cloud/"
+                        "text": "CFDE Workbench",
+                        "href": "https://cfde.cloud/"
                     }
                 }
             ],
