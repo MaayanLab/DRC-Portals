@@ -59,6 +59,9 @@ interface HashTable {
 }
 const dccIconTable: HashTable = {};
 dccIconTable["4DN"] = "/img/4DN.png";
+dccIconTable["Bridge2AI"] = "/img/Bridge2AI.png";
+dccIconTable["cm4ai"] = "/img/Bridge2AI.png";
+dccIconTable["aireadi"] = "/img/Bridge2AI.png";
 dccIconTable["ERCC"] = "/img/exRNA.png";
 dccIconTable["GTEx"] = "/img/GTEx.png";
 dccIconTable["GlyGen"] = "/img/glygen.png";
@@ -69,11 +72,15 @@ dccIconTable["KFDRC"] = "/img/Kids First.png";
 dccIconTable["LINCS"] = "/img/lincs.png";
 dccIconTable["MW"] = "/img/Metabolomics.png";
 dccIconTable["MoTrPAC"] = "/img/MoTrPAC.png";
+dccIconTable["SCGE"] = "/img/scge.png";
 dccIconTable["SPARC"] = "/img/SPARC.svg";
 dccIconTable["SenNet"] = "/img/SenNet.png";
 
 const dccCFlinkTable: HashTable = {};
 dccCFlinkTable["4DN"] = "4DN";
+dccCFlinkTable["Bridge2AI"] = "Bridge2AI";
+dccCFlinkTable["cm4ai"] = "Bridge2AI";
+dccCFlinkTable["aireadi"] = "Bridge2AI";
 dccCFlinkTable["ERCC"] = "ExRNA";
 dccCFlinkTable["GTEx"] = "GTEx";
 dccCFlinkTable["GlyGen"] = "GlyGen";
@@ -84,6 +91,7 @@ dccCFlinkTable["KFDRC"] = "Kids First";
 dccCFlinkTable["LINCS"] = "LINCS";
 dccCFlinkTable["MW"] = "Metabolomics";
 dccCFlinkTable["MoTrPAC"] = "MoTrPAC";
+dccCFlinkTable["SCGE"] = "SCGE";
 dccCFlinkTable["SPARC"] = "SPARC";
 dccCFlinkTable["SenNet"] = "SenNet";
 
@@ -225,7 +233,9 @@ export function generateQueryForReview(schemaName: string, tableName: string): S
 
 export const schemaToDCC = [
   { schema: '_4dn', label: '4DN' },
+  { schema: 'bridge2ai', label: 'Bridge2AI' },
   { schema: 'ercc', label: 'ERCC' },
+  { schema: 'exrna', label: 'ExRNA' },
   { schema: 'glygen', label: 'GlyGen' },
   { schema: 'gtex', label: 'GTex' },
   { schema: 'hmp', label: 'HMP' },
@@ -235,7 +245,9 @@ export const schemaToDCC = [
   { schema: 'lincs', label: 'LINCS' },
   { schema: 'metabolomics', label: 'Metabolomics Workbench' },
   { schema: 'motrpac', label: 'MoTrPAC' },
-  { schema: 'sparc', label: 'SPARC' }
+  { schema: 'sparc', label: 'SPARC' },
+  { schema: 'scge', label: 'SCGE' },
+  { schema: 'sennet', label: 'SenNet' }
 ];
 
 export const tableToName = [
@@ -538,6 +550,8 @@ export type SearchParamsType = z.infer<typeof searchParamsSchema>;
 
 const dccAbbrTable: { [key: string]: string } = {
   "4D NUCLEOME DATA COORDINATION AND INTEGRATION CENTER": "4DN",
+  "Cell Maps for Artificial Intelligence": "Bridge2AI",
+  "Artificial Intelligence Ready and Exploratory Atlas for Diabetes Insights": "Bridge2AI",
   "The Extracellular Communication Consortium Data Coordination Center": "ExRNA",
   "Genotype-Tissue Expression Project": "GTEx",
   "GlyGen": "GlyGen",
@@ -548,7 +562,9 @@ const dccAbbrTable: { [key: string]: string } = {
   "Library of Integrated Network-based Cellular Signatures": "LINCS",
   "UCSD Metabolomics Workbench": "MW",
   "MoTrPAC Molecular Transducers of Physical Activity Consortium": "MoTrPAC",
-  "Stimulating Peripheral Activity to Relieve Conditions": "SPARC"
+  "Somatic Cell Genome Editing": "SCGE",
+  "Stimulating Peripheral Activity to Relieve Conditions": "SPARC",
+  "SenNet": "SenNet"
 };
 
 export function getDCCAbbr(iconKey: string): string {
