@@ -57,9 +57,15 @@ export const createPresignedUrl = async (props: { dcc: string, filetype: string,
     const command = new PutObjectCommand({
         Bucket: process.env.S3_BUCKET,
         Key: filepath,
-        ChecksumSHA256: props.checksumHash
+        ChecksumAlgorithm: 'SHA256',
+        ChecksumSHA256: props.checksumHash,
+        ContentType: 'application/octet-stream',
     });
-    return getSignedUrl(s3, command, { expiresIn: 3600, unhoistableHeaders: new Set(['x-amz-sdk-checksum-algorithm', 'x-amz-checksum-sha256']) })
+    
+    return await getSignedUrl(s3, command, {
+        expiresIn: 3600,
+        unhoistableHeaders: new Set(['x-amz-checksum-sha256']),
+    })
 };
 
 
