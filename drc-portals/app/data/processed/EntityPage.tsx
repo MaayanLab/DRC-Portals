@@ -45,7 +45,7 @@ export default async function Page(props: PageProps) {
     source_id: item.id,
     search: params.search,
     facet: ensure_array(searchParams?.facet),
-    reverse: !!searchParams?.reverse,
+    reverse: searchParams?.reverse !== undefined,
     cursor: searchParams?.cursor as string | undefined,
     size: display_per_page,
   })

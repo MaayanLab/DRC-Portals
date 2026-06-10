@@ -27,7 +27,7 @@ export default async function Page(props: PageProps) {
       ...ensure_array(searchParams?.facet),
     ],
     size: display_per_page,
-    reverse: !!searchParams?.reverse,
+    reverse: searchParams?.reverse !== undefined,
     cursor: searchParams?.cursor as string | undefined,
   })
   const entityLookup: Record<string, EntityType> = Object.fromEntries([
