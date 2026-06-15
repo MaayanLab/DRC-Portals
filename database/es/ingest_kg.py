@@ -6,6 +6,7 @@ import re
 import concurrent.futures
 from tqdm.auto import tqdm
 
+import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
 from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_descriptions
 
@@ -17,9 +18,9 @@ dcc_assets = current_dcc_assets()
 #%%
 # Ingest KG Assertions
 
-assertions = dcc_assets[dcc_assets['filetype'] == 'KG Assertions']
-assertions = assertions[assertions['size'] < 100000000]
-assertions_path = ingest_path / 'assertions'
+files = dcc_assets[dcc_assets['filetype'] == 'KG Assertions']
+files = files[files['size'] < 100000000]
+files_path = ingest_path / 'assertions'
 
 # for now, we'll map entity types to get less junk/duplication
 map_type = {
@@ -36,9 +37,9 @@ map_type = {
   '4dn dataset': None,
 }
 
-def ingest_kg(es_bulk, file):
+def ingest_kg(es_bulk, file, version="staging"):
   # assemble the full file path for the DCC's asset
-  file_path = assertions_path/file['short_label']/file['filename']
+  file_path = files_path/file['short_label']/f"{urllib.parse.quote(str(file['sha256checksum']), safe='')}/{urllib.parse.quote(file['filename'], safe='')}"
   if(debug >0):
     print(f"file_path:{file_path}");
   file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -61,7 +62,7 @@ def ingest_kg(es_bulk, file):
     print("  Warning: not a zip file, will skip!");
     return
 
-  with pdp_helper(es_bulk) as helper:
+  with pdp_helper(es_bulk, version=version) as helper:
     entities = {}
     def upsert_entity(type, attributes, slug=None, pk=None):
       id = helper.upsert_entity(type, attributes, slug=slug, pk=pk)
@@ -139,10 +140,15 @@ def ingest_kg(es_bulk, file):
               helper.upsert_m2o(assertion_id, 'dcc_asset', dcc_asset_id)
               helper.upsert_m2o(assertion_id, 'dcc', dcc_id)
 
-with es_helper() as es_bulk:
-  with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-    for fut in tqdm(concurrent.futures.as_completed((
-      pool.submit(ingest_kg, es_bulk, file)
-      for _, file in assertions.iterrows()
-    )), total=assertions.shape[0], desc='Processing KGAssertion Files...'):
-      fut.result()
+def main(version="staging"):
+  with es_helper() as es_bulk:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+      for fut in tqdm(concurrent.futures.as_completed((
+        pool.submit(ingest_kg, es_bulk, file, version=version)
+        for _, file in files.iterrows()
+      )), total=files.shape[0], desc='Processing KGAssertion Files...'):
+        fut.result()
+
+if __name__ == '__main__':
+  import os
+  main(version=os.getenv('INDEX_VERSION', 'staging'))

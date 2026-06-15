@@ -1,14 +1,14 @@
 import React from "react";
+import trpc from '@/lib/trpc/server'
 import SearchTabs from "@/app/data/processed/SearchTabs";
 import { redirect } from "next/navigation";
 import { FancyTab, FancyTabPlaceholder } from "@/components/misc/FancyTabs";
 import { Metadata, ResolvingMetadata } from "next";
-import { categoryLabel, create_url, EntityExpandedType, EntityType, TermAggType } from "./utils";
-import elasticsearch from "@/lib/elasticsearch";
-import { estypes } from "@elastic/elasticsearch";
+import { categoryLabel, create_url } from "./utils";
 import { SearchQueryComponentTab as C2M2SearchQueryComponentTab } from '@/app/data/c2m2/search/SearchQueryComponent'
 import { safeAsync } from "@/utils/safe";
 import { ErrorBoundary } from "react-error-boundary";
+import { TRPCError } from "@trpc/server";
 
 export async function generateMetadata(props: { params: Promise<{ search: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params
@@ -29,31 +29,10 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
   const params = await props.params
   for (const k in params) params[k] = decodeURIComponent(params[k])
   if (!params.search) redirect('/data')
-  const filter: estypes.QueryDslQueryContainer[] = []
-  if (params.search) filter.push({ simple_query_string: { query: params.search, fields: ['a_label^10', 'a_*^5', 'm2o_*.a_*'], default_operator: 'AND' } })
-  const { data: searchRes, error } = await safeAsync(() => elasticsearch.search<EntityExpandedType, TermAggType<'types' | 'dccs'>>({
-    index: 'entity_expanded',
-    query: {
-      bool: {
-        filter,
-      },
-    },
-    aggs: {
-      types: {
-        terms: {
-          field: 'type',
-          size: 1000,
-        },
-      },
-    },
-    size: 0,
-    rest_total_hits_as_int: true,
-  }))
-  if (error) {
-    console.error(error)
-    return redirect(create_url({ search: params.search , error: 'Something went wrong' }))
+  const searchRes = await safeAsync(() => trpc.types({ search: params.search }))
+  if (!searchRes.data) {
+    redirect(create_url({ search: params.search, error: searchRes.error instanceof TRPCError && searchRes.error.code === 'NOT_FOUND' ? 'No results matching search' : (searchRes.error as Error).message }))
   }
-  if (!searchRes?.hits.total) redirect(create_url({ search: params.search, error: 'No results matching search' }))
   return (
     <SearchTabs>
       <FancyTabPlaceholder id="c2m2" label={<>Cross-Cut Metadata Model</>} priority={Infinity}>
@@ -65,10 +44,10 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
       </FancyTabPlaceholder>
       <FancyTab
         id={""}
-        label={<>Processed Data<br />{Number(searchRes.hits.total).toLocaleString()}</>}
-        priority={Number(searchRes.hits.total)}
+        label={<>Processed Data<br />{Number(searchRes.data.total).toLocaleString()}</>}
+        priority={Number(searchRes.data.total)}
       />
-      {searchRes.aggregations?.types.buckets.map((filter) =>
+      {searchRes.data.types?.map((filter) =>
         <FancyTab
           key={`${filter.key}`}
           id={filter.key}

@@ -112,6 +112,7 @@ export function predicateLabel(type: string) {
 
 export function facetLabel(facet: string) {
   if (facet.startsWith('target.')) facet = facet.substring('target.'.length)
+  if (facet.startsWith('m2m_')) facet = facet.substring('m2m_'.length)
   if (facet.startsWith('m2o_')) facet = facet.substring('m2o_'.length)
   if (facet.endsWith('.id')) facet = facet.substring(0, facet.length-'.id'.length)
   return predicateLabel(facet.replaceAll('_',' '))
@@ -175,7 +176,7 @@ export function itemDescription(item: EntityExpandedType, lookup?: Record<string
 }
 
 export function linkify(value: string) {
-  const uriMatch = /^(https?|drs):\/\/(.+)/.exec(value)
+  const uriMatch = /^(https?|drs):\/\/(.+)/i.exec(value)
   if (uriMatch === null) {
     const nsPfMatch = /^(OBI|UBERON|data|format):(\w+)$/.exec(value)
     if (nsPfMatch !== null && nsPfMatch[1] === 'OBI') {

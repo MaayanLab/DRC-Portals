@@ -516,7 +516,6 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
       );
     }
   }, [hoveredNode, tooltipBoxStyleProps, tooltipContentProps]);
-
   return (
     <>
       <ClickAwayListener onClickAway={hideTooltip}>
@@ -531,7 +530,7 @@ export default function CytoscapeChart(cmpProps: CytoscapeChartProps) {
             <CytoscapeComponent
               className="cy"
               // @ts-ignore
-              cy={(cy) => (cyRef.current = cy)}
+              cy={(cy:cytoscape.Core) => (cyRef.current = cy)}
               elements={elements}
               layout={layout}
               stylesheet={stylesheet}

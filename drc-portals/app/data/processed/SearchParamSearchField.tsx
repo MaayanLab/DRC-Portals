@@ -11,6 +11,7 @@ export default function SearchParamSearchField(props: Omit<React.ComponentProps<
   const params = React.useMemo(() => parse_url({ pathname }), [pathname])
   if (
     pathname === '/'
+    || pathname.startsWith('/info')
     || pathname === '/data'
     || /^(\/data)?(\/graph|\/enrichment|\/cross|\/explorer|\/processed\/search\/[^\/]+\/(?!c2m2)[^\/]+)$/.exec(pathname) !== null
   ) return null

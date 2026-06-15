@@ -8,12 +8,12 @@ import { ensure_array, unique } from '@/utils/array';
 import trpc from "@/lib/trpc/client"
 
 export function FetchDRSCartButton(props: { source_id?: string, search?: string, facet?: (string | undefined)[] | string | undefined, count?: number }) {
-  const search = trpc.search.useMutation()
+  const trpcUtils = trpc.useUtils()
   const facet = React.useMemo(() => ensure_array(props.facet).filter((f): f is string => !!f), [props.facet])
   const handleDRSBundle = React.useCallback(async () => {
     let cursor: string | undefined
     do {
-      const res = await search.mutateAsync({
+      const res = await trpcUtils.search.fetch({
         source_id: props.source_id,
         search: props.search,
         facet,
@@ -25,7 +25,7 @@ export function FetchDRSCartButton(props: { source_id?: string, search?: string,
       ].filter(access_url => !!access_url)).join('\n'))
       cursor = res.next
     } while (cursor !== undefined)
-  }, [props.source_id, props.search, facet])
+  }, [props.source_id, props.search, facet, trpcUtils])
   return (
     <>
       <Button
