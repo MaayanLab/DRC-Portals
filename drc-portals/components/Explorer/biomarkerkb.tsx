@@ -8,7 +8,7 @@ import { mdiMagnify } from "@mdi/js"
 import { ReactNode, useEffect, useState } from "react"
 
 export const biomarkerkb = ({label, values, entity, color=blueGrey[100], icon_color=blueGrey[900], icon=mdiMagnify}: {label: string, entity?:string, values?: {[key: string]: number}, color?: string, icon_color?: string, icon?:string}) => {
-	const {data: link, isLoading} = trpc.biomarker.useQuery({term: label})
+	const {data, isLoading} = trpc.biomarker.useQuery({term: label})
 	if (isLoading) {
 			return (
 				<Card sx={{height: '100%'}}>
@@ -33,7 +33,8 @@ export const biomarkerkb = ({label, values, entity, color=blueGrey[100], icon_co
 				</Card>
 			)
 		}
-	if (link === '' || link === undefined) return null
+	if (data === '' || data === undefined) return null
+	const {url, count} = data
 	return (
 		<Card sx={{height: '100%'}}>
 			<CardHeader
@@ -42,14 +43,14 @@ export const biomarkerkb = ({label, values, entity, color=blueGrey[100], icon_co
 				}
 				action={
 				<IconButton aria-label="goto"
-					href={link || ''}
+					href={url || ''}
 					target="_blank" rel="noopener noreferrer" 
 				>
 					<ArrowForward />
 				</IconButton>
 				}
 				title={label}
-				subheader={`View biomarkers associated with this ${label}`}
+				subheader={`View ${count} biomarkers associated with this ${label}`}
 			/>
 		</Card>
 	)

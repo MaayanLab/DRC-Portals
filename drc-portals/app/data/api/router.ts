@@ -239,7 +239,7 @@ export default router({
 	const req = await fetch(`https://api.biomarkerkb.org/biomarker/search_simple?query={"operation":"AND","query_type":"biomarker_search_simple","term":"${term}","term_category":"any"}`)
 	const res = await (req.json())
 	if (res.list_id !== "") {
-		return `https://biomarkerkb.org/biomarker-list/${res.list_id}`
+		return {url: `https://biomarkerkb.org/biomarker-list/${res.list_id}`, count: res.resultcount}
 	}
 	return ''
   }),
