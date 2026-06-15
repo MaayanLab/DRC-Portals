@@ -14,8 +14,8 @@ export default function CartFab() {
     cart.length > 0 && <Grid item sx={{
       zIndex: 1050,
       position: 'fixed',
-      bottom: 105,
-      right: 50,
+      bottom: 130,
+      right: 60,
     }}>
       <Link href="/data/processed/cart">
         <Badge badgeContent={cart.length} color="error" overlap='circular'>
