@@ -5,9 +5,8 @@ import { ArrowForward } from "@mui/icons-material"
 import Icon from "@mdi/react"
 import { blueGrey } from "@mui/material/colors"
 import { mdiMagnify } from "@mdi/js"
-import { ReactNode, useEffect, useState } from "react"
 
-export const ddkg = ({label, values, entity='gene', color=blueGrey[100], icon_color=blueGrey[900], icon=mdiMagnify}: {label: string, entity?:string, values?: {[key: string]: number}, color?: string, icon_color?: string, icon?:string}) => {
+export const DDKG = ({label, values, entity='gene', color=blueGrey[100], icon_color=blueGrey[900], icon=mdiMagnify}: {label: string, entity?:string, values?: {[key: string]: number}, color?: string, icon_color?: string, icon?:string}) => {
 	const {data: link, isLoading} = trpc.ddkg.useQuery({term: label, entity: entity })
 	if (isLoading) {
 			return (

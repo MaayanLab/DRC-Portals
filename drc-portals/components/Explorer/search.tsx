@@ -1,15 +1,15 @@
-import { Grid, Card, CardContent, Collapse, CardHeader, Avatar, IconButton, ListItemButton, ListItemIcon, ListItemText, Typography, Paper, Skeleton, Stack, Button } from "@mui/material";
+import { Card, CardContent, CardHeader, Avatar, IconButton, Typography, Skeleton, Stack, Button } from "@mui/material";
 import trpc from '@/lib/trpc/client'
 import { mdiMagnify } from "@mdi/js";
 import { blueGrey } from "@mui/material/colors";
 import Icon from "@mdi/react";
-import { ArrowForward, ExpandLess, ExpandMore } from "@mui/icons-material";
+import { ArrowForward } from "@mui/icons-material";
 import { useState } from "react";
-import Image from "@/utils/image";
 
-export const search_card = ({labels, color=blueGrey[100], icon_color=blueGrey[900], icon=mdiMagnify}: {labels: string[], color?: string, icon_color?: string, icon?:string}) => {
-	const {data, isLoading} = trpc.facet.useQuery({search: labels.join(" and ")})
+export const SearchCard = ({labels, color=blueGrey[100], icon_color=blueGrey[900], icon=mdiMagnify}: {labels: string[], color?: string, icon_color?: string, icon?:string}) => {
+	const {data, isLoading} = trpc.facet.useQuery({search: labels.join(" and ")}, {enabled: labels.length > 0})
 	const [expand, setExpand] = useState(false)
+	if (labels.length === 0) return null
 	if (isLoading) {
 		return (
 			<Card sx={{height: '100%'}}>
@@ -70,82 +70,3 @@ export const search_card = ({labels, color=blueGrey[100], icon_color=blueGrey[90
 	}
 }
 
-export const ExpandableComponent = ({inputList, icon, title, description, child_function, collapsed=true, combine=false, width=50, height=50}: 
-	{	collapsed?: boolean,
-		combine?: boolean,
-		icon: string,
-		title: string,
-		description: string,
-		child_function: Function,
-		width?: number,
-		height?: number,
-		inputList: {
-			entity: string,
-			label: string,
-			icon: string,
-			icon_color: string,
-			color:string,
-			values?: {[key: string]: number},
-			links?: {resource: string,
-				description: string,
-				link: string}[]}[]
-	}) => {
-	const [open, setOpen] = useState(!collapsed)
-	const children: React.ReactNode[] = []
-	const terms:string[] = []
-	for (const i of inputList) {
-		terms.push(i.label)
-		const child = child_function({labels: [i.label], ...i})
-		if (child !== null) {
-			if (Array.isArray(child)) {
-				console.log(i.label)
-				let ind = 0
-				for (const c of child) {
-					children.push(
-						<Grid item xs={6} sm={4} key={i.label + ind}>
-							{c}
-						</Grid>
-					)
-					ind += 1
-				}
-			} else {
-				children.push(
-					<Grid item xs={6} sm={4} key={i.label}>
-						{child}
-					</Grid>
-				)
-			}
-			
-		}
-	}
-	if (combine && terms.length) {
-		const child = child_function({labels: terms})
-		if (child !== null) {
-			children.push(
-				<Grid item xs={6} sm={4} key={terms.join(" and ")}>
-					{child}
-				</Grid>
-			)
-		}
-	}
-	if (children.length === 0) return null
-	return (
-		<>
-		<ListItemButton onClick={()=>setOpen(!open)}>
-			<ListItemIcon>
-				<Image src={icon} width={width} height={height} alt={title}/>
-			</ListItemIcon>
-			<ListItemText primary={<Typography variant="h3">{title}</Typography>}
-			secondary={description} />
-			{open? <ExpandLess/> : <ExpandMore />}
-		</ListItemButton>
-		<Collapse in={open} timeout="auto" unmountOnExit>
-			<Paper elevation={0} sx={{background: 'transparent'}}>
-				<Grid container spacing={2}>
-					{children}
-				</Grid>
-			</Paper>
-		</Collapse>
-		</>
-	)
-}

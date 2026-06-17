@@ -57,7 +57,7 @@ const gse_query = (userListId: number) => (
 			})
 )
 
-export const gse = ({label, values, entity, color=blueGrey[100], icon_color=blueGrey[900], icon=mdiMagnify}: {label: string, entity?:string, values?: {[key: string]: number}, color?: string, icon_color?: string, icon?:string}) => {
+export const GSE = ({label, values, entity, color=blueGrey[100], icon_color=blueGrey[900], icon=mdiMagnify}: {label: string, entity?:string, values?: {[key: string]: number}, color?: string, icon_color?: string, icon?:string}) => {
 	const children:React.ReactNode[] = []
 	for (const [k,v] of Object.entries(values || {})) {
 				const dir = k.split("_")[0]

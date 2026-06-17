@@ -7,7 +7,7 @@ import { blueGrey } from "@mui/material/colors"
 import { mdiMagnify } from "@mdi/js"
 import { ReactNode, useEffect, useState } from "react"
 
-export const biomarkerkb = ({label, values, entity, color=blueGrey[100], icon_color=blueGrey[900], icon=mdiMagnify}: {label: string, entity?:string, values?: {[key: string]: number}, color?: string, icon_color?: string, icon?:string}) => {
+export const BiomarkerKB = ({label, values, entity, color=blueGrey[100], icon_color=blueGrey[900], icon=mdiMagnify}: {label: string, entity?:string, values?: {[key: string]: number}, color?: string, icon_color?: string, icon?:string}) => {
 	const {data, isLoading} = trpc.biomarker.useQuery({term: label})
 	if (isLoading) {
 			return (

@@ -28,14 +28,14 @@ const perturbseqr_resolve_id = async (gene_set: string[], label: string) => {
 	return results.data.addUserGeneSet.userGeneSet.id
 }
 
-export const perturbseqr = ({label, values, entity, color=blueGrey[100], icon_color=blueGrey[900], icon=mdiMagnify}: {label: string, entity?:string, values?: {[key: string]: number}, color?: string, icon_color?: string, icon?:string}) => {
+export const PerturbSeqr = ({label, values, entity, color=blueGrey[100], icon_color=blueGrey[900], icon=mdiMagnify}: {label: string, entity?:string, values?: {[key: string]: number}, color?: string, icon_color?: string, icon?:string}) => {
 	const [clicked, setClicked] = useState('')
 	const gs_values: {[key:string]: string[]} = {}
+	const input = values?.gene_set_id ? [values.gene_set_id]: (values?.up_gene_set_id && values?.dn_gene_set_id) ? [values.up_gene_set_id, values.down_gene_set_id]: []
+	const gs = trpc.fetch_gene_set.useQuery(input, {enabled: input.length>0})
 	if (values?.gene_set_id) {
-		const gs = trpc.fetch_gene_set.useQuery([values.gene_set_id])
 		if (Array.isArray(gs.data)) gs_values['gene_set'] = gs.data[0].genes
 	} else if (values?.up_gene_set_id) {
-		const gs = trpc.fetch_gene_set.useQuery([values.up_gene_set_id, values.down_gene_set_id])
 		if (Array.isArray(gs.data)) {
 			gs_values['up_gene_set'] = gs.data[0].genes
 			gs_values['down_gene_set'] = gs.data[1].genes
@@ -53,15 +53,8 @@ export const perturbseqr = ({label, values, entity, color=blueGrey[100], icon_co
 			window.open(u, '_blank');
 		}
 	}
-		const dir = clicked.split("_")[0]
-		const suffix = dir === "gene"? "": ` ${dir}`
 		
-		const children:ReactNode[] = []
-		for (const [k,v] of Object.entries(values || {})) {
-			const dir = k.split("_")[0]
-			const suffix = dir === "gene"? "": ` ${dir}`
-			children.push((
-				<Card sx={{height: '100%'}}>
+		return <Card sx={{height: '100%'}}>
 					<CardHeader
 						avatar={
 							<Avatar sx={{backgroundColor: color}}><Icon style={{backgroundColor: "transparent", color: icon_color}} path={icon} size={1}/></Avatar>
@@ -73,12 +66,9 @@ export const perturbseqr = ({label, values, entity, color=blueGrey[100], icon_co
 							<ArrowForward />
 						</IconButton>
 						}
-						title={label+suffix}
+						title={label}
 						subheader={"Find perturbagens that up or down regulate the expression of this gene set"}
 					/>
 				</Card>
-			))
-		}
-		return children
 	
 }

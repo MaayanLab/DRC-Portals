@@ -7,10 +7,8 @@ import { blueGrey } from "@mui/material/colors"
 import { useEffect, useState } from "react"
 
 
-export const gdlpa = ({label, entity, color=blueGrey[100], icon_color=blueGrey[900], icon=mdiMagnify}: {label: string, entity?:string, color?: string, icon_color?: string, icon?:string}) => {
-	// const [expand, setExpand] = useState(false)
+export const GDLPA = ({label, entity, color=blueGrey[100], icon_color=blueGrey[900], icon=mdiMagnify}: {label: string, entity?:string, color?: string, icon_color?: string, icon?:string}) => {
 	const [count, setCount] = useState<null|number>(null)
-	// const endpoint = entity === 'gene' ? 'gene': entity ==='variant' ? 'variant'
 	useEffect(()=>{
 		const get_gdlpa = async () =>  {
 			try {
@@ -75,17 +73,6 @@ export const gdlpa = ({label, entity, color=blueGrey[100], icon_color=blueGrey[9
 					title={label}
 					subheader={`View ${count} ${label} ${entity} cards on GDLPA`}
 				/>
-				{/* <CardContent>
-					<Stack>
-						<Typography variant="caption"><b>Search hits: </b>{`${data?.total}`}</Typography>
-						{(expand ? buckets: buckets.slice(0,3)).map(i=>(
-							<Typography variant="caption">
-								<b>{i.key}: </b> {i.doc_count}
-							</Typography>
-						))}
-						{buckets.length > 3 && <Button color="secondary" onClick={()=>setExpand(!expand)}><Typography variant="caption">{expand ? "Show less":"Show all"}</Typography></Button>}
-					</Stack>
-				</CardContent> */}
 			</Card>
 		)
 }

@@ -66,7 +66,7 @@ const Input: {[key:string]: Function} = {
 	},
 }
 
-export const pwb = ({label, values, entity, color=blueGrey[100], icon_color=blueGrey[900], icon=mdiMagnify}: {label: string, entity?:string, values?: {[key: string]: number}, color?: string, icon_color?: string, icon?:string}) => {
+export const PWB = ({label, values, entity, color=blueGrey[100], icon_color=blueGrey[900], icon=mdiMagnify}: {label: string, entity?:string, values?: {[key: string]: number}, color?: string, icon_color?: string, icon?:string}) => {
 	const gs_values: {[key:string]: string[]} = {}
 	if (entity === "gene_set") {
 			if (values?.gene_set_id) {

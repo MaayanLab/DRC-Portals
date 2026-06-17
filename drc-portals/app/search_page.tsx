@@ -10,15 +10,18 @@ import React from "react";
 
 import Image from "@/utils/image";
 import { ArrowForward, ExpandLess, ExpandMore } from "@mui/icons-material";
-import { amber, blue, cyan, deepPurple, green, indigo, lightGreen, teal } from "@mui/material/colors";
-import { ExpandableComponent, search_card } from "@/components/Explorer/search";
-import { gdlpa } from "@/components/Explorer/gdlpa";
-import { gsfm } from "@/components/Explorer/gsfm";
-import { pwb } from "@/components/Explorer/pwb";
-import { gse } from "@/components/Explorer/gse";
-import { perturbseqr } from "@/components/Explorer/perturbseqr";
-import { biomarkerkb } from "@/components/Explorer/biomarkerkb";
-import { ddkg } from "@/components/Explorer/ddkg";
+import { amber, blue, cyan, indigo, lightGreen, teal } from "@mui/material/colors";
+import { ExpandableComponent,
+	SearchCard,
+	GDLPA,
+	GSFM,
+	PWB,
+	GSE,
+	PerturbSeqr,
+	BiomarkerKB,
+	DDKG } from "@/components/Explorer";
+import trpc from '@/lib/trpc/client'
+
 const getTaskId = async (method:string, input: {[key:string]: string}, controller: AbortController) => {
 	const payload = {
 	  '0': {
@@ -125,8 +128,6 @@ function toTitleCase(str:string) {
 export const Search = ({inputList}: {inputList: {entity: string, label: string, icon: string, icon_color: string,  color:string, values?: {[key: string]: number}, links?: {resource: string, description: string, link: string}[]}[]}) => {
 	const router = useRouter()
 	const searchParams = useSearchParams()
-	const [controller, setController] = useState<AbortController | null>(null)
-	const [loadingIndex, setLoadingIndex] = useState(-1)
 	const [loading, setLoading] = useState(false)
 	const [description, setDescription] = useState<{method: string, description: Function, params: {[key:string]: any}} | null>(null)
 	// const [applicables, setApplicables] = useState<{method: string, params: {[key:string]: string}}[]>([])
@@ -142,18 +143,18 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 		return abortController.current
 	};
 	
+	const searches = trpc.useQueries((t)=>{
+		const terms = inputList.filter(i=>i.entity !== 'gene_set').map(i=>i.label)
+		const input = terms.length > 1 ? [...terms, terms.join(" and ")]: terms
+		return input.map(search=>t.facet({search}))
+	})
 	useEffect(()=>{
 		const get_runnables = async () => {
 		  setLoading(true)
-		//   setApplicables([])
 		  const deepDiveOptions = await fetchRunnables(inputList.map(i=>i.label), getAbortController())
 		  if (deepDiveOptions) {
 			const [runnable, artc ] = deepDiveOptions
-			// const runnables = runnable.result.data.items
 			setRunnables(runnable?.result?.data?.items || [])
-			// if (inputList.length === 1) setApplicables(applicable.result.data)
-			// else setApplicables(applicable.result.data.filter((i:{method:string})=>i.method !== 'DeepDive'))
-			// const articles = artc.result.data.items
 		  }
 		  setLoading(false)
 		}
@@ -178,17 +179,6 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 				delete query[entity][label]
 			}
 		}
-		// const query: {[key:string]: string[] | {[key:string]: {
-		// 	up_gene_set_id?: number,
-		// 	down_gene_set_id?: number,
-		// 	gene_set_id?: number
-		// 	}}} = {}
-		// for (const [k,v] of Object.entries(old_query)) {
-		// 	if (k!==entity) query[k] = v
-		// 	else {
-		// 		if (entity !== )
-		// 	}
-		// }
 		if (Object.keys(query).length === 0 ) router_push(router, `/`, {})
 		else {
 			router_push(router, `/`, {q: JSON.stringify(query), search: true})
@@ -198,32 +188,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 
 	if (inputList.length === 0) return null
 	else {
-		const searches = inputList.filter(i=>i.entity!=='gene_set').map((i, ind)=>(
-			<Grid item xs={6} sm={4} key={i.label}>
-				<Card key={i.label} sx={{height: '100%'}}>
-					<CardHeader
-						avatar={
-							<Avatar sx={{backgroundColor: i.color}}><Icon style={{backgroundColor: "transparent", color: i.icon_color}} path={i.icon} size={1}/></Avatar>
-						}
-						action={
-						<IconButton aria-label="goto"
-							href={`/data/processed/search/${i.label}`}
-						>
-							<ArrowForward />
-						</IconButton>
-						}
-						title={i.label}
-						subheader={`Search the CFDE Workbench with the term ${i.label}`}
-					/>
-				</Card>
-			</Grid>
-				// <ListItemButton key={i.label} sx={{ pl: 4 }} href={`/data/processed/search/${i.label}/${i.entity}`}>
-				// 	<ListItemIcon>
-				// 		<Icon style={{backgroundColor: "transparent", color: "#2D5986"}} path={i.icon} size={1}/>
-				// 	</ListItemIcon>
-				// 	<ListItemText primary={`Search CFDE Workbench for ${i.label}`}/>
-				// </ListItemButton>
-		))
+		
 		const runs:ReactNode[] = []
 
 		const run_component = ({method, icon, params, label, description, icon_color, color}: {method: string, icon: string, icon_color: string, color: string, params: {[key:string]: string}, label: string, description: string}) => (
@@ -399,70 +364,82 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 					component="nav"
 					aria-labelledby="nested-list-subheader"
 				>
-					<ExpandableComponent inputList={inputList.filter(i=>i.entity!=='gene_set')} 
+					
+					<ExpandableComponent 
 						collapsed={false}
-						child_function={search_card}
-						combine={true}
 						icon="/img/cfde-search.png" 
 						title="Search the CFDE Workbench"
-						description="Query data and metadata assets produced by the Common Fund programs that participate in the CFDE"/>
-					<ExpandableComponent inputList={inputList.filter(i=>i.entity === 'gene' || i.entity === 'variant' || i.entity === 'compound' || i.entity === 'drug')} 
-						collapsed={true}
-						child_function={gdlpa}
-						combine={false}
+						description="Query data and metadata assets produced by the Common Fund programs that participate in the CFDE"
+					>
+						{inputList.filter(i=>i.entity!=='gene_set').map(i=>(<Grid item xs={6} sm={4} key={`search-${i.label}`} ><SearchCard labels={[i.label]} {...i} /></Grid>))}
+						{inputList.filter(i=>i.entity!=='gene_set').length > 1 && <Grid item xs={6} sm={4}><SearchCard labels={inputList.filter(i=>i.entity!=='gene_set').map(i=>i.label)} /></Grid>}
+					</ExpandableComponent>
+					<ExpandableComponent 
 						icon={icons.gdlpa}
 						title="Query Gene and Drug Landing Page Aggregator (GDLPA)"
-						description="GDLPA aggregated links to databases that have gene, drug, and variant landing pages including some created by Common Fund programs"/>
-					<ExpandableComponent inputList={inputList.filter(i=>i.entity === 'gene' || i.entity === 'gene_set')} 
-						collapsed={true}
-						child_function={gsfm}
-						combine={false}
+						description="GDLPA aggregated links to databases that have gene, drug, and variant landing pages including some created by Common Fund programs">
+						{inputList.filter(i=>i.entity === 'gene' || i.entity === 'variant' || i.entity === 'compound' || i.entity === 'drug').map(i=>
+							<Grid item xs={6} sm={4} key={`gdlpa-${i.label}`} ><GDLPA {...i} /></Grid>
+						)}
+					</ExpandableComponent>
+					<ExpandableComponent
 						icon={icons.gsfm}
 						title="View Gene Function Predictions with GSFM"
-						description="GSFM is an AI foundation trained by finding the embeddings of 1 million gene sets. It can be used to reliably predict the function of genes and proteins"/>
-					<ExpandableComponent inputList={
-						inputList.filter(i=>["gene", "variant", "disease", "drug", "metabolite", "anatomy", "gene_set"].indexOf(i.entity) > -1)} 
-						collapsed={true}
-						child_function={pwb}
-						combine={false}
+						description="GSFM is an AI foundation trained by finding the embeddings of 1 million gene sets. It can be used to reliably predict the function of genes and proteins">
+						{inputList.filter(i=>i.entity === 'gene' || i.entity === 'gene_set').map(i=>
+							<Grid item xs={6} sm={4} key={`gsfm-${i.label}`} ><GSFM {...i} /></Grid>
+						)}
+					</ExpandableComponent>
+					<ExpandableComponent 
 						icon={icons.pwb}
 						title="Build a Workflow with Playbook Workflow Builder"
-						description="The Playbook Workflow Builder is an environemt that enables users to build workflows by clicking on cards or interfacing with an LLM-powered chatbot"/>
-					<ExpandableComponent inputList={inputList.filter(i=>i.entity === 'gene_set')} 
-						collapsed={true}
-						child_function={gse}
-						combine={false}
+						description="The Playbook Workflow Builder is an environemt that enables users to build workflows by clicking on cards or interfacing with an LLM-powered chatbot">
+						{inputList.filter(i=>["gene", "variant", "disease", "drug", "metabolite", "anatomy", "gene_set"].indexOf(i.entity) > -1).map(i=>
+							<Grid item xs={6} sm={4} key={`pwb-${i.label}`} ><PWB {...i} /></Grid>
+						)}
+					</ExpandableComponent>
+					<ExpandableComponent 
 						icon={icons.gse}
 						title="Perform Enrichment Analysis with CFDE GSE"
-						description="CFDE Gene Set Enrichment (GSE) is an enrichment analysis tool made with gene set libraries created from data produced by Common Fund programs"/>
+						description="CFDE Gene Set Enrichment (GSE) is an enrichment analysis tool made with gene set libraries created from data produced by Common Fund programs">
+						{inputList.filter(i=>i.entity === 'gene_set').map(i=>
+							<Grid item xs={6} sm={4} key={`gse-${i.label}`} ><GSE {...i} /></Grid>
+						)}
+					</ExpandableComponent>
 					
-					<ExpandableComponent inputList={inputList.filter(i=>i.entity === 'gene_set')} 
+					<ExpandableComponent  
 						collapsed={true}
-						child_function={perturbseqr}
-						combine={false}
 						width={30}
 						height={30}
 						icon={icons.perturbseqr}
 						title="Discover Mimickers and Reversers with Perturb-Seqr"
-						description="Discover Mimickers and Reversers with Perturb-Seqr"/>
-					<ExpandableComponent inputList={inputList.filter(i=>["gene", "variant", "disease", "drug", "metabolite", "anatomy"].indexOf(i.entity) > -1)} 
+						description="Discover Mimickers and Reversers with Perturb-Seqr">
+						{inputList.filter(i=>i.entity === 'gene_set').map(i=>
+							<Grid item xs={6} sm={4} key={`pert-${i.label}`} ><PerturbSeqr {...i} /></Grid>
+						)}
+					</ExpandableComponent> 
+					<ExpandableComponent
 						collapsed={true}
-						child_function={biomarkerkb}
-						combine={false}
 						width={30}
 						height={30}
 						icon={icons['biomarker-kb']}
 						title="Explore Biomarkers in the CFDE BiomarkerKB"
-						description="BiomarkerKB integrates biomarker information using a data model that is stored as a knowledge graph database"/>
-					<ExpandableComponent inputList={inputList.filter(i=>["gene", "disease", "drug", "metabolite", "anatomy"].indexOf(i.entity) > -1)} 
+						description="BiomarkerKB integrates biomarker information using a data model that is stored as a knowledge graph database">
+						{inputList.filter(i=>["gene", "variant", "disease", "drug", "metabolite", "anatomy"].indexOf(i.entity) > -1).map(i=>
+							<Grid item xs={6} sm={4} key={`bkb-${i.label}`} ><BiomarkerKB {...i} /></Grid>
+						)}
+					</ExpandableComponent>
+					<ExpandableComponent 
 						collapsed={true}
-						child_function={ddkg}
-						combine={false}
 						width={40}
 						height={40}
 						icon={icons['dd-kg']}
 						title="Explore Connections in the CFDE DD-KG"
-						description="The Data Distillery Knowledge Graph (DD-KG) is a massive knowledge graph that integrate data from Common Fund programs and other sources"/>
+						description="The Data Distillery Knowledge Graph (DD-KG) is a massive knowledge graph that integrate data from Common Fund programs and other sources">
+						{inputList.filter(i=>["gene", "disease", "drug", "metabolite", "anatomy"].indexOf(i.entity) > -1).map(i=>
+							<Grid item xs={6} sm={4} key={`ddkg-${i.label}`} ><DDKG {...i} /></Grid>
+						)}
+					</ExpandableComponent>
 
 					{runs.length > 0 &&
 					<>
