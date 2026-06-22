@@ -13,6 +13,7 @@ export default function SearchParamSearchField(props: Omit<React.ComponentProps<
     pathname === '/'
     || pathname.startsWith('/info')
     || pathname === '/data'
+    || pathname.includes("/documentation")
     || /^(\/data)?(\/graph|\/enrichment|\/documentation|\/cross|\/explorer|\/processed\/search\/[^\/]+\/(?!c2m2)[^\/]+)$/.exec(pathname) !== null
   ) return null
   return (
