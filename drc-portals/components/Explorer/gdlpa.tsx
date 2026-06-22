@@ -33,6 +33,7 @@ export const GDLPA = ({label, entity, color=blueGrey[100], icon_color=blueGrey[9
 	}, [])
 	if (count === null) {
 		return (
+			<Grid item xs={6} sm={4}>
 			<Card sx={{height: '100%'}}>
 				<CardHeader
 					avatar={
@@ -53,6 +54,7 @@ export const GDLPA = ({label, entity, color=blueGrey[100], icon_color=blueGrey[9
 					/>}
 				/>
 			</Card>
+			</Grid>
 		)
 	}
 	if (count === 0) return null

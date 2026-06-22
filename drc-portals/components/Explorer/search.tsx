@@ -12,6 +12,7 @@ export const SearchCard = ({labels, color=blueGrey[100], icon_color=blueGrey[900
 	if (labels.length === 0) return null
 	if (isLoading) {
 		return (
+			<Grid item xs={6} sm={4}>
 			<Card sx={{height: '100%'}}>
 				<CardHeader
 					avatar={
@@ -32,6 +33,7 @@ export const SearchCard = ({labels, color=blueGrey[100], icon_color=blueGrey[900
 					/>}
 				/>
 			</Card>
+			</Grid>
 		)
 	}
 	else if (data?.total === 0) {

@@ -11,26 +11,28 @@ export const BiomarkerKB = ({label, values, entity, color=blueGrey[100], icon_co
 	const {data, isLoading} = trpc.biomarker.useQuery({term: label})
 	if (isLoading) {
 			return (
-				<Card sx={{height: '100%'}}>
-					<CardHeader
-						avatar={
-							<Skeleton animation="wave" variant="circular" width={40} height={40} />
-						}
-						action={
-						null
-						}
-						title={<Skeleton
-							animation="wave"
-							height={30}
-							width="80%"
+				<Grid item xs={6} sm={4}>
+					<Card sx={{height: '100%'}}>
+						<CardHeader
+							avatar={
+								<Skeleton animation="wave" variant="circular" width={40} height={40} />
+							}
+							action={
+							null
+							}
+							title={<Skeleton
+								animation="wave"
+								height={30}
+								width="80%"
+								/>}
+							subheader={<Skeleton
+								animation="wave"
+								height={50}
+								width="80%"
 							/>}
-						subheader={<Skeleton
-							animation="wave"
-							height={50}
-							width="80%"
-						/>}
-					/>
-				</Card>
+						/>
+					</Card>
+				</Grid>
 			)
 		}
 	if (data === '' || data === undefined) return null
