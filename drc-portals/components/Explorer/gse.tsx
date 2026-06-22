@@ -63,6 +63,7 @@ export const GSE = ({label, values, entity, color=blueGrey[100], icon_color=blue
 				const dir = k.split("_")[0]
 				const suffix = dir === "gene"? "": ` ${dir}`
 				children.push((
+					<Grid key={k} item xs={6} sm={4}>
 					<Card sx={{height: '100%'}}>
 						<CardHeader
 							avatar={
@@ -79,6 +80,7 @@ export const GSE = ({label, values, entity, color=blueGrey[100], icon_color=blue
 							subheader={"Perform enrichment analysis on this gene set"}
 						/>
 					</Card>
+				</Grid>
 				))
 			}
 	return children

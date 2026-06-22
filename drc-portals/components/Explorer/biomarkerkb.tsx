@@ -36,23 +36,25 @@ export const BiomarkerKB = ({label, values, entity, color=blueGrey[100], icon_co
 	if (data === '' || data === undefined) return null
 	const {url, count} = data
 	return (
-		<Card sx={{height: '100%'}}>
-			<CardHeader
-				avatar={
-					<Avatar sx={{backgroundColor: color}}><Icon style={{backgroundColor: "transparent", color: icon_color}} path={icon} size={1}/></Avatar>
-				}
-				action={
-				<IconButton aria-label="goto"
-					href={url || ''}
-					target="_blank" rel="noopener noreferrer" 
-				>
-					<ArrowForward />
-				</IconButton>
-				}
-				title={label}
-				subheader={`View ${count} biomarkers associated with this ${label}`}
-			/>
-		</Card>
+		<Grid item xs={6} sm={4}>
+			<Card sx={{height: '100%'}}>
+				<CardHeader
+					avatar={
+						<Avatar sx={{backgroundColor: color}}><Icon style={{backgroundColor: "transparent", color: icon_color}} path={icon} size={1}/></Avatar>
+					}
+					action={
+					<IconButton aria-label="goto"
+						href={url || ''}
+						target="_blank" rel="noopener noreferrer" 
+					>
+						<ArrowForward />
+					</IconButton>
+					}
+					title={label}
+					subheader={`View ${count} biomarkers associated with this ${label}`}
+				/>
+			</Card>
+		</Grid>
 	)
 	
 }

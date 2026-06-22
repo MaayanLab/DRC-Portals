@@ -54,21 +54,23 @@ export const PerturbSeqr = ({label, values, entity, color=blueGrey[100], icon_co
 		}
 	}
 		
-		return <Card sx={{height: '100%'}}>
-					<CardHeader
-						avatar={
-							<Avatar sx={{backgroundColor: color}}><Icon style={{backgroundColor: "transparent", color: icon_color}} path={icon} size={1}/></Avatar>
-						}
-						action={
-						<IconButton aria-label="goto"
-							onClick={()=>perturb_seqr_link()}
-						>
-							<ArrowForward />
-						</IconButton>
-						}
-						title={label}
-						subheader={"Find perturbagens that up or down regulate the expression of this gene set"}
-					/>
-				</Card>
+		return <Grid item xs={6} sm={4}>
+					<Card sx={{height: '100%'}}>
+						<CardHeader
+							avatar={
+								<Avatar sx={{backgroundColor: color}}><Icon style={{backgroundColor: "transparent", color: icon_color}} path={icon} size={1}/></Avatar>
+							}
+							action={
+							<IconButton aria-label="goto"
+								onClick={()=>perturb_seqr_link()}
+							>
+								<ArrowForward />
+							</IconButton>
+							}
+							title={label}
+							subheader={"Find perturbagens that up or down regulate the expression of this gene set"}
+						/>
+					</Card>
+				</Grid>
 	
 }

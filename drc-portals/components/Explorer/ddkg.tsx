@@ -34,23 +34,25 @@ export const DDKG = ({label, values, entity='gene', color=blueGrey[100], icon_co
 		}
 	if (link === '' || link === undefined) return null
 	return (
-		<Card sx={{height: '100%'}}>
-			<CardHeader
-				avatar={
-					<Avatar sx={{backgroundColor: color}}><Icon style={{backgroundColor: "transparent", color: icon_color}} path={icon} size={1}/></Avatar>
-				}
-				action={
-				<IconButton aria-label="goto"
-					href={link || ''}
-					target="_blank" rel="noopener noreferrer" 
-				>
-					<ArrowForward />
-				</IconButton>
-				}
-				title={label}
-				subheader={`Explore connections with this term in DD-KG`}
-			/>
-		</Card>
+		<Grid item xs={6} sm={4}>
+			<Card sx={{height: '100%'}}>
+				<CardHeader
+					avatar={
+						<Avatar sx={{backgroundColor: color}}><Icon style={{backgroundColor: "transparent", color: icon_color}} path={icon} size={1}/></Avatar>
+					}
+					action={
+					<IconButton aria-label="goto"
+						href={link || ''}
+						target="_blank" rel="noopener noreferrer" 
+					>
+						<ArrowForward />
+					</IconButton>
+					}
+					title={label}
+					subheader={`Explore connections with this term in DD-KG`}
+				/>
+			</Card>
+		</Grid>
 	)
 	
 }

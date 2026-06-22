@@ -36,23 +36,25 @@ export const GSFM = ({label, values, entity, color=blueGrey[100], icon_color=blu
 	}, [isLoading, gs])
 	if (entity === "gene") {
 		return (
-			<Card sx={{height: '100%'}}>
-				<CardHeader
-					avatar={
-						<Avatar sx={{backgroundColor: color}}><Icon style={{backgroundColor: "transparent", color: icon_color}} path={icon} size={1}/></Avatar>
-					}
-					action={
-					<IconButton aria-label="goto"
-						href={`https://gsfm.maayanlab.cloud/gene/${label}`}
-						target="_blank" rel="noopener noreferrer"
-					>
-						<ArrowForward />
-					</IconButton>
-					}
-					title={label}
-					subheader={`View GSFM predictions for ${label}`}
-				/>
-			</Card>
+			<Grid item xs={6} sm={4}>
+				<Card sx={{height: '100%'}}>
+					<CardHeader
+						avatar={
+							<Avatar sx={{backgroundColor: color}}><Icon style={{backgroundColor: "transparent", color: icon_color}} path={icon} size={1}/></Avatar>
+						}
+						action={
+						<IconButton aria-label="goto"
+							href={`https://gsfm.maayanlab.cloud/gene/${label}`}
+							target="_blank" rel="noopener noreferrer"
+						>
+							<ArrowForward />
+						</IconButton>
+						}
+						title={label}
+						subheader={`View GSFM predictions for ${label}`}
+					/>
+				</Card>
+			</Grid>
 		)
 	} else if (entity === 'gene_set') {
 		
@@ -61,22 +63,24 @@ export const GSFM = ({label, values, entity, color=blueGrey[100], icon_color=blu
 			const dir = k.split("_")[0]
 			const suffix = dir === "gene"? "": ` ${dir}`
 			children.push((
-				<Card sx={{height: '100%'}}>
-					<CardHeader
-						avatar={
-							<Avatar sx={{backgroundColor: color}}><Icon style={{backgroundColor: "transparent", color: icon_color}} path={icon} size={1}/></Avatar>
-						}
-						action={
-						<IconButton aria-label="goto"
-							onClick={()=>setClicked(k)}
-						>
-							<ArrowForward />
-						</IconButton>
-						}
-						title={label+suffix}
-						subheader={`Perform enrichhment analysis for ${label}${dir !== "gene" ? " "+dir: ""} on GSFM`}
-					/>
-				</Card>
+				<Grid key={k} item xs={6} sm={4}>
+					<Card sx={{height: '100%'}}>
+						<CardHeader
+							avatar={
+								<Avatar sx={{backgroundColor: color}}><Icon style={{backgroundColor: "transparent", color: icon_color}} path={icon} size={1}/></Avatar>
+							}
+							action={
+							<IconButton aria-label="goto"
+								onClick={()=>setClicked(k)}
+							>
+								<ArrowForward />
+							</IconButton>
+							}
+							title={label+suffix}
+							subheader={`Perform enrichhment analysis for ${label}${dir !== "gene" ? " "+dir: ""} on GSFM`}
+						/>
+					</Card>
+				</Grid>
 			))
 		}
 		return children

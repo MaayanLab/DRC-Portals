@@ -83,7 +83,6 @@ export const PWB = ({label, values, entity, color=blueGrey[100], icon_color=blue
 	const resolve_link = async () => {
 		
 		const body = entity === "gene_set" ? Input[entity](label, gs_values):Input[entity||''](label)
-		console.log(body, gs_values)
 		const req = await fetch('https://playbook-workflow-builder.cloud/api/db/fpl', {
 			method: 'POST',
 			headers: {
@@ -98,23 +97,25 @@ export const PWB = ({label, values, entity, color=blueGrey[100], icon_color=blue
 
 	}
 	// if (link === '') return null
-	return <Card key={label} sx={{height: '100%'}}>
-			<CardHeader
-				avatar={
-					<Avatar sx={{backgroundColor: color}}><Icon style={{backgroundColor: "transparent", color: icon_color}} path={icon} size={1}/></Avatar>
-				}
-				action={
-				<IconButton aria-label="goto"
-					onClick={async () => {
-						const link = await resolve_link()
-						window.open(link, '_blank')
-					}}
-				>
-					<ArrowForward />
-				</IconButton>
-				}
-				title={label}
-				subheader={`Build workflows starting with the ${entity?.replace("_", " ")} ${label}`}
-			/>
-		</Card>
+	return <Grid item xs={6} sm={4}>
+				<Card key={label} sx={{height: '100%'}}>
+					<CardHeader
+						avatar={
+							<Avatar sx={{backgroundColor: color}}><Icon style={{backgroundColor: "transparent", color: icon_color}} path={icon} size={1}/></Avatar>
+						}
+						action={
+						<IconButton aria-label="goto"
+							onClick={async () => {
+								const link = await resolve_link()
+								window.open(link, '_blank')
+							}}
+						>
+							<ArrowForward />
+						</IconButton>
+						}
+						title={label}
+						subheader={`Build workflows starting with the ${entity?.replace("_", " ")} ${label}`}
+					/>
+				</Card>
+			</Grid>
 }

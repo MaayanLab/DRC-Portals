@@ -371,15 +371,15 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						title="Search the CFDE Workbench"
 						description="Query data and metadata assets produced by the Common Fund programs that participate in the CFDE"
 					>
-						{inputList.filter(i=>i.entity!=='gene_set').map(i=>(<Grid item xs={6} sm={4} key={`search-${i.label}`} ><SearchCard labels={[i.label]} {...i} /></Grid>))}
-						{inputList.filter(i=>i.entity!=='gene_set').length > 1 && <Grid item xs={6} sm={4}><SearchCard labels={inputList.filter(i=>i.entity!=='gene_set').map(i=>i.label)} /></Grid>}
+						{inputList.filter(i=>i.entity!=='gene_set').map(i=>(<SearchCard key={`search-${i.label}`} labels={[i.label]} {...i} />))}
+						{inputList.filter(i=>i.entity!=='gene_set').length > 1 && <SearchCard labels={inputList.filter(i=>i.entity!=='gene_set').map(i=>i.label)} />}
 					</ExpandableComponent>
 					<ExpandableComponent 
 						icon={icons.gdlpa}
 						title="Query Gene and Drug Landing Page Aggregator (GDLPA)"
 						description="GDLPA aggregated links to databases that have gene, drug, and variant landing pages including some created by Common Fund programs">
 						{inputList.filter(i=>i.entity === 'gene' || i.entity === 'variant' || i.entity === 'compound' || i.entity === 'drug').map(i=>
-							<Grid item xs={6} sm={4} key={`gdlpa-${i.label}`} ><GDLPA {...i} /></Grid>
+							<GDLPA key={`gdlpa-${i.label}`} {...i} />
 						)}
 					</ExpandableComponent>
 					<ExpandableComponent
@@ -387,7 +387,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						title="View Gene Function Predictions with GSFM"
 						description="GSFM is an AI foundation trained by finding the embeddings of 1 million gene sets. It can be used to reliably predict the function of genes and proteins">
 						{inputList.filter(i=>i.entity === 'gene' || i.entity === 'gene_set').map(i=>
-							<Grid item xs={6} sm={4} key={`gsfm-${i.label}`} ><GSFM {...i} /></Grid>
+							<GSFM key={`gsfm-${i.label}`} {...i} />
 						)}
 					</ExpandableComponent>
 					<ExpandableComponent 
@@ -395,7 +395,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						title="Build a Workflow with Playbook Workflow Builder"
 						description="The Playbook Workflow Builder is an environemt that enables users to build workflows by clicking on cards or interfacing with an LLM-powered chatbot">
 						{inputList.filter(i=>["gene", "variant", "disease", "drug", "metabolite", "anatomy", "gene_set"].indexOf(i.entity) > -1).map(i=>
-							<Grid item xs={6} sm={4} key={`pwb-${i.label}`} ><PWB {...i} /></Grid>
+							<PWB key={`pwb-${i.label}`} {...i} />
 						)}
 					</ExpandableComponent>
 					<ExpandableComponent 
@@ -403,7 +403,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						title="Perform Enrichment Analysis with CFDE GSE"
 						description="CFDE Gene Set Enrichment (GSE) is an enrichment analysis tool made with gene set libraries created from data produced by Common Fund programs">
 						{inputList.filter(i=>i.entity === 'gene_set').map(i=>
-							<Grid item xs={6} sm={4} key={`gse-${i.label}`} ><GSE {...i} /></Grid>
+							<GSE key={`gse-${i.label}`} {...i} />
 						)}
 					</ExpandableComponent>
 					
@@ -415,7 +415,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						title="Discover Mimickers and Reversers with Perturb-Seqr"
 						description="Discover Mimickers and Reversers with Perturb-Seqr">
 						{inputList.filter(i=>i.entity === 'gene_set').map(i=>
-							<Grid item xs={6} sm={4} key={`pert-${i.label}`} ><PerturbSeqr {...i} /></Grid>
+							<PerturbSeqr key={`pert-${i.label}`} {...i} />
 						)}
 					</ExpandableComponent> 
 					<ExpandableComponent
@@ -426,7 +426,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						title="Explore Biomarkers in the CFDE BiomarkerKB"
 						description="BiomarkerKB integrates biomarker information using a data model that is stored as a knowledge graph database">
 						{inputList.filter(i=>["gene", "variant", "disease", "drug", "metabolite", "anatomy"].indexOf(i.entity) > -1).map(i=>
-							<Grid item xs={6} sm={4} key={`bkb-${i.label}`} ><BiomarkerKB {...i} /></Grid>
+							<BiomarkerKB key={`bkb-${i.label}`} {...i} />
 						)}
 					</ExpandableComponent>
 					<ExpandableComponent 
@@ -437,7 +437,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						title="Explore Connections in the CFDE DD-KG"
 						description="The Data Distillery Knowledge Graph (DD-KG) is a massive knowledge graph that integrate data from Common Fund programs and other sources">
 						{inputList.filter(i=>["gene", "disease", "drug", "metabolite", "anatomy"].indexOf(i.entity) > -1).map(i=>
-							<Grid item xs={6} sm={4} key={`ddkg-${i.label}`} ><DDKG {...i} /></Grid>
+							<DDKG key={`ddkg-${i.label}`} {...i} />
 						)}
 					</ExpandableComponent>
 
