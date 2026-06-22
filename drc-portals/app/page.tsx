@@ -358,13 +358,11 @@ export default async function Page({searchParams}: {
       const {color, icon, icon_color} = ui_elements[entity]
       if (entity === 'gene_set' && !Array.isArray(v)) {
         for (const [description="user_input", input] of Object.entries(v)) {
-          const linksearch = await trpc.send_gene_set({description, input})
           inputList.push({
             entity,
             label: description,
             color,
             icon,
-            links: linksearch,
             values: input,
             icon_color
           })
@@ -383,11 +381,7 @@ export default async function Page({searchParams}: {
         }
       }
     }
-    const link_dict = await trpc.entity_links({input: inputList})
-    for (const i of inputList) {
-      if (link_dict[i.entity] && link_dict[i.entity][i.label])
-        i['links'] = link_dict[i.entity][i.label]
-    }
+    
     return (
       <Grid container spacing={2}>
         <Grid item xs={12}>

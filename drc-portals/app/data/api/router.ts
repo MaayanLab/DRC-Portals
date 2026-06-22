@@ -230,100 +230,59 @@ const gse_query = (userListId: number) => (
 			})
 )
 export default router({
-  entity_links: procedure.input(
-	  z.object({
-		// lastEventId is the last event id that the client has received
-		// On the first call, it will be whatever was passed in the initial setup
-		// If the client reconnects, it will be the last event id that the client received
-		// The id is the createdAt of the post
-		input: z.array(z.object({
-			entity: z.string(),
-			label: z.string()
-		})),
-	  }),
-	)
-	.mutation(async (props) => {
-	  // `props.signal` is an AbortSignal that will be aborted when the client disconnects.
-	  const {input} = props.input
-	//   const results: Array<{entity: string, label: string, resource: string, link: string}> = []
-	  const results: {[key:string]: {[key:string]: {resource: string, description: string, link: string}[]}} = {}
-	  for (const i of input) {
-		if (i.entity !== "gene_set") {
-			if (['gene', 'variant', 'disease', 'drug'].indexOf(i.entity) > -1) {
-				if (results[i.entity] === undefined) results[i.entity] = {}
-				try {
-					const req = await fetch(`https://api.biomarkerkb.org/biomarker/search_simple?query={"operation":"AND","query_type":"biomarker_search_simple","term":"${i.label}","term_category":"any"}`)
-					const res = await (req.json())
-					if (res.list_id !== "") {
-						if (results[i.entity][i.label] === undefined) results[i.entity][i.label] = []
-						results[i.entity][i.label].push({
-							...i,
-							description: i.label,
-							resource: "biomarker-kb",
-							link: `https://biomarkerkb.org/biomarker-list/${res.list_id}`
-						})
-					}	
-				} catch (error) {
-					console.error(error)
+  biomarker: procedure.input(
+	z.object({
+		term: z.string()
+	})
+  ).query(async (props)=>{
+	const {term} = props.input
+	const req = await fetch(`https://api.biomarkerkb.org/biomarker/search_simple?query={"operation":"AND","query_type":"biomarker_search_simple","term":"${term}","term_category":"any"}`)
+	const res = await (req.json())
+	if (res.list_id !== "") {
+		return {url: `https://biomarkerkb.org/biomarker-list/${res.list_id}`, count: res.resultcount}
+	}
+	return ''
+  }),
+  ddkg: procedure.input(
+	z.object({
+		term: z.string(),
+		entity: z.string(),
+	})
+  ).query(async (props)=>{
+	const {term, entity} = props.input
+	if (entity === 'gene') {
+		return `https://dd-kg-ui.cfde.cloud/?filter={"start":"Gene","start_field":"label","start_term":"${term}"}`
+	} else if (entity === 'drug') {
+		try {
+			const r = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${term}/JSON`)
+			const res = await r.json()
+			if (res.PC_Compounds) {
+				const cid = res.PC_Compounds[0].id.id.cid
+				const r1 = await fetch(`https://dd-kg-ui.cfde.cloud/api/knowledge_graph?filter={"start":"Compound","start_field":"PUBCHEM","start_term":"${cid}"}`)
+				const res1 = await r1.json()
+				if (res1.nodes.length > 0) {
+					return `https://dd-kg-ui.cfde.cloud/?filter={"start":"Compound","start_field":"PUBCHEM","start_term":"${cid}"}`
 				}
-				 
-			} if (i.entity === 'gene') {
-				if (results[i.entity] === undefined) results[i.entity] = {}
-				if (results[i.entity][i.label] === undefined) results[i.entity][i.label] = []
-				results[i.entity][i.label].push({
-					...i,
-					description: i.label,
-					resource: "dd-kg",
-					link: `https://dd-kg-ui.cfde.cloud/?filter={"start":"Gene","start_field":"label","start_term":"${i.label}"}`
-				})
-			} else if (i.entity === 'drug') {
-				if (results[i.entity] === undefined) results[i.entity] = {}
-				try {
-					const r = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${i.label}/JSON`)
-					const res = await r.json()
-					if (res.PC_Compounds) {
-						const cid = res.PC_Compounds[0].id.id.cid
-						const r1 = await fetch(`https://dd-kg-ui.cfde.cloud/api/knowledge_graph?filter={"start":"Compound","start_field":"PUBCHEM","start_term":"${cid}"}`)
-						const res1 = await r1.json()
-						if (res1.nodes.length > 0) {
-							if (results[i.entity][i.label] === undefined) results[i.entity][i.label] = []
-							results[i.entity][i.label].push({
-								...i,
-								description: i.label,
-								resource: "dd-kg",
-								link: `https://dd-kg-ui.cfde.cloud/?filter={"start":"Compound","start_field":"PUBCHEM","start_term":"${cid}"}`
-							})
-						}
-					}	
-				} catch (error) {
-					console.error(error)	
-				}
-				
-			} else if (i.entity === 'anatomy') {
-				if (results[i.entity] === undefined) results[i.entity] = {}
-				try {
-					const r = await fetch(`https://www.ebi.ac.uk/ols4/api/search?q=${i.label}&ontology=uberon`)
-					const res = await r.json()
-					const id = res.response.docs[0].obo_id.split(":")[1]
-					const r1 = await fetch(`https://dd-kg-ui.cfde.cloud/api/knowledge_graph?filter={"start":"Anatomy","start_field":"UBERON","start_term":"${id}.0"}`)
-					const res1 = await r1.json()
-					if (res1.nodes.length > 0) {
-						if (results[i.entity][i.label] === undefined) results[i.entity][i.label] = []
-						results[i.entity][i.label].push({
-							...i,
-							description: i.label,
-							resource: "dd-kg",
-							link: `https://dd-kg-ui.cfde.cloud/?filter={"start":"Anatomy","start_field":"UBERON","start_term":"${id}.0"}`
-						})	
-					}
-				} catch (error) {
-					console.error(error)
-				}
-				
-			}
+			}	
+		} catch (error) {
+			console.error(error)	
 		}
-	  }
-	  return results
+		
+	} else if (entity === 'anatomy') {
+		try {
+			const r = await fetch(`https://www.ebi.ac.uk/ols4/api/search?q=${term}&ontology=uberon`)
+			const res = await r.json()
+			const id = res.response.docs[0].obo_id.split(":")[1]
+			const r1 = await fetch(`https://dd-kg-ui.cfde.cloud/api/knowledge_graph?filter={"start":"Anatomy","start_field":"UBERON","start_term":"${id}.0"}`)
+			const res1 = await r1.json()
+			if (res1.nodes.length > 0) {
+				return `https://dd-kg-ui.cfde.cloud/?filter={"start":"Anatomy","start_field":"UBERON","start_term":"${id}.0"}`
+			}
+		} catch (error) {
+			console.error(error)
+		}
+	}
+	return ''
   }),
     submit_gene_set: procedure.input(
 	  z.object({
@@ -359,81 +318,7 @@ export default router({
 	}
 	else return {}
   }),
-  send_gene_set: procedure.input(
-	  z.object({
-		// lastEventId is the last event id that the client has received
-		// On the first call, it will be whatever was passed in the initial setup
-		// If the client reconnects, it will be the last event id that the client received
-		// The id is the createdAt of the post
-		description: z.string(),
-		input: z.object({
-                gene_set_id: z.number().optional().describe("Input gene set id for single gene sets"),
-				up_gene_set_id: z.number().optional().describe("Input up gene set id for querying up and down gene sets"),
-                down_gene_set_id: z.number().optional().describe("Input down gene set id for querying up and down gene sets")
-            }),
-	  }),
-	)
-	.mutation(async (props) => {
-	  // `props.signal` is an AbortSignal that will be aborted when the client disconnects.
-	  const url = 'https://perturbseqr.maayanlab.cloud/'
-	  const {input, description} = props.input
-	  console.log(input, description)
-	  if (input?.gene_set_id) {
-		const {genes: gene_set} = await fetchList(input.gene_set_id)
-		const sigcom_promise: Promise<string> = fetchSigComLincsId(gene_set || [], [], false, description)
-		const perturbseqr_promise: Promise<string> = perturbseqr_resolve_id(gene_set || [], true, url)
-		const [sigcom_lincs, perturbseqr] = await Promise.all([sigcom_promise, perturbseqr_promise])
-		return [
-			{
-				"resource": "gse",
-				description,
-				link: `/data/enrichment?q=${gse_query(input.gene_set_id)}`,
-			},
-			{
-				"resource": "sigcom-lincs",
-				description,
-				link: sigcom_lincs
-			},
-			{
-				"resource": "perturbseqr",
-				description,
-				link: `${url}enrich?dataset=${perturbseqr}`
-			},
-			
-		]
-	} else if (input?.up_gene_set_id && input?.down_gene_set_id) {
-		const {genes: up_gene_set} = await fetchList(input.up_gene_set_id)
-		const {genes: down_gene_set} = await fetchList(input.down_gene_set_id)
-		
-		const sigcom_promise: Promise<string> = fetchSigComLincsId(up_gene_set || [], down_gene_set || [], true, description.slice(0, description.length - 3))
-		const perturbseqr_up_promise: Promise<string> = perturbseqr_resolve_id(up_gene_set || [], true, url)
-		const perturbseqr_down_promise: Promise<string> = perturbseqr_resolve_id(down_gene_set || [], false, url)
-		const [sigcom_lincs, perturbseqr_up, perturbseqr_down] = await Promise.all([sigcom_promise, perturbseqr_up_promise, perturbseqr_down_promise])
-		return [
-			{
-				"resource": "gse",
-				description: description + " up",
-				link: `/data/enrichment?q=${gse_query(input.up_gene_set_id)}`,
-			},
-			{
-				"resource": "gse",
-				description: description + " down",
-				link: `/data/enrichment?q=${gse_query(input.down_gene_set_id)}`,
-			},
-			{
-				"resource": "sigcom-lincs",
-				description,
-				link: sigcom_lincs
-			},
-			{
-				"resource": "perturbseqr",
-				description,
-				link: `${url}enrichpair?dataset=${perturbseqr_up}&dataset=${perturbseqr_down}`
-			},
-		]
-	}
-	else return []
-	}),
+
 	gene_set: procedure.input(
 	  z.object({
 		// lastEventId is the last event id that the client has received

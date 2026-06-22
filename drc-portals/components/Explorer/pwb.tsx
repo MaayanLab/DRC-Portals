@@ -4,6 +4,8 @@ import trpc from '@/lib/trpc/client'
 import { ArrowForward } from "@mui/icons-material"
 import Icon from "@mdi/react"
 import { useEffect, useState } from "react"
+import { blueGrey } from "@mui/material/colors"
+import { mdiMagnify } from "@mdi/js"
 
 const Input: {[key:string]: Function} = {
 	gene: (value:string) => ({
@@ -64,15 +66,14 @@ const Input: {[key:string]: Function} = {
 	},
 }
 
-export const PWBButton = ({input}: {input: {entity: string, label: string, icon: string, icon_color: string, color: string, values?: {[key: string]: number}}}) => {
-	
+export const PWB = ({label, values, entity, color=blueGrey[100], icon_color=blueGrey[900], icon=mdiMagnify}: {label: string, entity?:string, values?: {[key: string]: number}, color?: string, icon_color?: string, icon?:string}) => {
 	const gs_values: {[key:string]: string[]} = {}
-	if (input.entity === "gene_set") {
-			if (input.values?.gene_set_id) {
-				const gs = trpc.fetch_gene_set.useQuery([input.values.gene_set_id])
+	if (entity === "gene_set") {
+			if (values?.gene_set_id) {
+				const gs = trpc.fetch_gene_set.useQuery([values.gene_set_id])
 				if (Array.isArray(gs.data)) gs_values['gene_set'] = gs.data[0].genes
-			} else if (input.values?.up_gene_set_id) {
-				const gs = trpc.fetch_gene_set.useQuery([input.values.up_gene_set_id, input.values.down_gene_set_id])
+			} else if (values?.up_gene_set_id) {
+				const gs = trpc.fetch_gene_set.useQuery([values.up_gene_set_id, values.down_gene_set_id])
 				if (Array.isArray(gs.data)) {
 					gs_values['up_gene_set'] = gs.data[0].genes
 					gs_values['down_gene_set'] = gs.data[1].genes
@@ -81,8 +82,7 @@ export const PWBButton = ({input}: {input: {entity: string, label: string, icon:
 		}
 	const resolve_link = async () => {
 		
-		const body = input.entity === "gene_set" ? Input[input.entity](input.label, gs_values):Input[input.entity](input.label)
-		console.log(body, gs_values)
+		const body = entity === "gene_set" ? Input[entity](label, gs_values):Input[entity||''](label)
 		const req = await fetch('https://playbook-workflow-builder.cloud/api/db/fpl', {
 			method: 'POST',
 			headers: {
@@ -97,25 +97,25 @@ export const PWBButton = ({input}: {input: {entity: string, label: string, icon:
 
 	}
 	// if (link === '') return null
-	return <Grid item xs={6} sm={4} key={input.label}>
-		<Card key={input.label} sx={{height: '100%'}}>
-			<CardHeader
-				avatar={
-					<Avatar sx={{backgroundColor: input.color}}><Icon style={{backgroundColor: "transparent", color: input.icon_color}} path={input.icon} size={1}/></Avatar>
-				}
-				action={
-				<IconButton aria-label="goto"
-					onClick={async () => {
-						const link = await resolve_link()
-						window.open(link, '_blank')
-					}}
-				>
-					<ArrowForward />
-				</IconButton>
-				}
-				title={input.label}
-				subheader={`Build workflows starting with the term ${input.label}`}
-			/>
-		</Card>
-	</Grid>
+	return <Grid item xs={6} sm={4}>
+				<Card key={label} sx={{height: '100%'}}>
+					<CardHeader
+						avatar={
+							<Avatar sx={{backgroundColor: color}}><Icon style={{backgroundColor: "transparent", color: icon_color}} path={icon} size={1}/></Avatar>
+						}
+						action={
+						<IconButton aria-label="goto"
+							onClick={async () => {
+								const link = await resolve_link()
+								window.open(link, '_blank')
+							}}
+						>
+							<ArrowForward />
+						</IconButton>
+						}
+						title={label}
+						subheader={`Build workflows starting with the ${entity?.replace("_", " ")} ${label}`}
+					/>
+				</Card>
+			</Grid>
 }
