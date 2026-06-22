@@ -21,14 +21,16 @@ export async function C2m2Table() {
     .replaceAll('osf.io/vzgx9', 'osf.io/3sra4') // replace outdated schema link
     .replaceAll('/submission-prep-script', '#submission-prep-script') // redirect links to correct page section
   return (
-    <ReactMarkdown 
-      skipHtml
-      remarkPlugins={[remarkGfm]}
-      components={{ 
-        a: LinkRenderer
-    }} className="prose">
-      {c2m2Tables}
-    </ReactMarkdown>
+    <div className="prose">
+      <ReactMarkdown 
+        skipHtml
+        remarkPlugins={[remarkGfm]}
+        components={{ 
+          a: LinkRenderer
+      }}>
+        {c2m2Tables}
+      </ReactMarkdown>
+    </div>
   )
 }
 
@@ -54,13 +56,15 @@ export async function C2m2SubmissionPrep() {
     )
     .split('This script is under')[0]
   return (
-    <ReactMarkdown 
-      skipHtml
-      remarkPlugins={[remarkGfm]}
-      components={{ 
-        a: LinkRenderer
-    }} className="prose">
-      {submissionPrep}
-    </ReactMarkdown>
+    <div className="prose">
+      <ReactMarkdown 
+        skipHtml
+        remarkPlugins={[remarkGfm]}
+        components={{ 
+          a: LinkRenderer
+      }} >
+        {submissionPrep}
+      </ReactMarkdown>
+    </div>
   )
 }
