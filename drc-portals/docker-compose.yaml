@@ -233,7 +233,7 @@ services:
   drc-portal-twitter:
     build: ../twitter
     platform: linux/amd64
-    image: maayanlab/drc-portal-twitter:0.1.2
+    image: maayanlab/drc-portal-twitter:0.1.3
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       restartPolicy: Never

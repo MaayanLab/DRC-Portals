@@ -3,6 +3,7 @@ import json
 import psycopg2
 from urllib.parse import urlparse, parse_qsl
 import twikit
+from async_helpers import submit_async
 
 client = twikit.Client('en-US')
 
@@ -43,7 +44,7 @@ def get_tweets(client):
   tweets = sorted({
     tweet.retweeted_tweet.id if tweet.retweeted_tweet else tweet.id: tweet
     for type, id in parse_qsl(os.environ['TWITTER_TWEETS_FROM'])
-    for tweet in type_to_tweets[type](client, id)
+    for tweet in submit_async(type_to_tweets[type](client, id)).result()
   }.values(), key=lambda tweet: tweet.retweeted_tweet.created_at_datetime if tweet.retweeted_tweet else tweet.created_at_datetime, reverse=True)
   return [
     dict(tweet._data, retweeted_tweet=tweet.retweeted_tweet._data) if tweet.retweeted_tweet else tweet._data
