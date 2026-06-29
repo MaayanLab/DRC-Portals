@@ -3,12 +3,11 @@ import Icon from "@mdi/react";
 import { Grid, Typography, Card, CardHeader, IconButton, CardContent, Skeleton, Stack, Tooltip, Chip, Avatar, List, ListItemButton, ListItemIcon, ListItemText, Collapse, Paper, Button } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { router_push } from "./data/enrichment/utils";
+import { router_push } from "../data/enrichment/utils";
 import {  mdiFileDocument, mdiHeadQuestionOutline, mdiHumanMaleBoard, mdiRobotOutline, mdiSearchWeb, mdiTextBoxCheckOutline, mdiTimerSand } from '@mdi/js';
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import React from "react";
 
-import Image from "@/utils/image";
 import { ArrowForward, ExpandLess, ExpandMore } from "@mui/icons-material";
 import { amber, blue, cyan, indigo, lightGreen, teal } from "@mui/material/colors";
 import { ExpandableComponent,
@@ -179,9 +178,9 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 				delete query[entity][label]
 			}
 		}
-		if (Object.keys(query).length === 0 ) router_push(router, `/`, {})
+		if (Object.keys(query).length === 0 ) router_push(router, `/explorer`, {})
 		else {
-			router_push(router, `/`, {q: JSON.stringify(query), search: true})
+			router_push(router, `/explorer`, {q: JSON.stringify(query), search: true})
 		}
 		
 	}
@@ -482,7 +481,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 				</List>
 			</Grid>
 			<Grid item xs={12}>
-				<Button variant="outlined" color="secondary" sx={{width: "100%", mb: 2}} href={`/?q=${searchParams.get('q')}`}>
+				<Button variant="outlined" color="secondary" sx={{width: "100%", mb: 2}} href={`/explorer?q=${searchParams.get('q')}`}>
 					<Typography>Back</Typography>
 				</Button>
 			</Grid>

@@ -103,38 +103,14 @@ const data_nav = [
 
 const options = [
   {
-    title: "Search",
-    links: [
-      {
-        title: "CFDE Data Explorer",
-        href: '/',
-        description: "Query the CFDE databases and tools to find knowledge about genes, drugs, phenotypes, cells, gene sets, and assays",
-        icon: mdiCompass
-      },
-      {
-        title: "Search Common Fund Data",
-        href: '/data',
-        description: "Query the CFDE Workbench Data Portal database to find files and other assets from participating Common Fund programs",
-        icon: mdiMagnify
-      },
-      {
-        title: "C2M2 Interactive Graph Search",
-        href: "/data/graph",
-        description: "Explore the CFDE Workbench Cross Cut Metaata Model (C2M2) using an interactive graph-based interface to build queries",
-        icon: mdiGraphOutline
-      },
-      {
-        title: "CFDE AI Chatbot Assistant",
-        href: "/data/chat",
-        description: "Interact with an AI-powered chatbot to explore knowledge about the CFDE, the CFDE Workbench, and Common Fund programs",
-        icon: mdiRobotOutline
-      }
-    ]
-  },
-  {
     title: "Explore the Ecosystem",
     links: [
       {
+        title: "Homepage",
+        href: "/",
+        description: "Go to the CFDE Workbench Homepage",
+        icon: mdiHome
+      },{
         title: "Common Fund Programs",
         href: "/info/dcc",
         description: "Learn more about the CFDE participating Common Fund Programs",
@@ -163,6 +139,35 @@ const options = [
         href: "/info/publications",
         description: "View a listing of CFDE associated publications and landmark papers of the various Common Fund programs",
         icon: mdiBook
+      }
+    ]
+  },
+  {
+    title: "Search",
+    links: [
+      {
+        title: "CFDE Data Explorer",
+        href: '/explorer',
+        description: "Query the CFDE databases and tools to find knowledge about genes, drugs, phenotypes, cells, gene sets, and assays",
+        icon: mdiCompass
+      },
+      {
+        title: "Search Common Fund Data",
+        href: '/data',
+        description: "Query the CFDE Workbench Data Portal database to find files and other assets from participating Common Fund programs",
+        icon: mdiMagnify
+      },
+      {
+        title: "C2M2 Interactive Graph Search",
+        href: "/data/graph",
+        description: "Explore the CFDE Workbench Cross Cut Metaata Model (C2M2) using an interactive graph-based interface to build queries",
+        icon: mdiGraphOutline
+      },
+      {
+        title: "CFDE AI Chatbot Assistant",
+        href: "/data/chat",
+        description: "Interact with an AI-powered chatbot to explore knowledge about the CFDE, the CFDE Workbench, and Common Fund programs",
+        icon: mdiRobotOutline
       }
     ]
   },

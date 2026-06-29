@@ -57,8 +57,10 @@ export default async function CenterLanding() {
                         {sortedCenters.map(center => (
                             center.label === 'centers' ? (
                                 <Card sx={{ paddingLeft: 2, paddingRight: 2 , height: '365px', position:"relative"}}>
-                                    <CardContent sx={{transform: 'scale(0.7)', position: "absolute", left: "35%", top: "10%"}}>
+                                    <CardContent sx={{width: "100%", position: "relative", display: "flex", justifyContent: "center", alignItems: "center"}}>
+                                        <Box sx={{position: "absolute", left: {xs: "30%", sm: "30%", md: "20%", lg: "20%", xl: "20%"}, width: "100%", transform: 'scale(0.7)'}}>
                                         <CentersComponent/>
+                                        </Box>
                                     </CardContent>
                                 </Card>
                             ) : (
