@@ -7,7 +7,7 @@ import Icon from '@mdi/react';
 import { mdiRobot } from '@mdi/js';
 import { useEffect, useState } from 'react';
 import Image from '@/utils/image';
-import { Modal, Tooltip } from '@mui/material';
+import { Fab, Modal, Tooltip } from '@mui/material';
 
 export interface dccType {
 	id: string
@@ -38,7 +38,13 @@ const SpeedDialButton = () => {
 
 	return (
 		<>
-			<SpeedDial
+			<Fab size="large" onClick={handleOpen} sx={{ position: 'fixed', bottom: 130, right: 50 }}>
+				<Image src="https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/cfde_unified_icon.svg" alt={'nav-but'} width={120} height={120}/>
+			</Fab>
+			<Fab size="large" href='/data/chat' sx={{ position: 'fixed', bottom: 60, right: 50 }}>
+				<Icon path={mdiRobot} size={2} />
+			</Fab>
+			{/* <SpeedDial
 				ariaLabel="SpeedDial basic example"
 				sx={{ position: 'fixed', bottom: 60, right: 50 }}
 				icon={<SpeedDialIcon />}
@@ -53,7 +59,7 @@ const SpeedDialButton = () => {
 					tooltipTitle="Open CFDE Workbench Chatbot"
 					FabProps={{href: '/data/chat', size: "large"}}
 					/>
-			</SpeedDial>
+			</SpeedDial> */}
 			<Modal
 				open={open}
 				onClose={handleClose}
