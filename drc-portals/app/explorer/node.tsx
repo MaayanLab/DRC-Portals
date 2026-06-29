@@ -114,7 +114,8 @@ const Node = ({ data, isConnectable }: {data: {
 			  }}
 			  renderInput={(params) => <TextField placeholder={`Enter ${data.label.toLowerCase().replace(' and', ' or')} name`} {...params} label={`Enter ${data.label.toLowerCase().replace(' and', ' or')} name`} />}
 		  />
-		  <Stack direction={"row"} spacing={1} justifyContent={"center"}>
+		  <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"center"}>
+			<Typography variant="body1">Examples:</Typography>
 		  {data.examples !== undefined &&
 		  	data.examples.map(example=><Button color="secondary" onClick={()=>data.update_input(data.facet, example, 'add')}><Typography variant="body1">{example}</Typography></Button>)
 		  }

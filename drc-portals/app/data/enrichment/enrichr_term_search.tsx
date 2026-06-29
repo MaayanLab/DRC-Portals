@@ -99,10 +99,11 @@ export const EnrichrTermSearch = ({setInput, hideText, background, examples}: {s
                     setOpen(false)
                 }}
             />
-            <Stack direction={"row"} spacing={1} justifyContent={"center"}>
-            {examples !== undefined &&
-            examples.map(example=><Button color="secondary" onClick={()=>setTerm(example)}><Typography variant="body1">{example}</Typography></Button>)
-            }
+            <Stack direction={"row"} alignItems="center" justifyContent={"center"}>
+                {examples !== undefined && <Typography variant="body1">Examples:</Typography>}
+                {examples !== undefined &&
+                    examples.map(example=><Button color="secondary" onClick={()=>setTerm(example)}><Typography variant="body1">{example}</Typography></Button>)
+                }
             </Stack>
         </Stack>
     )
