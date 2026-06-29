@@ -1,8 +1,8 @@
 'use client'
 import { useState, useEffect } from "react";
-import {Stack, Typography, Autocomplete, TextField} from '@mui/material'
+import {Stack, Typography, Autocomplete, TextField, Button} from '@mui/material'
 import { typed_fetch } from "./helper";
-export const EnrichrTermSearch = ({setInput, hideText, background}: {setInput: Function, hideText?:boolean, background?: string}) => {
+export const EnrichrTermSearch = ({setInput, hideText, background, examples}: {setInput: Function, hideText?:boolean, background?: string, examples?: string[]}) => {
     const [term, setTerm] = useState<string>('')
     const [open, setOpen] = useState<boolean>(false)
     const [loading, setLoading] = useState<boolean>(false)
@@ -99,6 +99,11 @@ export const EnrichrTermSearch = ({setInput, hideText, background}: {setInput: F
                     setOpen(false)
                 }}
             />
+            <Stack direction={"row"} spacing={1} justifyContent={"center"}>
+            {examples !== undefined &&
+            examples.map(example=><Button color="secondary" onClick={()=>setTerm(example)}><Typography variant="body1">{example}</Typography></Button>)
+            }
+            </Stack>
         </Stack>
     )
 }

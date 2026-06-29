@@ -171,16 +171,16 @@ const Explorer = ({input_query}: {input_query: {[key:string]: string[] | {[key:s
       {
         id: 'gene',
         type: 'node',
-        data: { label: "Genes, Proteins, and Variants", update_input, facet: 'gene', icon: mdiDna, get_links: (newValue:string)=>([
+        data: { examples: ["MAPK1", "STAT3", "APOE"], label: "Genes, Proteins, and Variants", update_input, facet: 'gene', icon: mdiDna, get_links: (newValue:string)=>([
           gdlpa(newValue, 'gene'),
           gsfm(newValue),
         ]) },
-        position: { x: 150, y: 185+geneSetPos },
+        position: { x: 150, y: 220+geneSetPos },
       },
 	    {
         id: 'drug',
         type: 'node',
-        data: { label: "Small Molecules, Drugs, and Metabolites", update_input, facet: 'drug', icon: mdiPill, get_links: (newValue:string)=>([
+        data: { examples: ["imatinib", "dexamethasone", "caffeine"], label: "Small Molecules, Drugs, and Metabolites", update_input, facet: 'drug', icon: mdiPill, get_links: (newValue:string)=>([
           gdlpa(newValue, 'drug'),
         ]) },
         position: { x: -100, y: 0+geneSetPos/2 },
@@ -194,20 +194,20 @@ const Explorer = ({input_query}: {input_query: {[key:string]: string[] | {[key:s
       {
         id: 'cell',
         type: 'node',
-        data: { label: "Cell types, Tissues, and Organ", update_input, facet: 'anatomy', icon: mdiEye, },
-        position: { x: -180, y: 350+geneSetPos },
+        data: {  examples: ["liver", "kidney", "blood"], label: "Cell types, Tissues, and Organ", update_input, facet: 'anatomy', icon: mdiEye, },
+        position: { x: -180, y: 420+geneSetPos },
       },
       {
         id: 'disease',
         type: 'node',
-        data: { label: "Phenotypes, and Diseases", update_input, facet: "disease", icon: mdiVirus  },
-        position: { x: 480, y: 355+geneSetPos },
+        data: {  examples: ["diabetes", "schizophrenia"], label: "Phenotypes, and Diseases", update_input, facet: "disease", icon: mdiVirus  },
+        position: { x: 480, y: 430+geneSetPos },
       },
       {
         id: 'assay',
         type: 'node',
-        data: { label: "Assay", update_input, facet: "assay", icon: mdiFlask },
-        position: { x: 150, y: 530+geneSetPos },
+        data: {  examples: ["RNA-seq", "Proteomics"], label: "Assay", update_input, facet: "assay", icon: mdiFlask },
+        position: { x: 150, y: 640+geneSetPos },
       }
     ]);
  

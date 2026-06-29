@@ -63,7 +63,9 @@ const GeneSet = ({ data, isConnectable }: {data: {update_input: Function, setGen
         </Grid>
         <Grid item xs={12}>
           {search === 'term' ?
-          <EnrichrTermSearch setInput={async (d:any)=>{
+          <EnrichrTermSearch 
+          examples={["breast cancer", "tyrosine kinase"]}
+          setInput={async (d:any)=>{
             const {description='user_input', genes} = d
             const res = await linksearch.mutateAsync({
                 input: {
