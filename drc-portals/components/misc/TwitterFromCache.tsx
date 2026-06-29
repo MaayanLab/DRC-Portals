@@ -22,12 +22,12 @@ const TweetC = z.object({
       hashtags: z.array(z.object({
         text: z.string(),
         indices: z.tuple([z.number(), z.number()]),
-      })),
+      })).optional().default([]),
       user_mentions: z.array(z.object({
         name: z.string(),
         screen_name: z.string(),
         indices: z.tuple([z.number(), z.number()]),
-      })),
+      })).optional().default([]),
       media: z.array(z.object({
         url: z.string(),
         indices: z.tuple([z.number(), z.number()]),
@@ -57,13 +57,13 @@ const TweetC = z.object({
             resize: z.string(),//z.enum(['fit', 'crop']),
           }),
         }),
-      })).optional(),
+      })).optional().default([]),
       urls: z.array(z.object({
         url: z.string(),
         indices: z.array(z.number()),
         display_url: z.string(),
         expanded_url: z.string().optional(),
-      })),
+      })).optional().default([]),
     }),
     full_text: z.string(),
     created_at: z.string(),
@@ -118,15 +118,13 @@ function tweet_with_entities(actual_tweet: z.infer<typeof TweetC>) {
       element: <a className="text-cyan-500 hover:underline" href={`https://twitter.com/${user_mention.screen_name}`}>@{user_mention.screen_name}</a>
     })
   }
-  if (actual_tweet.legacy.entities.media) {
-    for (const medium of actual_tweet.legacy.entities.media) {
-      if (medium.type === 'photo') {
-        elements.push({
-          start: medium.indices[0],
-          end: medium.indices[1],
-          element: <a href={medium.expanded_url || medium.display_url} target="_blank"><img className="rounded-xl my-2" src={medium.media_url_https} width={medium.sizes.small.w} height={medium.sizes.small.h} /></a>
-        })
-      }
+  for (const medium of actual_tweet.legacy.entities.media) {
+    if (medium.type === 'photo') {
+      elements.push({
+        start: medium.indices[0],
+        end: medium.indices[1],
+        element: <a href={medium.expanded_url || medium.display_url} target="_blank"><img className="rounded-xl my-2" src={medium.media_url_https} width={medium.sizes.small.w} height={medium.sizes.small.h} /></a>
+      })
     }
   }
   // add the rest of the text around the inserted entities
