@@ -37,7 +37,7 @@ export default async function Page() {
               <Typography variant="h5"><b>Sign Up for Your Own CFDE Cloud Workspace</b></Typography>
             </Button>
             <Button color="secondary" target="_blank" rel="noopener noreferrer" href="https://orau.org/cfde-trainingcenter/" startIcon={<Icon path={mdiArrowRight} size={1} />}>
-              <Typography variant="h5"><b>Aquire Skills in Using CFDE Datasets and Tools</b></Typography>
+              <Typography variant="h5"><b>Acquire Skills in Using CFDE Datasets and Tools</b></Typography>
             </Button>
             <Button color="secondary" target="_blank" rel="noopener noreferrer" href="https://cfdeconnect.org/" startIcon={<Icon path={mdiArrowRight} size={1} />}>
               <Typography variant="h5"><b>Learn How to Engage with the CFDE Consortium</b></Typography>
