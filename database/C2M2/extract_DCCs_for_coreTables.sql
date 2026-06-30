@@ -15,6 +15,7 @@ set max_parallel_workers to 4;
 ---     from c2m2.project where local_id = 'PR000633') TO project1.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
 --- \copy (SELECT distinct local_id, persistent_id, creation_time, abbreviation, name, description from c2m2.project where local_id = 'PR000633') TO project1.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
 
+---------------------------------------------------------
 --- Part of this code is generated using ChatGPT
 --- Q: Given the json for c2m2 schema in postgres, which has tables like project, subject, biosample, collection, list the tables in the format 'project', 'subject', 'biosample', 'collection' etc, in that order (or these words appearing in the table name, like, subject_disease, subject_race, etc., sorted alphabetICALLY). The json description is in the attached file.
 --- Q: don't add comment lines and can write more than one table name on the same line
@@ -183,6 +184,20 @@ $$;
 --- SELECT * FROM c2m2.get_table_namespaces() ORDER BY srno, table_name, id_namespace;
 SELECT DISTINCT srno, table_name, dcc_short_label FROM c2m2.get_table_namespaces() ORDER BY srno, dcc_short_label;
 
+DROP TABLE IF EXISTS tmp_table_namespaces;
+
+CREATE TEMP TABLE tmp_table_namespaces AS
+SELECT DISTINCT
+       srno,
+       table_name,
+       dcc_short_label
+FROM c2m2.get_table_namespaces()
+WHERE dcc_short_label IS NOT NULL ORDER BY srno, dcc_short_label;
+
+\copy (SELECT * from tmp_table_namespaces) TO tmp_table_namespaces.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
+
+---------------------------------------------------------
+
 /*
 
 Thanks. Now my output looks like: Many lines omitted
@@ -220,18 +235,7 @@ the unique complete list of dcc_short_label.
 
 */
 
-DROP TABLE IF EXISTS tmp_table_namespaces;
-
-CREATE TEMP TABLE tmp_table_namespaces AS
-SELECT DISTINCT
-       srno,
-       table_name,
-       dcc_short_label
-FROM c2m2.get_table_namespaces()
-WHERE dcc_short_label IS NOT NULL ORDER BY srno, dcc_short_label;
-
-\copy (SELECT * from tmp_table_namespaces) TO tmp_table_namespaces.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
-
+/* This is not needed since now we use a generic version
 
 DO $$
 DECLARE
@@ -277,3 +281,310 @@ END $$;
 
 SELECT * FROM tmp_table_namespaces_pivot ORDER BY srno;
 \copy (SELECT * FROM tmp_table_namespaces_pivot ORDER BY srno) TO tmp_table_namespaces_pivot.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
+
+*/
+
+---------------------------------------------------------
+
+/*
+
+Let us go back to the how the table tmp_table_namespaces was generated. 
+I am going to paste the code you generated (I may have modified it a bit).
+
+Please re-read the json schema, I can upload the json file again if you don't have it from the last session.
+Now I want to generate another table like tmp_table_namespaces, called, term_type_namespaces, where instead of 
+recording table_name and then the dcc_short_label, I want to record specific table_name,  
+column_name (as term_type) for specific tables (I am going to list the column name, 
+and based on the json, you can identify which table it comes from; if more than one 
+tables have the same column name, list them separately, do not combine) and then the 
+dcc_short_label if in that table, the column of interest is not null and not equal to empty string ''. 
+The columns of interest are:
+disease
+phenotype
+anatomy
+biofluid
+sample_prep_method
+taxonomy_id
+role_id
+granularity
+sex
+ethnicity
+age_at_enrollment
+age_at_sampling
+association_type
+substance
+compound
+gene
+protein
+ptm
+file_format
+compression_format
+data_type
+assay_type
+analysis_type
+dbgap_study_id
+
+First you may want to prepare an array of relevant tables, which I think should be the tables_core 
+and tables_core_related. Then, identify the tables from which the above columns come from. Then, 
+loop over the relevant combination of tables and columns, and inside the loop, do the join and 
+check the condition that the column of interest is not null and not equal to empty string ''.
+
+Q: You got the combination of tables and columns almost right, but minor fixing is needed. 
+The column dbgap_study_id is from the file table, not the project table.  biosample table 
+doesn't have taxonomy_id column.
+
+*/
+
+DROP FUNCTION IF EXISTS c2m2.get_term_type_namespaces();
+
+CREATE OR REPLACE FUNCTION c2m2.get_term_type_namespaces()
+RETURNS TABLE (
+    srno            integer,
+    table_name      text,
+    term_type       text,
+    dcc_short_label varchar
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    pair text;
+    tbl text;
+    term_col text;
+    namespace_col text;
+    sql text;
+    v_srno integer := 0;
+
+    table_column_pairs text[] := ARRAY[
+        'subject|granularity',
+        'subject|sex',
+        'subject|ethnicity',
+        'subject|taxonomy_id',
+        'subject|age_at_enrollment',
+
+        'biosample|anatomy',
+        'biosample|biofluid',
+        'biosample|sample_prep_method',
+        'biosample|age_at_sampling',
+
+        'file|file_format',
+        'file|compression_format',
+        'file|data_type',
+        'file|assay_type',
+        'file|analysis_type',
+        'file|dbgap_study_id',
+
+        'subject_disease|disease',
+        'subject_disease|association_type',
+
+        'subject_phenotype|phenotype',
+
+        'subject_role_taxonomy|role_id',
+        'subject_role_taxonomy|taxonomy_id',
+
+        'subject_substance|substance',
+
+        'biosample_disease|disease',
+        'biosample_disease|association_type',
+
+        'biosample_gene|gene',
+
+        'biosample_protein|protein',
+
+        'biosample_ptm|ptm',
+
+        'biosample_substance|substance',
+
+        'collection_anatomy|anatomy',
+
+        'collection_biofluid|biofluid',
+
+        'collection_compound|compound',
+
+        'collection_disease|disease',
+        'collection_disease|association_type',
+
+        'collection_gene|gene',
+
+        'collection_phenotype|phenotype',
+
+        'collection_protein|protein',
+
+        'collection_ptm|ptm',
+
+        'collection_substance|substance',
+
+        'collection_taxonomy|taxonomy_id'
+    ];
+BEGIN
+
+    FOREACH pair IN ARRAY table_column_pairs
+    LOOP
+        v_srno := v_srno + 1;
+
+        tbl := split_part(pair, '|', 1);
+        term_col := split_part(pair, '|', 2);
+
+        IF tbl IN ('project','subject','biosample','collection','file') THEN
+            namespace_col := 'id_namespace';
+        ELSE
+            namespace_col := split_part(tbl, '_', 1) || '_id_namespace';
+        END IF;
+
+        RAISE NOTICE 'Processing %.% (SrNo=%)', tbl, term_col, v_srno;
+
+        sql := format($fmt$
+            SELECT DISTINCT
+                %s::integer AS srno,
+                %L::text AS table_name,
+                %L::text AS term_type,
+                m.dcc_short_label
+            FROM (
+                SELECT DISTINCT %I AS id_namespace
+                FROM c2m2.%I
+                WHERE %I IS NOT NULL
+                  AND trim(%I) <> ''
+            ) idn
+            LEFT JOIN c2m2.id_namespace_dcc_id m
+                ON idn.id_namespace = m.id_namespace_id
+            WHERE m.dcc_short_label IS NOT NULL
+        $fmt$,
+            v_srno,
+            tbl,
+            term_col,
+            namespace_col,
+            tbl,
+            term_col,
+            term_col
+        );
+
+        RETURN QUERY EXECUTE sql;
+
+    END LOOP;
+
+    RETURN;
+END;
+$$;
+
+
+DROP TABLE IF EXISTS term_type_namespaces;
+
+CREATE TEMP TABLE term_type_namespaces AS
+SELECT DISTINCT
+       srno,
+       table_name,
+       term_type,
+       dcc_short_label
+FROM c2m2.get_term_type_namespaces()
+ORDER BY srno, dcc_short_label;
+
+\copy (SELECT * from term_type_namespaces) TO term_type_namespaces.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
+
+---------------------------------------------------------
+
+/*
+
+ChatGpt suggested the pivot table as well.
+
+Q: That would be awesome, I indeed need the pivot table too. Please write the complete code 
+to generate the corresponding pivot table for term_type_namespaces.
+
+*/
+
+DROP PROCEDURE IF EXISTS c2m2.create_dcc_pivot(text, text, text, text);
+
+CREATE OR REPLACE PROCEDURE c2m2.create_dcc_pivot(
+    p_source_table  text,
+    p_group_columns text,
+    p_dest_table    text,
+    p_order_by      text DEFAULT 'srno'
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    cols text;
+    sql  text;
+BEGIN
+    ------------------------------------------------------------------
+    -- Build one output column for each DCC
+    ------------------------------------------------------------------
+    EXECUTE format(
+        $q$
+        SELECT string_agg(
+                   format(
+                       'max(CASE WHEN dcc_short_label = %%L THEN ''y'' END) AS %%I',
+                       dcc_short_label,
+                       dcc_short_label
+                   ),
+                   E',\n       '
+                   ORDER BY dcc_short_label
+               )
+        FROM (
+            SELECT DISTINCT dcc_short_label
+            FROM %I
+            WHERE dcc_short_label IS NOT NULL
+            ORDER BY dcc_short_label
+        ) d
+        $q$,
+        p_source_table)
+    INTO cols;
+
+    ------------------------------------------------------------------
+    -- Drop destination table if it already exists
+    ------------------------------------------------------------------
+    EXECUTE format(
+        'DROP TABLE IF EXISTS %I',
+        p_dest_table);
+
+    ------------------------------------------------------------------
+    -- Build pivot query
+    ------------------------------------------------------------------
+    sql := format(
+$fmt$
+CREATE TEMP TABLE %I AS
+SELECT
+       %s,
+       %s
+FROM %I
+GROUP BY %s
+ORDER BY %s;
+$fmt$,
+        p_dest_table,
+        p_group_columns,
+        cols,
+        p_source_table,
+        p_group_columns,
+        p_order_by
+    );
+
+    RAISE NOTICE 'Executing:%', E'\n' || sql;
+
+    EXECUTE sql;
+
+    RAISE NOTICE 'Created pivot table %', p_dest_table;
+
+END;
+$$;
+
+
+CALL c2m2.create_dcc_pivot(
+    'tmp_table_namespaces',
+    'srno, table_name',
+    'tmp_table_namespaces_pivot'
+);
+
+SELECT * FROM tmp_table_namespaces_pivot;
+--- TABLE tmp_table_namespaces_pivot;
+
+CALL c2m2.create_dcc_pivot(
+    'term_type_namespaces',
+    'srno, table_name, term_type',
+    'term_type_namespaces_pivot'
+);
+
+SELECT * FROM term_type_namespaces_pivot;
+--- TABLE term_type_namespaces_pivot;
+
+\copy (SELECT * FROM tmp_table_namespaces_pivot) TO tmp_table_namespaces_pivot.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
+\copy (SELECT * FROM term_type_namespaces_pivot) TO term_type_namespaces_pivot.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
+
+---------------------------------------------------------
