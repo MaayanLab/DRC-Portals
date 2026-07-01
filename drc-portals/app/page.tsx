@@ -48,21 +48,23 @@ export default async function Page() {
         </Grid>
         <Grid item xs={12} md={8}>
             <Wheel dccs={dccs}/>
-            <Stack justifyContent={"center"} alignItems={"center"} sx={{width: "100%", display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
+        </Grid>
+        <Grid item xs={12} sx={{width: "100%", display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
+          <Stack justifyContent={"center"} alignItems={"center"} sx={{display: "flex"}}>
             <Button color="secondary" href="/explorer" startIcon={<Icon path={mdiArrowRight} size={1} />}>
-              <Typography variant="h5"><b>Explore Harmonized Common Fund Datasets</b></Typography>
+              <Typography sx={{textAlign: "center"}} variant="h5"><b>Explore Harmonized Common Fund Datasets</b></Typography>
             </Button>
             <Button color="secondary" target="_blank" rel="noopener noreferrer" href="https://cfdeknowledge.org/r/kc_landing" startIcon={<Icon path={mdiArrowRight} size={1} />}>
-              <Typography variant="h5"><b>Discover Knowledge Extracted from CFDE Datasets</b></Typography>
+              <Typography sx={{textAlign: "center"}} variant="h5"><b>Discover Knowledge Extracted from CFDE Datasets</b></Typography>
             </Button>
             <Button color="secondary" target="_blank" rel="noopener noreferrer" href="https://cfdeworkspace.org/" startIcon={<Icon path={mdiArrowRight} size={1} />}>
-              <Typography variant="h5"><b>Sign Up for Your Own CFDE Cloud Workspace</b></Typography>
+              <Typography sx={{textAlign: "center"}} variant="h5"><b>Sign Up for Your Own CFDE Cloud Workspace</b></Typography>
             </Button>
             <Button color="secondary" target="_blank" rel="noopener noreferrer" href="https://orau.org/cfde-trainingcenter/" startIcon={<Icon path={mdiArrowRight} size={1} />}>
-              <Typography variant="h5"><b>Acquire Skills in Using CFDE Datasets and Tools</b></Typography>
+              <Typography sx={{textAlign: "center"}} variant="h5"><b>Acquire Skills in Using CFDE Datasets and Tools</b></Typography>
             </Button>
             <Button color="secondary" target="_blank" rel="noopener noreferrer" href="https://cfdeconnect.org/" startIcon={<Icon path={mdiArrowRight} size={1} />}>
-              <Typography variant="h5"><b>Learn How to Engage with the CFDE Consortium</b></Typography>
+              <Typography sx={{textAlign: "center"}} variant="h5"><b>Learn How to Engage with the CFDE Consortium</b></Typography>
             </Button>
           </Stack>
         </Grid>
