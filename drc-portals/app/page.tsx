@@ -26,7 +26,7 @@ export default async function Page() {
         <Grid item xs={12} md={4}>
           <Stack spacing={2} >
             <Typography variant="h1" color={'#2D5986'}><b>Discover, Analyze, and Integrate NIH Common Fund Data</b></Typography>
-            <Stack>
+            <Stack sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>
             <Button color="secondary" href="/explorer" startIcon={<Icon path={mdiArrowRight} size={1} />}>
               <Typography variant="h5"><b>Explore Harmonized Common Fund Datasets</b></Typography>
             </Button>
@@ -48,6 +48,23 @@ export default async function Page() {
         </Grid>
         <Grid item xs={12} md={8}>
             <Wheel dccs={dccs}/>
+            <Stack justifyContent={"center"} alignItems={"center"} sx={{width: "100%", display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
+            <Button color="secondary" href="/explorer" startIcon={<Icon path={mdiArrowRight} size={1} />}>
+              <Typography variant="h5"><b>Explore Harmonized Common Fund Datasets</b></Typography>
+            </Button>
+            <Button color="secondary" target="_blank" rel="noopener noreferrer" href="https://cfdeknowledge.org/r/kc_landing" startIcon={<Icon path={mdiArrowRight} size={1} />}>
+              <Typography variant="h5"><b>Discover Knowledge Extracted from CFDE Datasets</b></Typography>
+            </Button>
+            <Button color="secondary" target="_blank" rel="noopener noreferrer" href="https://cfdeworkspace.org/" startIcon={<Icon path={mdiArrowRight} size={1} />}>
+              <Typography variant="h5"><b>Sign Up for Your Own CFDE Cloud Workspace</b></Typography>
+            </Button>
+            <Button color="secondary" target="_blank" rel="noopener noreferrer" href="https://orau.org/cfde-trainingcenter/" startIcon={<Icon path={mdiArrowRight} size={1} />}>
+              <Typography variant="h5"><b>Acquire Skills in Using CFDE Datasets and Tools</b></Typography>
+            </Button>
+            <Button color="secondary" target="_blank" rel="noopener noreferrer" href="https://cfdeconnect.org/" startIcon={<Icon path={mdiArrowRight} size={1} />}>
+              <Typography variant="h5"><b>Learn How to Engage with the CFDE Consortium</b></Typography>
+            </Button>
+          </Stack>
         </Grid>
         {/* <Grid item xs={12}>
           <Paper sx={{
