@@ -95,7 +95,58 @@ export default async function Page() {
           <Carousel/>
         </Grid>
         <Grid item xs={12} md={3}>
-          <Stack spacing={1}>
+          <Stack sx={{display: {xs: "none", sm: "none", md: "flex", lg: "flex", xl: "flex"}}} spacing={1}>
+            <Card sx={{width: 270}}>
+              <CardContent>
+                <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">ABOUT THE WORKBENCH</Typography>
+                <Box sx={{width: 233}}>
+                  <Image src="/img/workbench.png" alt="workbench" width={233} height={233}/>
+                </Box>
+                <div className="flex justify-start">
+                  <div>
+                    <Button color="tertiary" sx={{backgroundColor: "#eaedf6", color: "#2D5986"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                      <Link target="_blank" rel="noopener noreferrer" href={"https://www.sciencedirect.com/science/article/pii/S0022283626000045"}>
+                        <Typography variant="caption"><b>READ PAPER</b></Typography>
+                      </Link>
+                    </Button>
+                    
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card sx={{width: 270}}>
+              <CardContent>
+                <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center"}}variant="subtitle1">FEATURED TOOL</Typography>
+                  <Box>
+                    <Image src="https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/pwb-w-062025.png" alt="gsc" width={233} height={233}/>
+                  </Box>
+                  <Stack direction={"row"} spacing={1}>
+                      <Tooltip title="Read publication">
+                        <Button color="secondary">
+                          <Link target="_blank" rel="noopener noreferrer" href={"https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1012901"}>
+                            <Icon path={mdiBookOpenVariantOutline} size={1} />
+                          </Link>
+                        </Button>
+                      </Tooltip>
+                      <Tooltip title="Go to site">
+                        <Button color="secondary">
+                          <Link target="_blank" rel="noopener noreferrer" href={"https://playbook-workflow-builder.cloud"}>
+                            <Icon path={mdiLink} size={1} />
+                          </Link>
+                        </Button>
+                      </Tooltip>
+                      <Tooltip title="Watch tutorial">
+                        <Button  color="secondary">
+                          <Link target="_blank" rel="noopener noreferrer" href={"https://www.youtube.com/watch?v=mHXCdX0kfHE"}>
+                            <Icon path={mdiYoutube} size={1} />
+                          </Link>
+                        </Button>
+                      </Tooltip>
+                    </Stack>
+              </CardContent>
+            </Card>
+          </Stack>
+          <Stack direction={"row"} justifyContent={"center"} sx={{display: {xs: "flex", sm: "flex", md: "none", lg: "none", xl: "none"}}} spacing={1}>
             <Card sx={{width: 270}}>
               <CardContent>
                 <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">ABOUT THE WORKBENCH</Typography>
