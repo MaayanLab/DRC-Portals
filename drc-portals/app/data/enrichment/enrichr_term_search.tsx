@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from "react";
-import {Stack, Typography, Autocomplete, TextField, Button} from '@mui/material'
+import {Stack, Typography, Autocomplete, TextField, Button, ClickAwayListener} from '@mui/material'
 import { typed_fetch } from "./helper";
 export const EnrichrTermSearch = ({setInput, hideText, background, examples}: {setInput: Function, hideText?:boolean, background?: string, examples?: string[]}) => {
     const [term, setTerm] = useState<string>('')
@@ -73,6 +73,10 @@ export const EnrichrTermSearch = ({setInput, hideText, background, examples}: {s
     return (
         <Stack direction={'column'} spacing={1} justifyContent={'flex-start'} alignItems={'flex-start'}>
             {hideText === undefined && <Typography variant={'subtitle2'}> Fetch annotated gene sets from Enrichr</Typography>}
+            <ClickAwayListener onClickAway={()=>{
+                setTerm('')
+                setOpen(false)
+            }}>
             <Autocomplete
                 id="enrichr-term"
                 options={options.sort((a, b) => -b.library.localeCompare(a.library))}
@@ -99,6 +103,7 @@ export const EnrichrTermSearch = ({setInput, hideText, background, examples}: {s
                     setOpen(false)
                 }}
             />
+            </ClickAwayListener>
             <Stack direction={"row"} alignItems="center" justifyContent={"center"}>
                 {examples !== undefined && <Typography variant="body1">Examples:</Typography>}
                 {examples !== undefined &&
