@@ -111,7 +111,7 @@ const default_radius = 280
 
 
 function useViewportDimensions() {
-  const [dimensions, setDimensions] = useState(() => ({ height: window.innerHeight, width: window.innerWidth }))
+  const [dimensions, setDimensions] = useState(() => ({ height: 700, width: 700 }))
   useEffect(() => {
     const ctx: any = {}
     const listener = () => {
