@@ -1,5 +1,5 @@
 'use client'
-import {InteractiveNavComponent} from 'cfde-wheel'
+import {InteractiveModal} from 'cfde-wheel'
 import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
@@ -8,6 +8,7 @@ import { mdiRobot } from '@mdi/js';
 import { useEffect, useState } from 'react';
 import Image from '@/utils/image';
 import { Fab, Modal, Tooltip } from '@mui/material';
+import usePathname from '@/utils/pathname';
 
 export interface dccType {
 	id: string
@@ -22,6 +23,7 @@ const SpeedDialButton = () => {
 	const [open, setOpen] = useState(false);
 	const handleOpen = () => setOpen(true);
 	const handleClose = () => setOpen(false);
+	const pathname = usePathname()
 	useEffect(()=>{
 		const fetch_dccs = async () => {
 			try {
@@ -38,10 +40,10 @@ const SpeedDialButton = () => {
 
 	return (
 		<>
-			<Fab size="large" onClick={handleOpen} sx={{ position: 'fixed', bottom: 130, right: 50 }}>
+			{pathname !== "/" && <Fab color="primary" size="large" onClick={handleOpen} sx={{ position: 'fixed', bottom: 130, right: 50 }}>
 				<Image src="https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/cfde_unified_icon.svg" alt={'nav-but'} width={120} height={120}/>
-			</Fab>
-			<Fab size="large" href='/data/chat' sx={{ position: 'fixed', bottom: 60, right: 50 }}>
+			</Fab>}
+			<Fab color="primary" size="large" href='/data/chat' sx={{ position: 'fixed', bottom: 60, right: 50 }}>
 				<Icon path={mdiRobot} size={2} />
 			</Fab>
 			{/* <SpeedDial
@@ -67,7 +69,7 @@ const SpeedDialButton = () => {
 				aria-describedby="modal-modal-description"
 			>
 				<>
-					<InteractiveNavComponent dccs={dccs} handleClose={handleClose}/>
+					<InteractiveModal dccs={dccs} handleClose={handleClose}/>
 				</>
 			</Modal>
 		</>
