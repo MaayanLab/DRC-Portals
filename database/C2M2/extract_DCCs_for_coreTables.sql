@@ -6,14 +6,8 @@ set max_parallel_workers to 4;
 /* run in psql as \i extract_DCCs_for_coreTables.sql */
 /* Or on linux command prompt:psql -h localhost -U drc -d drc  -p [5432|5433] -a -f extract_DCCs_for_coreTables.sql; */
 
---- Example psql code to write output to file
---- \set pr PR000633
---- \copy (SELECT distinct id_namespace, local_id, persistent_id, creation_time, abbreviation, name, description from c2m2.project where local_id = :'pr') TO project1.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
-
---- project
---- \copy (SELECT distinct local_id, persistent_id, creation_time, abbreviation, name, description 
----     from c2m2.project where local_id = 'PR000633') TO project1.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
---- \copy (SELECT distinct local_id, persistent_id, creation_time, abbreviation, name, description from c2m2.project where local_id = 'PR000633') TO project1.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
+------------------------ WARNING ------------------------
+--- Do not expose it to users: If this procedure were exposed to arbitrary users, then using %s would allow SQL injection
 
 ---------------------------------------------------------
 --- Part of this code is generated using ChatGPT
@@ -72,6 +66,18 @@ c2m2.id_namespace_dcc_id on idn.id_namespace = c2m2.id_namespace_dcc_id.id_names
 
 Generate code to output a table with the three columns table_name, id_namespace and dcc_short_label that will be union of such output by looping over all the tables in the two arrays.
 */
+
+--- Utility function
+CREATE OR REPLACE PROCEDURE c2m2.print_heading(p_title text)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RAISE NOTICE '';
+    RAISE NOTICE '==========================================';
+    RAISE NOTICE '%', p_title;
+    RAISE NOTICE '==========================================';
+END;
+$$;
 
 DROP FUNCTION IF EXISTS c2m2.get_table_namespaces();
 
@@ -182,11 +188,13 @@ $$;
 --- SELECT * FROM c2m2.get_table_namespaces() ORDER BY table_name, dcc_short_label;
 --- SELECT distinct table_name, dcc_short_label FROM c2m2.get_table_namespaces() ORDER BY table_name, dcc_short_label;
 --- SELECT * FROM c2m2.get_table_namespaces() ORDER BY srno, table_name, id_namespace;
-SELECT DISTINCT srno, table_name, dcc_short_label FROM c2m2.get_table_namespaces() ORDER BY srno, dcc_short_label;
+--- SELECT DISTINCT srno, table_name, dcc_short_label FROM c2m2.get_table_namespaces() ORDER BY srno, dcc_short_label;
 
-DROP TABLE IF EXISTS tmp_table_namespaces;
+CALL c2m2.print_heading('Creating table_namespaces');
 
-CREATE TEMP TABLE tmp_table_namespaces AS
+DROP TABLE IF EXISTS table_namespaces;
+
+CREATE TEMP TABLE table_namespaces AS
 SELECT DISTINCT
        srno,
        table_name,
@@ -194,7 +202,8 @@ SELECT DISTINCT
 FROM c2m2.get_table_namespaces()
 WHERE dcc_short_label IS NOT NULL ORDER BY srno, dcc_short_label;
 
-\copy (SELECT * from tmp_table_namespaces) TO tmp_table_namespaces.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
+SELECT * from table_namespaces;
+\copy (SELECT * from table_namespaces) TO table_namespaces.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
 
 ---------------------------------------------------------
 
@@ -254,20 +263,20 @@ BEGIN
     INTO cols
     FROM (
         SELECT DISTINCT dcc_short_label
-        FROM tmp_table_namespaces
+        FROM table_namespaces
         ORDER BY dcc_short_label
     ) d;
 
     sql := format(
 $fmt$
-DROP TABLE IF EXISTS tmp_table_namespaces_pivot;
+DROP TABLE IF EXISTS table_namespaces_pivot;
 
-CREATE TEMP TABLE tmp_table_namespaces_pivot AS
+CREATE TEMP TABLE table_namespaces_pivot AS
 SELECT
        srno,
        table_name,
        %s
-FROM tmp_table_namespaces
+FROM table_namespaces
 GROUP BY srno, table_name
 ORDER BY srno;
 $fmt$,
@@ -279,8 +288,8 @@ $fmt$,
     EXECUTE sql;
 END $$;
 
-SELECT * FROM tmp_table_namespaces_pivot ORDER BY srno;
-\copy (SELECT * FROM tmp_table_namespaces_pivot ORDER BY srno) TO tmp_table_namespaces_pivot.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
+SELECT * FROM table_namespaces_pivot ORDER BY srno;
+\copy (SELECT * FROM table_namespaces_pivot ORDER BY srno) TO table_namespaces_pivot.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
 
 */
 
@@ -288,11 +297,11 @@ SELECT * FROM tmp_table_namespaces_pivot ORDER BY srno;
 
 /*
 
-Let us go back to the how the table tmp_table_namespaces was generated. 
+Let us go back to the how the table table_namespaces was generated. 
 I am going to paste the code you generated (I may have modified it a bit).
 
 Please re-read the json schema, I can upload the json file again if you don't have it from the last session.
-Now I want to generate another table like tmp_table_namespaces, called, term_type_namespaces, where instead of 
+Now I want to generate another table like table_namespaces, called, term_type_namespaces, where instead of 
 recording table_name and then the dcc_short_label, I want to record specific table_name,  
 column_name (as term_type) for specific tables (I am going to list the column name, 
 and based on the json, you can identify which table it comes from; if more than one 
@@ -358,13 +367,13 @@ DECLARE
         'subject|granularity',
         'subject|sex',
         'subject|ethnicity',
-        'subject|taxonomy_id',
         'subject|age_at_enrollment',
 
         'biosample|anatomy',
         'biosample|biofluid',
         'biosample|sample_prep_method',
-        'biosample|age_at_sampling',
+
+        'biosample_from_subject|age_at_sampling',
 
         'file|file_format',
         'file|compression_format',
@@ -401,7 +410,6 @@ DECLARE
         'collection_compound|compound',
 
         'collection_disease|disease',
-        'collection_disease|association_type',
 
         'collection_gene|gene',
 
@@ -413,7 +421,7 @@ DECLARE
 
         'collection_substance|substance',
 
-        'collection_taxonomy|taxonomy_id'
+        'collection_taxonomy|taxon'
     ];
 BEGIN
 
@@ -465,6 +473,7 @@ BEGIN
 END;
 $$;
 
+CALL c2m2.print_heading('Creating term_type_namespaces');
 
 DROP TABLE IF EXISTS term_type_namespaces;
 
@@ -476,6 +485,8 @@ SELECT DISTINCT
        dcc_short_label
 FROM c2m2.get_term_type_namespaces()
 ORDER BY srno, dcc_short_label;
+
+SELECT * from term_type_namespaces;
 
 \copy (SELECT * from term_type_namespaces) TO term_type_namespaces.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
 
@@ -565,15 +576,19 @@ $fmt$,
 END;
 $$;
 
+CALL c2m2.print_heading('Creating table_namespaces_pivot');
 
 CALL c2m2.create_dcc_pivot(
-    'tmp_table_namespaces',
+    'table_namespaces',
     'srno, table_name',
-    'tmp_table_namespaces_pivot'
+    'table_namespaces_pivot'
 );
 
-SELECT * FROM tmp_table_namespaces_pivot;
---- TABLE tmp_table_namespaces_pivot;
+SELECT * FROM table_namespaces_pivot;
+
+CALL c2m2.print_heading('Creating term_type_namespaces_pivot');
+
+--- TABLE table_namespaces_pivot;
 
 CALL c2m2.create_dcc_pivot(
     'term_type_namespaces',
@@ -584,7 +599,7 @@ CALL c2m2.create_dcc_pivot(
 SELECT * FROM term_type_namespaces_pivot;
 --- TABLE term_type_namespaces_pivot;
 
-\copy (SELECT * FROM tmp_table_namespaces_pivot) TO tmp_table_namespaces_pivot.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
+\copy (SELECT * FROM table_namespaces_pivot) TO table_namespaces_pivot.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
 \copy (SELECT * FROM term_type_namespaces_pivot) TO term_type_namespaces_pivot.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
 
 ---------------------------------------------------------
