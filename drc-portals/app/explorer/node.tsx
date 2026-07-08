@@ -1,6 +1,6 @@
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Autocomplete, Avatar, Card, CardContent, createFilterOptions, Grid, Stack, TextField, Typography } from '@mui/material';
+import { Autocomplete, Avatar, Button, Card, CardContent, createFilterOptions, Grid, Stack, TextField, Typography } from '@mui/material';
 import Icon from '@mdi/react';
 import trpc from '@/lib/trpc/client'
 
@@ -12,6 +12,7 @@ const Node = ({ data, isConnectable }: {data: {
 	label: string,
 	icon: string,
 	get_links?: Function,
+	examples?: Array<string>
 }, isConnectable: boolean}) => {
   const [term, setTerm] = React.useState({type: '', a_label: ''})
   const [inputTerm, setInputTerm] = React.useState('')
@@ -113,7 +114,16 @@ const Node = ({ data, isConnectable }: {data: {
 			  }}
 			  renderInput={(params) => <TextField placeholder={`Enter ${data.label.toLowerCase().replace(' and', ' or')} name`} {...params} label={`Enter ${data.label.toLowerCase().replace(' and', ' or')} name`} />}
 		  />
+		  <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"center"}>
+			<Typography variant="body1">Examples:</Typography>
+		  {data.examples !== undefined &&
+		  	data.examples.map(example=><Button color="secondary" onClick={()=>data.update_input(data.facet, example, 'add')}><Typography variant="body1">{example}</Typography></Button>)
+		  }
+		  </Stack>
 		</Grid>
+		{/* <Grid item xs={12}>
+
+		</Grid> */}
 		</Grid>
 	</CardContent>
 	  <Handle

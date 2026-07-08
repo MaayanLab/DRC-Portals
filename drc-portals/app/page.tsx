@@ -1,110 +1,74 @@
 import { Box, Button, Card, CardContent, Container, Grid, Paper, Stack, Tooltip, Typography } from "@mui/material"
-import Explorer from "./explorer"
 import Carousel from '@/components/misc/Carousel/ServerCarousel'
 import Image from "@/utils/image"
 import Link from "next/link"
 import Icon from "@mdi/react"
-import { mdiArrowRight, mdiBookOpenVariantOutline, mdiDna, mdiEye, mdiEyedropper, mdiFlask, mdiHumanMaleHeightVariant, mdiLink, mdiListBox, mdiPill, mdiVirus, mdiYoutube } from "@mdi/js"
-import trpc from "@/lib/trpc/server"
-import { Search } from "./search_page"
+import { mdiArrowRight, mdiBookOpenVariantOutline, mdiLink, mdiYoutube } from "@mdi/js"
 import Twitter from "@/components/misc/Twitter"
 import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent"
 import prisma from "@/lib/prisma"
-import { blue, green, lime, orange, teal, purple, red } from "@mui/material/colors"
 import CFPrograms from "@/components/misc/CFPrograms"
 import { ResponsivePaper } from "@/app/info/styled"
 import { BlurSmall } from "@/components/styled/Blur"
 import Summary from "@/app/data/processed/SummaryComponent"
-
-const ui_elements: {[key: string]: {color: string, icon_color: string, icon: string}} = {
-  gene: {
-    color: green[100],
-    icon_color: green[900],
-    icon: mdiDna
-  },
-  variant: {
-    color: green[200],
-    icon_color: green[900],
-    icon: mdiDna
-  },
-  protein: {
-    color: green[100],
-    icon_color: green[900],
-    icon: mdiDna
-  },
-  gene_set: {
-    color: purple[100],
-    icon_color: purple[900],
-    icon: mdiListBox,
-  },
-  phenotype: {
-    color: orange[100],
-    icon_color: orange[900],
-    icon: mdiHumanMaleHeightVariant,
-  },
-  anatomy: {
-    color: teal[100],
-    icon_color: teal[900],
-    icon: mdiEye,
-  },
-  assay_type: {
-    color: blue[100],
-    icon_color: blue[900],
-    icon: mdiFlask
-  },
-  assay: {
-    color: blue[100],
-    icon_color: blue[900],
-    icon: mdiFlask
-  },
-  drug: {
-    color: lime[100],
-    icon_color: lime[900],
-    icon: mdiPill
-  },
-  compound: {
-    color: lime[100],
-    icon_color: lime[900],
-    icon: mdiPill
-  },
-  metabolite: {
-    color: lime[100],
-    icon_color: lime[900],
-    icon: mdiEyedropper
-  },
-  "disease or phenotype": {
-    color: orange[100],
-    icon_color: orange[900],
-    icon: mdiVirus,
-  },
-  disease: {
-    color: orange[100],
-    icon_color: orange[900],
-    icon: mdiVirus,
-  }
-}
-
-export default async function Page({searchParams}: {
-  searchParams: {q: string, search?: boolean}
-}) {
-  if (searchParams.q === undefined || searchParams.search === undefined) {
-    const publications = await prisma.publication.findMany({
+import Wheel from "./wheel"
+export default async function Page() {
+  const publications = await prisma.publication.findMany({
         orderBy: {
           year: "desc"
         },
         take: 9
-      })
-    const query: {[key:string]: string[] | {[key:string]: {
-      up_gene_set_id?: number,
-      down_gene_set_id?: number,
-      gene_set_id?: number
-    }}} = JSON.parse(searchParams.q || '{}')
+    })
+  const dccs = await ( (await fetch("https://raw.githubusercontent.com/MaayanLab/cfde-wheel/refs/heads/main/src/dccs.json")).json())
+    
     return (
       <Grid container spacing={2} alignItems={"flex-start"}>
-        <Grid item xs={12}>
-            <Explorer input_query={query}/>
+        <Grid item xs={12} md={4}>
+          <Stack spacing={2} >
+            <Typography variant="h1" color={'#2D5986'}><b>Discover, Analyze, and Integrate NIH Common Fund Data</b></Typography>
+            <Stack sx={{display: {xs: "none", sm: "none", md: "block", lg: "block", xl: "block"}}}>
+            <Button color="secondary" href="/explorer" startIcon={<Icon path={mdiArrowRight} size={1} />}>
+              <Typography variant="h5"><b>Explore Harmonized Common Fund Datasets</b></Typography>
+            </Button>
+            <Button color="secondary" target="_blank" rel="noopener noreferrer" href="https://cfdeknowledge.org/r/kc_landing" startIcon={<Icon path={mdiArrowRight} size={1} />}>
+              <Typography variant="h5"><b>Discover Knowledge Extracted from CFDE Datasets</b></Typography>
+            </Button>
+            <Button color="secondary" target="_blank" rel="noopener noreferrer" href="https://cfdeworkspace.org/" startIcon={<Icon path={mdiArrowRight} size={1} />}>
+              <Typography variant="h5"><b>Sign Up for Your Own CFDE Cloud Workspace</b></Typography>
+            </Button>
+            <Button color="secondary" target="_blank" rel="noopener noreferrer" href="https://orau.org/cfde-trainingcenter/" startIcon={<Icon path={mdiArrowRight} size={1} />}>
+              <Typography variant="h5"><b>Acquire Skills in Using CFDE Datasets and Tools</b></Typography>
+            </Button>
+            <Button color="secondary" target="_blank" rel="noopener noreferrer" href="https://cfdeconnect.org/" startIcon={<Icon path={mdiArrowRight} size={1} />}>
+              <Typography variant="h5"><b>Learn How to Engage with the CFDE Consortium</b></Typography>
+            </Button>
+          </Stack>
+            
+          </Stack>
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={12} md={8}>
+            <Wheel dccs={dccs}/>
+        </Grid>
+        <Grid item xs={12} sx={{width: "100%", display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
+          <Stack justifyContent={"center"} alignItems={"center"} sx={{display: "flex"}}>
+            <Button color="secondary" href="/explorer" startIcon={<Icon path={mdiArrowRight} size={1} />}>
+              <Typography sx={{textAlign: "center"}} variant="h5"><b>Explore Harmonized Common Fund Datasets</b></Typography>
+            </Button>
+            <Button color="secondary" target="_blank" rel="noopener noreferrer" href="https://cfdeknowledge.org/r/kc_landing" startIcon={<Icon path={mdiArrowRight} size={1} />}>
+              <Typography sx={{textAlign: "center"}} variant="h5"><b>Discover Knowledge Extracted from CFDE Datasets</b></Typography>
+            </Button>
+            <Button color="secondary" target="_blank" rel="noopener noreferrer" href="https://cfdeworkspace.org/" startIcon={<Icon path={mdiArrowRight} size={1} />}>
+              <Typography sx={{textAlign: "center"}} variant="h5"><b>Sign Up for Your Own CFDE Cloud Workspace</b></Typography>
+            </Button>
+            <Button color="secondary" target="_blank" rel="noopener noreferrer" href="https://orau.org/cfde-trainingcenter/" startIcon={<Icon path={mdiArrowRight} size={1} />}>
+              <Typography sx={{textAlign: "center"}} variant="h5"><b>Acquire Skills in Using CFDE Datasets and Tools</b></Typography>
+            </Button>
+            <Button color="secondary" target="_blank" rel="noopener noreferrer" href="https://cfdeconnect.org/" startIcon={<Icon path={mdiArrowRight} size={1} />}>
+              <Typography sx={{textAlign: "center"}} variant="h5"><b>Learn How to Engage with the CFDE Consortium</b></Typography>
+            </Button>
+          </Stack>
+        </Grid>
+        {/* <Grid item xs={12}>
           <Paper sx={{
                   boxShadow: "none", 
                   padding: 5, 
@@ -121,7 +85,7 @@ export default async function Page({searchParams}: {
           >
             <Summary include={['file', 'kg_assertion', 'gene', 'gene_set', 'compound']} />
           </Paper>
-        </Grid>
+        </Grid> */}
         <Grid item xs={12}>
           <Typography variant="h2" color="secondary" sx={{textAlign: "center", mt: 2}}>
             Learn More About the Common Fund Data Ecosystem
@@ -131,7 +95,58 @@ export default async function Page({searchParams}: {
           <Carousel/>
         </Grid>
         <Grid item xs={12} md={3}>
-          <Stack spacing={1}>
+          <Stack sx={{display: {xs: "none", sm: "none", md: "flex", lg: "flex", xl: "flex"}}} spacing={1}>
+            <Card sx={{width: 270}}>
+              <CardContent>
+                <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">ABOUT THE WORKBENCH</Typography>
+                <Box sx={{width: 233}}>
+                  <Image src="/img/workbench.png" alt="workbench" width={233} height={233}/>
+                </Box>
+                <div className="flex justify-start">
+                  <div>
+                    <Button color="tertiary" sx={{backgroundColor: "#eaedf6", color: "#2D5986"}} endIcon={<Icon path={mdiArrowRight} size={1} />}>
+                      <Link target="_blank" rel="noopener noreferrer" href={"https://www.sciencedirect.com/science/article/pii/S0022283626000045"}>
+                        <Typography variant="caption"><b>READ PAPER</b></Typography>
+                      </Link>
+                    </Button>
+                    
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card sx={{width: 270}}>
+              <CardContent>
+                <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center"}}variant="subtitle1">FEATURED TOOL</Typography>
+                  <Box>
+                    <Image src="https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/pwb-w-062025.png" alt="gsc" width={233} height={233}/>
+                  </Box>
+                  <Stack direction={"row"} spacing={1}>
+                      <Tooltip title="Read publication">
+                        <Button color="secondary">
+                          <Link target="_blank" rel="noopener noreferrer" href={"https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1012901"}>
+                            <Icon path={mdiBookOpenVariantOutline} size={1} />
+                          </Link>
+                        </Button>
+                      </Tooltip>
+                      <Tooltip title="Go to site">
+                        <Button color="secondary">
+                          <Link target="_blank" rel="noopener noreferrer" href={"https://playbook-workflow-builder.cloud"}>
+                            <Icon path={mdiLink} size={1} />
+                          </Link>
+                        </Button>
+                      </Tooltip>
+                      <Tooltip title="Watch tutorial">
+                        <Button  color="secondary">
+                          <Link target="_blank" rel="noopener noreferrer" href={"https://www.youtube.com/watch?v=mHXCdX0kfHE"}>
+                            <Icon path={mdiYoutube} size={1} />
+                          </Link>
+                        </Button>
+                      </Tooltip>
+                    </Stack>
+              </CardContent>
+            </Card>
+          </Stack>
+          <Stack direction={"row"} justifyContent={"center"} sx={{display: {xs: "flex", sm: "flex", md: "none", lg: "none", xl: "none"}}} spacing={1}>
             <Card sx={{width: 270}}>
               <CardContent>
                 <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">ABOUT THE WORKBENCH</Typography>
@@ -348,52 +363,4 @@ export default async function Page({searchParams}: {
       </Grid>
       </Grid>
     )
-  } else {
-    const query: {[key:string]: string[] | {[key:string]: {
-      [key:string]: number,
-      
-    }}} = JSON.parse(searchParams.q || '{}')
-    const inputList:{entity: string, label: string, icon_color: string, color: string, icon: string, values?: {[key: string]: number}, links?: {resource: string, description: string, link: string}[]}[] = []
-    for (const [entity, v] of Object.entries(query)) {
-      const {color, icon, icon_color} = ui_elements[entity]
-      if (entity === 'gene_set' && !Array.isArray(v)) {
-        for (const [description="user_input", input] of Object.entries(v)) {
-          const linksearch = await trpc.send_gene_set({description, input})
-          inputList.push({
-            entity,
-            label: description,
-            color,
-            icon,
-            links: linksearch,
-            values: input,
-            icon_color
-          })
-        }
-
-      } else if (Array.isArray(v)) {
-        for (const label of v) {
-          inputList.push({
-            entity,
-            label,
-            color,
-            icon,
-            icon_color,
-            // links
-          })
-        }
-      }
-    }
-    const link_dict = await trpc.entity_links({input: inputList})
-    for (const i of inputList) {
-      if (link_dict[i.entity] && link_dict[i.entity][i.label])
-        i['links'] = link_dict[i.entity][i.label]
-    }
-    return (
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-            <Search inputList={inputList} />
-        </Grid>
-      </Grid>
-    )
-  }
 }

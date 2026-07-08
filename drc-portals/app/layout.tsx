@@ -3,7 +3,7 @@ import NextAuthProvider from '@/lib/auth/client'
 import ThemeRegistry from './ThemeRegistry'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import './globals.css'
-import { Fab, Grid, Tooltip } from '@mui/material'
+import { Grid } from '@mui/material'
 import AppProgressProvider from '@/utils/progressbar'
 import AdministrationDirectives from '@/components/misc/AdministrationDirectives'
 import TrpcProvider from '@/lib/trpc/provider'
@@ -11,15 +11,13 @@ import Header from '@/components/Header'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import NavBreadcrumbs from '@/components/Header/breadcrumbs'
-import CFDEWheel from 'cfde-wheel'
-import Icon from '@mdi/react'
-import { mdiRobot } from '@mdi/js'
 import Footer  from '@/components/Footer/info'
 import Background from '@/components/styled/background'
 import { WithContext, WebSite } from 'schema-dts'
 import Head from 'next/head'
 import SearchParamSearchField from './data/processed/SearchParamSearchField'
 
+import SpeedDialButton from './speed_dial'
 export const metadata: Metadata = {
   title: 'CFDE Workbench',
   description: 'Search Common Fund program metadata and processed datasets',
@@ -128,20 +126,7 @@ export default async function RootLayout({
                   </Grid>
                   <Grid item><Footer/></Grid>
                 </>
-            <Tooltip title="Open CFDE Workbench Chatbot">
-              <Fab href='/data/chat' sx={{
-                position: 'fixed',
-                bottom: 130,
-                right: 50,
-                height: 70,
-                width: 70,
-                backgroundColor: '#FFF',
-                padding: 0
-              }}><Icon path={mdiRobot} size={2} /></Fab>
-            </Tooltip>
-            <Tooltip title="Open CFDE Wheel">
-              <CFDEWheel/>
-            </Tooltip>
+            <SpeedDialButton/>
           </Grid>
         </TrpcProvider>
         <AdministrationDirectives style={{ minWidth: '400px', maxWidth: '100vw' }} />

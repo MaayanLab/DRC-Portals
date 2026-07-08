@@ -174,7 +174,7 @@ export function S3UploadForm(user: { name?: string | null, email?: string | null
     await axios.put(presignedurl, file, {
       headers: {
         'Content-Type': 'application/octet-stream',
-        'x-amz-checksum-sha256': checksumHash
+        'x-amz-checksum-sha256': checksumHash,
       },
       onUploadProgress: (progressEvent) => {
         if (progressEvent.total) {

@@ -1,19 +1,11 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Autocomplete, Avatar, Button, Card, CardContent, Grid, Popper, Stack, TextField, Tooltip, Typography } from '@mui/material';
-import useSWRImmutable from 'swr/immutable';
-import levenSort from '@/components/Chat/utils/leven-sort';
-import { purple } from '@mui/material/colors';
+import {  Avatar, Button, Card, CardContent, Grid, Popper, Stack, TextField, Tooltip, Typography } from '@mui/material';
 import { mdiFormatColumns, mdiListBox, mdiMenu, mdiReceiptTextPlus, mdiSend, mdiTextSearchVariant } from '@mdi/js';
 import Icon from '@mdi/react';
-import EnrichrTermSearch from './data/enrichment/enrichr_term_search';
+import EnrichrTermSearch from '../data/enrichment/enrichr_term_search';
 import trpc from '@/lib/trpc/client'
 
-const fetcher = (endpoint: string) => fetch(endpoint).then((res) => res.json())
-
-const CustomPopper = function (props: any) {
-   return <Popper {...props} sx={{width: 100}} placement="bottom-start" />;
-};
 
 const GeneSet = ({ data, isConnectable }: {data: {update_input: Function, setGeneSetPos: Function}, isConnectable: boolean}) => {
   const [search, setSearch] = useState<'term'|'input' | 'double'>('term')
@@ -71,7 +63,9 @@ const GeneSet = ({ data, isConnectable }: {data: {update_input: Function, setGen
         </Grid>
         <Grid item xs={12}>
           {search === 'term' ?
-          <EnrichrTermSearch setInput={async (d:any)=>{
+          <EnrichrTermSearch 
+          examples={[{library: "KEGG_2026", term: "CELL CYCLE"}, {library: "KEGG_2026", term: "FOCAL ADHESION"}]}
+          setInput={async (d:any)=>{
             const {description='user_input', genes} = d
             const res = await linksearch.mutateAsync({
                 input: {

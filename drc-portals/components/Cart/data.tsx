@@ -14,7 +14,7 @@ export default function CartFab() {
     cart.length > 0 && <Grid item sx={{
       zIndex: 1050,
       position: 'fixed',
-      bottom: 105,
+      bottom: 200,
       right: 50,
     }}>
       <Link href="/data/processed/cart">

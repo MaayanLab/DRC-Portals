@@ -1,8 +1,8 @@
 'use client'
 import { useState, useEffect } from "react";
-import {Stack, Typography, Autocomplete, TextField} from '@mui/material'
+import {Stack, Typography, Autocomplete, TextField, Button, ClickAwayListener} from '@mui/material'
 import { typed_fetch } from "./helper";
-export const EnrichrTermSearch = ({setInput, hideText, background}: {setInput: Function, hideText?:boolean, background?: string}) => {
+export const EnrichrTermSearch = ({setInput, hideText, background, examples}: {setInput: Function, hideText?:boolean, background?: string, examples?: Array<{library: string, term: string}>}) => {
     const [term, setTerm] = useState<string>('')
     const [open, setOpen] = useState<boolean>(false)
     const [loading, setLoading] = useState<boolean>(false)
@@ -69,10 +69,13 @@ export const EnrichrTermSearch = ({setInput, hideText, background}: {setInput: F
             console.error(error)
         }
     }
-    console.log(term)
     return (
         <Stack direction={'column'} spacing={1} justifyContent={'flex-start'} alignItems={'flex-start'}>
             {hideText === undefined && <Typography variant={'subtitle2'}> Fetch annotated gene sets from Enrichr</Typography>}
+            <ClickAwayListener onClickAway={()=>{
+                setTerm('')
+                setOpen(false)
+            }}>
             <Autocomplete
                 id="enrichr-term"
                 options={options.sort((a, b) => -b.library.localeCompare(a.library))}
@@ -99,6 +102,13 @@ export const EnrichrTermSearch = ({setInput, hideText, background}: {setInput: F
                     setOpen(false)
                 }}
             />
+            </ClickAwayListener>
+            <Stack direction={"row"} alignItems="center" justifyContent={"center"}>
+                {examples !== undefined && <Typography variant="body1">Examples:</Typography>}
+                {examples !== undefined &&
+                    examples.map(example=><Button color="secondary" onClick={()=>fetchGeneSet(example.library, example.term)}><Typography variant="body1" sx={{textTransform: "lowercase"}}>{example.term}</Typography></Button>)
+                }
+            </Stack>
         </Stack>
     )
 }
