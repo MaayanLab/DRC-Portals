@@ -106,6 +106,7 @@ export function predicateLabel(type: string) {
   else if (type === 'relation') type = 'assertion'
   else if (type === 'target') type = 'target node'
   else if (type === 'source') type = 'source node'
+  else if (type === 'taxon') type = 'species'
   else if (type.startsWith('inv_')) type = `${type.substring(4)} of`
   return titleCapitalize(type.replaceAll('_',' '))
 }

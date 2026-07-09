@@ -150,7 +150,7 @@ export default router({
     let facets: string[] = []
     facets.push(
       'type',
-      'm2m_disease.id', 'm2m_species.id', 'm2m_anatomy.id', 'm2m_gene.id', 'm2m_protein.id', 'm2m_compound.id', 'm2m_data_type.id', 'm2m_assay_type.id',
+      'm2m_disease.id', 'm2m_taxon.id', 'm2m_anatomy.id', 'm2m_gene.id', 'm2m_protein.id', 'm2m_compound.id', 'm2m_data_type.id', 'm2m_assay_type.id',
       'm2m_file_format.id', 'm2m_ptm_type.id', 'm2m_ptm_subtype.id', 'm2m_ptm_site_type.id',
       'm2m_project.id', 'm2m_dcc.id',
       'm2m_source.id', 'm2m_relation.id', 'm2m_target.id',
