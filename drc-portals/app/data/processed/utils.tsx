@@ -168,6 +168,7 @@ export function itemDescription(item: EntityExpandedType, lookup?: Record<string
   if (item['type'] === 'subject') return `A subject${lookup && item.m2o_dcc && item.m2o_dcc.id in lookup ? ` from ${lookup[item.m2o_dcc.id].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
   if (item['type'] === 'dcc_asset') return `A contributed ${item.a_filetype}${lookup && item.m2o_dcc && item.m2o_dcc.id in lookup ? ` from ${lookup[item.m2o_dcc.id].a_label}` : ''}`
   if (item['type'] === 'dcc') return `The ${item.a_label} data coordinating center`
+  if (item['type'] === 'gene') return `${item.a_id} - ${item.a_description}`
   if (item.a_description) {
     if (item.a_description.length > 100) return `${item.a_description.slice(0, 100)}...`
     return `${item.a_description}`
