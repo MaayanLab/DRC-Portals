@@ -70,6 +70,11 @@ const nextConfig = {
         permanent: false,
       },
       {
+        source: "/data/img/:path*",
+        destination: "/img/:path*",
+        permanent: false,
+      },
+      {
         source: "/data/search/:path*",
         destination: "/data/processed/search/:path*",
         permanent: false,
