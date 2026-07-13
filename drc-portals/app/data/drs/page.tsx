@@ -28,6 +28,7 @@ const DRSObject = z.object({
   id: z.string(),
   self_uri: z.string(),
   size: z.number().optional().nullable(),
+  created_time: z.string().optional().nullable(),
   name: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
   version: z.string().optional().nullable(),
@@ -126,6 +127,7 @@ function DRS2JSONLD({ serviceInfo, drsRes, drsAccessURLs }: { serviceInfo?: z.in
     "description": drsRes.description,
     "url": drsRes.self_uri,
     "version": drsRes.version,
+    "publication_date": drsRes.created_time,
     // if we had a license this could be added
     // "license": [
     //   "http://spdx.org/licenses/CC0-1.0",
