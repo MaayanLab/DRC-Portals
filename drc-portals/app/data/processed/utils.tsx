@@ -177,29 +177,29 @@ export function itemDescription(item: EntityExpandedType, lookup?: Record<string
   }
 }
 
-export function linkify(value: string) {
+export function linkify(value: string, label?: string) {
   const uriMatch = /^(https?|drs):\/\/(.+)/i.exec(value)
   if (uriMatch === null) {
     const nsPfMatch = /^(OBI|UBERON|data|format):(\w+)$/.exec(value)
     if (nsPfMatch !== null && nsPfMatch[1] === 'OBI') {
-      return <a className="text-blue-600 cursor:pointer underline" href={`http://purl.obolibrary.org/obo/OBI_${nsPfMatch[2]}`} target="_blank">{value}</a>
+      return <a className="text-blue-600 cursor:pointer underline" href={`http://purl.obolibrary.org/obo/OBI_${nsPfMatch[2]}`} target="_blank">{label || value}</a>
     } else if (nsPfMatch !== null && nsPfMatch[1] === 'UBERON') {
-      return <a className="text-blue-600 cursor:pointer underline" href={`http://purl.obolibrary.org/obo/UBERON_${nsPfMatch[2]}`} target="_blank">{value}</a>
+      return <a className="text-blue-600 cursor:pointer underline" href={`http://purl.obolibrary.org/obo/UBERON_${nsPfMatch[2]}`} target="_blank">{label || value}</a>
     } else if (nsPfMatch !== null && nsPfMatch[1] === 'data') {
-      return <a className="text-blue-600 cursor:pointer underline" href={`http://edamontology.org/data_${nsPfMatch[2]}`} target="_blank">{value}</a>
+      return <a className="text-blue-600 cursor:pointer underline" href={`http://edamontology.org/data_${nsPfMatch[2]}`} target="_blank">{label || value}</a>
     } else if (nsPfMatch !== null && nsPfMatch[1] === 'format') {
-      return <a className="text-blue-600 cursor:pointer underline" href={`http://edamontology.org/format_${nsPfMatch[2]}`} target="_blank">{value}</a>
+      return <a className="text-blue-600 cursor:pointer underline" href={`http://edamontology.org/format_${nsPfMatch[2]}`} target="_blank">{label || value}</a>
     } else {
       const emailMatch = /^[^ @]+@[^ @]+$/.exec(value)
       if (emailMatch !== null) {
-        return <a className="text-blue-600 cursor:pointer underline" href={`mailto:${value}`} target="_blank">{value}</a>
+        return <a className="text-blue-600 cursor:pointer underline" href={`mailto:${value}`} target="_blank">{label || value}</a>
       } else {
         return <>{value}</>
       }
     }
   }
-  if (uriMatch[1] === 'drs') return <a className="text-blue-600 cursor:pointer underline" href={`/data/drs?q=${encodeURIComponent(value)}`} target="_blank">{value}</a>
-  else return <a className="text-blue-600 cursor:pointer underline" href={value} target="_blank">{value}</a>
+  if (uriMatch[1] === 'drs') return <a className="text-blue-600 cursor:pointer underline" href={`/data/drs?q=${encodeURIComponent(value)}`} target="_blank">{label || value}</a>
+  else return <a className="text-blue-600 cursor:pointer underline" href={value} target="_blank">{label || value}</a>
 }
 
 export function parse_url(location: { pathname?: string, search?: ReadonlyURLSearchParams | URLSearchParams | string } = typeof window === 'undefined' ? {} : window.location): Record<string, string | null> {

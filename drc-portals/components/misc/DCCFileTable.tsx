@@ -7,6 +7,7 @@ import { dccAsset } from '@/utils/dcc-assets';
 import { useWidth } from './Carousel/helper';
 import DisableableLink from './DisableableLink';
 import { useSession } from 'next-auth/react';
+import { linkify } from '@/app/data/processed/utils';
 
 function AccessControledDccAssetLink({ item, ...props }: React.PropsWithChildren<{ item: dccAsset }> & Exclude<React.ComponentProps<typeof DisableableLink>, 'children' | 'disabled'>) {
   const session = useSession({ required: false })
@@ -101,7 +102,7 @@ export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
               <React.Fragment key={idx}>
                 <ListItem>
                   <Stack spacing={1}>
-                    <div className='flex space-x-2 items-start'><Typography variant="body2"><b>Filename:</b></Typography><NameCell item={item}/></div>
+                    <div className='flex space-x-2 items-start'><Typography variant="body2"><b>Filename:</b></Typography><NameCell item={item}/>{item.drs && <Typography>&nbsp;({linkify(item.drs, 'DRS')})</Typography>}</div>
                     <Typography variant="body2"><b>Creator:</b> {item.creator}</Typography>
                     <Typography variant="body2"><b>Filesize:</b> {item.size}</Typography>
                     <Typography variant="body2"><b>Date Modified:</b> {item.lastmodified}</Typography>
@@ -169,6 +170,7 @@ export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
                   <AccessControledDccAssetLink color="#3470e5" fontSize="11pt" className="underline" href={item.link} target="_blank" rel="noopener" item={item}>
                     {item.filename}
                   </AccessControledDccAssetLink>
+                  {item.drs && <>&nbsp;({linkify(item.drs, 'DRS')})</>}
                 </TableCell>
                 <TableCell width='20%' align="center" sx={{border:0}}>{item.creator}</TableCell>
                 <TableCell width="10%" align="center" sx={{border:0, fontSize: '11pt'}}>{item.size}</TableCell>

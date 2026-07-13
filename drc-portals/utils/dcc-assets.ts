@@ -5,6 +5,7 @@ export type dccAsset = {
   filetype: string;
   filename: string;
   link: string;
+  drs?: string;
   size?: string;
   lastmodified: string;
   creator: string | null;
@@ -107,7 +108,8 @@ async function getFile(
       fileAsset: {
         select: {
           filename: true,
-          size: true
+          size: true,
+          sha256checksum: true,
         }
       },
       dcc: {
@@ -123,12 +125,13 @@ async function getFile(
     filetype: ft,
     filename: item.fileAsset ? item.fileAsset.filename : '',
     link: item.link,
+    drs: item.fileAsset?.sha256checksum ? `drs://cfde.cloud/${Buffer.from(item.fileAsset.sha256checksum, 'base64').toString('hex')}` : undefined,
     size: item.fileAsset ? convertBytes(item.fileAsset.size) : undefined,
     lastmodified: item.lastmodified.toLocaleDateString("en-US"),
     creator: await getCreatorAff(
       prisma, item.creator, ft, item.dccapproved, item.drcapproved, getDccShortLabel(item.dcc, dccName)),
     dccapproved: item.dccapproved,
-    drcapproved: item.drcapproved
+    drcapproved: item.drcapproved,
     }
   )))
   return data
