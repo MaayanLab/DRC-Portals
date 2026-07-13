@@ -105,6 +105,79 @@ async function ViewAccessMethod({ name, access_method, access_url }: { name: str
   </>
 }
 
+function DRS2JSONLD({ serviceInfo, drsRes, drsAccessURLs }: { serviceInfo?: z.infer<typeof ServiceInfoObject>, drsRes: z.infer<typeof DRSObject>, drsAccessURLs: Record<string, Result<z.infer<typeof AccessURL>>> }) {
+  return {
+    "@context": [
+      "https://schema.org",
+      // {
+      //   "pav": "...",
+      //   "prov": "..."
+      // }
+    ],
+    "@type": "Dataset",
+    // "prov:wasDerivedFrom": {
+    //   "@id": "...",
+    //   "@type": "prov:Entity"
+    // },
+    // "prov:wasGeneratedBy": {
+    //   "@type": "prov:Activity"
+    // }
+    "name": drsRes.name,
+    "description": drsRes.description,
+    "url": drsRes.self_uri,
+    "version": drsRes.version,
+    // if we had a license this could be added
+    // "license": [
+    //   "http://spdx.org/licenses/CC0-1.0",
+    //   "https://creativecommons.org/publicdomain/zero/1.0"
+    // ],
+    // if we had a doi this could be added
+    // "identifier": {
+    //   "@id": "https://doi.org/TODO",
+    //   "@type": "PropertyValue",
+    //   "propertyID": "https://registry.identifiers.org/registry/doi",
+    //   "value": "doi:TODO",
+    //   "url": "https://doi.org/TODO"
+    // },
+    // if we had a citation this could be added
+    // "citation": "",
+    "includedInDataCatalog": {
+      "@id": "https://cfde.cloud",
+      "@type": "DataCatalog"
+    },
+    "distribution": drsRes.access_methods?.flatMap((access_method, i) => {
+      if (access_method.type === 'https') {
+        if (access_method.access_url) return [{
+          "@type": "DataDownload",
+          "contentUrl": access_method.access_url,
+          "contentSize": drsRes.size,
+          // "name":,
+          // "conditionsOfAccess": "...",
+          // "contentUrl": "...",
+          // "description": "...",
+          // "encodingFormat": ["..."],
+          // "license": "..."
+        }]
+        else if (access_method.access_id && drsAccessURLs[`${i}`].data) return [{
+          "@type": "DataDownload",
+          "contentUrl": drsAccessURLs[`${i}`].data.url,
+          "contentSize": drsRes.size,
+        }]
+        else return [{
+          "@type": "DataDownload",
+          "contentSize": drsRes.size,
+        }]
+      } else return []
+    }),
+    "provider": serviceInfo ? {
+      "@id": serviceInfo.organization.url,
+      "@type": "Organization",
+      "name": serviceInfo.organization.name,
+      "url": serviceInfo.organization.url,
+    } : undefined,
+  }
+}
+
 async function resolveAccessUrls({ drs, drsRes }: { drs: { origin: string, object_id: string }, drsRes?: z.infer<typeof DRSObject> }) {
   if (!drsRes?.access_methods) return {}
   return Object.fromEntries(
@@ -129,6 +202,12 @@ async function ViewDRS({ drs }: { drs: { origin: string, object_id: string } }) 
   return <div className="flex flex-col">
     {drsRes?.error && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {drsRes.error.message}</div>}
     {drsRes?.data && <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ 
+          __html: JSON.stringify(DRS2JSONLD({ serviceInfo: serviceInfoRes.data, drsRes: drsRes.data, drsAccessURLs })).replace(/</g, '\\u003c') 
+        }}
+      />
       <div><strong>URI</strong>: {drsRes.data.self_uri}</div>
       <div className="ml-1 pl-1 border-l border-black">
         <div><strong>Name</strong>: {drsRes.data.name}</div>
