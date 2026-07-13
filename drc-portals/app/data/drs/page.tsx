@@ -1,9 +1,8 @@
-'use client'
-
-import { notFound, useSearchParams } from "next/navigation"
+import { notFound } from "next/navigation"
 import React from "react"
 import { z } from 'zod'
 import { filesize } from 'filesize'
+import { safeAsync } from "@/utils/safe"
 
 // https://ga4gh.github.io/data-repository-service-schemas/preview/release/drs-1.4.0/docs/#tag/AccessMethodModel
 const AccessURL = z.object({
@@ -56,27 +55,13 @@ function translateErrorStatus(code: number) {
   else return 'Unknown Error'
 }
 
-function useFetch(url?: string) {
-  const [loading, setLoading] = React.useState<Record<string, boolean>>({})
-  const [data, setData] = React.useState<Record<string, unknown>>({})
-  const [error, setError] = React.useState<Record<string, Error | undefined>>({})
-  React.useEffect(() => {
-    if (url) {
-      setLoading((loading) => ({ ...loading, [url]: true }))
-      setData((data) => ({ ...data, [url]: undefined }))
-      setError((error) => ({ ...error, [url]: undefined }))
-      fetch(url)
-        .then((req) => {
-          if (!req.ok) return Promise.reject(new Error(`${req.statusText || translateErrorStatus(req.status)} ${req.status}`))
-          else return req.json()
-        })
-        .then(res => setData((data) => ({ ...data, [url]: res })))
-        .catch(err => setError((error) => ({ ...error, [url]: new Error(`${err.message} from ${url}`) })))
-        .finally(() => setLoading((loading) => ({ ...loading, [url]: false })))
-    }
-  }, [url])
-  if (!url) return
-  return { data: data[url], error: error[url], loading: loading[url] }
+function safeFetchParse<T extends z.AnyZodObject>(url: string, schema: T) {
+  return safeAsync<z.infer<T>>(async () => {
+    const req = await fetch(url)
+    if (!req.ok) throw new Error(req.statusText || translateErrorStatus(req.status))
+    const res = await req.json()
+    return await schema.parseAsync(res)
+  })
 }
 
 function ViewAccessURL({ name, type, access_url }: { name: string, type: string,  access_url: z.TypeOf<typeof AccessURL> }) {
@@ -104,32 +89,44 @@ function ViewAccessURL({ name, type, access_url }: { name: string, type: string,
     ].join(' ')}</code>}
   </>
 }
+type Result<T, E = any> = { data: T, error: E }
 
-function ViewAccessMethod({ drs, name, access_method }: { drs: { origin: string, object_id: string }, name: string, access_method: z.TypeOf<typeof AccessMethod> }) {
-  const drsAccessURLReq = useFetch(access_method.access_id ? `https://${drs.origin}/ga4gh/drs/v1/objects/${drs.object_id}/access/${access_method.access_id}` : undefined)
-  const drsAccessURLRes = React.useMemo(() => drsAccessURLReq?.data ? AccessURL.safeParse(drsAccessURLReq.data) : undefined, [drsAccessURLReq])
+async function ViewAccessMethod({ name, access_method, access_url }: { name: string, access_method: z.TypeOf<typeof AccessMethod>, access_url: Result<z.TypeOf<typeof AccessURL>> }) {
   return <>
     <div><strong>Type</strong>: {access_method.type}</div>
     {access_method.access_id && <>
       <div><strong>Access ID</strong>: {access_method.access_id}</div>
       <div className="ml-1 pl-1 border-l border-black">
-        {drsAccessURLReq?.loading && <>Loading...</>}
-        {drsAccessURLReq?.error && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {drsAccessURLReq.error.message}</div>}
-        {drsAccessURLRes?.error && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {drsAccessURLRes.error.message}</div>}
-        {drsAccessURLRes?.data && <ViewAccessURL name={name} type={access_method.type} access_url={drsAccessURLRes.data} />}
+        {access_url.error && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {access_url.error.message}</div>}
+        {access_url.data && <ViewAccessURL name={name} type={access_method.type} access_url={access_url.data} />}
       </div>
     </>}
     {access_method.access_url && <ViewAccessURL name={name} type={access_method.type} access_url={access_method.access_url} />}
   </>
 }
 
-function ViewDRS({ drs }: { drs: { origin: string, object_id: string } }) {
-  const serviceInfoReq = useFetch(drs ? `https://${drs.origin}/ga4gh/drs/v1/service-info` : undefined)
-  const serviceInfoRes = React.useMemo(() => serviceInfoReq?.data ? ServiceInfoObject.safeParse(serviceInfoReq.data) : undefined, [serviceInfoReq])
-  const drsReq = useFetch(drs ? `https://${drs.origin}/ga4gh/drs/v1/objects/${drs.object_id}` : undefined)
-  const drsRes = React.useMemo(() => drsReq?.data ? DRSObject.safeParse(drsReq.data) : undefined, [drsReq])
+async function resolveAccessUrls({ drs, drsRes }: { drs: { origin: string, object_id: string }, drsRes?: z.infer<typeof DRSObject> }) {
+  if (!drsRes?.access_methods) return {}
+  return Object.fromEntries(
+    await Promise.all(
+      drsRes.access_methods.map(async (access_method, i) => {
+        if (access_method.access_url) {
+          return [`${i}`, { data: { url: access_method.access_url } }]
+        } else if (access_method.access_id) {
+          const access_url = await safeFetchParse(`https://${drs.origin}/ga4gh/drs/v1/objects/${drs.object_id}/access/${access_method.access_id}`, AccessURL)
+          return [`${i}`, access_url] as const
+        } else {
+          return [`${i}`, { error: { message: 'Missing access url or access id' } }]
+        }
+      }))
+  )
+}
+
+async function ViewDRS({ drs }: { drs: { origin: string, object_id: string } }) {
+  const serviceInfoRes = await safeFetchParse(`https://${drs.origin}/ga4gh/drs/v1/service-info`, ServiceInfoObject)
+  const drsRes = await safeFetchParse(`https://${drs.origin}/ga4gh/drs/v1/objects/${drs.object_id}`, DRSObject)
+  const drsAccessURLs = await resolveAccessUrls({ drs, drsRes: drsRes?.data })
   return <div className="flex flex-col">
-    {drsReq?.error && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {drsReq.error.message}</div>}
     {drsRes?.error && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {drsRes.error.message}</div>}
     {drsRes?.data && <>
       <div><strong>URI</strong>: {drsRes.data.self_uri}</div>
@@ -139,7 +136,7 @@ function ViewDRS({ drs }: { drs: { origin: string, object_id: string } }) {
         {drsRes.data.access_methods && <>
           <div><strong>Access Methods</strong>:</div>
           <div className="ml-1 pl-1 border-l border-black">
-            {drsRes.data.access_methods.map((access_method, i) => <ViewAccessMethod key={i} drs={drs} name={drsRes.data.name ?? drsRes.data.id} access_method={access_method} />)}
+            {drsRes.data.access_methods.map((access_method, i) => <ViewAccessMethod key={i} name={drsRes.data.name ?? drsRes.data.id} access_method={access_method} access_url={drsAccessURLs[`${i}`]} />)}
           </div>
         </>}
         {drsRes.data.checksums && <>
@@ -168,8 +165,6 @@ function ViewDRS({ drs }: { drs: { origin: string, object_id: string } }) {
       </div>
     </>}
     <br />
-    {serviceInfoReq?.loading && <>Loading...</>}
-    {serviceInfoReq?.error && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {serviceInfoReq.error.message}</div>}
     {serviceInfoRes?.error && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {serviceInfoRes.error.message}</div>}
     {serviceInfoRes?.data && <>
       <div><strong>Service Info</strong>: drs://{drs.origin}</div>
@@ -191,14 +186,15 @@ function ViewDRS({ drs }: { drs: { origin: string, object_id: string } }) {
   </div>
 }
 
-export default function Page() {
-  const searchParams = useSearchParams()
-  const drs = React.useMemo(() => {
-    const q = searchParams.get('q')
-    if (typeof q !== 'string') return
-    const m = /^drs:\/\/([^\/]+)\/(.+)$/.exec(q)
-    if (m) return { origin: m[1], object_id: m[2] }
-  }, [searchParams])
-  if (!drs) notFound()
+export default async function Page(props: { searchParams: Promise<{ q: string }> }) {
+  const searchParams = await props.searchParams
+  if (typeof searchParams.q !== 'string') notFound()
+  const m = /^drs:\/\/([^\/]+)\/(.+)$/.exec(searchParams.q)
+  if (!m) notFound()
+  const drs = {
+    origin: m[1],
+    object_id: m[2],
+  }
+  if (!drs.origin || !drs.object_id) notFound()
   return <ViewDRS drs={drs} />
 }

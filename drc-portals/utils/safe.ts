@@ -6,10 +6,10 @@ export function safe<T>(callable: () => T) {
   }
 }
 
-export async function safeAsync<T>(callable: () => Promise<T>) {
+export async function safeAsync<T, E = any>(callable: () => Promise<T>) {
   try {
     return { data: await callable() }
   } catch (error) {
-    return { error }
+    return { error: error as E }
   }
 }
