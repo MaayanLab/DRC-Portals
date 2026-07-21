@@ -125,7 +125,7 @@ function DRS2JSONLD({ serviceInfo, drsRes, drsAccessURLs }: { serviceInfo?: z.in
     //   "@type": "prov:Activity"
     // }
     "name": drsRes.name,
-    "description": drsRes.description ?? `A file provided by ${serviceInfo?.name}`,
+    "description": drsRes.description ?? `A file provided by the ${serviceInfo?.name} service managed by the ${serviceInfo?.organization.name} organization`,
     "url": `https://cfde.cloud/data/drs?q=${encodeURIComponent(drsRes.self_uri)}`,
     "version": drsRes.version,
     "publication_date": drsRes.created_time,
