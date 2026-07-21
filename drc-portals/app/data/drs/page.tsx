@@ -34,6 +34,7 @@ const DRSObject = z.object({
   version: z.string().optional().nullable(),
   checksums: Checksum.array().optional().nullable(),
   access_methods: AccessMethod.array().optional().nullable(),
+  mime_type: z.string().optional().nullable(),
 }).passthrough()
 const ServiceInfoObject = z.object({
   id: z.string(),
@@ -124,8 +125,8 @@ function DRS2JSONLD({ serviceInfo, drsRes, drsAccessURLs }: { serviceInfo?: z.in
     //   "@type": "prov:Activity"
     // }
     "name": drsRes.name,
-    "description": drsRes.description,
-    "url": drsRes.self_uri,
+    "description": drsRes.description ?? `A file provided by ${serviceInfo?.name}`,
+    "url": `https://cfde.cloud/data/drs?q=${encodeURIComponent(drsRes.self_uri)}`,
     "version": drsRes.version,
     "publication_date": drsRes.created_time,
     // if we had a license this could be added
@@ -151,23 +152,28 @@ function DRS2JSONLD({ serviceInfo, drsRes, drsAccessURLs }: { serviceInfo?: z.in
       if (access_method.type === 'https') {
         if (access_method.access_url) return [{
           "@type": "DataDownload",
+          "name": drsRes.name,
+          "description": drsRes.description,
           "contentUrl": access_method.access_url,
           "contentSize": drsRes.size,
-          // "name":,
+          "encodingFormat": drsRes.mime_type,
           // "conditionsOfAccess": "...",
-          // "contentUrl": "...",
-          // "description": "...",
-          // "encodingFormat": ["..."],
           // "license": "..."
         }]
         else if (access_method.access_id && drsAccessURLs[`${i}`].data) return [{
           "@type": "DataDownload",
+          "name": drsRes.name,
+          "description": drsRes.description,
           "contentUrl": drsAccessURLs[`${i}`].data.url,
           "contentSize": drsRes.size,
+          "encodingFormat": drsRes.mime_type,
         }]
         else return [{
           "@type": "DataDownload",
+          "name": drsRes.name,
+          "description": drsRes.description,
           "contentSize": drsRes.size,
+          "encodingFormat": drsRes.mime_type,
         }]
       } else return []
     }),
