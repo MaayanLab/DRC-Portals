@@ -145,6 +145,19 @@ services:
       nginx_redirect_00: / https://cfde.cloud/
       nginx_redirect_01: /(.+) https://cfde.cloud/info/$$1
 
+  drc-portal-ark-proxy:
+    image: maayanlab/proxy:1.2.13
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      annotations:
+        maayanlab.cloud/ingress: https://ark.cfde.cloud
+    ports:
+      - 80
+    environment:
+      nginx_server_name: ark.cfde.cloud
+      nginx_proxy_00: '/(.+) https://cfde.cloud/ark/$$1'
+      nginx_buffering: 0
+
   drc-portal-postgres:
     image: postgres:16
     x-kubernetes:
