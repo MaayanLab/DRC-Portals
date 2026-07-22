@@ -48,7 +48,7 @@ const groups = [
   },
   {
     title: "Explore",
-    icon: mdiToolbox,
+    icon: mdiCompass,
     links: [
       {
         label: "About CFDE",
