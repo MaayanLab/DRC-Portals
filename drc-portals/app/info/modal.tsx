@@ -6,7 +6,9 @@ import { Button, Collapse, Paper, Typography } from '@mui/material';
 import {Modal, Grid, Box} from '@mui/material';
 import { Stack } from '@mui/system';
 import Image from 'next/image';
-import React, { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 
 const centers = [
 	{
@@ -51,15 +53,16 @@ const centers = [
 	}
 ]
 export const Popup = () => {
-	const [open, setOpen] = useState(true);
+	const searchParams = useSearchParams()
+	const info = searchParams.get('info')
+	const router = useRouter()
 	const [selected, setSelected] = useState('');
-	const handleOpen = () => setOpen(true);
-	const handleClose = () => setOpen(false);
-
+	const handleClose = () => router.push("/");
+	console.log(info)
 	return (
     <div>
       <Modal
-        open={open}
+        open={info !== null}
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
@@ -93,7 +96,7 @@ export const Popup = () => {
 							</Button>
 						</Grid>
 						<Grid item xs={12} md={6}>
-							{center.name === "drc" ? <Button color="secondary"  href={center.link}>
+							{center.name === "Data Resource Center" ? <Button color="secondary"  href={center.link}>
 								<Image src={center.image} alt="drc" width={center.width} height={200}/>
 							</Button>:
 							<Button color="secondary"  href={center.link} target="_blank" rel="noopener noreferrer" >
@@ -105,7 +108,7 @@ export const Popup = () => {
 					<Collapse in={selected===center.name} timeout="auto" unmountOnExit>
 						<Box sx={{padding: 2}}>
 							<Typography variant="body1">{center.blurb}</Typography>
-							{center.name === "drc" ? <Button color="secondary" href={center.link} startIcon={<Icon path={mdiArrowRight} size={1} />}>
+							{center.name === "Data Resource Center" ? <Button color="secondary" href={center.link} startIcon={<Icon path={mdiArrowRight} size={1} />}>
 								<Typography variant="body1">Go to {center.name} Portal</Typography>
 							</Button>:
 							<Button color="secondary" target="_blank" rel="noopener noreferrer" href={center.link} startIcon={<Icon path={mdiArrowRight} size={1} />}>
