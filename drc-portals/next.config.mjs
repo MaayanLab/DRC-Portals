@@ -35,7 +35,7 @@ const nextConfig = {
         {
           has: [{ type: "host", value: "info.cfde.cloud" }],
           source: "/",
-          destination: "/info",
+          destination: "/",
         },
       ],
       afterFiles: [
