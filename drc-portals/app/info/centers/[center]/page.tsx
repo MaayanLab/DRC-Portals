@@ -23,8 +23,8 @@ import remarkGfm from "remark-gfm"
 import {  PRenderer } from '@/components/misc/ReactMarkdownRenderers'
 import YoutubeEmbed from "@/components/misc/YoutubeEmbed";
 
-export default async function CenterDataPage({ params }: { params: { center: string } }) {
-
+export default async function CenterDataPage(props: { params: Promise<{ center: string }> }) {
+    const params = await props.params
     const center = await prisma.center.findFirst({
         where: {
             short_label: decodeURI(params.center),

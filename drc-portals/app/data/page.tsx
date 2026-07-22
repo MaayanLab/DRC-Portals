@@ -59,7 +59,8 @@ const tool_cards = [
   }
 ];
 
-export default async function Home({ searchParams }: { searchParams: { search?: string, error?: string } }) {
+export default async function Home(props: { searchParams: Promise<{ search?: string, error?: string }> }) {
+  const searchParams = await props.searchParams
   return (
     <main className="text-center">
       <Grid container alignItems={"flex-start"} justifyContent={"center"}>

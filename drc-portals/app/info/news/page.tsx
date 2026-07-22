@@ -1,9 +1,9 @@
 import News from "./NewsServer"
 
-export default function NewsPage ({searchParams}:{
-    searchParams?: {
+export default async function NewsPage (props:{
+    searchParams?: Promise<{
         q?:string
-    }
+    }>
 }) {
-    return <News searchParams={searchParams}/>
+    return <News searchParams={props.searchParams}/>
 }

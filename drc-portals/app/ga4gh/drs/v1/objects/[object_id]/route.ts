@@ -131,7 +131,8 @@ async function getPDPObject(object_id: string) {
   }
 }
 
-export async function GET(request: Request, { params }: { params: { object_id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ object_id: string }> }) {
+  const params = await props.params
   let response
   response = await getDccAsset(params.object_id)
   if (response !== null) return response

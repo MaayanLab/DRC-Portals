@@ -10,11 +10,12 @@ import Fall2024 from './Fall2024.mdx'
 import ASHG2024 from './ASHG2024.mdx'
 import { EventPage } from "./event_page";
 import { validate as isValidUUID } from 'uuid';
-export default async function OutreachEvent ({params}: {
-	params: {
+export default async function OutreachEvent (props: {
+	params: Promise<{
 		event: string
-	}
+	}>
 }) {
+	const params = await props.params
 	if (params.event === "2024-march-all-hands-meeting") {
 		return <March2024F2F />
 	} else if (params.event === "2025-march-all-hands-meeting") {

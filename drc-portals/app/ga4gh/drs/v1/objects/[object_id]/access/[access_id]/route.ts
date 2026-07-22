@@ -47,7 +47,8 @@ async function getPDPObjectUrl(object_id: string, access_id: string) {
   }
 }
 
-export async function GET(request: Request, { params }: { params: { object_id: string, access_id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ object_id: string, access_id: string }> }) {
+  const params = await props.params
   let response
   response = await getDccAssetUrl(params.object_id, params.access_id)
   if (response) return response

@@ -78,9 +78,10 @@ const ui_elements: {[key: string]: {color: string, icon_color: string, icon: str
   }
 }
 
-export default async function Page({searchParams}: {
-  searchParams: {q: string, search?: boolean}
+export default async function Page(props: {
+  searchParams: Promise<{q: string, search?: boolean}>
 }) {
+  const searchParams = await props.searchParams
   if (searchParams.q === undefined || searchParams.search === undefined) {
     const publications = await prisma.publication.findMany({
         orderBy: {

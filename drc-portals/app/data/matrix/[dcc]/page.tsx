@@ -6,7 +6,8 @@ import { getDccDataObj } from '@/utils/dcc-assets';
 import { ReadMore } from '@/components/misc/ReadMore';
 import { notFound } from 'next/navigation';
 
-export default async function DccDataPage({ params }: { params: { dcc: string } }) {
+export default async function DccDataPage(props: { params: Promise<{ dcc: string }> }) {
+  const params = await props.params
   const dcc = decodeURI(params.dcc)
   const dcc_dbinfo = await prisma.dCC.findFirst({
     where: {
