@@ -80,6 +80,12 @@ const nextConfig = {
         permanent: false,
       },
       {
+        has: [{ type: "host", value: "info.cfde.cloud" }],
+        source: "/",
+        destination: "/info",
+        permanent: false,
+      },
+      {
         has: [{ type: "host", value: "data.cfde.cloud" }],
         source: "/info/:path*",
         destination: "https://info.cfde.cloud/:path*",
