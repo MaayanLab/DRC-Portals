@@ -14,7 +14,7 @@ const centers = [
 		hero: "Explore Harmonized Common Fund Datasets",
 		blurb: "The CFDE Data Resource Center (DRC) hosts the CFDE Workbench, a comprehensive platform that provides harmonized metadata, processed data, and tools for data analysis across NIH Common Fund programs.",
 		image: "/centers/DRC.png",
-		link: "/explorer",
+		link: "/",
 		width: 400
 	},
 	{
