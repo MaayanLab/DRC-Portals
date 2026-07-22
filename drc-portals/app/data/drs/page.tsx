@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import React from "react"
 import { z } from 'zod'
 import { filesize } from 'filesize'
-import { safeAsync } from "@/utils/safe"
+import { Result, safeAsync } from "@/utils/safe"
 
 // https://ga4gh.github.io/data-repository-service-schemas/preview/release/drs-1.4.0/docs/#tag/AccessMethodModel
 const AccessURL = z.object({
@@ -91,7 +91,6 @@ function ViewAccessURL({ name, type, access_url }: { name: string, type: string,
     ].join(' ')}</code>}
   </>
 }
-type Result<T, E = any> = { data: T, error: E }
 
 async function ViewAccessMethod({ name, access_method, access_url }: { name: string, access_method: z.TypeOf<typeof AccessMethod>, access_url: Result<z.TypeOf<typeof AccessURL>> }) {
   return <>
@@ -99,15 +98,15 @@ async function ViewAccessMethod({ name, access_method, access_url }: { name: str
     {access_method.access_id && <>
       <div><strong>Access ID</strong>: {access_method.access_id}</div>
       <div className="ml-1 pl-1 border-l border-black">
-        {access_url.error && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {access_url.error.message}</div>}
-        {access_url.data && <ViewAccessURL name={name} type={access_method.type} access_url={access_url.data} />}
+        {'error' in access_url && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {access_url.error.message}</div>}
+        {'data' in access_url && <ViewAccessURL name={name} type={access_method.type} access_url={access_url.data} />}
       </div>
     </>}
     {access_method.access_url && <ViewAccessURL name={name} type={access_method.type} access_url={access_method.access_url} />}
   </>
 }
 
-function DRS2JSONLD({ serviceInfo, drsRes, drsAccessURLs }: { serviceInfo?: z.infer<typeof ServiceInfoObject>, drsRes: z.infer<typeof DRSObject>, drsAccessURLs: Record<string, Result<z.infer<typeof AccessURL>>> }) {
+function DRS2JSONLD({ serviceInfo, drsRes, drsAccessURLs }: { serviceInfo?: z.infer<typeof ServiceInfoObject>, drsRes: z.infer<typeof DRSObject>, drsAccessURLs: { access_method: z.infer<typeof AccessMethod>, access_url: Result<z.infer<typeof AccessURL>> }[] }) {
   return {
     "@context": [
       "https://schema.org",
@@ -148,7 +147,7 @@ function DRS2JSONLD({ serviceInfo, drsRes, drsAccessURLs }: { serviceInfo?: z.in
       "@id": "https://cfde.cloud",
       "@type": "DataCatalog"
     },
-    "distribution": drsRes.access_methods?.flatMap((access_method, i) => {
+    "distribution": drsAccessURLs?.flatMap(({ access_method, access_url }, i) => {
       if (access_method.type === 'https') {
         if (access_method.access_url) return [{
           "@type": "DataDownload",
@@ -160,11 +159,11 @@ function DRS2JSONLD({ serviceInfo, drsRes, drsAccessURLs }: { serviceInfo?: z.in
           // "conditionsOfAccess": "...",
           // "license": "..."
         }]
-        else if (access_method.access_id && drsAccessURLs[`${i}`].data) return [{
+        else if (access_method.access_id && 'data' in access_url && access_url.data && access_url.data.headers.length === 0) return [{
           "@type": "DataDownload",
           "name": drsRes.name,
           "description": drsRes.description,
-          "contentUrl": drsAccessURLs[`${i}`].data.url,
+          "contentUrl": access_url.data.url,
           "contentSize": drsRes.size,
           "encodingFormat": drsRes.mime_type,
         }]
@@ -187,33 +186,30 @@ function DRS2JSONLD({ serviceInfo, drsRes, drsAccessURLs }: { serviceInfo?: z.in
 }
 
 async function resolveAccessUrls({ drs, drsRes }: { drs: { origin: string, object_id: string }, drsRes?: z.infer<typeof DRSObject> }) {
-  if (!drsRes?.access_methods) return {}
-  return Object.fromEntries(
-    await Promise.all(
-      drsRes.access_methods.map(async (access_method, i) => {
-        if (access_method.access_url) {
-          return [`${i}`, { data: { url: access_method.access_url } }]
-        } else if (access_method.access_id) {
-          const access_url = await safeFetchParse(`https://${drs.origin}/ga4gh/drs/v1/objects/${drs.object_id}/access/${access_method.access_id}`, AccessURL)
-          return [`${i}`, access_url] as const
-        } else {
-          return [`${i}`, { error: { message: 'Missing access url or access id' } }]
-        }
-      }))
-  )
+  return await Promise.all<Promise<{ access_method: z.infer<typeof AccessMethod>, access_url: Result<z.infer<typeof AccessURL>> }>>(
+    (drsRes?.access_methods ?? []).map(async (access_method, i) => {
+      if (access_method.access_url) {
+        return { access_method, access_url: { data: access_method.access_url } }
+      } else if (access_method.access_id) {
+        const access_url = await safeFetchParse(`https://${drs.origin}/ga4gh/drs/v1/objects/${drs.object_id}/access/${access_method.access_id}`, AccessURL)
+        return { access_method, access_url }
+      } else {
+        return { access_method, access_url: { error: { message: 'Missing access url or access id' } } as Result<z.infer<typeof AccessURL>> }
+      }
+    }))
 }
 
 async function ViewDRS({ drs }: { drs: { origin: string, object_id: string } }) {
   const serviceInfoRes = await safeFetchParse(`https://${drs.origin}/ga4gh/drs/v1/service-info`, ServiceInfoObject)
   const drsRes = await safeFetchParse(`https://${drs.origin}/ga4gh/drs/v1/objects/${drs.object_id}`, DRSObject)
-  const drsAccessURLs = await resolveAccessUrls({ drs, drsRes: drsRes?.data })
+  const drsAccessURLs = await resolveAccessUrls({ drs, drsRes: 'data' in drsRes ? drsRes.data : undefined })
   return <div className="flex flex-col">
-    {drsRes?.error && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {drsRes.error.message}</div>}
-    {drsRes?.data && <>
+    {'error' in drsRes && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {drsRes.error.message}</div>}
+    {'data' in drsRes && <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ 
-          __html: JSON.stringify(DRS2JSONLD({ serviceInfo: serviceInfoRes.data, drsRes: drsRes.data, drsAccessURLs })).replace(/</g, '\\u003c') 
+          __html: JSON.stringify(DRS2JSONLD({ serviceInfo: 'data' in serviceInfoRes ? serviceInfoRes.data : undefined, drsRes: drsRes.data, drsAccessURLs })).replace(/</g, '\\u003c') 
         }}
       />
       <div><strong>URI</strong>: {drsRes.data.self_uri}</div>
@@ -223,7 +219,7 @@ async function ViewDRS({ drs }: { drs: { origin: string, object_id: string } }) 
         {drsRes.data.access_methods && <>
           <div><strong>Access Methods</strong>:</div>
           <div className="ml-1 pl-1 border-l border-black">
-            {drsRes.data.access_methods.map((access_method, i) => <ViewAccessMethod key={i} name={drsRes.data.name ?? drsRes.data.id} access_method={access_method} access_url={drsAccessURLs[`${i}`]} />)}
+            {drsAccessURLs.map(({ access_method, access_url }, i) => <ViewAccessMethod key={i} name={drsRes.data.name ?? drsRes.data.id} access_method={access_method} access_url={access_url} />)}
           </div>
         </>}
         {drsRes.data.checksums && <>
@@ -252,8 +248,8 @@ async function ViewDRS({ drs }: { drs: { origin: string, object_id: string } }) 
       </div>
     </>}
     <br />
-    {serviceInfoRes?.error && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {serviceInfoRes.error.message}</div>}
-    {serviceInfoRes?.data && <>
+    {'error' in serviceInfoRes && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {serviceInfoRes.error.message}</div>}
+    {'data' in serviceInfoRes && <>
       <div><strong>Service Info</strong>: drs://{drs.origin}</div>
       <div className="ml-1 pl-1 border-l border-black">
         <div><strong>Name</strong>: {serviceInfoRes.data.name}</div>
