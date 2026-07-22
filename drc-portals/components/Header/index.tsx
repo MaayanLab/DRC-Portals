@@ -57,46 +57,6 @@ export const TopNav = ({ session }: {session: Session | null }) => {
 
 const options = [
   {
-    title: "Explore the Ecosystem",
-    links: [
-      {
-        title: "Homepage",
-        href: "/",
-        description: "Go to the CFDE Workbench Homepage",
-        icon: mdiHome
-      },{
-        title: "Common Fund Programs",
-        href: "/info/dcc",
-        description: "Learn more about the CFDE participating Common Fund Programs",
-        icon: mdiAccountGroup
-      },
-      {
-        title: "Data Matrix",
-        href: '/data/matrix',
-        description: 'Explore a table that lists different datasets and other digital assets contributed by the CFDE participating Common Fund programs',
-        icon: mdiDataMatrix
-      },
-      {
-        title: "Centers",
-        href: "/info/centers",
-        description: "Explore the five CFDE centers working towards facilitating improved discovery, reuse, integration of Common Fund datasets",
-        icon: mdiHomeGroup
-      },
-      {
-        title: "Partnerships",
-        href: "/info/partnerships",
-        description: "Learn more about the CFDE partnerships performing integrative analysis across multiple Common Fund programs",
-        icon: mdiAccountSwitch
-      },
-      {
-        title: "Publications",
-        href: "/info/publications",
-        description: "View a listing of CFDE associated publications and landmark papers of the various Common Fund programs",
-        icon: mdiBook
-      }
-    ]
-  },
-  {
     title: "Search",
     links: [
       {
@@ -151,6 +111,45 @@ const options = [
         href: "/data/usecases",
         description: "Explore a collection of CFDE generated use cases that integrate datasets from multiple Common Fund programs",
         icon: mdiGesture
+      }
+    ]
+  },{
+    title: "Explore the Ecosystem",
+    links: [
+      {
+        title: "Homepage",
+        href: "/",
+        description: "Go to the CFDE Workbench Homepage",
+        icon: mdiHome
+      },{
+        title: "Common Fund Programs",
+        href: "/info/dcc",
+        description: "Learn more about the CFDE participating Common Fund Programs",
+        icon: mdiAccountGroup
+      },
+      {
+        title: "Data Matrix",
+        href: '/data/matrix',
+        description: 'Explore a table that lists different datasets and other digital assets contributed by the CFDE participating Common Fund programs',
+        icon: mdiDataMatrix
+      },
+      {
+        title: "Centers",
+        href: "/info/centers",
+        description: "Explore the five CFDE centers working towards facilitating improved discovery, reuse, integration of Common Fund datasets",
+        icon: mdiHomeGroup
+      },
+      {
+        title: "Partnerships",
+        href: "/info/partnerships",
+        description: "Learn more about the CFDE partnerships performing integrative analysis across multiple Common Fund programs",
+        icon: mdiAccountSwitch
+      },
+      {
+        title: "Publications",
+        href: "/info/publications",
+        description: "View a listing of CFDE associated publications and landmark papers of the various Common Fund programs",
+        icon: mdiBook
       }
     ]
   },
