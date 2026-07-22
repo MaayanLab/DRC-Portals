@@ -98,8 +98,8 @@ async function ViewAccessMethod({ name, access_method, access_url }: { name: str
     {access_method.access_id && <>
       <div><strong>Access ID</strong>: {access_method.access_id}</div>
       <div className="ml-1 pl-1 border-l border-black">
-        {'error' in access_url && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {access_url.error.message}</div>}
-        {'data' in access_url && <ViewAccessURL name={name} type={access_method.type} access_url={access_url.data} />}
+        {access_url.error && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {access_url.error.message}</div>}
+        {access_url.data && <ViewAccessURL name={name} type={access_method.type} access_url={access_url.data} />}
       </div>
     </>}
     {access_method.access_url && <ViewAccessURL name={name} type={access_method.type} access_url={access_method.access_url} />}
@@ -189,12 +189,12 @@ async function resolveAccessUrls({ drs, drsRes }: { drs: { origin: string, objec
   return await Promise.all<Promise<{ access_method: z.infer<typeof AccessMethod>, access_url: Result<z.infer<typeof AccessURL>> }>>(
     (drsRes?.access_methods ?? []).map(async (access_method, i) => {
       if (access_method.access_url) {
-        return { access_method, access_url: { data: access_method.access_url } }
+        return { access_method, access_url: { data: access_method.access_url, error: undefined } }
       } else if (access_method.access_id) {
         const access_url = await safeFetchParse(`https://${drs.origin}/ga4gh/drs/v1/objects/${drs.object_id}/access/${access_method.access_id}`, AccessURL)
         return { access_method, access_url }
       } else {
-        return { access_method, access_url: { error: { message: 'Missing access url or access id' } } as Result<z.infer<typeof AccessURL>> }
+        return { access_method, access_url: { data: undefined, error: { message: 'Missing access url or access id' } } }
       }
     }))
 }
@@ -204,8 +204,8 @@ async function ViewDRS({ drs }: { drs: { origin: string, object_id: string } }) 
   const drsRes = await safeFetchParse(`https://${drs.origin}/ga4gh/drs/v1/objects/${drs.object_id}`, DRSObject)
   const drsAccessURLs = await resolveAccessUrls({ drs, drsRes: 'data' in drsRes ? drsRes.data : undefined })
   return <div className="flex flex-col">
-    {'error' in drsRes && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {drsRes.error.message}</div>}
-    {'data' in drsRes && <>
+    {drsRes.error && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {drsRes.error.message}</div>}
+    {drsRes.data && <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ 
@@ -248,8 +248,8 @@ async function ViewDRS({ drs }: { drs: { origin: string, object_id: string } }) 
       </div>
     </>}
     <br />
-    {'error' in serviceInfoRes && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {serviceInfoRes.error.message}</div>}
-    {'data' in serviceInfoRes && <>
+    {serviceInfoRes.error && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {serviceInfoRes.error.message}</div>}
+    {serviceInfoRes.data && <>
       <div><strong>Service Info</strong>: drs://{drs.origin}</div>
       <div className="ml-1 pl-1 border-l border-black">
         <div><strong>Name</strong>: {serviceInfoRes.data.name}</div>
