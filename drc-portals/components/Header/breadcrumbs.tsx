@@ -8,8 +8,9 @@ import usePathname from '@/utils/pathname'
 
 export default function NavBreadcrumbs() {
     const path = usePathname()
+    const path2 = usePathname().replace("/info", "").replace("/data", "").replace("/processed", "")
     const { path_split, format_path_split } = React.useMemo(() => {
-        let path_split = path.replace("/", "").split("/")
+        let path_split = path2.replace("/", "").split("/")
         const format_path_split = path_split.map(p => decodeURIComponent(p).replace('_', ' '))
         if (path_split[0] === 'submit'){
             if (format_path_split[1] === 'form') {

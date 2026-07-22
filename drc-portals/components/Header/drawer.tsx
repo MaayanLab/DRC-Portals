@@ -23,15 +23,13 @@ export const DRCDrawer = ({path, options, session}: {path: "/info"| "/data", opt
   	const matches = useMediaQuery(theme.breakpoints.up('sm'));
 	return (
 		<>
-			<Container>
-				<Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
+			<Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
 					<Logo title="CFDE Workbench" size={matches ? 'large': 'small'} color="secondary"/>
 					<div className="flex">
 						<Button color="secondary" onClick={()=>setOpen(!open)}><MenuIcon/></Button>
 						{session !== null &&  <UserComponent session={session}/>}
 					</div>
-				</Stack>
-			</Container>
+			</Stack>
 			<Drawer open={open} onClose={()=>setOpen(false)}>
 				<Stack spacing={2} sx={{padding: 2}} justifyContent={"flex-start"}>
 					<div className="flex flex-col">

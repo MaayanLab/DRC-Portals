@@ -5,30 +5,24 @@ import Container from '@mui/material/Container'
 
 import {
   Grid,
-  Toolbar,
   Stack,
   Typography,
   Box,
-  Collapse,
   List,
-  ListItem,
   ListItemText,
   Popper,
   ClickAwayListener,
   ListItemIcon
 } from '@mui/material';
 
-import SearchParamSearchField from '@/app/data/processed/SearchParamSearchField'
 import { Logo } from '../styled/Logo'
 import { DRCDrawer } from './drawer';
 
 import Link from "@/utils/link"
 import UserComponent from "../misc/LoginComponents/UserComponent"
-import { authOptions } from '@/lib/auth'
 import { TextNav } from "./client"
-import { Session, getServerSession } from "next-auth"
-import NavBreadcrumbs from './breadcrumbs';
-import { useEffect, useRef, useState } from 'react';
+import { Session } from "next-auth"
+import { useRef, useState } from 'react';
 import { Button } from '@mui/material';
 import { ListItemButton } from '@mui/material';
 import { mdiAccountGroup, mdiAccountSwitch, mdiBook, mdiCalendar, mdiCompass, mdiDataMatrix, mdiFileDocument, mdiFormatListGroup, mdiGesture, mdiGraphOutline, mdiHammer, mdiHome, mdiHomeGroup, mdiInformation, mdiLaptop, mdiMagnify, mdiRobotOutline, mdiSend, mdiSetCenter } from '@mdi/js';
@@ -60,46 +54,6 @@ export const TopNav = ({ session }: {session: Session | null }) => {
     </>
   )
 }
-
-// export const BottomNav = ({ nav, path }: { path: '/info' | '/data', nav: Array<{ href: string, title: string }> }) => {
-//   return nav.map(({ title, href }) => (
-//     <Grid item key={title}>
-//       {href.indexOf('http') > -1 ?
-//         <Link href={href} target="_blank" rel="noopener noreferrer">
-//           <Typography variant="nav">{title}</Typography>
-//         </Link> :
-//         <Link href={`${href}`}>
-//           <TextNav title={title} path={href.replace(path, '')} />
-//         </Link>
-//       }
-//     </Grid>
-//   ))
-// }
-
-const info_nav = [
-  { title: "Home", href: "/info" },
-  { title: "CF Programs", href: "/info/dcc" },
-  { title: "CFDE Centers", href: "/info/centers" },
-  { title: "Partnerships", href: "/info/partnerships" },
-  { title: "Training & Outreach", href: "/info/training_and_outreach" },
-  { title: "Publications", href: "/info/publications" },
-  { title: "Webinars", href: "/info/training_and_outreach/cfde-webinar-series" },
-  //   {title: "What's New?", href: "/info/news"},
-  { title: "About", href: "/info/about" },
-]
-
-const data_nav = [
-  { title: "Search", href: "/data" },
-  { title: "Graph", href: "/data/graph" },
-  { title: "Enrichment", href: "/data/enrichment" },
-  { title: "Cross", href: "/data/cross" },
-  { title: "Assistant", href: "/data/chat" },
-  { title: "Data Matrix", href: "/data/matrix" },
-  { title: "Use Cases", href: "/data/usecases" },
-  { title: "Tools & Workflows", href: "/data/tools_and_workflows" },
-  { title: "Submit", href: "/data/submit" },
-  { title: "Documentation", href: "/data/documentation" }
-]
 
 const options = [
   {
@@ -258,8 +212,7 @@ export default function Header({ session }: {session: Session | null }) {
   const [subLinks, setSubLinks] = useState<{title: string, links: Array<{title: string, href: string, description: string, icon:string}>} | null>(null)
   const path:'/info' | '/data' = "/info"
   const ref = useRef<HTMLElement>(null);
-
-  const nav = path === "/info" ? info_nav : data_nav
+  const pathname = usePathname()
   const handleClick = (data: {title: string, links: Array<{title: string, href: string, description: string, icon: string}>}) => {
     if (subLinks === null) setSubLinks(data)
     else if (data.title === subLinks.title) {
@@ -274,9 +227,9 @@ export default function Header({ session }: {session: Session | null }) {
   return (
     <ClickAwayListener onClickAway={()=>setSubLinks(null)}>
     <div>
-    <Container maxWidth="lg">
-      <AppBar ref={ref} position="static" sx={{ color: "#2D5986", paddingTop: 2, display: { xs: "none", sm: "none", md: "block" } }}>
-        <Toolbar>
+    <Box ref={ref}>
+    <Container maxWidth="lg" >
+      <AppBar position="static" sx={{ color: "#2D5986", paddingTop: 2, display: { xs: "none", sm: "none", md: "none", lg: "block", xl: "block" } }}>
           <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
             <Grid item>
               <Logo title="CFDE Workbench" size='large' color="inherit" />
@@ -303,15 +256,15 @@ export default function Header({ session }: {session: Session | null }) {
               {path === "/data" && <SearchParamSearchField />}
             </Grid> */}
           </Grid>
-        </Toolbar>
       </AppBar>
-      <Box sx={{ display: { xs: "block", sm: "block", md: "none", lg: "none", xl: "none" } }}>
+      <AppBar position="static" sx={{ display: { xs: "block", sm: "block", md: "block", lg: "none", xl: "none" } }}>
         <Stack spacing={1}>
           <DRCDrawer path={path} options={options} session={session} />
           {/* {(path === "/data") && <SearchParamSearchField />} */}
         </Stack>
-      </Box>
+      </AppBar>
     </Container>
+    </Box>  
     <Popper sx={{bgcolor: "#A5B4DB", width:"100%", zIndex: 100}} placement={'bottom-start'} open={subLinks!==null} anchorEl={ref.current}>
       <Container maxWidth="lg">
         <List sx={{width: "100%"}}>
