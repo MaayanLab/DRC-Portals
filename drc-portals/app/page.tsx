@@ -18,6 +18,7 @@ const groups = [
   {
     title: "Search",
     icon: mdiMagnify,
+    href: "/data",
     links: [
       {
         label: "Search Common Fund Data",
@@ -28,6 +29,10 @@ const groups = [
         href: "/data/graph"
       },
       {
+        label: "Multiple Term Queries",
+        href: "/explorer"
+      },
+      {
         label: "Chat with our Virtual Assistant",
         href: "/data/chat"
       }
@@ -36,13 +41,18 @@ const groups = [
   {
     title: "Analyze",
     icon: mdiToolbox,
+    href: "/data/enrichment",
     links: [
       {
-        label: "Multiple Term Queries on CFDE Tools",
-        href: "/explorer"
+        label: "CFDE Gene Set Enrichment",
+        href: "/data/enrichment"
       },
       {
-        label: "View Tools and Workflows",
+        label: "Cross CFDE Gene Sets",
+        href: "/data/cross"
+      },
+      {
+        label: "View CFDE Tools and Workflows",
         href: "/data/tools_and_workflows"
       }
     ]
@@ -50,6 +60,7 @@ const groups = [
   {
     title: "Explore",
     icon: mdiCompass,
+    href: "/info/about",
     links: [
       {
         label: "About CFDE",
@@ -81,7 +92,7 @@ export default async function Page() {
           <Paper sx={{
                         boxShadow: "none", 
                         // width: "100vw", 
-                        minHeight: 650,
+                        minHeight: 450,
                         // marginLeft: "calc((-100vw + 100%) / 2)", 
                         // marginRight: "calc((-100vw + 100%) / 2)",
                         position: "relative",
@@ -89,6 +100,7 @@ export default async function Page() {
                         background: "none",
                         alignItems: "center",
                         justifyContent: "center",
+                        mb: 10
                       }}
                 className="flex"
           >
@@ -105,8 +117,10 @@ export default async function Page() {
                     <Grid container spacing={1}>
                       {groups.map(group=><Grid item xs={6} key={group.title} md={12/groups.length} sx={{display: "flex", flexDirection: "column", alignItems: "center"}}>
                         <Paper elevation={0} sx={{ borderRadius: 0, padding: 1, background: "#607bc0", display: "flex", flexDirection: "column", alignItems: "center", height: "100%"}} >
-                        <Icon style={{color: "white"}} path={group.icon} size={2} />
-                        <Typography variant="h5" sx={{color: "white"}}><b>{group.title}</b></Typography>
+                        <Button sx={{display: "flex", flexDirection: "column", alignItems: "center"}} component={Link} href={group.href}>
+                          <Icon style={{color: "white"}} path={group.icon} size={2} />
+                          <Typography variant="h5" sx={{color: "white"}}><b>{group.title}</b></Typography>
+                        </Button>
                         {group.links.map(link=><Button component={Link} color="primary" href={link.href} key={link.label} sx={{padding: 0.5}}><Typography variant="body1" sx={{textAlign: "center"}}>{link.label}</Typography></Button>)}
                         </Paper>
                       </Grid>)}
