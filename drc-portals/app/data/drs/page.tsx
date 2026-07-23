@@ -145,7 +145,9 @@ function DRS2JSONLD({ serviceInfo, drsRes, drsAccessURLs }: { serviceInfo?: z.in
     // "citation": "",
     "includedInDataCatalog": {
       "@id": "https://cfde.cloud",
-      "@type": "DataCatalog"
+      "@type": "DataCatalog",
+      "name": "Common Fund Data Ecosystem (CFDE) Workbench",
+      "url": "https://cfde.cloud"
     },
     "distribution": drsAccessURLs?.flatMap(({ access_method, access_url }, i) => {
       if (access_method.type === 'https') {
