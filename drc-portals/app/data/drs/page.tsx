@@ -151,17 +151,7 @@ function DRS2JSONLD({ serviceInfo, drsRes, drsAccessURLs }: { serviceInfo?: z.in
     },
     "distribution": drsAccessURLs?.flatMap(({ access_method, access_url }, i) => {
       if (access_method.type === 'https') {
-        if (access_method.access_url) return [{
-          "@type": "DataDownload",
-          "name": drsRes.name,
-          "description": drsRes.description,
-          "contentUrl": access_method.access_url,
-          "contentSize": drsRes.size,
-          "encodingFormat": drsRes.mime_type,
-          // "conditionsOfAccess": "...",
-          // "license": "..."
-        }]
-        else if (access_method.access_id && 'data' in access_url && access_url.data && access_url.data.headers.length === 0) return [{
+        if (access_url.data && access_url.data.headers.length === 0) return [{
           "@type": "DataDownload",
           "name": drsRes.name,
           "description": drsRes.description,
