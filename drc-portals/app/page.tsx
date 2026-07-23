@@ -115,13 +115,30 @@ export default async function Page() {
                 </Button> */}
                 <Container maxWidth="lg" sx={{mt: 5}}>
                     <Grid container spacing={1}>
-                      {groups.map(group=><Grid item xs={6} key={group.title} md={12/groups.length} sx={{display: "flex", flexDirection: "column", alignItems: "center"}}>
-                        <Paper elevation={0} sx={{ borderRadius: 0, padding: 1, background: "#607bc0", display: "flex", flexDirection: "column", alignItems: "center", height: "100%"}} >
-                        <Button sx={{display: "flex", flexDirection: "column", alignItems: "center"}} component={Link} href={group.href}>
-                          <Icon style={{color: "white"}} path={group.icon} size={2} />
-                          <Typography variant="h5" sx={{color: "white"}}><b>{group.title}</b></Typography>
+                      {groups.map(group=><Grid item xs={12} key={group.title} md={12/groups.length} sx={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+                        <Paper elevation={0} sx={{ borderRadius: 0, padding: 1, background: "#607bc0", display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: {xs: "50%", sm: "50%", md:"100%"}}} >
+                        <Button sx={{
+                          display: "flex", 
+                          flexDirection: "column", 
+                          alignItems: "center",
+                          '&:hover': {
+                            backgroundColor: '#9cbcde',
+                            color: '#2D5986',
+                            boxShadow: 'none',
+                          },
+                          color: "white"
+                          }} component={Link} href={group.href}>
+                          <Icon path={group.icon} size={2} />
+                          <Typography variant="h5"><b>{group.title}</b></Typography>
                         </Button>
-                        {group.links.map(link=><Button component={Link} color="primary" href={link.href} key={link.label} sx={{padding: 0.5}}><Typography variant="body1" sx={{textAlign: "center"}}>{link.label}</Typography></Button>)}
+                        {group.links.map(link=><Button component={Link} color="primary" href={link.href} key={link.label} sx={{
+                          padding: 0.5,
+                          '&:hover': {
+                            backgroundColor: '#9cbcde',
+                            color: '#2D5986',
+                            boxShadow: 'none',
+                          },
+                        }}><Typography variant="body1" sx={{textAlign: "center"}}>{link.label}</Typography></Button>)}
                         </Paper>
                       </Grid>)}
                     </Grid>

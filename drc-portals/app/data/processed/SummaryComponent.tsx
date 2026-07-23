@@ -81,12 +81,10 @@ export async function SummaryHorizontal({ include }: { include?: {key: string, i
         </Grid>
       ))}
       {include !== undefined && <Grid item>
-        <a href={create_url({})}>
-          <div className="flex flex-col items-center">
-            <Typography variant="h2" color="secondary">Click</Typography>
-            <Typography variant="subtitle1" color="secondary">To see more</Typography>
-          </div>
-        </a>
+        <Button sx={{width: "100%"}} className='flex flex-col items-center' color="secondary" href={create_url({})}>
+            <Icon path={mdiExpandAll} size={2}/>
+            <Typography variant="subtitle1" color="secondary">See more</Typography>
+        </Button>
       </Grid>}
     </Grid>
   </Container>
