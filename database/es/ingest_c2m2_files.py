@@ -82,12 +82,19 @@ def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
   pkg = Package(str(c2m2_datapackage_json))
   with pdp_helper(es_bulk, version=version) as helper:
     dcc_id = helper.upsert_entity('dcc', dict(
-      label=file['short_label']
+      label=file['short_label'],
+      icon=file['icon'],
+      description=file['description'],
+      homepage=file['homepage'],
     ), slug=file['short_label'])
     dcc_asset_id = helper.upsert_entity('dcc_asset', dict(
       label=file['filename'],
       access_url=file['link'],
       filetype=file['filetype'],
+      size=file['size'],
+      sha256checksum=file['sha256checksum'],
+      lastmodified=file['lastmodified'],
+      created=file['created'],
     ), pk=file['link'])
     helper.upsert_m2o(dcc_asset_id, 'dcc', dcc_id)
 

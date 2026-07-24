@@ -86,7 +86,10 @@ def ingest_kg(es_bulk, file, version="staging"):
           yield lambda entity_type=entity_type, entity=entity: upsert_entity(entity_type, entity, pk=label_ident(entity['label']))
     #
     dcc_id = upsert_entity('dcc', dict(
-      label=file['short_label']
+      label=file['short_label'],
+      icon=file['icon'],
+      description=file['description'],
+      homepage=file['homepage'],
     ), slug=file['short_label'])
     dcc_asset_id = upsert_entity('dcc_asset', dict(
       label=file['filename'],
