@@ -125,7 +125,7 @@ function DRS2JSONLD({ serviceInfo, drsRes, drsAccessURLs }: { serviceInfo?: z.in
     // }
     "name": drsRes.name,
     "description": drsRes.description ?? `A file provided by the ${serviceInfo?.name} service managed by the ${serviceInfo?.organization.name} organization`,
-    "url": `https://cfde.cloud/data/drs?q=${encodeURIComponent(drsRes.self_uri)}`,
+    "url": `${process.env.PUBLIC_URL}/data/drs?q=${encodeURIComponent(drsRes.self_uri)}`,
     "version": drsRes.version,
     "publication_date": drsRes.created_time,
     // if we had a license this could be added
@@ -144,10 +144,10 @@ function DRS2JSONLD({ serviceInfo, drsRes, drsAccessURLs }: { serviceInfo?: z.in
     // if we had a citation this could be added
     // "citation": "",
     "includedInDataCatalog": {
-      "@id": "https://cfde.cloud",
+      "@id": process.env.PUBLIC_URL,
       "@type": "DataCatalog",
       "name": "Common Fund Data Ecosystem (CFDE) Workbench",
-      "url": "https://cfde.cloud"
+      "url": process.env.PUBLIC_URL
     },
     "distribution": drsAccessURLs?.flatMap(({ access_method, access_url }, i) => {
       if (access_method.type === 'https') {
@@ -178,12 +178,13 @@ function DRS2JSONLD({ serviceInfo, drsRes, drsAccessURLs }: { serviceInfo?: z.in
 }
 
 async function resolveAccessUrls({ drs, drsRes }: { drs: { origin: string, object_id: string }, drsRes?: z.infer<typeof DRSObject> }) {
+  const scheme = process.env.NODE_ENV === 'development' && /localhost(:\d+)?/.exec(drs.origin) !== null ? 'http' : 'https'
   return await Promise.all<Promise<{ access_method: z.infer<typeof AccessMethod>, access_url: Result<z.infer<typeof AccessURL>> }>>(
     (drsRes?.access_methods ?? []).map(async (access_method, i) => {
       if (access_method.access_url) {
         return { access_method, access_url: { data: access_method.access_url, error: undefined } }
       } else if (access_method.access_id) {
-        const access_url = await safeFetchParse(`https://${drs.origin}/ga4gh/drs/v1/objects/${drs.object_id}/access/${access_method.access_id}`, AccessURL)
+        const access_url = await safeFetchParse(`${scheme}://${drs.origin}/ga4gh/drs/v1/objects/${drs.object_id}/access/${access_method.access_id}`, AccessURL)
         return { access_method, access_url }
       } else {
         return { access_method, access_url: { data: undefined, error: { message: 'Missing access url or access id' } } }
@@ -192,8 +193,9 @@ async function resolveAccessUrls({ drs, drsRes }: { drs: { origin: string, objec
 }
 
 async function ViewDRS({ drs }: { drs: { origin: string, object_id: string } }) {
-  const serviceInfoRes = await safeFetchParse(`https://${drs.origin}/ga4gh/drs/v1/service-info`, ServiceInfoObject)
-  const drsRes = await safeFetchParse(`https://${drs.origin}/ga4gh/drs/v1/objects/${drs.object_id}`, DRSObject)
+  const scheme = process.env.NODE_ENV === 'development' && /localhost(:\d+)?/.exec(drs.origin) !== null ? 'http' : 'https'
+  const serviceInfoRes = await safeFetchParse(`${scheme}://${drs.origin}/ga4gh/drs/v1/service-info`, ServiceInfoObject)
+  const drsRes = await safeFetchParse(`${scheme}://${drs.origin}/ga4gh/drs/v1/objects/${drs.object_id}`, DRSObject)
   const drsAccessURLs = await resolveAccessUrls({ drs, drsRes: 'data' in drsRes ? drsRes.data : undefined })
   return <div className="flex flex-col">
     {drsRes.error && <div className="border-l border-red pl-1"><strong className="text-red-500">Error</strong>: {drsRes.error.message}</div>}

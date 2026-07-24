@@ -91,6 +91,8 @@ function getDccShortLabel(
   }
 }
 
+const base_drs = process.env.PUBLIC_URL?.replace(/^https?/g, 'drs')
+
 async function getFile(
   prisma: PrismaClient, dccId: string, dccName: string,
   ft: string, isCurr: boolean
@@ -125,7 +127,7 @@ async function getFile(
     filetype: ft,
     filename: item.fileAsset ? item.fileAsset.filename : '',
     link: item.link,
-    drs: item.fileAsset?.sha256checksum ? `drs://cfde.cloud/${Buffer.from(item.fileAsset.sha256checksum, 'base64').toString('hex')}` : undefined,
+    drs: item.fileAsset?.sha256checksum ? `${base_drs}/${Buffer.from(item.fileAsset.sha256checksum, 'base64').toString('hex')}` : undefined,
     size: item.fileAsset ? convertBytes(item.fileAsset.size) : undefined,
     lastmodified: item.lastmodified.toLocaleDateString("en-US"),
     creator: await getCreatorAff(
