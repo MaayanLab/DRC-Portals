@@ -127,7 +127,7 @@ function DRS2JSONLD({ serviceInfo, drsRes, drsAccessURLs }: { serviceInfo?: z.in
     "description": drsRes.description ?? `A file provided by the ${serviceInfo?.name} service managed by the ${serviceInfo?.organization.name} organization`,
     "url": `${process.env.PUBLIC_URL}/data/drs?q=${encodeURIComponent(drsRes.self_uri)}`,
     "version": drsRes.version,
-    "publication_date": drsRes.created_time,
+    "datePublished": drsRes.created_time,
     // if we had a license this could be added
     // "license": [
     //   "http://spdx.org/licenses/CC0-1.0",
