@@ -72,7 +72,7 @@ export async function SummaryHorizontal({ include }: { include?: {key: string, i
   return <Container maxWidth="lg" className="m-auto">
       <Grid container spacing={6} justifyContent={"center"} alignItems={"flex-start"}>
         {summaryRes.types?.map((result) => (
-        <Grid key={result.key} item>
+        <Grid key={result.key} item xs={3}>
           <Button className='flex flex-col items-center' color="secondary">
             {icon_mapper[result.key] && <Icon path={icon_mapper[result.key]} size={2}/>}
               <Typography variant="body1" color="secondary">{pluralize(categoryLabel(result.key))}</Typography>
@@ -80,8 +80,8 @@ export async function SummaryHorizontal({ include }: { include?: {key: string, i
           </Button>
         </Grid>
       ))}
-      {include !== undefined && <Grid item>
-        <Button sx={{width: "100%"}} className='flex flex-col items-center' color="secondary" href={create_url({})}>
+      {include !== undefined && <Grid item  xs={3}>
+        <Button className='flex flex-col items-center' color="secondary" href={create_url({})}>
             <Icon path={mdiExpandAll} size={2}/>
             <Typography variant="subtitle1" color="secondary">See more</Typography>
         </Button>

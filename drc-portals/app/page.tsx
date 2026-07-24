@@ -159,8 +159,6 @@ export default async function Page() {
               </Grid>
               <Grid item xs={12} sx={{display: {xs: "block", sm: "block", md: "none", lg: "none", xl: "none"}}}>
                 <SummaryHorizontal include={[
-                  {key: "file", icon: mdiFile}, 
-                  {key: "biosample", icon: mdiEyedropper},
                   {key: "compound", icon: mdiPill},
                   {key: "metabolite", icon: mdiWater},
                   {key: "disease", icon: mdiVirus},
