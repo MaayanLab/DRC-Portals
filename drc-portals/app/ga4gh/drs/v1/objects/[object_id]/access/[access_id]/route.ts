@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma"
-import prismaPDP from "@/lib/prisma/slow"
-import prismaC2M2 from "@/lib/prisma/c2m2"
+import elasticsearch from "@/lib/elasticsearch"
 import { safeAsync } from "@/utils/safe"
+import { EntityExpandedType } from "@/app/data/processed/utils"
 
 async function getDccAssetUrl(object_id: string, access_id: string) {
   if (access_id !== 'asset') return null
@@ -20,84 +20,38 @@ async function getDccAssetUrl(object_id: string, access_id: string) {
     },
   }))
   if (!object?.data?.link) return null
-  return { url: object.data.link }
+  return Response.json({ url: object.data.link }, { status: 200 })
 }
 
-async function getDccAssetNodeUrl(object_id: string, access_id: string) {
-  if (access_id !== 'asset_node') return null
-  const object = await safeAsync(() => prisma.dCCAssetNode.findUnique({
-    where: {
-      id: object_id,
-    },
-    select: {
-      dcc_asset: {
-        select: {
-          fileAsset: {
-            select: {
-              link: true,
-            },
-          },
-        },
+async function getPDPObjectUrl(object_id: string, access_id: string) {
+  const object = await safeAsync(async () => {
+    const itemRes = await elasticsearch.search<EntityExpandedType>({
+      index: 'entity_expanded',
+      query: {
+        term: { id: object_id }
       },
-    },
-  }))
-  if (!object?.data?.dcc_asset.fileAsset?.link) return null
-  return { url: object.data.dcc_asset.fileAsset.link }
-}
-
-async function getPDPFileUrl(object_id: string, access_id: string) {
-  if (access_id !== 'pdp_file') return null
-  const object = await safeAsync(() => prismaPDP.c2M2FileNode.findUnique({
-    where: {
-      id: object_id,
-    },
-    select: {
-      access_url: true,
-    },
-  }))
-  if (!object?.data?.access_url) return null
-  if (object.data.access_url.startsWith('drs://')) {
-    // We'll just proxy to the upstream DRS server, hopefully the client doesn't mind this. Redirects don't seem to work
-    const upstreamDRS = object.data.access_url.replace(/^drs:\/\/([^/]+)\/(.+)$/g, `https://$1/ga4gh/drs/v1/objects/$2/access/${access_id}`)
+    })
+    return itemRes.hits.hits[0]._source
+  })
+  if (!object.data) return null
+  if (object.data.a_access_url.startsWith('drs://')) {
+    const upstreamDRS = object.data.a_access_url.replace(/^drs:\/\/([^/]+)\/(.+)$/g, `https://$1/ga4gh/drs/v1/objects/$2/access/${access_id}`)
     const req = await fetch(upstreamDRS)
-    if (req.ok) return Response.json(await req.json(), { status: req.status })
-    else if (req.status === 404) return null
-    else return req
+    return Response.json(await req.json(), { status: req.status })
+  } else if (access_id === 'pdp_asset' && object.data.type === 'dcc_asset' && object.data.a_access_url) {
+    return Response.json({ url: object.data.a_access_url }, { status: 200 })
+  } else if (access_id === 'pdp_file' && object.data.type === 'file' && object.data.a_access_url) {
+    return Response.json({ url: object.data.a_access_url }, { status: 200 })
+  } else {
+    return null
   }
-  return { url: object.data.access_url }
-}
-
-async function getC2M2FileUrl(object_id: string, access_id: string) {
-  if (access_id !== 'pdp_file') return null
-  const object = await safeAsync(() => prismaC2M2.file.findFirstOrThrow({
-    where: {
-      sha256: object_id,
-    },
-    select: {
-      access_url: true,
-    },
-  }))
-  if (!object?.data?.access_url) return null
-  if (object.data.access_url.startsWith('drs://')) {
-    // We'll just proxy to the upstream DRS server, hopefully the client doesn't mind this. Redirects don't seem to work
-    const upstreamDRS = object.data.access_url.replace(/^drs:\/\/([^/]+)\/(.+)$/g, `https://$1/ga4gh/drs/v1/objects/$2/access/${access_id}`)
-    const req = await fetch(upstreamDRS)
-    if (req.ok) return Response.json(await req.json(), { status: req.status })
-    else if (req.status === 404) return null
-    else return req
-  }
-  return { url: object.data.access_url }
 }
 
 export async function GET(request: Request, { params }: { params: { object_id: string, access_id: string } }) {
-  let access_url
-  access_url = await getDccAssetUrl(params.object_id, params.access_id)
-  if (access_url) return Response.json(access_url)
-  access_url = await getDccAssetNodeUrl(params.object_id, params.access_id)
-  if (access_url) return Response.json(access_url)
-  access_url = await getPDPFileUrl(params.object_id, params.access_id)
-  if (access_url) return Response.json(access_url)
-  access_url = await getC2M2FileUrl(params.object_id, params.access_id)
-  if (access_url) return Response.json(access_url)
+  let response
+  response = await getDccAssetUrl(params.object_id, params.access_id)
+  if (response) return response
+  response = await getPDPObjectUrl(params.object_id, params.access_id)
+  if (response) return response
   return Response.json({ 'error': 'Not Found' }, { status: 404 })
 }
