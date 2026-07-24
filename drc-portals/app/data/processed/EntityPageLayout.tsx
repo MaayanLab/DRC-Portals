@@ -1,5 +1,5 @@
 import React from 'react'
-import { categoryLabel, create_url, EntityType, humanBytesSize, itemDescription, itemLabel, linkify, titleCapitalize } from "@/app/data/processed/utils"
+import { categoryLabel, create_url, EntityType, humanBytesSize, itemDescription, itemJsonLD, itemLabel, linkify, titleCapitalize } from "@/app/data/processed/utils"
 import { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 import Link from "@/utils/link";
 import { Button } from "@mui/material";
@@ -76,6 +76,7 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
       title={itemLabel(item)}
       subtitle={categoryLabel(item.type)}
       summary={summary}
+      jsonld={itemJsonLD(item, entityLookup)}
       metadata={[
         ...Object.keys(item).toSorted().toReversed().flatMap(predicate => {
           const m = /^(a|m2o)_(.+)$/.exec(predicate)
