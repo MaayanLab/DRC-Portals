@@ -75,7 +75,9 @@ export function SearchField({ name = 'search', defaultValue, InputProps, placeho
                 {part.text.replace(/^[^\w]/, '')}
               </span>
             ))}
-            {!autocomplete?.type && <span className="text-ellipsis overflow-hidden">&nbsp;({categoryLabel(filteredOptionTypes[option])})</span>}
+            <React.Fragment>
+              {!autocomplete?.type && <span className="text-ellipsis overflow-hidden">&nbsp;({categoryLabel(filteredOptionTypes[option])})</span>}
+            </React.Fragment>
           </li>
         )
       }}
