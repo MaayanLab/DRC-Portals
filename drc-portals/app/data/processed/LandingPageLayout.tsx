@@ -15,7 +15,6 @@ export default function LandingPageLayout(props: React.PropsWithChildren<{
 }>) {
   return (
     <>
-      {props.jsonld && JSON.stringify(props.jsonld)}
       {props.jsonld && <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ 
