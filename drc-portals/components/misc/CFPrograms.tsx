@@ -29,7 +29,7 @@ async function CFPrograms({spacing=4, className, baseEndpoint}:{spacing: GridSiz
     ]
     const additional_label = ['NPH']
     return (
-      <Grid container direction="row" spacing={2} justifyContent={"center"} sx={{marginTop: 5}}>
+      <Grid container direction="row" spacing={2} justifyContent={"center"}>
         {[...dccs, ...additional].map(dcc=>(
             <Grid item xs={spacing} key={dcc.short_label} className="flex items-center justify-center relative" sx={{height: 50, padding: 5, margin: 1}}>
               <Tooltip key={dcc.short_label} title={dcc.short_label} placement="top">
