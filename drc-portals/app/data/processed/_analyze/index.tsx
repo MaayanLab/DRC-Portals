@@ -8,6 +8,7 @@ import Button from "@mui/material/Button";
 import DDIcon from '@/public/img/DD.png'
 import GDLPAIcon from '@/public/img/icons/gdlpa.png'
 import GeneCentricIcon from '@/public/img/icons/gene-centric-partnership.png'
+import ProKNIcon from '@/public/img/icons/prokn.png'
 import { EntityExpandedType, EntityType, capitalize } from '@/app/data/processed/utils';
 import CardButton from ".//CardButton";
 import PWBButton from ".//PWBButton";
@@ -150,6 +151,21 @@ const modules: {
         color="secondary"
         size="small"
         href={`https://www.uniprot.org/uniprotkb/${encodeURIComponent(item.a_uniprotkb)}/entry`}
+        target="_blank"
+      >Submit</Button>
+    </CardButton>,
+  },
+  {
+    compatible: (item) => item.type === 'protein' && typeof item.a_uniprotkb !== 'undefined',
+    button: ({ item }) => <CardButton
+      icon={<Image src={ProKNIcon} height={64} alt="Protein Knowledge Network" className="p-2" />}
+      title="Protein Knowledge Network"
+      description={<>The Protein Knowledge Network (ProKN) integrates protein-centric data with the genomic-centric datasets of the CFDE. Find out more about {item.a_uniprotkb}.</>}
+    >
+      <Button
+        color="secondary"
+        size="small"
+        href={`https://research.bioinformatics.udel.edu/ProKN/explorer?filter={%22start%22:%22Protein%22,%22start_field%22:%22accession%22,%22start_term%22:%22${encodeURIComponent(item.a_uniprotkb)}%22,%22end_field%22:%22label%22,%22interm%22:[]}`}
         target="_blank"
       >Submit</Button>
     </CardButton>,
