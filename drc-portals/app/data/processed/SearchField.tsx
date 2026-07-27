@@ -59,6 +59,7 @@ export function SearchField({ name = 'search', defaultValue, InputProps, placeho
         return (
           <li
             {...props}
+            key={props.key}
             className={classNames(props.className, 'text-nowrap')}
             title={`${option}${!autocomplete?.type ? `(${categoryLabel(filteredOptionTypes[option])})` : ''}`}
           >
