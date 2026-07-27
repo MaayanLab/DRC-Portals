@@ -143,21 +143,6 @@ const modules: {
   {
     compatible: (item) => item.type === 'protein' && typeof item.a_uniprotkb !== 'undefined',
     button: ({ item }) => <CardButton
-      icon={<img src={'/img/icons/uniprot.svg'} height={64} alt="UniProt Knowledge Base" className="p-2" />}
-      title="UniProtKB"
-      description={<>UniProt is the world's leading high-quality, comprehensive and freely accessible resource of protein sequence and functional information Knowledge Base. Find out more about {item.a_uniprotkb}.</>}
-    >
-      <Button
-        color="secondary"
-        size="small"
-        href={`https://www.uniprot.org/uniprotkb/${encodeURIComponent(item.a_uniprotkb)}/entry`}
-        target="_blank"
-      >Submit</Button>
-    </CardButton>,
-  },
-  {
-    compatible: (item) => item.type === 'protein' && typeof item.a_uniprotkb !== 'undefined',
-    button: ({ item }) => <CardButton
       icon={<Image src={ProKNIcon} height={64} alt="Protein Knowledge Network" className="p-2" />}
       title="Protein Knowledge Network"
       description={<>The Protein Knowledge Network (ProKN) integrates protein-centric data with the genomic-centric datasets of the CFDE. Find out more about {item.a_uniprotkb}.</>}
