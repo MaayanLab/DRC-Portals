@@ -18,23 +18,24 @@ import { EnrichmentParams, NetworkSchema } from "./types";
 import TermViz from './termviz';
 import InteractiveButtons from "./interactive";
 import Summarizer from "./Summarizer";
-export default async function Home({searchParams}: {
-	searchParams: {
+export default async function Home(props: {
+	searchParams: Promise<{
 		q?: string,
 		fullscreen?: 'true',
 		view?: string,
         collapse?: 'true'
-	}
+	}>
 }) {
-	let props
+	const searchParams = await props.searchParams
+	let tabProps
 	for (const tab of schema.header.tabs) {
-		if ("/enrichment" === tab.endpoint) props = tab.props
+		if ("/enrichment" === tab.endpoint) tabProps = tab.props
 	}
 
-	const query_parser = parseAsJson<EnrichmentParams>().withDefault(props?.default_options || {})
+	const query_parser = parseAsJson<EnrichmentParams>().withDefault(tabProps?.default_options || {})
     const parsedParams: EnrichmentParams = query_parser.parseServerSide(searchParams.q)
 	
-	const libraries_list = props?.libraries.sort(function(a, b) {
+	const libraries_list = tabProps?.libraries.sort(function(a, b) {
         return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
      }) || []
 
@@ -163,7 +164,7 @@ export default async function Home({searchParams}: {
 									searchParams={searchParams}
 									fullWidth={elements===null}
 									elements={elements}
-									{...props}
+									{...tabProps}
 								/>
 								<TooltipComponentGroup
 									elements={elements}
@@ -188,7 +189,7 @@ export default async function Home({searchParams}: {
 													searchParams={searchParams}
 													fullWidth={elements===null}
 													elements={elements}
-													{...props}
+													{...tabProps}
 												/>
 											</CardContent>
 										</Card>

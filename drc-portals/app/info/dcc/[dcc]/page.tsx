@@ -21,7 +21,8 @@ import { getDccDataObj } from '@/utils/dcc-assets';
 import { ReadMore } from "@/components/misc/ReadMore";
 import {OutreachComponent} from "@/components/misc/Outreach/featured";
 import PubButton from "./linksbutton";
-export default async function DccDataPage({ params }: { params: { dcc: string } }) {
+export default async function DccDataPage(props: { params: Promise<{ dcc: string }> }) {
+    const params = await props.params
     const now = new Date()
     const dcc = await prisma.dCC.findFirst({
         where: {

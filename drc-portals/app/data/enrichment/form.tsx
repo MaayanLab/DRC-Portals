@@ -332,7 +332,7 @@ const GeneSetForm = ({
                         <Grid item xs={fullWidth? 6: 12} sx={{textAlign: "left"}}>
                             <Stack direction={"row"} spacing={1} alignItems="center">
                                 <Tooltip title={input.genes.length === 0 ? "Input gene set": libraries.length === 0 ? "Select libraries": loading ? "Loading...": "Submit"}>
-                                    <Button 
+                                    <span><Button
                                         onClick={async ()=>{
                                             // setSubmitted(true)
                                             if (!(await same_prev_input())) {
@@ -358,7 +358,7 @@ const GeneSetForm = ({
                                             padding: "15px 30px"
                                         }}
                                         // disabled={input.genes.length === 0}
-                                    >{loading ? "Searching...": "Submit"}</Button>
+                                    >{loading ? "Searching...": "Submit"}</Button></span>
                                 </Tooltip>
                                 {(verified.length > 0 && input.genes.length > 0) && <Tooltip title="Matched genes"><Button onClick={()=>setIsFocused(false)}><Typography color={'secondary'} variant='subtitle2'> {`${verified.length} matched genes`}</Typography></Button></Tooltip>}
                             </Stack>

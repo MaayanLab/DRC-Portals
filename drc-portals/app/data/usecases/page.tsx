@@ -182,11 +182,12 @@ export interface UseCaseParams {
 	skip: number
 }
 
-export default async function UseCasePage({ searchParams }: {
-	searchParams: {
+export default async function UseCasePage(props: {
+	searchParams: Promise<{
 		filter: string
-	}
+	}>
 }) {
+	const searchParams = await props.searchParams
 	const query_parser = parseAsJson<UseCaseParams>().withDefault({ limit: 10, skip: 0 })
 	const { limit = 10, skip } = query_parser.parseServerSide(searchParams.filter)
 	const featured_usecases = await prisma.useCase.findMany({

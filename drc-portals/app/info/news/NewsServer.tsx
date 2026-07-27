@@ -14,13 +14,12 @@ export interface queryJson {
   skip?: number,
 }
 
-export default async function News({
-  searchParams,
-}: {
-  searchParams?: {
+export default async function News(props: {
+  searchParams?: Promise<{
     q?: string
-  }
+  }>
 }) {
+  const searchParams = await props.searchParams
   const q: queryJson = JSON.parse((searchParams || {}).q || '{}');
   const { where, order = [{ field: "date", ordering: "desc" }, { field: "version", ordering: "desc" }], take = 25, skip } = q;
   const count = await prisma.news.count({

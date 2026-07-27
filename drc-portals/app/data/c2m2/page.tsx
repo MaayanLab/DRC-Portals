@@ -11,7 +11,8 @@ import Icon from "@mdi/react"
 import { mdiArrowRight } from '@mdi/js';
 import { SearchForm, SearchField } from "@/app/data/c2m2/SearchField";
 
-export default async function Home({ searchParams }: { searchParams: { search?: string, error?: string } }) {
+export default async function Home(props: { searchParams: Promise<{ search?: string, error?: string }> }) {
+  const searchParams = await props.searchParams
   return (
     <Container maxWidth="lg" className="m-auto">
       <Grid container spacing={2} alignItems={"center"}>

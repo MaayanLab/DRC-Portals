@@ -1,9 +1,9 @@
 import Publications from "./PublicationsServer"
 
-export default function PublicationPage ({searchParams}:{
-    searchParams?: {
+export default async function PublicationPage (props:{
+    searchParams?: Promise<{
         q?:string
-    }
+    }>
 }) {
-    return <Publications searchParams={searchParams}/>
+    return <Publications searchParams={props.searchParams}/>
 }

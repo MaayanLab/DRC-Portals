@@ -95,14 +95,13 @@ const ServerCarousel = ({ publications }: { publications: Array<PublicationType>
 
 
 
-export default async function PublicationsServer({
-  searchParams,
-}: 
+export default async function PublicationsServer(props: 
 {
-  searchParams?: {
+  searchParams?: Promise<{
     q?: string
-  }
+  }>
 }) {
+  const searchParams = await props.searchParams
   const q:queryJson = JSON.parse((searchParams || {}).q || '{}')
     const { 
       where, 

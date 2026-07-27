@@ -5,8 +5,9 @@ import { fetchC2m2Markdown } from "@/components/misc/ExternalC2m2";
 import {  LinkRenderer, TableRenderer, ThRenderer } from '@/components/misc/ReactMarkdownRenderers'
 
 export default async function StandardsPage(
-  { params } : { params: { doc: string } }
+  props : { params: Promise<{ doc: string }> }
 ) {
+  const params = await props.params
     function fixProblematic ( page: string ) {
       const problematic = [
         '-subject_phenotype.tsv',

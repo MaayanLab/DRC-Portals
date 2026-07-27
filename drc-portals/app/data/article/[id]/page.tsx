@@ -33,11 +33,12 @@ interface RunnableResult  {
     }
   }
 }
-const Article = ({params}: {
-	params: {
+const Article = async (props: {
+	params: Promise<{
 		id: string
-	}
+	}>
 }) => {
+	const params = await props.params
 	const taskId = params.id
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState('')

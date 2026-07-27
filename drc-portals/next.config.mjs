@@ -1,5 +1,6 @@
 import remarkGfm from "remark-gfm";
 import createMDX from "@next/mdx";
+import path from "path";
 
 process.env.NEXTAUTH_URL_INTERNAL = "http://localhost:3000/auth";
 const PUBLIC_URL = process.env.PUBLIC_URL
@@ -9,6 +10,9 @@ const NEXTAUTH_URL = process.env.NEXTAUTH_URL ?? `${PUBLIC_URL}/auth`
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
+  turbopack: {
+    root: path.resolve('.'),
+  },
   experimental: {
     serverActions: {
       allowedOrigins: [

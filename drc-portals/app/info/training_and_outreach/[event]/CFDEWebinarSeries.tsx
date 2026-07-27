@@ -34,8 +34,8 @@ const Summary = ({section}: {section: AgendaType}) => (
 			{/* <Typography variant="body1">
 				<b>{section.label}</b>
 			</Typography> */}
-		{(section.presenters || []).map(({presenter, affiliation})=>(
-			<div className="flex flex-col">
+		{(section.presenters || []).map(({presenter, affiliation}, i)=>(
+			<div className="flex flex-col" key={i}>
 				<Typography variant="body1">
 					{presenter}
 				</Typography>
@@ -226,7 +226,7 @@ const CFDEWebinarSeries = async () => {
 				{upcoming_webinars.length === 0 ?
 					<Typography variant="body1" color="secondary">
 						More details will be added soon
-					</Typography>: upcoming_webinars.map((webinar)=><UpcomingWebinar key={webinar.title} webinar={webinar}/>)
+					</Typography>: upcoming_webinars.map((webinar, i)=><UpcomingWebinar key={i} webinar={webinar}/>)
 				}
 			</Grid>
 			<Grid item xs={12} sx={{ marginTop: 4}}>
@@ -238,7 +238,7 @@ const CFDEWebinarSeries = async () => {
 				{past_webinars.length === 0 ?
 					<Typography variant="body1" color="secondary">
 						More details will be added soon
-					</Typography>: past_webinars.map((webinar)=><PastWebinar key={webinar.title} webinar={webinar}/>)
+					</Typography>: past_webinars.map((webinar, i)=><PastWebinar key={i} webinar={webinar}/>)
 				}
 			</Grid>
 		</Grid>
