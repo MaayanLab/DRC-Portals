@@ -5,7 +5,7 @@ WORKDIR /app
 RUN npm i -g sharp
 ENV NEXT_SHARP_PATH=/usr/local/lib/node_modules/sharp
 
-ADD .next/standalone/DRC-Portals ./
+ADD .next/standalone ./
 ADD .next/static ./.next/static
 ADD public ./public
 ADD prisma ./prisma
