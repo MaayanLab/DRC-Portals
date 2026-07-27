@@ -8,9 +8,8 @@ import usePathname from '@/utils/pathname'
 
 export default function NavBreadcrumbs() {
     const path = usePathname()
-    const path2 = usePathname().replace("/info", "").replace("/data", "").replace("/processed", "")
     const { path_split, format_path_split } = React.useMemo(() => {
-        let path_split = path2.replace("/", "").split("/")
+        let path_split = path.replace("/", "").split("/")
         const format_path_split = path_split.map(p => decodeURIComponent(p).replace('_', ' '))
         if (path_split[0] === 'submit'){
             if (format_path_split[1] === 'form') {
@@ -26,18 +25,20 @@ export default function NavBreadcrumbs() {
     if (path_split.length < 2) return null
     return (
         <Breadcrumbs aria-label="breadcrumb" separator="›">
-            {format_path_split.map((p, i) => (
-                i === path_split.length - 1 ? (
-                    <Typography key={i} variant='caption' sx={{ textTransform: 'uppercase', cursor: 'pointer' }} color='secondary'>{p.replace('dcc', 'cf programs').replace('centers', 'cfde centers').replaceAll("_", " ").replace("cfde-webinar-series", "webinars").replace('chat', 'assistant').replace("matrix","data matrix").replace('usecases', 'use cases')}</Typography> // leaf node breadcrumb not clickable
-                ) : (
-                    <Link
+            {format_path_split.flatMap((p, i) => {
+                if (i === 0 && (path_split[i] === 'info' || path_split[i] === 'data')) return []
+                if (i === 1 && (path_split[i] === 'processed')) return []
+                if (i === path_split.length - 1) {
+                    return [<Typography key={i} variant='caption' sx={{ textTransform: 'uppercase', cursor: 'pointer' }} color='secondary'>{p.replace('dcc', 'cf programs').replace('centers', 'cfde centers').replaceAll("_", " ").replace("cfde-webinar-series", "webinars").replace('chat', 'assistant').replace("matrix","data matrix").replace('usecases', 'use cases')}</Typography>] // leaf node breadcrumb not clickable
+                } else {
+                    return [<Link
                         key={i}
                         href={`/${path_split.slice(0, i + 1).join("/")}`}
                     >
                         <Typography variant='caption' sx={{ textTransform: 'uppercase' }} color='inherit'>{p.replace('dcc', 'cf programs').replace('centers', 'cfde centers').replaceAll("_", " ").replace("cfde-webinar-series", "webinars").replace('chat', 'assistant').replace("matrix","data matrix").replace('usecases', 'use cases')}</Typography>
-                    </Link>
-                )
-            ))}
+                    </Link>]
+                }
+            })}
         </Breadcrumbs>
     )
 }
