@@ -13,6 +13,7 @@ import { BlurSmall, BlurBig } from "@/components/styled/Blur"
 import Wheel from "./wheel"
 import { SummaryHorizontal, SummaryVertical } from "./data/processed/SummaryComponent"
 import { Popup } from "./info/modal"
+import ClientLink from '@/components/misc/ClientLink'
 
 const groups = [
   {
@@ -127,11 +128,11 @@ export default async function Page() {
                             boxShadow: 'none',
                           },
                           color: "white"
-                          }} component={Link} href={group.href}>
+                          }} component={ClientLink} href={group.href}>
                           <Icon path={group.icon} size={2} />
                           <Typography variant="h5"><b>{group.title}</b></Typography>
                         </Button>
-                        {group.links.map(link=><Button component={Link} color="primary" href={link.href} key={link.label} sx={{
+                        {group.links.map(link=><Button component={ClientLink} color="primary" href={link.href} key={link.label} sx={{
                           padding: 0.5,
                           '&:hover': {
                             backgroundColor: '#9cbcde',
