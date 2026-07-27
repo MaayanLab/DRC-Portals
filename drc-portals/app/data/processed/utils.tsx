@@ -177,6 +177,74 @@ export function itemDescription(item: EntityExpandedType, lookup?: Record<string
   }
 }
 
+export function itemJsonLD(item: EntityExpandedType, lookup?: Record<string, EntityType>) {
+  if (item.type === 'file') {
+    return {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@id": process.env.PUBLIC_URL,
+          "@type": "DataCatalog",
+          "name": "Common Fund Data Ecosystem (CFDE) Workbench",
+          "url": process.env.PUBLIC_URL,
+        },
+        {
+          "@type": "Dataset",
+          "name": item.a_label,
+          "description": itemDescription(item, lookup),
+          "url": `${process.env.PUBLIC_URL}/data/processed/entity/${item.type}/${item.id}`,
+          "datePublished": item.a_creation_time,
+          "creator": {
+            "@type": "Organization",
+            "name": lookup && lookup[item.m2o_dcc.id] ? lookup[item.m2o_dcc.id].a_label : item.m2o_dcc.a_label,
+            "url": lookup && lookup[item.m2o_dcc.id] ? lookup[item.m2o_dcc.id].a_homepage : item.m2o_dcc.a_homepage,
+          },
+          "provider": { "@id": process.env.PUBLIC_URL },
+          "includedInDataCatalog": { "@id": process.env.PUBLIC_URL },
+          "distribution": item.a_access_url ? [{
+            "@type": "DataDownload",
+            "contentUrl": /^https?:\/\//.exec(item.a_access_url) ? item.a_access_url : undefined,
+            "contentSize": item.a_size_in_bytes,
+            "encodingFormat": item.a_mime_type,
+          }] : undefined,
+        },
+      ]
+    }
+  } else if (item.type === 'dcc_asset' && item.a_access_url) {
+    return {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@id": process.env.PUBLIC_URL,
+          "@type": "DataCatalog",
+          "name": "Common Fund Data Ecosystem (CFDE) Workbench",
+          "url": process.env.PUBLIC_URL,
+        },
+        {
+          "@type": "Dataset",
+          "name": item.a_label,
+          "description": itemDescription(item, lookup),
+          "url": `${process.env.PUBLIC_URL}/data/processed/entity/${item.type}/${item.id}`,
+          "datePublished": item.a_created,
+          "creator": {
+            "@type": "Organization",
+            "name": lookup && lookup[item.m2o_dcc.id] ? lookup[item.m2o_dcc.id].a_label : item.m2o_dcc.a_label,
+            "url": lookup && lookup[item.m2o_dcc.id] ? lookup[item.m2o_dcc.id].a_homepage : item.m2o_dcc.a_homepage,
+          },
+          "provider": { "@id": process.env.PUBLIC_URL },
+          "includedInDataCatalog": { "@id": process.env.PUBLIC_URL },
+          "distribution": item.a_size ? [{
+            "@type": "DataDownload",
+            "contentUrl": item.a_access_url,
+            "contentSize": item.a_size,
+          }] : undefined,
+        },
+      ]
+    }
+  }
+  return undefined
+}
+
 export function linkify(value: string, label?: string) {
   const uriMatch = /^(https?|drs):\/\/(.+)/i.exec(value)
   if (uriMatch === null) {
@@ -209,6 +277,7 @@ export function parse_url(location: { pathname?: string, search?: ReadonlyURLSea
     ...Object.entries(m?.groups ?? {}).map(([k,v]) => [k, typeof v === 'string' ? decodeURIComponent(v) : v]),
   ])
 }
+
 export function create_url({ error, search, search_type, type, type_search, slug, entity_search, ...searchParams }: {
   type?: string, slug?: string,
   search?: string, filter?: string,
