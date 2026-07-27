@@ -13,7 +13,7 @@ type PageProps = { params: Promise<{ search: string, type?: string } & Record<st
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params
-  for (const k in props.params) params[k] = decodeURIComponent(params[k])
+  for (const k in params) params[k] = decodeURIComponent(params[k])
   const parentMetadata = await parent
   return {
     title: [

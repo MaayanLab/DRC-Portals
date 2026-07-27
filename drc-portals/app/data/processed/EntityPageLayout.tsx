@@ -20,7 +20,7 @@ const base_drs = process.env.PUBLIC_URL?.replace(/^https?/g, 'drs')
 
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params
-  for (const k in props.params) params[k] = decodeURIComponent(params[k])
+  for (const k in params) params[k] = decodeURIComponent(params[k])
   const item = await getEntity(params)
   if (!item) return {}
   const dcc = await getEsDCC(item.m2o_dcc?.id)
@@ -56,7 +56,7 @@ export const getGeneSummary = React.cache(async (params: {type: string, a_label:
 
 export default async function Page(props: React.PropsWithChildren<PageProps>) {
   const params = await props.params
-  for (const k in props.params) params[k] = decodeURIComponent(params[k])
+  for (const k in params) params[k] = decodeURIComponent(params[k])
   const item = await getEntity(params)
   if (!item) notFound()
   const summary = await getGeneSummary(item)
