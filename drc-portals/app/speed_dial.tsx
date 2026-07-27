@@ -68,9 +68,7 @@ const SpeedDialButton = () => {
 				aria-labelledby="modal-modal-title"
 				aria-describedby="modal-modal-description"
 			>
-				<>
-					<InteractiveModal dccs={dccs} handleClose={handleClose}/>
-				</>
+				<InteractiveModal dccs={dccs} handleClose={handleClose}/>
 			</Modal>
 		</>
 	)
