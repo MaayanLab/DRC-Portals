@@ -101,7 +101,7 @@ export default async function Page() {
                         background: "none",
                         alignItems: "center",
                         justifyContent: "center",
-                        mb: 10
+                        mb: 2
                       }}
                 className="flex"
           >
@@ -218,6 +218,7 @@ export default async function Page() {
         <Grid item xs={12} md={6}>
           <CFPrograms baseEndpoint="/info/dcc" spacing={2}/>
         </Grid>
+      <Grid item xs={12}/>
       <Grid item md={6} xs={12} sx={{display: {sm: "none", xs: "none", md: "block"}}}>
           <Twitter/>
         </Grid>
