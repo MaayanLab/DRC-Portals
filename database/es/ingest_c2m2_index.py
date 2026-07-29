@@ -35,11 +35,7 @@ def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
     with zipfile.ZipFile(file_path, 'r') as c2m2_zip:
       c2m2_zip.extractall(c2m2_extract_path)
   #
-  c2m2_datapackage_json, *_ = (
-    set(pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.json'))
-    | set(pathlib.Path(c2m2_extract_path).rglob('datapackage.json'))
-  )
-  c2m2_datapackage_db = c2m2_datapackage_json.parent/'C2M2_datapackage.sqlite'
+  c2m2_datapackage_db, *_ = pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.sqlite')
   conn = sqlite3.connect(c2m2_datapackage_db)
   queries = [
     # file [-> biosample ->] disease
@@ -100,10 +96,13 @@ def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
   # TODO: also link file to gene, protein, substance, ptm
   with pdp_helper(es_bulk, version=version) as helper:
     for query in queries:
-      for file_id_namespace, file_local_id, filename, link_type, link_id, link_label in conn.execute(query):
-        file_pk = helper.upsert_entity('file', dict(id_namespace=file_id_namespace, local_id=file_local_id, label=filename), pk=':'.join([file_id_namespace, file_local_id]))
-        link_id = helper.upsert_entity(link_type, dict(id=link_id, label=link_label), pk=label_ident(link_label))
-        helper.upsert_m2m(file_pk, link_type, link_id)
+      try:
+        for file_id_namespace, file_local_id, filename, link_type, link_id, link_label in conn.execute(query):
+          file_pk = helper.upsert_entity('file', dict(id_namespace=file_id_namespace, local_id=file_local_id, label=filename), pk=':'.join([file_id_namespace, file_local_id]))
+          link_id = helper.upsert_entity(link_type, dict(id=link_id, label=link_label), pk=label_ident(link_label))
+          helper.upsert_m2m(file_pk, link_type, link_id)
+      except Exception as e:
+        raise RuntimeError(f"Error querying {c2m2_datapackage_db}") from e
 
 def main(version="staging"):
   with es_helper() as es_bulk:
