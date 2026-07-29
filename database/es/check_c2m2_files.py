@@ -33,22 +33,21 @@ def check_c2m2_datapackage(file):
   c2m2_file_table, = pathlib.Path(c2m2_extract_path).rglob('file.tsv')
   c2m2_datapackage_json = c2m2_file_table.parent / 'C2M2_datapackage.json'
   c2m2_datapackage_db = c2m2_datapackage_json.parent/'C2M2_datapackage.sqlite'
-  if not c2m2_datapackage_json.exists():
-    subprocess.run(['cfde-c2m2', 'init'], cwd=str(c2m2_datapackage_json.parent.absolute()), check=True)
-    subprocess.run(['cfde-c2m2', 'prepare'], cwd=str(c2m2_datapackage_json.parent.absolute()), check=True)
   if not c2m2_datapackage_db.exists():
     try:
+      subprocess.run(['cfde-c2m2', 'init'], cwd=str(c2m2_datapackage_json.parent.absolute()), check=True)
+      subprocess.run(['cfde-c2m2', 'prepare'], cwd=str(c2m2_datapackage_json.parent.absolute()), check=True)
       subprocess.run(['cfde-c2m2', 'validate'], cwd=str(c2m2_datapackage_json.parent.absolute()), check=True)
+      pkg = Package(str(c2m2_datapackage_json))
+      print(f"  {str(c2m2_datapackage_json.parent)}")
+      for rc_name in pkg.resource_names:
+        print(f"      {rc_name}")
+        with pkg.get_resource(rc_name) as rc:
+          for _ in rc.row_stream:
+            pass
     except:
       if c2m2_datapackage_db.exists(): c2m2_datapackage_db.unlink()
       raise
-  pkg = Package(str(c2m2_datapackage_json))
-  print(f"  {str(c2m2_datapackage_json.parent)}")
-  for rc_name in pkg.resource_names:
-    print(f"      {rc_name}")
-    with pkg.get_resource(rc_name) as rc:
-      for _ in rc.row_stream:
-        pass
 
 def main():
   for short_label, dcc_files in files.groupby('short_label'):
