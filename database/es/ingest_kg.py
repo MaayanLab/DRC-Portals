@@ -7,6 +7,7 @@ import concurrent.futures
 from tqdm.auto import tqdm
 
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+import urllib.request, urllib.parse
 from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
 from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_descriptions
 
@@ -44,7 +45,6 @@ def ingest_kg(es_bulk, file, version="staging"):
     print(f"file_path:{file_path}");
   file_path.parent.mkdir(parents=True, exist_ok=True)
   if not file_path.exists():
-    import urllib.request
     if(debug > 0):
       print("file link:"); print(file['link']);
     urllib.request.urlretrieve(file['link'].replace(' ', '%20'), file_path)

@@ -6,7 +6,7 @@ This script obtains & adds second hop relationships for files in the C2M2.
 import zipfile
 import pathlib
 import concurrent.futures
-import urllib, urllib.parse, urllib.request
+import urllib.parse, urllib.request
 import sqlite3
 from tqdm.auto import tqdm
 
