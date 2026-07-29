@@ -102,7 +102,16 @@ export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
               <React.Fragment key={idx}>
                 <ListItem>
                   <Stack spacing={1}>
-                    <div className='flex space-x-2 items-start'><Typography variant="body2"><b>Filename:</b></Typography><NameCell item={item}/>{item.drs && <Typography>&nbsp;({linkify(item.drs, 'DRS')})</Typography>}</div>
+                    <div className='flex space-x-2 items-start'>
+                      <Typography variant="body2"><b>Filename:</b></Typography>
+                      <NameCell item={item}/>
+                      <React.Fragment>
+                        {item.drs && <Typography>&nbsp;{linkify(item.drs, '🔗')}</Typography>}
+                      </React.Fragment>
+                      <React.Fragment>
+                        {item.pdp && <Typography>&nbsp;{linkify(`${process.env.PUBLIC_URL}/data/processed/entity/dcc_asset/${item.pdp}`, '🔍')}</Typography>}
+                      </React.Fragment>
+                    </div>
                     <Typography variant="body2"><b>Creator:</b> {item.creator}</Typography>
                     <Typography variant="body2"><b>Filesize:</b> {item.size}</Typography>
                     <Typography variant="body2"><b>Date Modified:</b> {item.lastmodified}</Typography>
@@ -170,7 +179,12 @@ export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
                   <AccessControledDccAssetLink color="#3470e5" fontSize="11pt" className="underline" href={item.link} target="_blank" rel="noopener" item={item}>
                     {item.filename}
                   </AccessControledDccAssetLink>
-                  {item.drs && <>&nbsp;({linkify(item.drs, 'DRS')})</>}
+                  <React.Fragment>
+                    {item.drs && <>&nbsp;{linkify(item.drs, '🔗')}</>}
+                  </React.Fragment>
+                  <React.Fragment>
+                    {item.pdp && <>&nbsp;{linkify(`${process.env.PUBLIC_URL}/data/processed/entity/dcc_asset/${item.pdp}`, '🔍')}</>}
+                  </React.Fragment>
                 </TableCell>
                 <TableCell width='20%' align="center" sx={{border:0}}>{item.creator}</TableCell>
                 <TableCell width="10%" align="center" sx={{border:0, fontSize: '11pt'}}>{item.size}</TableCell>
