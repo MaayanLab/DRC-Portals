@@ -97,7 +97,13 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
             else if (/_in_bytes/.exec(m[2]) !== null) value = humanBytesSize(Number(item[predicate as `a_${string}`]))
             else if (/_time$/.exec(m[2]) !== null) value = JSON.parse(value as string) as string
             else if (m[2] == 'icon') value = <img className="max-w-28 max-h-48 align-top m-0 mb-2" src={value as string} />
-            else if (m[2] == 'access_url') {
+            else if (item.type === 'dcc_asset' && m[2] === 'filetype') {
+              value = <a className="text-blue-600 cursor:pointer underline" href={`/info/dcc/${item.m2o_dcc.a_label}#${value}`}>{value}</a>
+            }
+            else if (item.type === 'dcc_asset' && m[2] === 'sha256checksum') {
+              const hexsum = Buffer.from(value as string, 'base64').toString('hex')
+              value = <span title={hexsum}>{hexsum.slice(0, 4)}..{hexsum.slice(-4)}</span>
+            } else if (m[2] == 'access_url') {
               const parts = (value as string).split(/:\/\/|\//)
               return [
                 {label: 'Access URL',
