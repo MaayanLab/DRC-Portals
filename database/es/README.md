@@ -75,6 +75,13 @@ EOF
 ## Ingesting Elasticsearch
 
 ```bash
+# update es/ingest_common.sh and specify a unique new INDEX_VERSION
+# use `just` command to do everything
+just es_ingest
+```
+
+### Legacy Instructions
+```bash
 source es/ingest_common.sh
 
 # step 1: take a look at assets, there might be assets that should have been archived
@@ -82,7 +89,6 @@ uv run es/scruitinize_dcc_assets.py
 
 # step 2: ensure all files validate before ingesting, sometimes the manual fix is easy and should be done. also builds an on-disk index used later
 uv run es/check_c2m2_files.py
-
 
 # create index in elasticsearch for entity
 es_put PUT /entity_${INDEX_VERSION} < es/index/entity.json

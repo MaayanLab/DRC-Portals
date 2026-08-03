@@ -1,0 +1,108 @@
+set unstable
+set default-list := true
+
+[cache(inputs="es/ingest_common.sh")]
+es_scruitinize:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	uv run es/scruitinize_dcc_assets.py
+
+[cache(inputs="es/ingest_common.sh")]
+es_create_index_entity:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es_put PUT /entity_${INDEX_VERSION} < es/index/entity.json
+	es_put PUT "/entity_${INDEX_VERSION}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
+
+[cache(inputs="es/ingest_common.sh")]
+es_create_index_m2m:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es_put PUT /m2m_${INDEX_VERSION} < es/index/m2m.json
+	es_put PUT "/m2m_${INDEX_VERSION}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
+
+[cache(inputs="es/ingest_common.sh")]
+es_create_index_entity_expanded:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	# create index in elastic search for final one-hop expanded form
+	es_put PUT /entity_${INDEX_VERSION_OUTPUT}_expanded < es/index/entity_expanded.json
+	es_put PUT "/entity_${INDEX_VERSION_OUTPUT}_expanded/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
+
+[parallel]
+es_create_index_base: es_create_index_entity es_create_index_m2m
+
+[cache(inputs="es/ingest_common.sh")]
+es_ingest_dcc_assets: es_create_index_base
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	uv run es/ingest_dcc_assets.py
+	es POST "/entity_${INDEX_VERSION}/_refresh"
+	es POST "/m2m_${INDEX_VERSION}/_refresh"
+
+[cache(inputs="es/ingest_common.sh")]
+es_ingest_gmts: es_create_index_base
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	uv run es/ingest_gmts.py
+	es POST "/entity_${INDEX_VERSION}/_refresh"
+	es POST "/m2m_${INDEX_VERSION}/_refresh"
+
+[cache(inputs="es/ingest_common.sh")]
+es_ingest_kg: es_create_index_base
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	uv run es/ingest_kg.py
+	es POST "/entity_${INDEX_VERSION}/_refresh"
+	es POST "/m2m_${INDEX_VERSION}/_refresh"
+
+[cache(inputs="es/ingest_common.sh")]
+es_check_c2m2: es_create_index_base
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	uv run es/check_c2m2_files.py
+	es POST "/entity_${INDEX_VERSION}/_refresh"
+	es POST "/m2m_${INDEX_VERSION}/_refresh"
+
+[cache(inputs="es/ingest_common.sh")]
+es_ingest_c2m2: es_create_index_base es_check_c2m2
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	uv run es/ingest_c2m2_files.py
+	es POST "/entity_${INDEX_VERSION}/_refresh"
+	es POST "/m2m_${INDEX_VERSION}/_refresh"
+	uv run es/ingest_c2m2_index.py
+	es POST "/entity_${INDEX_VERSION}/_refresh"
+	es POST "/m2m_${INDEX_VERSION}/_refresh"
+
+[parallel]
+es_ingest_base: es_ingest_dcc_assets es_ingest_gmts es_ingest_kg es_ingest_c2m2
+
+[cache(inputs="es/ingest_common.sh")]
+es_pagerank: es_ingest_base
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	# compute pagerank and add to the entity
+	uv run es/pagerank.py
+	# re-calculate stuff in elasticsearch
+	es POST "/entity_${INDEX_VERSION}/_refresh"
+
+[cache(inputs="es/ingest_common.sh")]
+es_ingest: es_ingest_base es_pagerank es_create_index_entity_expanded
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	# actually build the expanded index
+	uv run es/add_m2o_and_m2m.py
+	# re-calculate stuff in elasticsearch
+	es POST "/entity_${INDEX_VERSION_OUTPUT}_expanded/_refresh"
