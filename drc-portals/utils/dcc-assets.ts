@@ -133,8 +133,8 @@ async function getFile(
         bool: {
           filter: [
             {term: {type: 'dcc_asset'}},
-            {terms: {a_access_url: filter_res.map(({ link }) => link)}},
-          ]
+            {terms: {"a_access_url.keyword": filter_res.map(({ link }) => link)}},
+          ],
         },
       },
       _source_includes: 'slug,a_access_url',
