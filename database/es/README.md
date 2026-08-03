@@ -136,6 +136,29 @@ source es/ingest_common.sh
 es GET /_cat/indices?v
 es GET /_aliases
 
+# get current stats
+es_put GET /entity_${INDEX_VERSION}_expanded/_search << EOF | jq -r '.aggregations.types.buckets[] as $type | [.doc_count, $type.key] + ($type.dcc_ids.buckets[] | [.key, .doc_count]) | @tsv' | column -t -s $'\t'
+{
+  "aggs": {
+    "types": {
+      "terms": {
+        "field": "type",
+        "size": 1000
+      },
+      "aggs": {
+        "dcc_ids": {
+          "terms": {
+            "field": "m2m_dcc.id",
+            "size": 100
+          }
+        }
+      }
+    }
+  },
+  "size": 0
+}
+EOF
+
 # delete old index
 es DELETE /entity_${INDEX_VERSION}
 es DELETE /m2m_${INDEX_VERSION}
