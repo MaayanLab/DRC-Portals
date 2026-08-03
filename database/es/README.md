@@ -95,9 +95,9 @@ es_put PUT "/m2m_${INDEX_VERSION}/_settings" <<< '{"index":{"refresh_interval":"
 # actually ingest data (these can happen in parallel -- don't forget ingest_common which specifies INDEX_VERSION)
 uv run es/ingest_dcc_assets.py
 uv run es/ingest_gmts.py
+uv run es/ingest_kg.py
 uv run es/ingest_c2m2_files.py
 uv run es/ingest_c2m2_index.py
-uv run es/ingest_kg.py
 
 # re-calculate stuff in elasticsearch
 es POST "/entity_${INDEX_VERSION}/_refresh"
