@@ -75,120 +75,20 @@ EOF
 ## Ingesting Elasticsearch
 
 ```bash
-# update es/ingest_common.sh and specify a unique new INDEX_VERSION
-# use `just` command to do everything
+# add INDEX_VERSION to /drc-portals/.env
+
+# list all available commands
+just
+
+# look for potentially un-archived DCC assets
+just es_scruitinize
+
+# actually perform ingest
 just es_ingest
-```
 
-### Legacy Instructions
-```bash
-source es/ingest_common.sh
+# swap entity_expanded to make UI use the ingested index
+just es_alias
 
-# step 1: take a look at assets, there might be assets that should have been archived
-uv run es/scruitinize_dcc_assets.py
-
-# step 2: ensure all files validate before ingesting, sometimes the manual fix is easy and should be done. also builds an on-disk index used later
-uv run es/check_c2m2_files.py
-
-# create index in elasticsearch for entity
-es_put PUT /entity_${INDEX_VERSION} < es/index/entity.json
-es_put PUT "/entity_${INDEX_VERSION}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
-
-# create index in elasticsearch for m2m
-es_put PUT /m2m_${INDEX_VERSION} < es/index/m2m.json
-es_put PUT "/m2m_${INDEX_VERSION}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
-
-# actually ingest data (these can happen in parallel -- don't forget ingest_common which specifies INDEX_VERSION)
-uv run es/ingest_dcc_assets.py
-uv run es/ingest_gmts.py
-uv run es/ingest_kg.py
-uv run es/ingest_c2m2_files.py
-uv run es/ingest_c2m2_index.py
-
-# re-calculate stuff in elasticsearch
-es POST "/entity_${INDEX_VERSION}/_refresh"
-es POST "/m2m_${INDEX_VERSION}/_refresh"
-
-# compute pagerank and add to the entity
-uv run es/pagerank.py
-
-# re-calculate stuff in elasticsearch
-es POST "/entity_${INDEX_VERSION}/_refresh"
-
-# create index in elastic search for final one-hop expanded form
-es_put PUT /entity_${INDEX_VERSION_OUTPUT}_expanded < es/index/entity_expanded.json
-es_put PUT "/entity_${INDEX_VERSION_OUTPUT}_expanded/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
-
-# actually build the expanded index
-uv run es/add_m2o_and_m2m.py
-
-# re-calculate stuff in elasticsearch
-es POST "/entity_${INDEX_VERSION_OUTPUT}_expanded/_refresh"
-
-# swap out "entity_expanded" alias for the latest version (this is what's used on the frontend)
-es_put POST /_aliases << EOF
-{"actions": [{ "remove": { "index": "*", "alias": "entity_expanded" } }]}
-EOF
-es_put POST /_aliases << EOF
-{"actions": [{ "add": { "index": "entity_${INDEX_VERSION_OUTPUT}_expanded", "alias": "entity_expanded" } }]}
-EOF
-```
-
-## Helpful Elasticsearch Commands
-```bash
-source es/ingest_common.sh
-
-# get current indexes
-es GET /_cat/indices?v
-es GET /_aliases
-
-# get current stats
-es_put GET /entity_${INDEX_VERSION}_expanded/_search << EOF | jq -r '.aggregations.types.buckets[] as $type | [.doc_count, $type.key] + ($type.dcc_ids.buckets[] | [.key, .doc_count]) | @tsv' | column -t -s $'\t'
-{
-  "aggs": {
-    "types": {
-      "terms": {
-        "field": "type",
-        "size": 1000
-      },
-      "aggs": {
-        "dcc_ids": {
-          "terms": {
-            "field": "m2m_dcc.id",
-            "size": 100
-          }
-        }
-      }
-    }
-  },
-  "size": 0
-}
-EOF
-
-# delete old index
-es DELETE /entity_${INDEX_VERSION}
-es DELETE /m2m_${INDEX_VERSION}
-es DELETE /entity_${INDEX_VERSION_OUTPUT}_expanded
-
-# run a query
-es GET /entity_${INDEX_VERSION}/_search << EOF
-{
-  "query": {
-    "simple_query": {
-      "query": "type:dcc"
-    }
-  }
-}
-EOF
-
-# delete all results satisfying a query
-es GET /entity_${INDEX_VERSION}/_delete_by_query << EOF
-{
-  "query": {
-    "simple_query": {
-      "query": "type:dcc"
-    }
-  }
-}
-EOF
+# see what's currently in the database
+just es_view_indices es_view_aliases
 ```

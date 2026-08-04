@@ -1,8 +1,6 @@
 #!/bin/sh
 
 ELASTICSEARCH_URL=$(dotenv -f ../drc-portals/.env get ELASTICSEARCH_URL)
-export INDEX_VERSION=v18.1
-export INDEX_VERSION_OUTPUT=v19
 
 es() {
   method=$1; shift
