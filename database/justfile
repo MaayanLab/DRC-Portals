@@ -6,9 +6,39 @@ set dotenv-path := "../drc-portals/.env"
 INDEX_VERSION := env("INDEX_VERSION")
 INDEX_VERSION_OUTPUT := env("INDEX_VERSION_OUTPUT", INDEX_VERSION)
 
+# prepare python environment
+[cache]
+venv:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	uv venv
+	uv pip install -r requirements.txt
+
+# fetch and ingest tables from our S3 server
+[cache]
+ingestion: venv
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	uv run ingestion.py
+
+# superficial cache removal
+clean:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	rm ingest/*.tsv
+	just --clean ingestion
+
+# more extensive cache removal
+purge:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	rm -r ingest
+	just --clean ingestion
+
+
 # find possibly duplicated dcc assets which are missing the archived flag
 [cache]
-es_scruitinize:
+es_scruitinize: venv
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
@@ -48,7 +78,7 @@ es_create_index_base: es_create_index_entity es_create_index_m2m
 
 # ingest just the dcc assets as records
 [cache]
-es_ingest_dcc_assets: es_create_index_base
+es_ingest_dcc_assets: venv es_create_index_base
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
@@ -58,7 +88,7 @@ es_ingest_dcc_assets: es_create_index_base
 
 # ingest the contents of .gmt assets
 [cache]
-es_ingest_gmts: es_create_index_base
+es_ingest_gmts: venv es_create_index_base
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
@@ -68,7 +98,7 @@ es_ingest_gmts: es_create_index_base
 
 # ingest the contents of KGAssertion assets
 [cache]
-es_ingest_kg: es_create_index_base
+es_ingest_kg: venv es_create_index_base
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
@@ -78,7 +108,7 @@ es_ingest_kg: es_create_index_base
 
 # validate and index C2M2 assets
 [cache]
-es_check_c2m2:
+es_check_c2m2: venv
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
@@ -86,7 +116,7 @@ es_check_c2m2:
 
 # ingest the contents of C2M2 assets
 [cache]
-es_ingest_c2m2: es_create_index_base es_check_c2m2
+es_ingest_c2m2: venv es_create_index_base es_check_c2m2
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
@@ -103,7 +133,7 @@ es_ingest_base: es_ingest_dcc_assets es_ingest_gmts es_ingest_kg es_ingest_c2m2
 
 # add pagerank to ingested entities
 [cache]
-es_pagerank: es_ingest_base
+es_pagerank: venv es_ingest_base
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
@@ -114,7 +144,7 @@ es_pagerank: es_ingest_base
 
 # expand all ingested DCC assets (incorporating m2m relationships in the record)
 [cache]
-es_ingest: es_ingest_base es_pagerank es_create_index_entity_expanded
+es_ingest: venv es_ingest_base es_pagerank es_create_index_entity_expanded
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
