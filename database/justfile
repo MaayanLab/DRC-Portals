@@ -11,7 +11,7 @@ INDEX_VERSION_OUTPUT := env("INDEX_VERSION_OUTPUT", INDEX_VERSION)
 venv:
 	#!/usr/bin/env bash
 	set -euxo pipefail
-	uv venv
+	uv venv --python=3.11
 	uv pip install -r requirements.txt
 
 # fetch and ingest tables from our S3 server
