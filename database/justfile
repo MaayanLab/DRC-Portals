@@ -1,5 +1,10 @@
 set unstable
 set default-list := true
+set dotenv-load := true
+set dotenv-path := "../drc-portals/.env"
+
+INDEX_VERSION := env("INDEX_VERSION")
+INDEX_VERSION_OUTPUT := env("INDEX_VERSION_OUTPUT", INDEX_VERSION)
 
 [cache(inputs="es/ingest_common.sh")]
 es_scruitinize:
@@ -13,16 +18,16 @@ es_create_index_entity:
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
-	es_put PUT /entity_${INDEX_VERSION} < es/index/entity.json
-	es_put PUT "/entity_${INDEX_VERSION}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
+	es_put PUT /entity_{{INDEX_VERSION}} < es/index/entity.json
+	es_put PUT "/entity_{{INDEX_VERSION}}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
 
 [cache(inputs="es/ingest_common.sh")]
 es_create_index_m2m:
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
-	es_put PUT /m2m_${INDEX_VERSION} < es/index/m2m.json
-	es_put PUT "/m2m_${INDEX_VERSION}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
+	es_put PUT /m2m_{{INDEX_VERSION}} < es/index/m2m.json
+	es_put PUT "/m2m_{{INDEX_VERSION}}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
 
 [cache(inputs="es/ingest_common.sh")]
 es_create_index_entity_expanded:
@@ -30,8 +35,8 @@ es_create_index_entity_expanded:
 	set -euxo pipefail
 	source es/ingest_common.sh
 	# create index in elastic search for final one-hop expanded form
-	es_put PUT /entity_${INDEX_VERSION_OUTPUT}_expanded < es/index/entity_expanded.json
-	es_put PUT "/entity_${INDEX_VERSION_OUTPUT}_expanded/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
+	es_put PUT /entity_{{INDEX_VERSION_OUTPUT}}_expanded < es/index/entity_expanded.json
+	es_put PUT "/entity_{{INDEX_VERSION_OUTPUT}}_expanded/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
 
 [parallel]
 es_create_index_base: es_create_index_entity es_create_index_m2m
@@ -42,8 +47,8 @@ es_ingest_dcc_assets: es_create_index_base
 	set -euxo pipefail
 	source es/ingest_common.sh
 	uv run es/ingest_dcc_assets.py
-	es POST "/entity_${INDEX_VERSION}/_refresh"
-	es POST "/m2m_${INDEX_VERSION}/_refresh"
+	es POST "/entity_{{INDEX_VERSION}}/_refresh"
+	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
 
 [cache(inputs="es/ingest_common.sh")]
 es_ingest_gmts: es_create_index_base
@@ -51,8 +56,8 @@ es_ingest_gmts: es_create_index_base
 	set -euxo pipefail
 	source es/ingest_common.sh
 	uv run es/ingest_gmts.py
-	es POST "/entity_${INDEX_VERSION}/_refresh"
-	es POST "/m2m_${INDEX_VERSION}/_refresh"
+	es POST "/entity_{{INDEX_VERSION}}/_refresh"
+	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
 
 [cache(inputs="es/ingest_common.sh")]
 es_ingest_kg: es_create_index_base
@@ -60,8 +65,8 @@ es_ingest_kg: es_create_index_base
 	set -euxo pipefail
 	source es/ingest_common.sh
 	uv run es/ingest_kg.py
-	es POST "/entity_${INDEX_VERSION}/_refresh"
-	es POST "/m2m_${INDEX_VERSION}/_refresh"
+	es POST "/entity_{{INDEX_VERSION}}/_refresh"
+	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
 
 [cache(inputs="es/ingest_common.sh")]
 es_check_c2m2: es_create_index_base
@@ -69,8 +74,8 @@ es_check_c2m2: es_create_index_base
 	set -euxo pipefail
 	source es/ingest_common.sh
 	uv run es/check_c2m2_files.py
-	es POST "/entity_${INDEX_VERSION}/_refresh"
-	es POST "/m2m_${INDEX_VERSION}/_refresh"
+	es POST "/entity_{{INDEX_VERSION}}/_refresh"
+	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
 
 [cache(inputs="es/ingest_common.sh")]
 es_ingest_c2m2: es_create_index_base es_check_c2m2
@@ -78,11 +83,11 @@ es_ingest_c2m2: es_create_index_base es_check_c2m2
 	set -euxo pipefail
 	source es/ingest_common.sh
 	uv run es/ingest_c2m2_files.py
-	es POST "/entity_${INDEX_VERSION}/_refresh"
-	es POST "/m2m_${INDEX_VERSION}/_refresh"
+	es POST "/entity_{{INDEX_VERSION}}/_refresh"
+	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
 	uv run es/ingest_c2m2_index.py
-	es POST "/entity_${INDEX_VERSION}/_refresh"
-	es POST "/m2m_${INDEX_VERSION}/_refresh"
+	es POST "/entity_{{INDEX_VERSION}}/_refresh"
+	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
 
 [parallel]
 es_ingest_base: es_ingest_dcc_assets es_ingest_gmts es_ingest_kg es_ingest_c2m2
@@ -95,7 +100,7 @@ es_pagerank: es_ingest_base
 	# compute pagerank and add to the entity
 	uv run es/pagerank.py
 	# re-calculate stuff in elasticsearch
-	es POST "/entity_${INDEX_VERSION}/_refresh"
+	es POST "/entity_{{INDEX_VERSION}}/_refresh"
 
 [cache(inputs="es/ingest_common.sh")]
 es_ingest: es_ingest_base es_pagerank es_create_index_entity_expanded
@@ -105,4 +110,69 @@ es_ingest: es_ingest_base es_pagerank es_create_index_entity_expanded
 	# actually build the expanded index
 	uv run es/add_m2o_and_m2m.py
 	# re-calculate stuff in elasticsearch
-	es POST "/entity_${INDEX_VERSION_OUTPUT}_expanded/_refresh"
+	es POST "/entity_{{INDEX_VERSION_OUTPUT}}_expanded/_refresh"
+
+es_alias:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es_put POST /_aliases << EOF
+	{"actions": [{ "remove": { "index": "*", "alias": "entity_expanded" } }]}
+	EOF
+	es_put POST /_aliases << EOF
+	{"actions": [{ "add": { "index": "entity_{{INDEX_VERSION_OUTPUT}}_expanded", "alias": "entity_expanded" } }]}
+	EOF
+
+es_view_indices:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es GET /_cat/indices?v
+
+es_view_aliases:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es GET /_aliases
+
+es_expanded_stats:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es_put GET /entity_{{INDEX_VERSION}}_expanded/_search << EOF | jq -r '.aggregations.types.buckets[] as $type | [.doc_count, $type.key] + ($type.dcc_ids.buckets[] | [.key, .doc_count]) | @tsv' | column -t -s $'\t'
+	{
+		"aggs": {
+			"types": {
+				"terms": {
+					"field": "type",
+					"size": 1000
+				},
+				"aggs": {
+					"dcc_ids": {
+						"terms": {
+							"field": "m2m_dcc.id",
+							"size": 100
+						}
+					}
+				}
+			}
+		},
+		"size": 0
+	}
+	EOF
+
+es_delete_index_base:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es DELETE /entity_{{INDEX_VERSION}}
+	es DELETE /m2m_{{INDEX_VERSION}}
+
+es_delete_expanded:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es DELETE /entity_{{INDEX_VERSION_OUTPUT}}_expanded
+
+[parallel]
+es_delete_index: es_delete_index_base es_delete_expanded
