@@ -6,14 +6,16 @@ set dotenv-path := "../drc-portals/.env"
 INDEX_VERSION := env("INDEX_VERSION")
 INDEX_VERSION_OUTPUT := env("INDEX_VERSION_OUTPUT", INDEX_VERSION)
 
-[cache(inputs="es/ingest_common.sh")]
+# find possibly duplicated dcc assets which are missing the archived flag
+[cache]
 es_scruitinize:
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
 	uv run es/scruitinize_dcc_assets.py
 
-[cache(inputs="es/ingest_common.sh")]
+# create the index for entities
+[cache]
 es_create_index_entity:
 	#!/usr/bin/env bash
 	set -euxo pipefail
@@ -21,7 +23,8 @@ es_create_index_entity:
 	es_put PUT /entity_{{INDEX_VERSION}} < es/index/entity.json
 	es_put PUT "/entity_{{INDEX_VERSION}}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
 
-[cache(inputs="es/ingest_common.sh")]
+# create the index for m2m links
+[cache]
 es_create_index_m2m:
 	#!/usr/bin/env bash
 	set -euxo pipefail
@@ -29,7 +32,8 @@ es_create_index_m2m:
 	es_put PUT /m2m_{{INDEX_VERSION}} < es/index/m2m.json
 	es_put PUT "/m2m_{{INDEX_VERSION}}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
 
-[cache(inputs="es/ingest_common.sh")]
+# create the expanded index
+[cache]
 es_create_index_entity_expanded:
 	#!/usr/bin/env bash
 	set -euxo pipefail
@@ -38,10 +42,12 @@ es_create_index_entity_expanded:
 	es_put PUT /entity_{{INDEX_VERSION_OUTPUT}}_expanded < es/index/entity_expanded.json
 	es_put PUT "/entity_{{INDEX_VERSION_OUTPUT}}_expanded/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
 
+# create the base index which we ingest to
 [parallel]
 es_create_index_base: es_create_index_entity es_create_index_m2m
 
-[cache(inputs="es/ingest_common.sh")]
+# ingest just the dcc assets as records
+[cache]
 es_ingest_dcc_assets: es_create_index_base
 	#!/usr/bin/env bash
 	set -euxo pipefail
@@ -50,7 +56,8 @@ es_ingest_dcc_assets: es_create_index_base
 	es POST "/entity_{{INDEX_VERSION}}/_refresh"
 	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
 
-[cache(inputs="es/ingest_common.sh")]
+# ingest the contents of .gmt assets
+[cache]
 es_ingest_gmts: es_create_index_base
 	#!/usr/bin/env bash
 	set -euxo pipefail
@@ -59,7 +66,8 @@ es_ingest_gmts: es_create_index_base
 	es POST "/entity_{{INDEX_VERSION}}/_refresh"
 	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
 
-[cache(inputs="es/ingest_common.sh")]
+# ingest the contents of KGAssertion assets
+[cache]
 es_ingest_kg: es_create_index_base
 	#!/usr/bin/env bash
 	set -euxo pipefail
@@ -68,16 +76,16 @@ es_ingest_kg: es_create_index_base
 	es POST "/entity_{{INDEX_VERSION}}/_refresh"
 	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
 
-[cache(inputs="es/ingest_common.sh")]
-es_check_c2m2: es_create_index_base
+# validate and index C2M2 assets
+[cache]
+es_check_c2m2:
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
 	uv run es/check_c2m2_files.py
-	es POST "/entity_{{INDEX_VERSION}}/_refresh"
-	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
 
-[cache(inputs="es/ingest_common.sh")]
+# ingest the contents of C2M2 assets
+[cache]
 es_ingest_c2m2: es_create_index_base es_check_c2m2
 	#!/usr/bin/env bash
 	set -euxo pipefail
@@ -89,10 +97,12 @@ es_ingest_c2m2: es_create_index_base es_check_c2m2
 	es POST "/entity_{{INDEX_VERSION}}/_refresh"
 	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
 
+# ingest all DCC assets
 [parallel]
 es_ingest_base: es_ingest_dcc_assets es_ingest_gmts es_ingest_kg es_ingest_c2m2
 
-[cache(inputs="es/ingest_common.sh")]
+# add pagerank to ingested entities
+[cache]
 es_pagerank: es_ingest_base
 	#!/usr/bin/env bash
 	set -euxo pipefail
@@ -102,7 +112,8 @@ es_pagerank: es_ingest_base
 	# re-calculate stuff in elasticsearch
 	es POST "/entity_{{INDEX_VERSION}}/_refresh"
 
-[cache(inputs="es/ingest_common.sh")]
+# expand all ingested DCC assets (incorporating m2m relationships in the record)
+[cache]
 es_ingest: es_ingest_base es_pagerank es_create_index_entity_expanded
 	#!/usr/bin/env bash
 	set -euxo pipefail
@@ -112,6 +123,7 @@ es_ingest: es_ingest_base es_pagerank es_create_index_entity_expanded
 	# re-calculate stuff in elasticsearch
 	es POST "/entity_{{INDEX_VERSION_OUTPUT}}_expanded/_refresh"
 
+# create an alias entity_expanded -> entity_{{INDEX_VERSION_OUTPUT}}_expanded (which the UI uses)
 es_alias:
 	#!/usr/bin/env bash
 	set -euxo pipefail
@@ -123,18 +135,21 @@ es_alias:
 	{"actions": [{ "add": { "index": "entity_{{INDEX_VERSION_OUTPUT}}_expanded", "alias": "entity_expanded" } }]}
 	EOF
 
+# view all indices in elasticsearch
 es_view_indices:
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
 	es GET /_cat/indices?v
 
+# view all aliases in elasticsearch
 es_view_aliases:
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
 	es GET /_aliases
 
+# view statistics about types associated with DCCs in the expanded index
 es_expanded_stats:
 	#!/usr/bin/env bash
 	set -euxo pipefail
@@ -161,6 +176,7 @@ es_expanded_stats:
 	}
 	EOF
 
+# delete the INDEX_VERSION base index
 es_delete_index_base:
 	#!/usr/bin/env bash
 	set -euxo pipefail
@@ -168,11 +184,13 @@ es_delete_index_base:
 	es DELETE /entity_{{INDEX_VERSION}}
 	es DELETE /m2m_{{INDEX_VERSION}}
 
-es_delete_expanded:
+# delete the INDEX_VERSION expanded index
+es_delete_index_expanded:
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
 	es DELETE /entity_{{INDEX_VERSION_OUTPUT}}_expanded
 
+# delete all the INDEX_VERSION indices
 [parallel]
-es_delete_index: es_delete_index_base es_delete_expanded
+es_delete_index: es_delete_index_base es_delete_index_expanded
