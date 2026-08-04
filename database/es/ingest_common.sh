@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-ELASTICSEARCH_URL=$(dotenv -f ../drc-portals/.env get ELASTICSEARCH_URL)
+ELASTICSEARCH_URL="${ELASTICSEARCH_URL:-$(dotenv -f ../drc-portals/.env get ELASTICSEARCH_URL)}"
 
 es() {
   method=$1; shift
