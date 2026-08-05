@@ -5,7 +5,7 @@ ELASTICSEARCH_URL="${ELASTICSEARCH_URL:-$(dotenv -f ../drc-portals/.env get ELAS
 es() {
   method=$1; shift
   path=$1; shift
-  curl -H'Content-Type: application/json' -X${method} ${ELASTICSEARCH_URL}${path} $@
+  curl -s -H'Content-Type: application/json' -X${method} ${ELASTICSEARCH_URL}${path} $@
 }
 
 es_put() {
