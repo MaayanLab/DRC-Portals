@@ -53,14 +53,6 @@ c2m2_reference_tables_mappings = {
   ('subject_role_taxonomy', 'role_id'): 'subject_role',
   ('subject', 'sex'): 'subject_sex',
 }
-
-#%%
-dcc_assets = current_dcc_assets()
-
-#%%
-# Ingest C2M2
-
-files = dcc_assets[dcc_assets['filetype'] == 'C2M2']
 files_path = ingest_path / 'c2m2s'
 
 def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
@@ -78,7 +70,7 @@ def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
   #
   c2m2_datapackage_json, = pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.json')
   c2m2_datapackage_db = c2m2_datapackage_json.parent/'C2M2_datapackage.sqlite'
-  assert c2m2_datapackage_db.exists(), 'You should have run check_c2m2_files first'
+  assert c2m2_datapackage_db.exists(), f'You should have run check_c2m2_files first {c2m2_datapackage_db.absolute()}'
   pkg = Package(str(c2m2_datapackage_json))
   with pdp_helper(es_bulk, version=version) as helper:
     dcc_id = helper.upsert_entity('dcc', dict(
@@ -250,6 +242,8 @@ def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
               raise RuntimeError(f"{rc_name=}, {fk['reference']['resource']=}") from e
 
 def main(version='staging'):
+  dcc_assets = current_dcc_assets()
+  files = dcc_assets[dcc_assets['filetype'] == 'C2M2']
   with es_helper() as es_bulk:
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
       for fut in tqdm(concurrent.futures.as_completed((

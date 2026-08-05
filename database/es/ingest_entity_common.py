@@ -1,10 +1,34 @@
 #%%
 import pandas as pd
+import pathlib
+import uuid
+import time
+import random
+import urllib.request
 
 #%%
+def fetch_or_cache_process_safe(url: str, file: pathlib.Path):
+  if not file.exists():
+    if not file.with_stem('.lock').exists():
+      token = str(uuid.uuidv4())
+      file.with_stem('.lock').write_text(token)
+      time.sleep(0.5+random.random())
+      if file.with_stem('.lock').read_text() == token:
+        # we aquired the lock
+        urllib.request.urlretrieve(file, file)
+        # release the lock
+        file.with_stem('.lock').unlink()
+  # someone else has a lock
+  while file.with_stem('.lock').exists():
+    time.sleep(1)
+  assert file.exists()
+  return file
 
 # load entrez gene info
-df_entrez = pd.read_csv('https://ftp.ncbi.nlm.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz', sep='\t')
+df_entrez = pd.read_csv(
+  fetch_or_cache_process_safe('https://ftp.ncbi.nlm.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz', pathlib.Path('ingest')/'Homo_sapiens.gene_info.gz'),
+  sep='\t',
+)
 df_entrez['Synonyms'] = df_entrez['Synonyms'].replace('-', float('nan')).str.split('|').apply(lambda synonyms: synonyms if type(synonyms) == list else [])
 df_entrez['Ensembl'] = df_entrez['dbXrefs'].replace('-', float('nan')).str.split('|').apply(lambda xrefs: [xref.partition(':')[-1] for xref in xrefs if xref.startswith('Ensembl:')] if type(xrefs) == list else [])
 

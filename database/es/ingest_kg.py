@@ -12,17 +12,9 @@ from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper
 from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_descriptions
 
 debug = 1;
-
-#%%
-dcc_assets = current_dcc_assets()
-
-#%%
-# Ingest KG Assertions
-
-files = dcc_assets[dcc_assets['filetype'] == 'KG Assertions']
-files = files[files['size'] < 100000000]
 files_path = ingest_path / 'assertions'
 
+#%%
 # for now, we'll map entity types to get less junk/duplication
 map_type = {
   'hsclo': None,
@@ -144,6 +136,9 @@ def ingest_kg(es_bulk, file, version="staging"):
               helper.upsert_m2o(assertion_id, 'dcc', dcc_id)
 
 def main(version="staging"):
+  dcc_assets = current_dcc_assets()
+  files = dcc_assets[dcc_assets['filetype'] == 'KG Assertions']
+  files = files[files['size'] < 100000000]
   with es_helper() as es_bulk:
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
       for fut in tqdm(concurrent.futures.as_completed((
