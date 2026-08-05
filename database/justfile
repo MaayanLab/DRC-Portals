@@ -179,6 +179,25 @@ es_view_aliases:
 	source es/ingest_common.sh
 	es GET /_aliases
 
+# view statistics about types associated in the base index
+es_base_stats:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es_put GET /entity_{{INDEX_VERSION}}/_search << EOF | jq -r '.aggregations.types.buckets[] | [.doc_count, .key] | @tsv' | column -t -s $'\t'
+	{
+		"aggs": {
+			"types": {
+				"terms": {
+					"field": "type",
+					"size": 100
+				}
+			}
+		},
+		"size": 0
+	}
+	EOF
+
 # view statistics about types associated with DCCs in the expanded index
 es_expanded_stats:
 	#!/usr/bin/env bash
