@@ -12,7 +12,7 @@ export const GDLPA = ({label, entity, color=blueGrey[100], icon_color=blueGrey[9
 	useEffect(()=>{
 		const get_gdlpa = async () =>  {
 			try {
-				const res = await fetch(`https://cfde-gene-pages.cloud/_next/data/TbM6Ywa1b0F_2AepsAqCK/${entity}/${label}.json`)
+				const res = await fetch(`https://cfde-gene-pages.cloud/_next/data/9sp-JwfqT_kFrZSTbNh7B/${entity}/${label}.json`)
 				if (res.ok) {
 					const results = await res.json()
 					if (results.pageProps) {
