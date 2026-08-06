@@ -1,4 +1,5 @@
 FROM node:26.7.0-alpine
+RUN apk add --no-cache openssl libc6-compat
 WORKDIR /app
 
 # fix "sharp-missing-in-production" warning
