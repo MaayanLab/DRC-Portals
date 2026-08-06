@@ -9,55 +9,63 @@ import { useEffect, useState } from "react"
 
 export const GDLPA = ({label, entity, color=blueGrey[100], icon_color=blueGrey[900], icon=mdiMagnify}: {label: string, entity?:string, color?: string, icon_color?: string, icon?:string}) => {
 	const [count, setCount] = useState<null|number>(null)
+	const [exist, setExist] = useState(false)
 	useEffect(()=>{
 		const get_gdlpa = async () =>  {
 			try {
-				const res = await fetch(`https://cfde-gene-pages.cloud/_next/data/9sp-JwfqT_kFrZSTbNh7B/${entity}/${label}.json`)
-				if (res.ok) {
-					const results = await res.json()
-					if (results.pageProps) {
-						const count = results.pageProps.manifest.length
-						setCount(count)
-					}
+				const res = await fetch(`https://cfde-gene-pages.cloud/${entity}/${label}`, {
+					method: 'HEAD'
+				})
+				if (res.status !== 404) {
+					setExist(true)
+					// const results = await res.json()
+					// if (results.pageProps) {
+					// 	const count = results.pageProps.manifest.length
+					// 	setCount(count)
+					// }
 				} else {
 					console.error(res.text)
-					setCount(0)
+					setExist(false)
+					// setCount(0)
 				}	
 			} catch (error) {
 				console.error(error)
-				setCount(0)
+				setExist(false)
+				// setCount(0)
 			}
 			
 		}
 		get_gdlpa()
 	}, [])
-	if (count === null) {
-		return (
-			<Grid item xs={6} sm={4}>
-			<Card sx={{height: '100%'}}>
-				<CardHeader
-					avatar={
-						<Skeleton animation="wave" variant="circular" width={40} height={40} />
-					}
-					action={
-					null
-					}
-					title={<Skeleton
-						animation="wave"
-						height={30}
-						width="80%"
-						/>}
-					subheader={<Skeleton
-						animation="wave"
-						height={50}
-						width="80%"
-					/>}
-				/>
-			</Card>
-			</Grid>
-		)
-	}
-	if (count === 0) return null
+	// if (count === null) {
+	// if (exist) {
+	// 	return (
+	// 		<Grid item xs={6} sm={4}>
+	// 		<Card sx={{height: '100%'}}>
+	// 			<CardHeader
+	// 				avatar={
+	// 					<Skeleton animation="wave" variant="circular" width={40} height={40} />
+	// 				}
+	// 				action={
+	// 				null
+	// 				}
+	// 				title={<Skeleton
+	// 					animation="wave"
+	// 					height={30}
+	// 					width="80%"
+	// 					/>}
+	// 				subheader={<Skeleton
+	// 					animation="wave"
+	// 					height={50}
+	// 					width="80%"
+	// 				/>}
+	// 			/>
+	// 		</Card>
+	// 		</Grid>
+	// 	)
+	// }
+	// if (count === 0) return null
+	if (!exist) return null
 	return(
 		<Grid item xs={6} sm={4}>
 			<Card sx={{height: '100%'}}>
@@ -74,7 +82,8 @@ export const GDLPA = ({label, entity, color=blueGrey[100], icon_color=blueGrey[9
 					</IconButton>
 					}
 					title={label}
-					subheader={`View ${count} ${label} ${entity} cards on GDLPA`}
+					// subheader={`View ${count} ${label} ${entity} cards on GDLPA`}
+					subheader={`View ${label} ${entity} cards on GDLPA`}
 				/>
 			</Card>
 		</Grid>
