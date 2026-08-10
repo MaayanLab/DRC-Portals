@@ -3,13 +3,14 @@ import csv
 import json
 import zipfile
 import re
+import sqlite3
 import concurrent.futures
 from tqdm.auto import tqdm
 
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 import urllib.request, urllib.parse
 from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
-from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_descriptions
+from ingest_entity_common import gene_info, sqlite3dict
 
 debug = 1;
 files_path = ingest_path / 'assertions'
@@ -53,9 +54,11 @@ def ingest_kg(es_bulk, file, version="staging"):
   else:
     print("  Warning: not a zip file, will skip!");
     return
+  
+  conn = sqlite3.connect(assertions_extract_path/'cache.sqlite')
 
   with pdp_helper(es_bulk, version=version) as helper:
-    entities = {}
+    entities = sqlite3dict(conn, 'tmp_entities')
     def upsert_entity(type, attributes, slug=None, pk=None):
       id = helper.upsert_entity(type, attributes, slug=slug, pk=pk)
       entities[id] = dict(type=type, slug=slug or id, **{f"a_{k}": v for k,v in attributes.items()})
@@ -63,6 +66,7 @@ def ingest_kg(es_bulk, file, version="staging"):
     def ensure_entity(entity):
       entity_type = entity.pop('type').lower()
       if entity_type == 'gene':
+        gene_lookup, gene_labels, gene_descriptions, gene_entrez = gene_info()
         for gene in gene_lookup.get(entity['label'], []):
           yield lambda gene=gene: upsert_entity('gene', dict(entity,
             label=gene_labels[gene],

@@ -6,12 +6,14 @@ import pathlib
 import pandas as pd
 import concurrent.futures
 import urllib.request, urllib.parse
+import functools
+import sqlite3
 from tqdm.auto import tqdm
 from frictionless import Package
 
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
-from ingest_entity_common import gene_labels, gene_descriptions, gene_entrez
+from ingest_entity_common import gene_info, process_safe_cache, sqlite3dict, sqlite3dictquery
 
 def predicate_from_fields(fields):
   if len(fields) == 1: return fields[0]
@@ -32,8 +34,9 @@ def persistent_id_probably_access_url(access_url):
   return False
 
 #%%
-# get reference tables
-if not pathlib.Path('ingest/c2m2_reference_tables').exists():
+# ensure reference tables are downloaded
+@functools.partial(process_safe_cache, pathlib.Path('ingest/c2m2_reference_tables'))
+def _():
   urllib.request.urlretrieve("https://files.osf.io/v1/resources/m3a85/providers/osfstorage/?zip=", 'ingest/c2m2_reference_tables.zip')
   with zipfile.ZipFile('ingest/c2m2_reference_tables.zip', 'r') as c2m2_zip:
     c2m2_zip.extractall('ingest/c2m2_reference_tables')
@@ -68,9 +71,10 @@ def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
     with zipfile.ZipFile(file_path, 'r') as c2m2_zip:
       c2m2_zip.extractall(c2m2_extract_path)
   #
-  c2m2_datapackage_json, = pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.json')
+  c2m2_datapackage_json, = pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.')
   c2m2_datapackage_db = c2m2_datapackage_json.parent/'C2M2_datapackage.sqlite'
   assert c2m2_datapackage_db.exists(), f'You should have run check_c2m2_files first {c2m2_datapackage_db.absolute()}'
+  conn = sqlite3.connect(c2m2_datapackage_db)
   pkg = Package(str(c2m2_datapackage_json))
   with pdp_helper(es_bulk, version=version) as helper:
     dcc_id = helper.upsert_entity('dcc', dict(
@@ -91,16 +95,14 @@ def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
     helper.upsert_m2o(dcc_asset_id, 'dcc', dcc_id)
 
     # save DCC table attributes for the top level project
-    project_lookup = {}
-    rc_name = 'dcc'
-    with pkg.get_resource(rc_name) as rc:
-      for row in tqdm(rc.row_stream, desc=f"Reading {rc_name} records..."):
-        row = row.to_dict()
-        row.pop('id')
-        row['id_namespace'] = row.pop('project_id_namespace')
-        row['local_id'] = row.pop('project_local_id')
-        pk = ':'.join([row['id_namespace'], row['local_id']])
-        project_lookup[pk] = row
+    project_lookup = sqlite3dict(conn, 'tmp_project_lookup')
+    
+    for row in sqlite3dictquery(conn, 'select * from dcc'):
+      row.pop('id')
+      row['id_namespace'] = row.pop('project_id_namespace')
+      row['local_id'] = row.pop('project_local_id')
+      pk = ':'.join([row['id_namespace'], row['local_id']])
+      project_lookup[pk] = row
 
     #
     # We rely on the fact that upsert_entity will merge with an entity
@@ -114,7 +116,7 @@ def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
     #       but we'll need to update the other ingest steps to rely on C2M2 CV terms
     #
     # the reference tables are pseudo-cv term tables but enums were used instead, we'll just treat them the same as cv tables
-    cv_lookup = {}
+    cv_lookup = sqlite3dict(conn, 'tmp_cv_lookup')
     for rc_name, rc in c2m2_reference_tables.items():
       if 'association_type' in rc_name: continue
       for _, row in rc.iterrows():
@@ -125,9 +127,9 @@ def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
       if rc_name in {'dcc', 'id_namespace'}: continue
       with pkg.get_resource(rc_name) as rc:
         if {field.name for field in rc.schema.fields} >= {'id'}:
-          for row in tqdm(rc.row_stream, desc=f"Reading {rc_name} records..."):
-            row = row.to_dict()
+          for row in sqlite3dictquery(conn, f'select * from {rc_name}'):
             if rc_name == 'gene':
+              gene_lookup, gene_labels, gene_descriptions, gene_entrez = gene_info()
               gene = row['id']
               row['label'] = row.pop('name')
               if gene in gene_labels:
@@ -150,8 +152,7 @@ def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
     for rc_name in pkg.resource_names:
       if rc_name in {'dcc', 'id_namespace'}: continue
       with pkg.get_resource(rc_name) as rc:
-        for row in tqdm(rc.row_stream, desc=f"Reading {rc_name} records..."):
-          row = row.to_dict()
+        for row in sqlite3dictquery(conn, f'select * from {rc_name}'):
           fks = [*rc.schema.foreign_keys]
           edge_type = None
           if 'name' in row: row['label'] = row.pop('name')

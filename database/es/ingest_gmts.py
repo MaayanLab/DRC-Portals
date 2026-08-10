@@ -5,7 +5,7 @@ from tqdm.auto import tqdm
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 import urllib.request, urllib.parse
 from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
-from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_descriptions
+from ingest_entity_common import gene_info
 
 files_path = ingest_path / 'gmts'
 
@@ -57,6 +57,7 @@ def ingest_gmt(es_bulk, file, version="staging"):
         helper.upsert_m2o(set_id, 'dcc_asset', dcc_asset_id)
         helper.upsert_m2o(set_id, 'dcc', dcc_id)
         if xmt_type == 'gene':
+          gene_lookup, gene_labels, gene_descriptions, gene_entrez = gene_info()
           set_entities = {gene_id for raw_gene in set_entities if raw_gene for gene_id in gene_lookup.get(raw_gene, [])}
           for gene in set_entities:
             entity_id = helper.upsert_entity(xmt_type, dict(
