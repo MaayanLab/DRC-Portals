@@ -1,4 +1,7 @@
+#!/usr/bin/env -S just --justfile
+
 set unstable
+set lists
 set default-list := true
 set dotenv-load := true
 set dotenv-path := "../drc-portals/.env"
@@ -245,3 +248,72 @@ es_delete_index_expanded:
 # delete all the INDEX_VERSION indices
 [parallel]
 es_delete_index: es_delete_index_base es_delete_index_expanded
+
+# get all current dcc assets that should be ingested
+get_dcc_assets:
+	#!/usr/bin/env -S PYTHONPATH=. uv run python
+	import json
+	from ingest_common import current_dcc_assets
+	for _, asset in current_dcc_assets().iterrows():
+		if asset['filetype'] == 'KG Assertions' and asset['size'] >= 100_000_000: continue
+		print(asset.to_json())
+
+# ingest a list of dcc assets in parallel
+[parallel]
+ingest_dcc_assets *dcc_assets: *(ingest_dcc_asset *dcc_assets)
+
+# ingest a single dcc asset
+[cache]
+ingest_dcc_asset dcc_asset:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	# ingest dcc asset
+	DCC_ASSET={{quote(dcc_asset)}} just _ingest_dcc_asset {{quote(dcc_asset)}}
+	# re-calculate stuff in elasticsearch
+	es POST "/entity_{{INDEX_VERSION}}/_refresh"
+_ingest_dcc_asset dcc_asset:
+	#!/usr/bin/env -S PYTHONPATH=.:es uv run python
+	import os, sys, json
+	from ingest_common import es_helper
+	dcc_asset = json.loads(os.getenv('DCC_ASSET'))
+	if dcc_asset['sha256checksum'] is None:
+		dcc_asset['sha256checksum'] = float('nan')
+	print("Ingesting", dcc_asset['link'], "...")
+	with es_helper() as es_bulk:
+		if dcc_asset['filetype'] == 'KG Assertions':
+			from ingest_kg import ingest_kg
+			ingest_kg(es_bulk, dcc_asset, version="{{INDEX_VERSION}}")
+		elif dcc_asset['filetype'] == 'XMT' and dcc_asset['filename'].endswith('.gmt'):
+			from ingest_gmts import ingest_gmt
+			ingest_gmt(es_bulk, dcc_asset, version="{{INDEX_VERSION}}")
+		elif dcc_asset['filetype'] == 'C2M2':
+			from ingest_c2m2_files import ingest_c2m2_datapackage
+			from ingest_c2m2_index import ingest_c2m2_index
+			ingest_c2m2_datapackage(es_bulk, dcc_asset, version="{{INDEX_VERSION}}")
+			ingest_c2m2_index(es_bulk, dcc_asset, version="{{INDEX_VERSION}}")
+		else:
+			from ingest_dcc_assets import ingest_dcc_asset
+			ingest_dcc_asset(es_bulk, dcc_asset, version="{{INDEX_VERSION}}")
+			print('WARN: No handler for', dcc_asset['link'])
+
+# ingest all the current dcc assets in parallel
+ingest_all_dcc_assets: venv es_create_index_base es_check_c2m2
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	just INDEX_VERSION={{ INDEX_VERSION }} ingest_dcc_assets {{ quote(split(`just get_dcc_assets`, "\n")) }}
+
+# expand all ingested DCC assets (incorporating m2m relationships in the record)
+[cache]
+es_ingest2: venv ingest_all_dcc_assets es_create_index_entity_expanded
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	# compute pagerank and add to the entity
+	INDEX_VERSION={{ INDEX_VERSION }} uv run es/pagerank.py
+	# re-calculate stuff in elasticsearch
+	es POST "/entity_{{INDEX_VERSION}}/_refresh"
+	# actually build the expanded index
+	INDEX_VERSION={{ INDEX_VERSION }} INDEX_VERSION_OUTPUT={{ INDEX_VERSION_OUTPUT }} uv run es/add_m2o_and_m2m.py
+	# re-calculate stuff in elasticsearch
+	es POST "/entity_{{INDEX_VERSION_OUTPUT}}_expanded/_refresh"
