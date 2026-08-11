@@ -3,7 +3,7 @@ import React from 'react'
 import { useLocalStorage } from '@/utils/localstorage'
 import { Button, IconButton } from '@mui/material'
 import DRSBundleButton from '@/app/data/processed/cart/DRSBundleButton'
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CWICButton from '@/app/data/processed/cart/CWICButton'
 import ClearIcon from '@mui/icons-material/Clear';
 import Link from '@/utils/link'
 import Icon from "@mdi/react";
@@ -63,14 +63,7 @@ export default function DRSCart() {
         tableFooter={
           <div className="flex flex-row gap-4">
             <DRSBundleButton data={cart} />
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<CloudUploadIcon />}
-              disabled
-            >
-              Export to Cloud Workspace
-            </Button>
+            <CWICButton data={cart} />
             <Button
               variant="contained"
               color="error"
