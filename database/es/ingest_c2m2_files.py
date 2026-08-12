@@ -71,7 +71,7 @@ def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
     with zipfile.ZipFile(file_path, 'r') as c2m2_zip:
       c2m2_zip.extractall(c2m2_extract_path)
   #
-  c2m2_datapackage_json, = pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.')
+  c2m2_datapackage_json, = pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.json')
   c2m2_datapackage_db = c2m2_datapackage_json.parent/'C2M2_datapackage.sqlite'
   assert c2m2_datapackage_db.exists(), f'You should have run check_c2m2_files first {c2m2_datapackage_db.absolute()}'
   conn = sqlite3.connect(c2m2_datapackage_db)
