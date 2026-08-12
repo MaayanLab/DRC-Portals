@@ -147,7 +147,7 @@ es_pagerank: venv es_ingest_base
 
 # expand all ingested DCC assets (incorporating m2m relationships in the record)
 [cache]
-es_ingest: venv es_ingest_base es_pagerank es_create_index_entity_expanded
+es_ingest_all: venv es_ingest_base es_pagerank es_create_index_entity_expanded
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
@@ -235,7 +235,7 @@ es_delete_index_base:
 	source es/ingest_common.sh
 	es DELETE /entity_{{INDEX_VERSION}}
 	es DELETE /m2m_{{INDEX_VERSION}}
-	just --clean es_ingest_base es_pagerank ingest_dcc_assets
+	just --clean es_create_index_ es_ingest_ es_pagerank ingest_dcc_assets
 
 # delete the INDEX_VERSION expanded index
 es_delete_index_expanded:
@@ -243,7 +243,7 @@ es_delete_index_expanded:
 	set -euxo pipefail
 	source es/ingest_common.sh
 	es DELETE /entity_{{INDEX_VERSION_OUTPUT}}_expanded
-	just --clean es_ingest
+	just --clean es_create_index_entity_expanded es_ingest_all
 
 # delete all the INDEX_VERSION indices
 [parallel]
@@ -305,7 +305,7 @@ ingest_all_dcc_assets: venv es_create_index_base es_check_c2m2
 
 # expand all ingested DCC assets (incorporating m2m relationships in the record)
 [cache]
-es_ingest2: venv ingest_all_dcc_assets es_create_index_entity_expanded
+es_ingest_all2: venv ingest_all_dcc_assets es_create_index_entity_expanded
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
