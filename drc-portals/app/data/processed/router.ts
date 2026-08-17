@@ -180,7 +180,7 @@ export default router({
           ]))
         }
       },
-      size: 200,
+      size: 1000,
     })
     const entityLookup: Record<string, EntityExpandedType> = Object.fromEntries([
       ...entityLookupRes.hits.hits.filter((hit): hit is typeof hit & {_source: EntityExpandedType} => !!hit._source).map((hit) => [hit._id, hit._source]),
