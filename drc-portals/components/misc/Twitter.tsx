@@ -5,11 +5,9 @@ import TwitterFromCache from './TwitterFromCache'
 
 export default function Twitter() {
     return(
-        <Card sx={{minHeight: 620}}>
-            <CardContent sx={{padding: 3}}>
                 <Grid container spacing={2} justifyContent={"space-between"} alignItems={"center"}>
                     <Grid item>
-                        <Typography variant="h2" color="secondary">Social Media</Typography>
+                        <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 300}}variant="subtitle1">Social Media</Typography>
                     </Grid>
                     <Grid item>
                         <TwitterFollowButton screenName={'CfdeWorkbench'}/>
@@ -32,7 +30,6 @@ export default function Twitter() {
                         </div>
                     </Grid>
                 </Grid>
-            </CardContent>
-        </Card>
+            
     )
 }

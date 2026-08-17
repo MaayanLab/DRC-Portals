@@ -68,11 +68,11 @@ const nextConfig = {
         destination: "/data/submit/:path*",
         permanent: false,
       },
-      {
-        source: "/info",
-        destination: "/?info=true",
-        permanent: false,
-      },
+      // {
+      //   source: "/info",
+      //   destination: "/?info=true",
+      //   permanent: false,
+      // },
       {
         source: "/info/documentation/:path*",
         destination: "/data/documentation/:path*",
