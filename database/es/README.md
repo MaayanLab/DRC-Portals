@@ -46,7 +46,7 @@ just
 just es_scruitinize
 
 # actually perform ingest
-just es_ingest
+just es_ingest_all2
 
 # swap entity_expanded to make UI use the ingested index
 just es_alias
