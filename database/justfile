@@ -182,6 +182,13 @@ es_view_aliases:
 	source es/ingest_common.sh
 	es GET /_aliases
 
+# view all snapshots in elasticsearch
+es_view_snapshots:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es GET /_snapshot/s3/_all
+
 # view statistics about types associated in the base index
 es_base_stats:
 	#!/usr/bin/env bash
@@ -317,3 +324,44 @@ es_ingest_all2: venv ingest_all_dcc_assets es_create_index_entity_expanded
 	INDEX_VERSION={{ INDEX_VERSION }} INDEX_VERSION_OUTPUT={{ INDEX_VERSION_OUTPUT }} uv run es/add_m2o_and_m2m.py
 	# re-calculate stuff in elasticsearch
 	es POST "/entity_{{INDEX_VERSION_OUTPUT}}_expanded/_refresh"
+
+es_snapshot_configure READONLY="true":
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es_put PUT /_snapshot/s3 << EOF
+	{
+		"type": "s3",
+		"settings": {
+			"bucket": "cfde-elasticsearch-backup",
+			"readonly": {{ READONLY }}
+		}
+	}
+	EOF
+
+es_snapshot_push:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es_put POST "/_snapshot/s3/entity_{{INDEX_VERSION_OUTPUT}}_expanded?wait_for_completion=true" << EOF
+	{
+		"indices": "entity_{{INDEX_VERSION_OUTPUT}}_expanded",
+		"ignore_unavailable": false,
+		"include_global_state": false,
+		"metadata": {
+			"taken_because": "c2m2 update"
+		}
+	}
+	EOF
+
+es_snapshot_pull:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es_put POST '/_snapshot/s3/entity_{{INDEX_VERSION_OUTPUT}}_expanded/_restore?wait_for_completion=true' << EOF
+	{
+		"indices": "*",
+		"ignore_unavailable": false,
+		"include_global_state": false
+	}
+	EOF

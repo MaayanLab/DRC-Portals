@@ -8,68 +8,30 @@ Once ingest is successful, it should be uploaded to our s3 bucket. It can then b
 
 ### On Dev
 ```bash
-# setup terminal
-source es/ingest_common.sh
-
 # setup s3 bucket for snapshots
-# relies on AWS_ACCESS_KEY_ID // AWS_SECRET_ACCESS_KEY in .env
-es_put PUT /_snapshot/s3 << EOF
-{
-  "type": "s3",
-  "settings": {
-    "bucket": "cfde-elasticsearch-backup"
-  }
-}
-EOF
+# relies on AWS_ACCESS_KEY_ID // AWS_SECRET_ACCESS_KEY in .env at the time of deployment
+just es_snapshot_configure false
 
 # create snapshot from relevant index
-es_put POST "/_snapshot/s3/entity_${INDEX_VERSION_OUTPUT}_expanded?wait_for_completion=true" << EOF
-{
-  "indices": "entity_${INDEX_VERSION_OUTPUT}_expanded",
-  "ignore_unavailable": false,
-  "include_global_state": false,
-  "metadata": {
-    "taken_by": "danieljbclarke",
-    "taken_because": "c2m2 update"
-  }
-}
-EOF
+just es_snapshot_push
 ```
 
 ### In Prod
 ```bash
-source es/ingest_common.sh
+# relies on AWS_ACCESS_KEY_ID // AWS_SECRET_ACCESS_KEY in .env at the time of deployment
+just es_snapshot_configure
 
-# relies on AWS_ACCESS_KEY_ID // AWS_SECRET_ACCESS_KEY in .env
-es_put PUT /_snapshot/s3 << EOF
-{
-  "type": "s3",
-  "settings": {
-    "bucket": "cfde-elasticsearch-backup",
-    "readonly": true
-  }
-}
-EOF
+# check the available snapshots
+just es_view_snapshots
+# pull INDEX_VERSION_OUTPUT snapshot into this instance
+just es_snapshot_pull
+# view indices in this instance
+just es_view_indices
+# update entity_extended to point to INDEX_VERSION_OUTPUT
+just es_alias
 
-# restore 
-es_put POST '/_snapshot/s3/entity_${INDEX_VERSION_OUTPUT}_expanded/_restore?wait_for_completion=true' << EOF
-{
-  "indices": "*",
-  "ignore_unavailable": false,
-  "include_global_state": false
-}
-EOF
-
-es GET /_snapshot/s3/_all
-es GET /_cat/indices?v
-
-es_put POST /_aliases << EOF
-{"actions": [{ "remove": { "index": "*", "alias": "entity_expanded" } }]}
-EOF
-es_put POST /_aliases << EOF
-{"actions": [{ "add": { "index": "entity_${INDEX_VERSION}_expanded", "alias": "entity_expanded" } }]}
-EOF
-
+# to revert to prior index you can
+just INDEX_VERSION_OUTPUT=oldversion es_alias
 ```
 
 ## Ingesting Elasticsearch
