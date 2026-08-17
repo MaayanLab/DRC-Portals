@@ -76,7 +76,7 @@ def ingest_c2m2_index(es_bulk, file, version="staging"):
     ''',
     # file [-> subject ->] taxon
     '''
-      select distinct file.id_namespace, file.local_id, file.filename, 'taxon', ncbi_taxonomy.id, ncbi_taxonomy.name
+      select distinct file.id_namespace, file.local_id, file.filename, 'ncbi_taxonomy', ncbi_taxonomy.id, ncbi_taxonomy.name
       from file
       inner join file_describes_subject
         on file.id_namespace = file_describes_subject.file_id_namespace and file.local_id = file_describes_subject.file_local_id
