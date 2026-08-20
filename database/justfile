@@ -279,6 +279,8 @@ ingest_dcc_asset dcc_asset:
 	DCC_ASSET={{quote(dcc_asset)}} just _ingest_dcc_asset {{quote(dcc_asset)}}
 	# re-calculate stuff in elasticsearch
 	es POST "/entity_{{INDEX_VERSION}}/_refresh"
+	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
+
 _ingest_dcc_asset dcc_asset:
 	#!/usr/bin/env -S PYTHONPATH=.:es uv run python
 	import os, sys, json
