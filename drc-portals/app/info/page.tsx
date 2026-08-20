@@ -82,11 +82,8 @@ export default async function Home() {
           {/* <Typography variant="h1" color="secondary" sx={{textAlign: "center"}}>
             The Common Fund Data Ecosystem
           </Typography> */}
-          <Typography variant="body1">
-            The Common Fund generates a diverse array of valuable data sets and knowledge resources intended for the research community. However, these resources are dispersed across multiple locations, making it challenging to navigate and utilize them efficiently. To address this, the Common Fund Data Ecosystem (CFDE) was established to facilitate the broad use of Common Fund data to drive discovery.
-          </Typography>
-          <Typography variant="body1">
-            The CFDE is structured around five centers that work collaboratively to integrate metadata, data, tools, and knowledge from participating Common Fund programs. These collective efforts enable researchers to generate hypotheses, make discoveries, and validate findings, leading to new insights into health and disease.
+          <Typography variant="h5" >
+            The Common Fund generates a diverse array of valuable data sets and knowledge resources intended for the research community. However, these resources are dispersed across multiple locations, making it challenging to navigate and utilize them efficiently. To address this, the Common Fund Data Ecosystem (CFDE) was established to facilitate the broad use of Common Fund data to drive discovery. The CFDE is structured around five centers that work collaboratively to integrate metadata, data, tools, and knowledge from participating Common Fund programs. These collective efforts enable researchers to generate hypotheses, make discoveries, and validate findings, leading to new insights into health and disease.
           </Typography>
           </Stack>
         </Grid>
@@ -123,13 +120,12 @@ export default async function Home() {
             </Grid>
           </Grid>
         ))}
-        <Grid item xs={12}>
+        {/* <Grid item xs={12}>
           <Typography variant="h2" color="secondary" sx={{textAlign: "center", mb: 5, mt: 5}}>
             Engage with the CFDE Community
           </Typography>
         </Grid>
         <Grid item md={6} xs={12}>
-          {/* <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 300}}variant="subtitle1">ENGAGE WITH THE CFDE COMMUNITY</Typography> */}
           <Twitter/>
         </Grid>
         <Grid item md={6} xs={12}>
@@ -140,7 +136,7 @@ export default async function Home() {
               Show More
             </Button>
           </Link>
-        </Grid> 
+        </Grid>  */}
       </Grid>
     </main>
   )

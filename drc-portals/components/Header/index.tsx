@@ -223,19 +223,19 @@ export default function Header({ session }: {session: Session | null }) {
     //     setSubLinks(null)
     // }, 5000);
   }
-  if (pathname === "/info") {
-    return(
-      <Container maxWidth="lg" >
-        <AppBar position="static" sx={{ color: "#2D5986", paddingTop: 2, display: { xs: "none", sm: "none", md: "none", lg: "block", xl: "block" } }}>
-            <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
-              <Grid item>
-                <Logo title="CFDE Workbench" size='large' color="inherit" />
-              </Grid>
-            </Grid>
-        </AppBar>
-      </Container>
-    )
-  }
+  // if (pathname === "/info") {
+  //   return(
+  //     <Container maxWidth="lg" >
+  //       <AppBar position="static" sx={{ color: "#2D5986", paddingTop: 2, display: { xs: "none", sm: "none", md: "none", lg: "block", xl: "block" } }}>
+  //           <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
+  //             <Grid item>
+  //               <Logo title="Common Fund Data Ecosystem" size='large' color="inherit" icon="/img/CFDE.jpg" />
+  //             </Grid>
+  //           </Grid>
+  //       </AppBar>
+  //     </Container>
+  //   )
+  // }
   return (
     <ClickAwayListener onClickAway={()=>setSubLinks(null)}>
     <div>

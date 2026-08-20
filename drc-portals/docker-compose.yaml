@@ -49,7 +49,7 @@ services:
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:1.3.2-rc.4
+    image: maayanlab/drc-portal-dev:1.4.1-rc.1
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -89,6 +89,16 @@ services:
       - DEEPDIVE_TOKEN
       - DEEPDIVE_URL
       - MCP_API_KEY
+  cfde-info:
+    image: maayanlab/cfde-info:0.1.2
+    x-kubernetes:
+      imagePullPolicy: IfNotPresent
+      annotations:
+        maayanlab.cloud/ingress: https://dev.info.cfde.cloud
+        nginx.ingress.kubernetes.io/configuration-snippet: |
+          more_set_headers "X-Robots-Tag: noindex";
+    ports:
+      - 8080:80
   drc-portal-worker:
     build:
       context: ..
