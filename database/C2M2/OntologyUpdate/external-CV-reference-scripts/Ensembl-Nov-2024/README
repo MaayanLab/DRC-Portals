@@ -1,0 +1,9 @@
+* source (human): ftp://ftp.ensembl.org/pub/current_gff3/homo_sapiens/
+   --> initial download was of release 104 (Mar 2021): retrieved 2021.11.08
+   --> current (second) download is of release 106 (Mar 2022): retrieved 2022.04.14
+
+* before preprocessing, don't forget to unzip the GFF3 files
+
+* gene "name" and "description" fields are both nullable
+
+

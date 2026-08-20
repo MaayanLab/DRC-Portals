@@ -1,0 +1,13 @@
+# Mano: 2024/11/21
+Using the output file Shiva generated, to remove TEC and replace it by "To be experimentally confirmed",
+Linux bash command:
+being in the folder where ther file updated_output_raw.tsv is:
+sed 's/\t\ttec\t\[/\t\tTo be experimentally confirmed\t\[/Ig' updated_output_raw.tsv > updated_output_clean.tsv
+Cross check: Note the $ sign before single quote in pattern (needed to interpret the tab)
+egrep -e $'\tTEC\t.*\t\[' updated_output_clean.tsv |more
+egrep -e $'\t\tTo be experimentally confirmed\t\[\]' updated_output_clean.tsv |more
+# In Mano's account, DRC-Portals is at: ~/DRC/DRC-Portals
+diff updated_output_clean.tsv ~/DRC/DRC-Portals/database/C2M2/SchemaUpdate/updated_output_raw.tsv
+
+Then rename updated_output_clean.tsv to ensembl_genes.2024-08-18.tsv
+

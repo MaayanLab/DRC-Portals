@@ -1,0 +1,22 @@
+* source (human): ftp://ftp.ensembl.org/pub/current_gff3/homo_sapiens/
+   --> initial download was of release 104 (Mar 2021): retrieved 2021.11.08
+   --> current (second) download is of release 106 (Mar 2022): retrieved 2022.04.14
+
+   Mano: 2024/11/15
+   --> On 2024/11/15, downloaded version 113 from the Url: http://ftp.ensembl.org/pub/current_gff3/homo_sapiens/Homo_sapiens.GRCh38.113.gff3.gz
+   wget -nc http://ftp.ensembl.org/pub/current_gff3/homo_sapiens/Homo_sapiens.GRCh38.113.gff3.gz
+
+	zz00*.pl uses the above gff file
+	zz01*.pl uses a file preped by Mano for gene ID conversion tool:
+	filename: Homo_sapiens.gene_info_20220304.txt_conv_wNCBI_AC.txt
+	full path (copied the file to the current folder): /var/www/html/geneid/data/Homo_sapiens.gene_info_20220304.txt_conv_wNCBI_AC.txt
+
+* before preprocessing, don't forget to unzip the GFF3 files
+
+* gene "name" and "description" fields are both nullable
+
+Mano: 2024/11/15
+had to create folder 000_raw_gff3/homo_sapiens: this is where the gff.gz file was downloaded then unpacked
+had to create folder 002_all
+Had to modify the file zz03_aggregate_all.bash a bit
+

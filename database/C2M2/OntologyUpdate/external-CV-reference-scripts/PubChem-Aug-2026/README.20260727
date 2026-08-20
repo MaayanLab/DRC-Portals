@@ -1,0 +1,143 @@
+# Mano-2025-08-11
+#First, make a copy of previous folder. Before copying, delete the large files in the folders (or subfolders inside):
+#000_raw_PubChem_files/Compound
+
+#as:
+cd 000_raw_PubChem_files/Compound
+rm -rf CID*.gz*
+
+#            & 
+
+#000_raw_PubChem_files/Substance
+
+#as:
+
+cd ../../000_raw_PubChem_files/Substance
+rm -rf Substance*.gz*
+
+# Return to main folder:
+cd ../..
+
+# one folder up
+# cd ..
+#pwd
+# .............../external-CV-reference-scripts
+
+# Make new folder and copy
+mkdir PubChem-Aug-2026
+cp --preserve=mode,ownership,timestamps -R PubChem-Aug-2025/* PubChem-Aug-2026/.
+cd PubChem-Aug-2026
+
+# Mano-2026-07-27
+# It is possible that commands like the above may have been already run be sc-cfdewebdev. 
+# In that case, copy from there using scp command. See the README file in the parent folder
+# external-CV-reference-scripts
+#
+
+## Mano-2024-11-15
+#First run the bash scripts (refresh.sh, which might call other scripts) inside 000_raw_PubChem_files, 
+#subfolders Compound and Substance (get-all.sh), to download raw files. 
+
+#pwd
+# ................../external-CV-reference-scripts/PubChem-Aug-2026
+#
+cd 000_raw_PubChem_files
+cd Compound
+./refresh.sh 
+
+cd ../Substance
+# [mano@login2 Substance]$ ls -al
+# ....
+#-rwxrw-r-- 1 mano shankar-group  117 Oct 11  2024 get-all.sh
+#-rwxr-xr-x 1 mano shankar-group  752 Oct 11  2024 splitem.pl
+
+./get-all.sh
+
+#Then, run the perl scripts listed at the end of the bash script 
+#zz99_run_all_MRM.bash 
+#(or a similar name; in this folder containing this README file) one after another manually to ensure you 
+#can fix any errors that arise or run the whole bash script in one go. Files with the name run_on_TSCC*.sh 
+#are batch scripts for Slurm scheduler. 
+#These correspond to calling respective perl scripts, such as i
+#./run_on_TSCC_zz02_seed_substance_TSV.sh
+#calls zz02_seed_substance_TSV.pl
+#and
+#./run_on_TSCC_zz06_add_substance_synonyms.multijob.sh
+#calls zz06_add_substance_synonyms.multijob.pl
+
+# ---------------- Important ----------------
+# In the files run_on_TSCC_*.sh submitted using sbatch, a path will need to be adjusted to match with the current folder name, e.g., PubChem-Aug-2026
+# -------------------------------------------
+
+./zz00_seed_compound_TSV.pl < /dev/null > log/zz00_seed_compound_TSV.pl.out 2> log/zz00_seed_compound_TSV.pl.err
+
+# zz01_add_compound_synonyms.pl may take 12-24 hours (single-threaded): Looping over two files is happening in a single while loop and parallelization seems complex.
+#  Mano: 2025/08/13: updated the script as it had some bug
+./zz01_add_compound_synonyms.pl < /dev/null > log/zz01_add_compound_synonyms.pl.out 2> log/zz01_add_compound_synonyms.pl.err
+
+# zz02_seed_substance_TSV.pl is single-threaded, so, even though it is submitted via sbatch (for resource allocation), it still runs on only one core. For better handling of file opening, code execution, etc., allocate 2-4 cores.
+# Can also be run directly instead of batch submission
+#./zz02_seed_substance_TSV.pl < /dev/null > log/zz02_seed_substance_TSV.pl.out 2> log/zz02_seed_substance_TSV.pl.err
+sbatch run_on_TSCC_zz02_seed_substance_TSV.sh
+
+./zz03_split_substance_TSV.pl < /dev/null > log/zz03_split_substance_TSV.pl.out 2> log/zz03_split_substance_TSV.pl.err
+
+./zz04_sort_substance_TSV.pl < /dev/null > log/zz04_sort_substance_TSV.pl.out 2> log/zz04_sort_substance_TSV.pl.err 
+
+./zz05_interleave_final_stub_set.pl < /dev/null > log/zz05_interleave_final_stub_set.pl.out 2> log/zz05_interleave_final_stub_set.pl.err
+
+#zz06_add_substance_synonyms.multijob.pl: towards the end in this file, several background jobs are submitted via:
+#command args & synatx ; so, sbatch is being used just for resource allocation
+#./zz06_add_substance_synonyms.multijob.pl < /dev/null > log/zz06_add_substance_synonyms.multijob.pl.out 2> log/zz06_add_substance_synonyms.multijob.pl.err
+sbatch run_on_TSCC_zz06_add_substance_synonyms.multijob.sh
+
+./zz07_concatenate_substance_TSV.pl < /dev/null > log/zz07_concatenate_substance_TSV.pl.out 2> log/zz07_concatenate_substance_TSV.pl.err
+
+./zz51_extract_first_5000.sh 2026-07-27
+
+
+#----------------- Commands below these are for general testing and may not be robust, run them only after careful review  ---------------
+# Mano-2024-11-18 / Mano-2025-08-11
+#On TSCC, I used a safe estimate of 3600 seconds to allow the zz06*.pl to complete, after submitting 52 instances of 
+#zz06a_add_substance_synonyms.one_chunk.pl (called from zz06_add_substance_synonyms.multijob.pl) on the node that gets 
+#alloted when run_on_TSCC_zz06_add_substance_synonyms.multijob.sh is run
+
+#Final output files compound.tsv and substance.tsv are in the folder 001_stupidly_large_reference_tables. gzip them and 
+#them copy these two files along with other scripts files and README file back to any other server for use with C2M2.
+#gzip command
+cd 001_stupidly_large_reference_tables
+gzip -k compound.tsv substance.tsv
+
+#To see some lines from gzipped file, use the zcat command:
+zcat compound.tsv.gz | more
+#To count lines in a gzipped file, use, e.g.,
+zcat compound.tsv.gz | wc -l
+#or, for paralle gzip/gunzip:
+unpigz -p 4 -c compound.tsv.gz | wc -l
+
+cd ..
+
+#To compare the first columns of the older and new versions of the files, use dates in the file names and then compare using the script:
+#example, assuming that the input files exist, else specify suitable names, after copying or renaming, etc.
+#e.g, 
+#cd 001_stupidly_large_reference_tables
+olddate=2025-08-11
+newdate=2026-07-27
+
+oldnewf=./001_stupidly_large_reference_tables
+mv ${oldnewf}/compound.tsv.gz ${oldnewf}/compound.${newdate}.tsv.gz && mv ${oldnewf}/substance.tsv.gz ${oldnewf}/substance.${newdate}.tsv.gz
+./find_common_uniq_firstcol.sh ${oldnewf}/compound.${olddate}.tsv.gz ${oldnewf}/compound.${newdate}.tsv.gz compound_${olddate}_${newdate}
+./find_common_uniq_firstcol.sh ${oldnewf}/substance.${olddate}.tsv.gz ${oldnewf}/substance.${newdate}.tsv.gz substance_${olddate}_${newdate}
+
+#OR if the older files are at: /tscc/lustre/ddn/scratch/mano/external_CV_reference_files
+#then use
+# On TSCC:
+oldf=/tscc/lustre/ddn/scratch/mano/external_CV_reference_files
+# On sc-cfdewebdev:
+oldf=/mnt/share/cfdeworkbench/C2M2/ontology/external-CV-reference-scripts/PubChem-Aug-2025/001_stupidly_large_reference_tables
+# OR
+oldf=../PubChem-Aug-2025/001_stupidly_large_reference_tables
+newf=./001_stupidly_large_reference_tables
+./find_common_uniq_firstcol.sh ${oldf}/compound.${olddate}.tsv.gz ${newf}/compound.${newdate}.tsv.gz compound_${olddate}_${newdate}
+./find_common_uniq_firstcol.sh ${oldf}/substance.${olddate}.tsv.gz ${newf}/substance.${newdate}.tsv.gz substance_${olddate}_${newdate}
+
