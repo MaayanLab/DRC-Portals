@@ -38,6 +38,19 @@ def process_safe_cache(output: pathlib.Path, writefn):
 def fetch_or_cache(url: str, output: pathlib.Path):
   return process_safe_cache(output, lambda output, _url=url: urllib.request.urlretrieve(url, output))
 
+def ensure_dcc_asset(files_path: pathlib.Path, file):
+  import urllib.parse
+  file_path = files_path/file['short_label']/f"{urllib.parse.quote(str(file['sha256checksum']), safe='')}/{urllib.parse.quote(file['filename'], safe='')}"
+  file_path.parent.mkdir(parents=True, exist_ok=True)
+  return fetch_or_cache(file['link'].replace(' ', '%20'), file_path)
+
+def unzip_file_path(file_path, extract_path):
+    with zipfile.ZipFile(file_path, 'r') as z:
+      z.extractall(extract_path)
+
+def ensure_unzipped(file_path):
+  return process_safe_cache(file_path.parent / file_path.stem, functools.partial(unzip_file_path, file_path))
+
 @functools.cache
 def gene_info():
   # load entrez gene info

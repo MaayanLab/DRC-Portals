@@ -5,17 +5,12 @@ from tqdm.auto import tqdm
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 import urllib.request, urllib.parse
 from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
-from ingest_entity_common import gene_info
-
-files_path = ingest_path / 'gmts'
+from ingest_entity_common import gene_info, ensure_dcc_asset
 
 #%%
 def ingest_gmt(es_bulk, file, version="staging"):
   if 'l1000_cp' in file['filename']: return
-  file_path = files_path/file['short_label']/f"{urllib.parse.quote(str(file['sha256checksum']), safe='')}/{urllib.parse.quote(file['filename'], safe='')}"
-  file_path.parent.mkdir(parents=True, exist_ok=True)
-  if not file_path.exists():
-    urllib.request.urlretrieve(file['link'].replace(' ', '%20'), file_path)
+  file_path = ensure_dcc_asset(ingest_path / 'gmts', file)
   if file_path.suffix == '.gmt':
     xmt_library_type = 'gene_set_library'
     xmt_set_type = 'gene_set'

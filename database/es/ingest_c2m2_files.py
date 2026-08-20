@@ -13,7 +13,7 @@ from frictionless import Package
 
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
-from ingest_entity_common import gene_info, process_safe_cache, sqlite3dict, sqlite3dictquery
+from ingest_entity_common import gene_info, process_safe_cache, sqlite3dict, sqlite3dictquery, ensure_dcc_asset
 
 def predicate_from_fields(fields):
   if len(fields) == 1: return fields[0]
@@ -56,20 +56,10 @@ c2m2_reference_tables_mappings = {
   ('subject_role_taxonomy', 'role_id'): 'subject_role',
   ('subject', 'sex'): 'subject_sex',
 }
-files_path = ingest_path / 'c2m2s'
 
 def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
-  file_path = files_path/file['short_label']/f"{urllib.parse.quote(str(file['sha256checksum']), safe='')}/{urllib.parse.quote(file['filename'], safe='')}"
-  file_path.parent.mkdir(parents=True, exist_ok=True)
-  print("file['link'] object:"); print(file['link']); ##
-
-  if not file_path.exists():
-    urllib.request.urlretrieve(file['link'].replace(' ', '%20'), file_path); # quote to handle space etc in the URL
-  #
-  c2m2_extract_path = file_path.parent / file_path.stem
-  if not c2m2_extract_path.exists():
-    with zipfile.ZipFile(file_path, 'r') as c2m2_zip:
-      c2m2_zip.extractall(c2m2_extract_path)
+  file_path = ensure_dcc_asset(ingest_path / 'c2m2s', file)
+  c2m2_extract_path = ensure_unzipped(file_path)
   #
   c2m2_datapackage_json, = pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.json')
   c2m2_datapackage_db = c2m2_datapackage_json.parent/'C2M2_datapackage.sqlite'

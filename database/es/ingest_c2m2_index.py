@@ -11,25 +11,14 @@ import sqlite3
 from tqdm.auto import tqdm
 
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
+from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident, ensure_dcc_asset
 
 #%%
 # Ingest C2M2
 
-files_path = ingest_path / 'c2m2s'
-
 def ingest_c2m2_index(es_bulk, file, version="staging"):
-  file_path = files_path/file['short_label']/f"{urllib.parse.quote(str(file['sha256checksum']), safe='')}/{urllib.parse.quote(file['filename'], safe='')}"
-  file_path.parent.mkdir(parents=True, exist_ok=True)
-  print("file['link'] object:"); print(file['link']); ##
-
-  if not file_path.exists():
-    urllib.request.urlretrieve(file['link'].replace(' ', '%20'), file_path); # quote to handle space etc in the URL
-  #
-  c2m2_extract_path = file_path.parent / file_path.stem
-  if not c2m2_extract_path.exists():
-    with zipfile.ZipFile(file_path, 'r') as c2m2_zip:
-      c2m2_zip.extractall(c2m2_extract_path)
+  file_path = ensure_dcc_asset(ingest_path / 'c2m2s', file)
+  c2m2_extract_path = ensure_unzipped(file_path)
   #
   c2m2_datapackage_db, *_ = pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.sqlite')
   conn = sqlite3.connect(c2m2_datapackage_db)
