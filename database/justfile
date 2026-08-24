@@ -1,0 +1,376 @@
+#!/usr/bin/env -S just --justfile
+
+set unstable
+set lists
+set default-list := true
+set dotenv-load := true
+set dotenv-path := "../drc-portals/.env"
+
+INDEX_VERSION := env("INDEX_VERSION")
+INDEX_VERSION_OUTPUT := env("INDEX_VERSION_OUTPUT", INDEX_VERSION)
+
+# prepare python environment
+[cache]
+venv:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	uv venv --python=3.11
+	uv pip install -r requirements.txt
+
+# fetch and ingest tables from our S3 server
+[cache]
+ingestion: venv
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	uv run ingestion.py
+
+# superficial cache removal
+clean:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	rm ingest/*.tsv
+	just --clean ingestion
+
+# more extensive cache removal
+purge:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	rm -r ingest
+	just --clean ingestion
+
+
+# find possibly duplicated dcc assets which are missing the archived flag
+[cache]
+es_scruitinize: venv
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	uv run es/scruitinize_dcc_assets.py
+
+# create the index for entities
+[cache]
+es_create_index_entity:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es_put PUT /entity_{{INDEX_VERSION}} < es/index/entity.json
+	es_put PUT "/entity_{{INDEX_VERSION}}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
+
+# create the index for m2m links
+[cache]
+es_create_index_m2m:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es_put PUT /m2m_{{INDEX_VERSION}} < es/index/m2m.json
+	es_put PUT "/m2m_{{INDEX_VERSION}}/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
+
+# create the expanded index
+[cache]
+es_create_index_entity_expanded:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	# create index in elastic search for final one-hop expanded form
+	es_put PUT /entity_{{INDEX_VERSION_OUTPUT}}_expanded < es/index/entity_expanded.json
+	es_put PUT "/entity_{{INDEX_VERSION_OUTPUT}}_expanded/_settings" <<< '{"index":{"refresh_interval":"-1"}}'
+
+# create the base index which we ingest to
+[parallel]
+es_create_index_base: es_create_index_entity es_create_index_m2m
+
+# ingest just the dcc assets as records
+[cache]
+es_ingest_dcc_assets: venv es_create_index_base
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	INDEX_VERSION={{ INDEX_VERSION }} uv run es/ingest_dcc_assets.py
+	es POST "/entity_{{INDEX_VERSION}}/_refresh"
+	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
+
+# ingest the contents of .gmt assets
+[cache]
+es_ingest_gmts: venv es_create_index_base
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	INDEX_VERSION={{ INDEX_VERSION }} uv run es/ingest_gmts.py
+	es POST "/entity_{{INDEX_VERSION}}/_refresh"
+	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
+
+# ingest the contents of KGAssertion assets
+[cache]
+es_ingest_kg: venv es_create_index_base
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	INDEX_VERSION={{ INDEX_VERSION }} uv run es/ingest_kg.py
+	es POST "/entity_{{INDEX_VERSION}}/_refresh"
+	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
+
+# validate and index C2M2 assets
+[cache]
+es_check_c2m2: venv
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	uv run es/check_c2m2_files.py
+
+# ingest the contents of C2M2 assets
+[cache]
+es_ingest_c2m2: venv es_create_index_base es_check_c2m2
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	INDEX_VERSION={{ INDEX_VERSION }} uv run es/ingest_c2m2_files.py
+	es POST "/entity_{{INDEX_VERSION}}/_refresh"
+	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
+	INDEX_VERSION={{ INDEX_VERSION }} uv run es/ingest_c2m2_index.py
+	es POST "/entity_{{INDEX_VERSION}}/_refresh"
+	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
+
+# ingest all DCC assets
+[parallel]
+es_ingest_base: es_ingest_dcc_assets es_ingest_gmts es_ingest_kg es_ingest_c2m2
+
+# add pagerank to ingested entities
+[cache]
+es_pagerank: venv es_ingest_base
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	# compute pagerank and add to the entity
+	INDEX_VERSION={{ INDEX_VERSION }} uv run es/pagerank.py
+	# re-calculate stuff in elasticsearch
+	es POST "/entity_{{INDEX_VERSION}}/_refresh"
+
+# expand all ingested DCC assets (incorporating m2m relationships in the record)
+[cache]
+es_ingest_all: venv es_ingest_base es_pagerank es_create_index_entity_expanded
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	# actually build the expanded index
+	INDEX_VERSION={{ INDEX_VERSION }} INDEX_VERSION_OUTPUT={{ INDEX_VERSION_OUTPUT }} uv run es/add_m2o_and_m2m.py
+	# re-calculate stuff in elasticsearch
+	es POST "/entity_{{INDEX_VERSION_OUTPUT}}_expanded/_refresh"
+
+# create an alias entity_expanded -> entity_{{INDEX_VERSION_OUTPUT}}_expanded (which the UI uses)
+es_alias:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es_put POST /_aliases << EOF
+	{"actions": [{ "remove": { "index": "*", "alias": "entity_expanded" } }]}
+	EOF
+	es_put POST /_aliases << EOF
+	{"actions": [{ "add": { "index": "entity_{{INDEX_VERSION_OUTPUT}}_expanded", "alias": "entity_expanded" } }]}
+	EOF
+
+# view all indices in elasticsearch
+es_view_indices:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es GET /_cat/indices?v
+
+# view all aliases in elasticsearch
+es_view_aliases:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es GET /_aliases
+
+# view all snapshots in elasticsearch
+es_view_snapshots:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es GET /_snapshot/s3/_all
+
+# view statistics about types associated in the base index
+es_base_stats:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es_put GET /entity_{{INDEX_VERSION}}/_search << EOF | jq -r '.aggregations.types.buckets[] | [.doc_count, .key] | @tsv' | column -t -s $'\t'
+	{
+		"aggs": {
+			"types": {
+				"terms": {
+					"field": "type",
+					"size": 100
+				}
+			}
+		},
+		"size": 0
+	}
+	EOF
+
+# view statistics about types associated with DCCs in the expanded index
+es_expanded_stats:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es_put GET /entity_{{INDEX_VERSION}}_expanded/_search << EOF | jq -r '.aggregations.types.buckets[] as $type | [.doc_count, $type.key] + ($type.dcc_ids.buckets[] | [.key, .doc_count]) | @tsv' | column -t -s $'\t'
+	{
+		"aggs": {
+			"types": {
+				"terms": {
+					"field": "type",
+					"size": 1000
+				},
+				"aggs": {
+					"dcc_ids": {
+						"terms": {
+							"field": "m2m_dcc.id",
+							"size": 100
+						}
+					}
+				}
+			}
+		},
+		"size": 0
+	}
+	EOF
+
+# delete the INDEX_VERSION base index
+es_delete_index_base:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es DELETE /entity_{{INDEX_VERSION}}
+	es DELETE /m2m_{{INDEX_VERSION}}
+	just --clean es_create_index_ es_ingest_ es_pagerank ingest_dcc_assets
+
+# delete the INDEX_VERSION expanded index
+es_delete_index_expanded:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es DELETE /entity_{{INDEX_VERSION_OUTPUT}}_expanded
+	just --clean es_create_index_entity_expanded es_ingest_all
+
+# delete all the INDEX_VERSION indices
+[parallel]
+es_delete_index: es_delete_index_base es_delete_index_expanded
+
+# get all current dcc assets that should be ingested
+get_dcc_assets:
+	#!/usr/bin/env -S PYTHONPATH=. uv run python
+	import json
+	from ingest_common import current_dcc_assets
+	for _, asset in current_dcc_assets().iterrows():
+		if asset['filetype'] == 'KG Assertions' and asset['size'] >= 100_000_000: continue
+		print(asset.to_json())
+
+# ingest a list of dcc assets in parallel
+[parallel]
+ingest_dcc_assets *dcc_assets: *(ingest_dcc_asset *dcc_assets)
+
+# ingest a single dcc asset
+[cache]
+ingest_dcc_asset dcc_asset:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	# ingest dcc asset
+	DCC_ASSET={{quote(dcc_asset)}} just _ingest_dcc_asset {{quote(dcc_asset)}}
+	# re-calculate stuff in elasticsearch
+	es POST "/entity_{{INDEX_VERSION}}/_refresh"
+	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
+
+_ingest_dcc_asset dcc_asset:
+	#!/usr/bin/env -S PYTHONPATH=.:es uv run python
+	import os, sys, json
+	from ingest_common import es_helper
+	dcc_asset = json.loads(os.getenv('DCC_ASSET'))
+	if dcc_asset['sha256checksum'] is None:
+		dcc_asset['sha256checksum'] = float('nan')
+	print("Ingesting", dcc_asset['link'], "...")
+	with es_helper() as es_bulk:
+		if dcc_asset['filetype'] == 'KG Assertions':
+			from ingest_kg import ingest_kg
+			ingest_kg(es_bulk, dcc_asset, version="{{INDEX_VERSION}}")
+		elif dcc_asset['filetype'] == 'XMT' and dcc_asset['filename'].endswith('.gmt'):
+			from ingest_gmts import ingest_gmt
+			ingest_gmt(es_bulk, dcc_asset, version="{{INDEX_VERSION}}")
+		elif dcc_asset['filetype'] == 'C2M2':
+			from ingest_c2m2_files import ingest_c2m2_datapackage
+			from ingest_c2m2_index import ingest_c2m2_index
+			ingest_c2m2_datapackage(es_bulk, dcc_asset, version="{{INDEX_VERSION}}")
+			ingest_c2m2_index(es_bulk, dcc_asset, version="{{INDEX_VERSION}}")
+		else:
+			from ingest_dcc_assets import ingest_dcc_asset
+			ingest_dcc_asset(es_bulk, dcc_asset, version="{{INDEX_VERSION}}")
+			print('WARN: No handler for', dcc_asset['link'])
+
+# ingest all the current dcc assets in parallel
+ingest_all_dcc_assets: venv es_create_index_base es_check_c2m2
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	just INDEX_VERSION={{ INDEX_VERSION }} ingest_dcc_assets {{ quote(split(`just get_dcc_assets`, "\n")) }}
+
+# add pagerank to ingested entities
+[cache]
+es_pagerank2: venv ingest_all_dcc_assets
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	# compute pagerank and add to the entity
+	INDEX_VERSION={{ INDEX_VERSION }} uv run es/pagerank.py
+	# re-calculate stuff in elasticsearch
+	es POST "/entity_{{INDEX_VERSION}}/_refresh"
+
+# expand all ingested DCC assets (incorporating m2m relationships in the record)
+[cache]
+es_ingest_all2: venv ingest_all_dcc_assets es_pagerank2 es_create_index_entity_expanded
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	# actually build the expanded index
+	INDEX_VERSION={{ INDEX_VERSION }} INDEX_VERSION_OUTPUT={{ INDEX_VERSION_OUTPUT }} uv run es/add_m2o_and_m2m.py
+	# re-calculate stuff in elasticsearch
+	es POST "/entity_{{INDEX_VERSION_OUTPUT}}_expanded/_refresh"
+
+es_snapshot_configure READONLY="true":
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es_put PUT /_snapshot/s3 << EOF
+	{
+		"type": "s3",
+		"settings": {
+			"bucket": "cfde-elasticsearch-backup",
+			"readonly": {{ READONLY }}
+		}
+	}
+	EOF
+
+es_snapshot_push:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es_put POST "/_snapshot/s3/entity_{{INDEX_VERSION_OUTPUT}}_expanded?wait_for_completion=true" << EOF
+	{
+		"indices": "entity_{{INDEX_VERSION_OUTPUT}}_expanded",
+		"ignore_unavailable": false,
+		"include_global_state": false,
+		"metadata": {
+			"taken_because": "c2m2 update"
+		}
+	}
+	EOF
+
+es_snapshot_pull:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	source es/ingest_common.sh
+	es_put POST '/_snapshot/s3/entity_{{INDEX_VERSION_OUTPUT}}_expanded/_restore?wait_for_completion=true' << EOF
+	{
+		"indices": "*",
+		"ignore_unavailable": false,
+		"include_global_state": false
+	}
+	EOF

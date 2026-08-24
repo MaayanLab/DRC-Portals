@@ -3,26 +3,16 @@ import csv
 import json
 import zipfile
 import re
+import sqlite3
 import concurrent.futures
 from tqdm.auto import tqdm
 
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 import urllib.request, urllib.parse
-from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
-from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_descriptions
-
-debug = 1;
+from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident, ensure_dcc_asset
+from ingest_entity_common import gene_info, sqlite3dict
 
 #%%
-dcc_assets = current_dcc_assets()
-
-#%%
-# Ingest KG Assertions
-
-files = dcc_assets[dcc_assets['filetype'] == 'KG Assertions']
-files = files[files['size'] < 100000000]
-files_path = ingest_path / 'assertions'
-
 # for now, we'll map entity types to get less junk/duplication
 map_type = {
   'hsclo': None,
@@ -39,31 +29,15 @@ map_type = {
 }
 
 def ingest_kg(es_bulk, file, version="staging"):
-  # assemble the full file path for the DCC's asset
-  file_path = files_path/file['short_label']/f"{urllib.parse.quote(str(file['sha256checksum']), safe='')}/{urllib.parse.quote(file['filename'], safe='')}"
-  if(debug >0):
-    print(f"file_path:{file_path}");
-  file_path.parent.mkdir(parents=True, exist_ok=True)
-  if not file_path.exists():
-    if(debug > 0):
-      print("file link:"); print(file['link']);
-    urllib.request.urlretrieve(file['link'].replace(' ', '%20'), file_path)
-  # extract the KG Assertion bundle
-  if(debug > 0):
-    print(f'file_path.parent:{file_path.parent}, stem:{file_path.stem}, suffix:{file_path.suffix}');
-
-  # Process on zip files
-  if(file_path.suffix == '.zip'):
-    assertions_extract_path = file_path.parent / file_path.stem
-    if not assertions_extract_path.exists():
-      with zipfile.ZipFile(file_path, 'r') as assertions_zip:
-        assertions_zip.extractall(assertions_extract_path)
-  else:
+  file_path = ensure_dcc_asset(ingest_path / 'assertions', file)
+  if file_path.suffix != '.zip':
     print("  Warning: not a zip file, will skip!");
     return
+  assertions_extract_path = ensure_unzipped(file_path)
+  conn = sqlite3.connect(assertions_extract_path/'cache.sqlite')
 
   with pdp_helper(es_bulk, version=version) as helper:
-    entities = {}
+    entities = sqlite3dict(conn, 'tmp_entities')
     def upsert_entity(type, attributes, slug=None, pk=None):
       id = helper.upsert_entity(type, attributes, slug=slug, pk=pk)
       entities[id] = dict(type=type, slug=slug or id, **{f"a_{k}": v for k,v in attributes.items()})
@@ -71,6 +45,7 @@ def ingest_kg(es_bulk, file, version="staging"):
     def ensure_entity(entity):
       entity_type = entity.pop('type').lower()
       if entity_type == 'gene':
+        gene_lookup, gene_labels, gene_descriptions, gene_entrez = gene_info()
         for gene in gene_lookup.get(entity['label'], []):
           yield lambda gene=gene: upsert_entity('gene', dict(entity,
             label=gene_labels[gene],
@@ -144,6 +119,9 @@ def ingest_kg(es_bulk, file, version="staging"):
               helper.upsert_m2o(assertion_id, 'dcc', dcc_id)
 
 def main(version="staging"):
+  dcc_assets = current_dcc_assets()
+  files = dcc_assets[dcc_assets['filetype'] == 'KG Assertions']
+  files = files[files['size'] < 100000000]
   with es_helper() as es_bulk:
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
       for fut in tqdm(concurrent.futures.as_completed((

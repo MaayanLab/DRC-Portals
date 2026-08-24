@@ -5,23 +5,12 @@ from tqdm.auto import tqdm
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 import urllib.request, urllib.parse
 from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
-from ingest_entity_common import gene_labels, gene_entrez, gene_lookup, gene_descriptions
+from ingest_entity_common import gene_info, ensure_dcc_asset
 
 #%%
-dcc_assets = current_dcc_assets()
-
-#%%
-# Ingest GMTs
-
-files = dcc_assets[((dcc_assets['filetype'] == 'XMT') & (dcc_assets['filename'].str.endswith('.gmt')))]
-files_path = ingest_path / 'gmts'
-
 def ingest_gmt(es_bulk, file, version="staging"):
   if 'l1000_cp' in file['filename']: return
-  file_path = files_path/file['short_label']/f"{urllib.parse.quote(str(file['sha256checksum']), safe='')}/{urllib.parse.quote(file['filename'], safe='')}"
-  file_path.parent.mkdir(parents=True, exist_ok=True)
-  if not file_path.exists():
-    urllib.request.urlretrieve(file['link'].replace(' ', '%20'), file_path)
+  file_path = ensure_dcc_asset(ingest_path / 'gmts', file)
   if file_path.suffix == '.gmt':
     xmt_library_type = 'gene_set_library'
     xmt_set_type = 'gene_set'
@@ -63,6 +52,7 @@ def ingest_gmt(es_bulk, file, version="staging"):
         helper.upsert_m2o(set_id, 'dcc_asset', dcc_asset_id)
         helper.upsert_m2o(set_id, 'dcc', dcc_id)
         if xmt_type == 'gene':
+          gene_lookup, gene_labels, gene_descriptions, gene_entrez = gene_info()
           set_entities = {gene_id for raw_gene in set_entities if raw_gene for gene_id in gene_lookup.get(raw_gene, [])}
           for gene in set_entities:
             entity_id = helper.upsert_entity(xmt_type, dict(
@@ -80,6 +70,8 @@ def ingest_gmt(es_bulk, file, version="staging"):
             helper.upsert_m2m(entity_id, xmt_set_type, set_id)
 
 def main(version="staging"):
+  dcc_assets = current_dcc_assets()
+  files = dcc_assets[((dcc_assets['filetype'] == 'XMT') & (dcc_assets['filename'].str.endswith('.gmt')))]
   with es_helper() as es_bulk:
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
       for fut in tqdm(concurrent.futures.as_completed((
