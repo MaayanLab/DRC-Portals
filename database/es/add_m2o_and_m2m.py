@@ -121,7 +121,6 @@ def expand_entity(entity_id, input_version="staging"):
   entities = {
     hit['id']: hit
     for hit in extract_entities_by_ids(set.union({entity_id}, *links.values()), input_version=input_version)
-    if 'id' in hit # hack but should be fixed
   }
   entity = entities[entity_id]
   for predicate, source_ids in links.items():
