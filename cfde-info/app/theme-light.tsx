@@ -23,19 +23,19 @@ export const cfde_theme = createTheme({
             fontSize: 65,
             fontStyle: "normal",
             fontWeight: 500,
-            color: "#F9F6EE"
+            color: "#333"
         },
         h2: {
             fontSize: 40,
             fontWeight: 500,
             fontStyle: "normal",
-            color: "#F9F6EE",
+            color: "#333",
         },
         h3: {
             fontSize: 30,
             fontStyle: "normal",
             fontWeight: 600,
-            color: "#F9F6EE",
+            color: "#333",
         },
         h4: {
             fontSize: 22,
@@ -44,7 +44,7 @@ export const cfde_theme = createTheme({
         },
         h5: {
             fontSize: 25,
-            color: "#F9F6EE",
+            color: "#333",
             fontStyle: "normal",
             fontWeight: 100,
         },
@@ -70,13 +70,13 @@ export const cfde_theme = createTheme({
         },
         body1: {
             fontSize: 20,
-            color: "#F9F6EE",
+            color: "#333",
             fontStyle: "normal",
             fontWeight: 100,
         },
         body2: {
             fontSize: 18,
-            color: "#F9F6EE",
+            color: "#333",
             fontStyle: "normal",
             fontWeight: 100,
         },
@@ -87,14 +87,10 @@ export const cfde_theme = createTheme({
             fontWeight: 500,
         },
         nav: {
-            fontSize: 16,
+            fontSize: 18,
+            color: "#2D5986",
             fontStyle: "normal",
-            fontWeight: 600,
-            textTransform: "uppercase",
-            // color: "#2D5986",
-            paddingLeft: 5,
-            paddingRight: 5,
-            marginRight: 2,
+            fontWeight: 100,
         },
         nav_highlighted: {
             fontSize: 16,
@@ -202,7 +198,7 @@ export const cfde_theme = createTheme({
         MuiSelect: {
             styleOverrides: {
                 root: {
-                    background: '#F9F6EE',
+                    background: '#333',
                 },
             },
         },
@@ -237,6 +233,7 @@ export const cfde_theme = createTheme({
                     borderRadius: 2,
                     fontWeight: 600,
                     padding: "8px 16px",
+                    color: "#2D5986",
                     ...(ownerState.variant === 'contained' &&
                       ownerState.color === 'primary' && {
                         backgroundColor: '#C3E1E6',
@@ -301,6 +298,15 @@ export const cfde_theme = createTheme({
                     }
               },
             },   
+        },
+        MuiCard: {
+            styleOverrides: {
+                root: {
+                backgroundColor: '#F9F6EE', // Change default background color
+                borderWidth: 2,  
+                borderColor: "oklch(100% 0 0 / .12)"
+                },
+            },
         }
     }
 })

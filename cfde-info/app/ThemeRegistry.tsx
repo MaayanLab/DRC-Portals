@@ -1,17 +1,21 @@
 'use client';
 import React from 'react';
 import createCache from '@emotion/cache';
-import { useServerInsertedHTML } from 'next/navigation';
+import { useSearchParams, useServerInsertedHTML } from 'next/navigation';
 import { CacheProvider } from '@emotion/react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { cfde_theme } from './theme';
+import { cfde_theme  as dark_theme } from './theme-dark';
+import { cfde_theme  as light_theme } from './theme-light';
+import Background from './background';
+import { AppBar, Button, Stack, Typography } from '@mui/material';
 
 // This implementation is from emotion-js
 // https://github.com/emotion-js/emotion/issues/2928#issuecomment-1319747902
 export default function ThemeRegistry(props:{options:any, children:any}) {
     const { options, children } = props;
-  
+    const searchParams = useSearchParams()
+    const mode = searchParams.get('mode') || 'light'
     const [{ cache, flush }] = React.useState(() => {
       const cache = createCache(options);
       cache.compat = true;
@@ -54,9 +58,24 @@ export default function ThemeRegistry(props:{options:any, children:any}) {
   
     return (
       <CacheProvider value={cache}>
-        <ThemeProvider theme={cfde_theme}>
+        <ThemeProvider theme={mode === 'light'? light_theme: dark_theme}>
           <CssBaseline />
-          {children}
+          <Background background={mode === "light" ? 'white': 'black'}>
+            <AppBar position="static" sx={{paddingLeft: 1, pt: 10, pb: 5, background: "transparent"}}>
+            <Stack sx={{justifyContent: "center", alignItems: "center"}}>
+              {/* <Stack direction="row" spacing={1} sx={{alignItems: "center"}}>
+                <Image style={{filter: "brightness(0) invert()"}} width={200} height={50} alt="cfde-logo" src={'/img/cfde-noglow.png'} />
+                <Typography variant='caption' sx={{color: "oklch(85% .16 195)", fontSize: 20}}>NIH Common Fund</Typography>
+                <Typography variant="h1" sx={{color: "oklch(85% .16 195)"}}>The Common Fund Data Ecosystem (CFDE)</Typography>
+              </Stack> */}
+              {/* <Image style={{filter: "brightness(0.1) invert()"}} width={200} height={50} alt="cfde-logo" src={'/img/cfde-noglow.png'} /> */}
+              <img src={mode === 'light'? "/img/cfde-noglow.png": "/img/CFDE-glow.jpg"} alt="logo" style={{height: 100, width:180}}/>
+              <Typography variant="h1" sx={{textAlign: "center"}}>The Common Fund Data Ecosystem (CFDE)</Typography>
+            </Stack>
+            </AppBar>
+            {children}
+            {/* <Button href={`/?mode=${mode==='light'?'dark':'light'}`}>View {mode === 'light' ? 'Dark': 'Light'} Mode</Button> */}
+          </Background>
         </ThemeProvider>
       </CacheProvider>
     );

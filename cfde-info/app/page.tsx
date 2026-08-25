@@ -11,6 +11,7 @@ import Paper from '@mui/material/Paper'
 import Icon from '@mdi/react';
 import { mdiArrowRight, mdiYoutube, mdiBookOpenVariantOutline, mdiLink, mdiArrowUpRight, mdiArrowTopRight } from "@mdi/js"
 import { Card, CardActionArea, CardContent, CardHeader } from "@mui/material"
+import { Center } from "./center"
 
 const centers = [
 	{
@@ -56,7 +57,6 @@ const centers = [
 ]
 
 export default async function Home() { 
-
   return (
     <main>
       <Grid container spacing={5} sx={{alignItems: "flex-start"}}>
@@ -74,7 +74,7 @@ export default async function Home() {
           <Grid container spacing={1}>
             {centers.map(center=>(
               <Grid  key={center.name} size={{xs: 12, md: 6}} >
-                <Card sx={{background: "#333333", borderWidth: 2,  borderColor: "oklch(100% 0 0 / .12)", height: {xs: 600, md: 480}, display: "flex", flexDirection: "column"}}>
+                <Card sx={{borderColor: "oklch(100% 0 0 / .12)", height: {xs: 600, md: 480}, display: "flex", flexDirection: "column"}}>
                   <CardHeader 
                     title={<Typography variant="h3">{center.name}</Typography>}
                     subheader={<Typography variant="body1">{center.hero}</Typography>}
@@ -82,7 +82,7 @@ export default async function Home() {
                   <CardContent sx={{minHeight: 200, mt: 2, flexGrow: 1}}>
                     <Stack spacing={3} sx={{height: "100%", justifyContent: "space-around"}}>
                       <Button target="_blank" rel="noopener noreferrer" href={center.link}>
-                        <Image src={center.image} style={{filter: "brightness(0.1) invert()"}} alt="drc" width={center.width} height={200}/>
+                        <Center {...center}/>
                       </Button>
                       <Typography variant="body2">{center.blurb}</Typography>
                       {/* <Button sx={{color: "oklch(85% .16 195)", mb: 2}} target="_blank" rel="noopener noreferrer" href={center.link} endIcon={<Icon path={mdiArrowTopRight} size={1} />}>
@@ -91,8 +91,8 @@ export default async function Home() {
                     </Stack>
                   </CardContent>
                   <CardActionArea>
-                    <Button sx={{color: "oklch(85% .16 195)", mb: 2}} target="_blank" rel="noopener noreferrer" href={center.link} endIcon={<Icon path={mdiArrowTopRight} size={1} />}>
-                      <Typography sx={{color: "oklch(85% .16 195)"}} variant="body2">Go to {center.name} Portal</Typography>
+                    <Button sx={{mb: 2}} target="_blank" rel="noopener noreferrer" href={center.link} endIcon={<Icon path={mdiArrowTopRight} size={1} />}>
+                      <Typography variant="nav">Go to {center.name} Portal</Typography>
                     </Button>
                   </CardActionArea>
                 </Card>
