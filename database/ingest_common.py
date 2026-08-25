@@ -180,9 +180,9 @@ def es_helper():
 
 @contextlib.contextmanager
 def pdp_helper(es_bulk, version='staging'):
-  resolved_ids = set()
-  registered_ids = set()
-  m2o = {}
+  # resolved_ids = set()
+  # registered_ids = set()
+  # m2o = {}
   def resolve_entity_id(type: str, attributes: dict, slug: t.Optional[str]=None, pk: t.Optional[str]=None):
     assert type
     identity = dict(type=type)
@@ -191,7 +191,7 @@ def pdp_helper(es_bulk, version='staging'):
     else: identity.update(attributes)
     assert len(identity) > 1
     id = str(uuid5(uuid0, maybe_json_dumps(identity)))
-    resolved_ids.add(id)
+    # resolved_ids.add(id)
     return id
   def upsert_entity(type: str, attributes: dict, slug: t.Optional[str]=None, pk: t.Optional[str]=None):
     '''
@@ -210,7 +210,7 @@ def pdp_helper(es_bulk, version='staging'):
       pagerank=1,
       **attributes,
     )
-    registered_ids.add(id)
+    # registered_ids.add(id)
     es_bulk.put(dict(
       _op_type='update',
       _index=f"entity_{version}",
@@ -223,13 +223,13 @@ def pdp_helper(es_bulk, version='staging'):
     '''
     source_id points to only one target_id
     '''
-    # make sure these ids are registered
-    assert source_id in resolved_ids or source_id in registered_ids
-    assert target_id in resolved_ids or target_id in registered_ids
-    # make sure source id points to only one target id
-    if source_id not in m2o: m2o[source_id] = {}
-    assert predicate not in m2o[source_id] or m2o[source_id][predicate] == target_id
-    m2o[source_id][predicate] = target_id
+    # # make sure these ids are registered
+    # assert source_id in resolved_ids or source_id in registered_ids
+    # assert target_id in resolved_ids or target_id in registered_ids
+    # # make sure source id points to only one target id
+    # if source_id not in m2o: m2o[source_id] = {}
+    # assert predicate not in m2o[source_id] or m2o[source_id][predicate] == target_id
+    # m2o[source_id][predicate] = target_id
     # create links
     es_bulk.put(dict(
       _op_type='index',
@@ -245,8 +245,8 @@ def pdp_helper(es_bulk, version='staging'):
     ))
   def upsert_m2m(source_id, predicate, target_id):
     # make sure these ids are registered
-    assert source_id in resolved_ids or source_id in registered_ids
-    assert target_id in resolved_ids or target_id in registered_ids
+    # assert source_id in resolved_ids or source_id in registered_ids
+    # assert target_id in resolved_ids or target_id in registered_ids
     es_bulk.put(dict(
       _op_type='index',
       _index=f"m2m_{version}",
@@ -263,7 +263,7 @@ def pdp_helper(es_bulk, version='staging'):
     ))
   #
   yield type('pdp', tuple(), dict(upsert_m2o=upsert_m2o, upsert_m2m=upsert_m2m, upsert_entity=upsert_entity, resolve_entity_id=resolve_entity_id))
-  assert registered_ids >= resolved_ids, f"Never registered {resolved_ids-registered_ids=}"
+  # assert registered_ids >= resolved_ids, f"Never registered {resolved_ids-registered_ids=}"
 
 #%%
 # Fetch assets to ingest

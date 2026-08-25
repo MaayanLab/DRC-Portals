@@ -8,5 +8,5 @@ requests
 tqdm
 elasticsearch>=9,<10
 frictionless
-nltk
+nltk<3.10
 pyyaml

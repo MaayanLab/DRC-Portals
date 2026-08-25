@@ -6,40 +6,21 @@ This script obtains & adds second hop relationships for files in the C2M2.
 import zipfile
 import pathlib
 import concurrent.futures
-import urllib, urllib.parse, urllib.request
+import urllib.parse, urllib.request
 import sqlite3
 from tqdm.auto import tqdm
 
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
-
-#%%
-dcc_assets = current_dcc_assets()
+from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident, ensure_dcc_asset
 
 #%%
 # Ingest C2M2
 
-files = dcc_assets[dcc_assets['filetype'] == 'C2M2']
-files_path = ingest_path / 'c2m2s'
-
-def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
-  file_path = files_path/file['short_label']/f"{urllib.parse.quote(str(file['sha256checksum']), safe='')}/{urllib.parse.quote(file['filename'], safe='')}"
-  file_path.parent.mkdir(parents=True, exist_ok=True)
-  print("file['link'] object:"); print(file['link']); ##
-
-  if not file_path.exists():
-    urllib.request.urlretrieve(file['link'].replace(' ', '%20'), file_path); # quote to handle space etc in the URL
+def ingest_c2m2_index(es_bulk, file, version="staging"):
+  file_path = ensure_dcc_asset(ingest_path / 'c2m2s', file)
+  c2m2_extract_path = ensure_unzipped(file_path)
   #
-  c2m2_extract_path = file_path.parent / file_path.stem
-  if not c2m2_extract_path.exists():
-    with zipfile.ZipFile(file_path, 'r') as c2m2_zip:
-      c2m2_zip.extractall(c2m2_extract_path)
-  #
-  c2m2_datapackage_json, *_ = (
-    set(pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.json'))
-    | set(pathlib.Path(c2m2_extract_path).rglob('datapackage.json'))
-  )
-  c2m2_datapackage_db = c2m2_datapackage_json.parent/'C2M2_datapackage.sqlite'
+  c2m2_datapackage_db, *_ = pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.sqlite')
   conn = sqlite3.connect(c2m2_datapackage_db)
   queries = [
     # file [-> biosample ->] disease
@@ -84,7 +65,7 @@ def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
     ''',
     # file [-> subject ->] taxon
     '''
-      select distinct file.id_namespace, file.local_id, file.filename, 'taxon', ncbi_taxonomy.id, ncbi_taxonomy.name
+      select distinct file.id_namespace, file.local_id, file.filename, 'ncbi_taxonomy', ncbi_taxonomy.id, ncbi_taxonomy.name
       from file
       inner join file_describes_subject
         on file.id_namespace = file_describes_subject.file_id_namespace and file.local_id = file_describes_subject.file_local_id
@@ -100,16 +81,22 @@ def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
   # TODO: also link file to gene, protein, substance, ptm
   with pdp_helper(es_bulk, version=version) as helper:
     for query in queries:
-      for file_id_namespace, file_local_id, filename, link_type, link_id, link_label in conn.execute(query):
-        file_pk = helper.upsert_entity('file', dict(id_namespace=file_id_namespace, local_id=file_local_id, label=filename), pk=':'.join([file_id_namespace, file_local_id]))
-        link_id = helper.upsert_entity(link_type, dict(id=link_id, label=link_label), pk=label_ident(link_label))
-        helper.upsert_m2m(file_pk, link_type, link_id)
+      try:
+        for file_id_namespace, file_local_id, filename, link_type, link_id, link_label in conn.execute(query):
+          file_pk = helper.upsert_entity('file', dict(id_namespace=file_id_namespace, local_id=file_local_id, label=filename), pk=':'.join([file_id_namespace, file_local_id]))
+          link_id = helper.upsert_entity(link_type, dict(id=link_id, label=link_label), pk=label_ident(link_label))
+          helper.upsert_m2m(file_pk, link_type, link_id)
+      except Exception as e:
+        raise RuntimeError(f"Error querying {c2m2_datapackage_db}") from e
 
 def main(version="staging"):
+  dcc_assets = current_dcc_assets()
+  files = dcc_assets[dcc_assets['filetype'] == 'C2M2']
+
   with es_helper() as es_bulk:
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
       for fut in tqdm(concurrent.futures.as_completed((
-        pool.submit(ingest_c2m2_datapackage, es_bulk, file, version=version)
+        pool.submit(ingest_c2m2_index, es_bulk, file, version=version)
         for _, file in files.iterrows()
       )), total=files.shape[0], desc='Processing C2M2 Files...'):
         fut.result()

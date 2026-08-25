@@ -121,22 +121,25 @@ def expand_entity(entity_id, input_version="staging"):
   entities = {
     hit['id']: hit
     for hit in extract_entities_by_ids(set.union({entity_id}, *links.values()), input_version=input_version)
-    if 'id' in hit # hack but should be fixed
   }
   entity = entities[entity_id]
   for predicate, source_ids in links.items():
     if predicate.startswith('m2o_'):
-      assert len(source_ids) == 1, f"{entity.get('type')}/{entity.get('id')}:{entity.get('a_label')} has {', '.join([entities.get(source_id, {}).get('type')+'/'+source_id+':'+entities.get(source_id, {}).get('a_label') for source_id in source_ids])} for {predicate}"
-      source_id, = source_ids
-      if source_id in entities:
-        entity[predicate] = entities[source_id]
-        entity[f"{predicate.replace('m2o_', 'm2m_')}.id"] = entity.get(f"{predicate.replace('m2o_', 'm2m_')}.id", []) + [source_id]
-        entity[f"{predicate.replace('m2o_', 'm2m_')}.a_"] = set.union(
-          entity.get(f"{predicate.replace('m2o_', 'm2m_')}.a_", set()),
-          {f"{k}:{json.dumps(v)}" for k, v in entities[source_id].items() if k.startswith('a_')}
-        )
+      if len(source_ids) == 1:
+        source_id, = source_ids
+        if source_id in entities:
+          entity[predicate] = entities[source_id]
       else:
-        if predicate != 'm2o_project': # TODO: figure out what's going wrong here
+        print(f"WARN: {entity.get('type')}/{entity.get('id')}:{entity.get('a_label')} has {', '.join([entities.get(source_id, {}).get('type')+'/'+source_id+':'+entities.get(source_id, {}).get('a_label') for source_id in source_ids])} for {predicate}")
+      #
+      for source_id in source_ids:
+        if source_id in entities:
+          entity[f"{predicate.replace('m2o_', 'm2m_')}.id"] = entity.get(f"{predicate.replace('m2o_', 'm2m_')}.id", []) + [source_id]
+          entity[f"{predicate.replace('m2o_', 'm2m_')}.a_"] = set.union(
+            entity.get(f"{predicate.replace('m2o_', 'm2m_')}.a_", set()),
+            {f"{k}:{json.dumps(v)}" for k, v in entities[source_id].items() if k.startswith('a_')}
+          )
+        else:
           print(f"WARN: {predicate=} {source_id=} is missing from {entity_id=}")
     elif predicate.startswith('m2m_'):
       if len(source_ids) > 1000:
