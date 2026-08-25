@@ -8,7 +8,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { cfde_theme  as dark_theme } from './theme-dark';
 import { cfde_theme  as light_theme } from './theme-light';
 import Background from './background';
-import { AppBar, Button, Stack, Typography } from '@mui/material';
+import { AppBar, Box, Button, Stack, Typography } from '@mui/material';
 
 // This implementation is from emotion-js
 // https://github.com/emotion-js/emotion/issues/2928#issuecomment-1319747902
@@ -61,6 +61,13 @@ export default function ThemeRegistry(props:{options:any, children:any}) {
         <ThemeProvider theme={mode === 'light'? light_theme: dark_theme}>
           <CssBaseline />
           <Background background={mode === "light" ? 'white': 'black'}>
+            <Box sx={{display: "flex", justifyContent: "flex-end"}}>
+              <div>
+                <Button href={`${mode==='light'?'/?mode=dark':'/'}`} 
+                  sx={{color: mode==='light'? "#333": "#F9F6EE"}}
+                >View in {mode === 'light' ? 'Dark': 'Light'} Mode</Button>
+              </div>
+            </Box>
             <AppBar position="static" sx={{paddingLeft: 1, pt: 10, pb: 5, background: "transparent"}}>
             <Stack sx={{justifyContent: "center", alignItems: "center"}}>
               {/* <Stack direction="row" spacing={1} sx={{alignItems: "center"}}>
@@ -74,7 +81,7 @@ export default function ThemeRegistry(props:{options:any, children:any}) {
             </Stack>
             </AppBar>
             {children}
-            {/* <Button href={`/?mode=${mode==='light'?'dark':'light'}`}>View {mode === 'light' ? 'Dark': 'Light'} Mode</Button> */}
+            
           </Background>
         </ThemeProvider>
       </CacheProvider>
