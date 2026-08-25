@@ -7,6 +7,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import Background from './background'
 import { UMAP } from './umap'
+import { Suspense } from 'react'
 
 export const metadata: Metadata = {
   title: 'CFDE Information Portal',
@@ -74,7 +75,8 @@ export default async function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>      
+      <body>
+        <Suspense>
         <ThemeRegistry options={{ key: 'mui' }}>
           <Container maxWidth={"lg"} sx={{pb: 5}}>
             <Grid container spacing={2} sx={{alignItems: "flex-start", justifyContent: "center"}}>
@@ -92,6 +94,7 @@ export default async function RootLayout({
             
           </Container>
         </ThemeRegistry>
+        </Suspense>      
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ? <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} /> : null}
       </body>
     </html>
