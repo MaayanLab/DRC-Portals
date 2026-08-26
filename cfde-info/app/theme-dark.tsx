@@ -20,7 +20,7 @@ export const cfde_theme = createTheme({
     typography: {
         fontFamily: ibm_plex_sans.style.fontFamily,
         h1: {
-            fontSize: 65,
+            fontSize: 50,
             fontStyle: "normal",
             fontWeight: 500,
             color: "#F9F6EE"

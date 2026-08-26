@@ -78,7 +78,7 @@ export default async function RootLayout({
       <body>
         <Suspense>
         <ThemeRegistry options={{ key: 'mui' }}>
-          <Container maxWidth={"lg"} sx={{pb: 5}}>
+          <Container maxWidth={"lg"} sx={{pb: 2}}>
             <Grid container spacing={2} sx={{alignItems: "flex-start", justifyContent: "center"}}>
               <Grid size={{xs: 12, md: 6}}>
                 <Typography variant="body1" sx={{ textAlign: "justify"}}>

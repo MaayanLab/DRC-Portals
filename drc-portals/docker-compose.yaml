@@ -90,7 +90,7 @@ services:
       - DEEPDIVE_URL
       - MCP_API_KEY
   cfde-info:
-    image: maayanlab/cfde-info:0.1.5
+    image: maayanlab/cfde-info:0.1.6
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:

@@ -71,7 +71,7 @@ export const ModeSwitch = () => {
 	const mode = searchParams.get('mode') || 'light'
 	const router = useRouter()
 	return (
-		<Stack direction={"row"} sx={{alignItems: "center"}}>
+		<Stack direction={"row"} sx={{alignItems: "center", mt: 5}}>
 			<Icon path={mdiWeatherSunny} size={1} style={{color: mode === 'dark' ? '#E9E9EA': "#333"}}/>
 			<IOSSwitch sx={{ m: 1 }} checked={mode==='dark'} onClick={()=>router.push(`/${mode === 'dark' ? "": "?mode=dark"}`)}/>
 			<Icon path={mdiWeatherNight} size={1} style={{color: mode === 'dark' ? '#E9E9EA': "#333"}}/>

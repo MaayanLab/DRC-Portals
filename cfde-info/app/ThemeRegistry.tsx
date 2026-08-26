@@ -70,7 +70,7 @@ export default function ThemeRegistry(props:{options:any, children:any}) {
                 <ModeSwitch/>
               </div>
             </Box>
-            <AppBar position="static" sx={{paddingLeft: 1, pt: 10, pb: 5, background: "transparent"}}>
+            <AppBar position="static" sx={{paddingLeft: 1, pt: 3, pb: 5, background: "transparent"}}>
             <Stack sx={{justifyContent: "center", alignItems: "center"}}>
               {/* <Stack direction="row" spacing={1} sx={{alignItems: "center"}}>
                 <Image style={{filter: "brightness(0) invert()"}} width={200} height={50} alt="cfde-logo" src={'/img/cfde-noglow.png'} />
@@ -79,7 +79,7 @@ export default function ThemeRegistry(props:{options:any, children:any}) {
               </Stack> */}
               {/* <Image style={{filter: "brightness(0.1) invert()"}} width={200} height={50} alt="cfde-logo" src={'/img/cfde-noglow.png'} /> */}
               <img src={mode === 'light'? "/img/cfde-noglow.png": "/img/CFDE-glow.jpg"} alt="logo" style={{height: 100, width:180}}/>
-              <Typography variant="h1" sx={{textAlign: "center"}}>The Common Fund Data Ecosystem (CFDE)</Typography>
+              <Typography variant="h1" sx={{textAlign: "center"}}><b>The Common Fund Data Ecosystem (CFDE)</b></Typography>
             </Stack>
             </AppBar>
             {children}
