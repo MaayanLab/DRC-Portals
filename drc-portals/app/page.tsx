@@ -84,13 +84,14 @@ const groups = [
   },
 ]
 export default async function Page({searchParams}: {
-  searchParams: {q: string}
+  searchParams: Promise<{q: string}>
 }) {
+  const sp = await searchParams
   const query: {[key:string]: string[] | {[key:string]: {
       up_gene_set_id?: number,
       down_gene_set_id?: number,
       gene_set_id?: number
-    }}} = JSON.parse(searchParams.q || '{}')
+    }}} = JSON.parse(sp.q || '{}')
 
   const publications = await prisma.publication.findMany({
         orderBy: {
