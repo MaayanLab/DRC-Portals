@@ -1,4 +1,4 @@
-import Link from "@/utils/link"
+import Link from "next/link"
 import Image from "@/utils/image"
 
 import Grid from '@mui/material/Grid'
