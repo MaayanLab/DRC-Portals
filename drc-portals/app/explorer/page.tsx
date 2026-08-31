@@ -83,12 +83,7 @@ export default async function Page(props: {
 }) {
   const searchParams = await props.searchParams
   if (searchParams.q === undefined || searchParams.search === undefined) {
-    const publications = await prisma.publication.findMany({
-        orderBy: {
-          year: "desc"
-        },
-        take: 9
-      })
+    
     const query: {[key:string]: string[] | {[key:string]: {
       up_gene_set_id?: number,
       down_gene_set_id?: number,

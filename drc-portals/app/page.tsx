@@ -14,6 +14,7 @@ import Wheel from "./wheel"
 import { SummaryHorizontal, SummaryVertical } from "./data/processed/SummaryComponent"
 import { Popup } from "./info/modal"
 import ClientLink from '@/components/misc/ClientLink'
+import Explorer from "./explorer/explorer"
 
 const groups = [
   {
@@ -82,7 +83,15 @@ const groups = [
     ]
   },
 ]
-export default async function Page() {
+export default async function Page({searchParams}: {
+  searchParams: {q: string}
+}) {
+  const query: {[key:string]: string[] | {[key:string]: {
+      up_gene_set_id?: number,
+      down_gene_set_id?: number,
+      gene_set_id?: number
+    }}} = JSON.parse(searchParams.q || '{}')
+
   const publications = await prisma.publication.findMany({
         orderBy: {
           year: "desc"
@@ -201,6 +210,9 @@ export default async function Page() {
                   </Container>
                 </Paper>
         </Grid> */}
+        <Grid item xs={12} sx={{mb: 5}}>
+            <Explorer input_query={query}/>
+        </Grid>
         <Grid item xs={12} md={5}>
           <Stack spacing={2}>
             <Typography variant="h2" color="secondary" sx={{textTransform: 'uppercase'}}>
