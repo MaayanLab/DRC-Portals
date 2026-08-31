@@ -111,7 +111,7 @@ const gsfm = (newValue:string) => ({
     description: newValue
   })
 
-const Explorer = ({input_query}: {input_query: {[key:string]: string[] | {[key:string]: {
+const Explorer = ({input_query, height=500}: {height?: number, input_query: {[key:string]: string[] | {[key:string]: {
       up_gene_set_id?: number,
       down_gene_set_id?: number,
       gene_set_id?: number
@@ -393,7 +393,7 @@ const Explorer = ({input_query}: {input_query: {[key:string]: string[] | {[key:s
       
     </Grid>
     <Grid item xs={12}>
-      <Container maxWidth="xl" sx={{height: 500 + geneSetPos, width: "100%", position: "relative"}}>
+      <Container maxWidth="xl" sx={{height: height + geneSetPos, width: "100%", position: "relative"}}>
         <ReactFlow
           // height={500}
           nodes={nodes}

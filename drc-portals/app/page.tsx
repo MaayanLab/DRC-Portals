@@ -212,7 +212,7 @@ export default async function Page({searchParams}: {
                 </Paper>
         </Grid> */}
         <Grid item xs={12} sx={{mb: 5}}>
-            <Explorer input_query={query}/>
+            <Explorer height={700} input_query={query}/>
         </Grid>
         <Grid item xs={12} md={5}>
           <Stack spacing={2}>
