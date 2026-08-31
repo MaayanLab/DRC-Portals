@@ -12,13 +12,14 @@ import Icon from '@mdi/react';
 import { mdiArrowRight, mdiYoutube, mdiBookOpenVariantOutline, mdiLink, mdiArrowUpRight, mdiArrowTopRight } from "@mdi/js"
 import { Card, CardActionArea, CardContent, CardHeader } from "@mui/material"
 import { Center } from "./center"
+import { UMAP } from "./umap"
 
 const centers = [
 	{
 		name: "Data Resource Center",
 		hero: "Explore Harmonized Common Fund Datasets",
 		blurb: "The CFDE Data Resource Center (DRC) hosts the CFDE Workbench, a comprehensive platform that provides harmonized metadata, processed data, and tools for data analysis across NIH Common Fund programs.",
-		image: "/centers/DRC.png",
+		image: "https://cfde-drc.s3.amazonaws.com/assets/img/centers/DRC.png",
 		link: "https://cfde.cloud",
 		width: 400
 	},
@@ -26,7 +27,7 @@ const centers = [
 		name: "Knowledge Center",
 		hero: "Discover Knowledge Extracted from CFDE Datasets",
 		blurb: "The CFDE Knowledge Center (KC) translates complex Common Fund data into highly curated biological insights using tailored visualizations to help researchers easily analyze genes, phenotypes, and pathways from across NIH Common Fund programs.",
-		image: "/centers/KC.svg",
+		image: "https://cfde-drc.s3.amazonaws.com/assets/img/centers/KC.svg",
 		link: "https://cfdeknowledge.org/r/kc_landing",
 		width: 230
 	},
@@ -34,7 +35,7 @@ const centers = [
 		name: "Cloud Workspace Implementation Center",
 		hero: "Sign Up for Your Own CFDE Cloud Workspace",
 		blurb: "The CFDE Cloud Workspace provides researchers with a free cloud computing platform that serves Galaxy to analyze and integrate large NIH Common Fund datasets using a variety of workflows.",
-		image: "/centers/CWIC.png",
+		image: "https://cfde-drc.s3.amazonaws.com/assets/img/centers/CWIC.png",
 		link: "https://cfdeworkspace.org/",
 		width: 400
 	},
@@ -42,7 +43,7 @@ const centers = [
 		name: "Training Center",
 		hero: "Acquire Skills in Using CFDE Datasets and Tools",
 		blurb: "The CFDE Training Center is dedicated to expanding the user base of NIH Common Fund and CFDE resources by delivering educational and outreach activities such as workshops, competitions, hackathons, webinars, and podcasts.",
-		image: "/centers/TC.svg",
+		image: "https://cfde-drc.s3.amazonaws.com/assets/img/centers/TC.svg",
 		link: "https://orau.org/cfde-trainingcenter/",
 		width: 300
 	},
@@ -50,7 +51,7 @@ const centers = [
 		name: "Integration and Coordination Center",
 		hero: "Learn How to Engage with the CFDE Consortium",
 		blurb: "CFDE CONNECT is the Integration and Coordination Center (ICC) of the CFDE. The center is dedicated to organizing the CFDE consortium and for developing evaluation and sustainability methods for Common Fund programs and the CFDE.",
-		image: "/centers/IC.png",
+		image: "https://cfde-drc.s3.amazonaws.com/assets/img/centers/IC.png",
 		link: "https://cfdeconnect.org/",
 		width: 400
 	}
@@ -60,6 +61,15 @@ export default async function Home() {
   return (
     <main>
       <Grid container spacing={5} sx={{alignItems: "flex-start"}}>
+        <Grid size={{xs: 12, md: 6}}>
+          <Typography variant="body1" sx={{ textAlign: "justify"}}>
+            The Common Fund generates a diverse array of valuable data sets and knowledge resources intended for the research community. However, these resources are dispersed across multiple locations, making it challenging to navigate and utilize them efficiently. To address this, the Common Fund Data Ecosystem (CFDE) was established to facilitate the broad use of Common Fund data to drive discovery. The CFDE is structured around five centers that work collaboratively to integrate metadata, data, tools, and knowledge from participating Common Fund programs. These collective efforts enable researchers to generate hypotheses, make discoveries, and validate findings, leading to new insights into health and disease.
+          </Typography>
+        </Grid>
+        <Grid size={{xs: 12, md: 6}}>
+          <UMAP/>
+          {/* <Image width={450} height={450} alt="cfde-logo" src={'/img/umap-bground.png'} /> */}
+        </Grid>
         {/* <Grid size={12}>
           <Typography variant="body1" sx={{color: "white"}}>
             The Common Fund generates a diverse array of valuable data sets and knowledge resources intended for the research community. However, these resources are dispersed across multiple locations, making it challenging to navigate and utilize them efficiently. To address this, the Common Fund Data Ecosystem (CFDE) was established to facilitate the broad use of Common Fund data to drive discovery. The CFDE is structured around five centers that work collaboratively to integrate metadata, data, tools, and knowledge from participating Common Fund programs. These collective efforts enable researchers to generate hypotheses, make discoveries, and validate findings, leading to new insights into health and disease.

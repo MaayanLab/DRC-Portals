@@ -1,7 +1,7 @@
 'use client'
 
 import { Stack, Switch, SwitchProps } from "@mui/material"
-import { useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import Icon from '@mdi/react';
 import { mdiWeatherSunny, mdiWeatherNight } from '@mdi/js';
 import { styled } from '@mui/material/styles';
@@ -70,10 +70,11 @@ export const ModeSwitch = () => {
 	const searchParams = useSearchParams()
 	const mode = searchParams.get('mode') || 'light'
 	const router = useRouter()
+	const pathname = usePathname()
 	return (
 		<Stack direction={"row"} sx={{alignItems: "center", mt: 5}}>
 			<Icon path={mdiWeatherSunny} size={1} style={{color: mode === 'dark' ? '#E9E9EA': "#333"}}/>
-			<IOSSwitch sx={{ m: 1 }} checked={mode==='dark'} onClick={()=>router.push(`/${mode === 'dark' ? "": "?mode=dark"}`)}/>
+			<IOSSwitch sx={{ m: 1 }} checked={mode==='dark'} onClick={()=>router.push(`${pathname}${mode === 'dark' ? "": "?mode=dark"}`)}/>
 			<Icon path={mdiWeatherNight} size={1} style={{color: mode === 'dark' ? '#E9E9EA': "#333"}}/>
 		</Stack>
 	)

@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import createCache from '@emotion/cache';
-import { useSearchParams, useServerInsertedHTML } from 'next/navigation';
+import { usePathname, useSearchParams, useServerInsertedHTML } from 'next/navigation';
 import { CacheProvider } from '@emotion/react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -56,12 +56,12 @@ export default function ThemeRegistry(props:{options:any, children:any}) {
         />
       );
     });
-  
+    const pathname = usePathname()
     return (
       <CacheProvider value={cache}>
         <ThemeProvider theme={mode === 'light'? light_theme: dark_theme}>
           <CssBaseline />
-          <Background background={mode === "light" ? 'white': 'black'}>
+          <Background background={mode === "light" ? pathname === "/" ?'white': "#DBE0ED": 'black'}>
             <Box sx={{display: "flex", justifyContent: "flex-end"}}>
               <div>
                 {/* <Button href={`${mode==='light'?'/?mode=dark':'/'}`} 
