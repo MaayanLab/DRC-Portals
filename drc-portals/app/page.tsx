@@ -92,7 +92,7 @@ export default async function Page() {
   // const dccs = await ( (await fetch("https://raw.githubusercontent.com/MaayanLab/cfde-wheel/refs/heads/main/src/dccs.json")).json())
     return (
       <Grid container spacing={2} alignItems={"flex-start"}>
-        <Popup/>
+        {/* <Popup/> */}
         <Grid item xs={12}>
           <Paper sx={{
                         boxShadow: "none", 
