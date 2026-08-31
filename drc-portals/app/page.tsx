@@ -55,6 +55,10 @@ const groups = [
       {
         label: "View CFDE Tools and Workflows",
         href: "/data/tools_and_workflows"
+      },
+      {
+        label: "Explore Use Cases",
+        href: "/data/usecases"
       }
     ]
   },
