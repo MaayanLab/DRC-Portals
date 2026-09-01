@@ -45,9 +45,11 @@ const UseCaseCard = ({ usecase, parsedParams }: { usecase: UseCaseWithDCC, parse
 					</Typography>
 				</Grid>		
 				<Grid item xs={4}>
+					<Paper elevation={0} className="flex flex-row justify-center relative" sx={{ height: 120 }}>
 					{usecase.image ? <Image src={usecase.image} alt={usecase.title} fill={true} style={{ objectFit: "contain" }} /> :
 						<Image src={'/img/favicon.png'} alt={usecase.title} fill={true} style={{ objectFit: "contain" }} />
-					}	
+					}
+					</Paper>	
 				</Grid>	
 			</Grid>
 		</CardContent>
