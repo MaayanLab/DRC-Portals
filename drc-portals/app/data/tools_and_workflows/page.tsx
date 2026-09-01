@@ -25,112 +25,55 @@ const ToolCard = ({ tool, parsedParams }: { tool: ToolsWithPublications, parsedP
         tags = tool.tags as string[]
     }
 	return(
-	<Card sx={{ height: 350 }}>
-		<CardContent sx={{ height: "100%" }}>
-			<Grid container spacing={2} sx={{ height: "100%" }} >
-				<Grid item xs={12}>
-					<Grid container spacing={1}>
-					{tags.length > 0 && tags.map(tag=>{
-						const query = (parsedParams.tags || []).indexOf(tag) > -1 ? parsedParams: {tags: [...parsedParams.tags || [], tag]}
-						return <Grid item key={tag}>
-								<Link href={`/data/tools_and_workflows?filter=${JSON.stringify(query)}`}>
-									<Chip key={tag} color="primary" variant="filled" sx={{borderRadius: 2}} label={tag}/>
-								</Link>
-							</Grid>
-					})}
-					</Grid>
-				</Grid>
+	<Card sx={{ height: 300, display: "flex", flexDirection: "column", padding: 1 }}>
+		<CardContent sx={{flexGrow: 1}}>
+			<Grid container spacing={2}>
 				<Grid item xs={8}>
-					<Stack direction="column"
-						justifyContent="space-between"
-						alignItems="flex-start"
-						spacing={1}
-						sx={{ height: "90%" }}
-					>
-						<div className="flex items-center space-x-2">
-							{tool.icon ? <Image src={tool.icon} alt={tool.label} height={40} width={40} /> :
-								<Image src={'/img/favicon.png'} alt={tool.label} height={40} width={40} />
-							}
-						</div>
-						<Typography variant="h4" color="secondary">{tool.label}</Typography>
-						<Typography variant={'caption'} color="secondary">
-							{tool.short_description}
-						</Typography>
-						{tool.publications.length > 0 &&
-							<div className="flex items-center">
-								<Typography variant="subtitle1"><b>Publication:</b></Typography>
-								{tool.publications.map((pub, i) => (
-									<Link href={`https://doi.org/${pub.doi}`} key={i} target="_blank" rel="noopener noreferrer">
-										<Button color="secondary">
-											{pub.doi}
-										</Button>
-									</Link>
-								))}
-							</div>
+					<div className="flex items-center space-x-2">
+						{tool.icon ? <Image src={tool.icon} alt={tool.label} height={40} width={40} /> :
+							<Image src={'/img/favicon.png'} alt={tool.label} height={40} width={40} />
 						}
-						<Stack className=" justify-start w-full align-top" spacing={-0.5}>
-							{tool.url &&
-								<Link href={tool.url} target="_blank" rel="noopener noreferrer">
-									<Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />} sx={{ marginLeft: -2 }}>
-										GO TO {tool.url.indexOf('github.com') > -1 ? 'GITHUB' : tool.label.toUpperCase()}
-									</Button>
-								</Link>}
-						</Stack>
-					</Stack>
+					</div>
+					<Typography variant="h4" color="secondary">{tool.label}</Typography>
+					<Typography variant={'caption'} color="secondary">
+						{tool.short_description}
+					</Typography>
 				</Grid>
 				<Grid item xs={4}>
-					<Grid
-						container
-						direction="column"
-						sx={{
-							width: "100%",
-							height: "100%",
-							display: 'flex',
-							justifyContent: 'center',
-						}}
-					>
-						<Grid item sx={{ mt: 2 }}>
-							<Paper elevation={0} className="flex flex-row justify-center relative" sx={{ height: 120 }}>
-								{tool.image ? <Image src={tool.image} alt={tool.label} fill={true} style={{ objectFit: "contain" }} /> :
-									<Image src={tool.icon || '/img/favicon.png'} alt={tool.label} fill={true} style={{ objectFit: "contain" }} />
-								}
-							</Paper>
-						</Grid>
-						<Grid
-							item
-							sx={{
-								display: 'flex',
-								justifyContent: 'flex-end',
-								alignItems: 'center',
-								marginTop: 1
-							}}
-						>
-							{/* Tutorial(s) */}
-							{Array.isArray(tool.tutorial) && tool.tutorial.length >= 2 ? (
-								<>
-									<Typography variant="subtitle2" color="secondary">TUTORIALS</Typography>
-									{(tool.tutorial as string[]).map((url, idx) => (
-										<Link
-											key={idx}
-											href={url}
-											target="_blank"
-											rel="noopener noreferrer"
-										>
-											<Button
-												color="secondary"
-												sx={{
-													minWidth: 0,
-													padding: '2px',
-												}}
-											>
-												<Icon path={mdiVideoOutline} size={1} />
-											</Button>
-										</Link>
-									))}
-								</>
-							) : Array.isArray(tool.tutorial) && tool.tutorial.length === 1 && typeof tool.tutorial[0] === 'string' ? (
+					<Paper elevation={0} className="flex flex-row justify-center relative" sx={{ height: 120 }}>
+						{tool.image ? <Image src={tool.image} alt={tool.label} fill={true} style={{ objectFit: "contain" }} /> :
+							<Image src={tool.icon || '/img/favicon.png'} alt={tool.label} fill={true} style={{ objectFit: "contain" }} />
+						}
+					</Paper>
+					
+				</Grid>
+				
+			</Grid>	
+		</CardContent>
+		<CardActions>
+			<Grid container spacing={1} justifyContent={"space-between"}>
+				<Grid item xs={8}>
+					{tool.publications.length > 0 &&
+						<div className="flex items-center">
+							<Typography variant="subtitle1"><b>Publication:</b></Typography>
+							{tool.publications.map((pub, i) => (
+								<Link href={`https://doi.org/${pub.doi}`} key={i} target="_blank" rel="noopener noreferrer">
+									<Button color="secondary">
+										{pub.doi}
+									</Button>
+								</Link>
+							))}
+						</div>
+					}
+				</Grid>
+				<Grid item xs={4}>
+					{Array.isArray(tool.tutorial) && tool.tutorial.length >= 2 ? (
+						<Stack direction={"row"} spacing={1}>
+							<div><Typography variant="subtitle2" color="secondary">TUTORIALS</Typography></div>
+							{(tool.tutorial as string[]).map((url, idx) => (
 								<Link
-									href={tool.tutorial[0]}
+									key={idx}
+									href={url}
 									target="_blank"
 									rel="noopener noreferrer"
 								>
@@ -140,17 +83,54 @@ const ToolCard = ({ tool, parsedParams }: { tool: ToolsWithPublications, parsedP
 											minWidth: 0,
 											padding: '2px',
 										}}
-								
 									>
-										TUTORIAL <Icon path={mdiVideoOutline} size={1} />
+										<Icon path={mdiVideoOutline} size={1} />
 									</Button>
 								</Link>
-							) : null}			
-						</Grid>
+							))}
+						</Stack>
+					) : Array.isArray(tool.tutorial) && tool.tutorial.length === 1 && typeof tool.tutorial[0] === 'string' ? (
+						<Link
+							href={tool.tutorial[0]}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<Button
+								color="secondary"
+								sx={{
+									minWidth: 0,
+									padding: '2px',
+								}}
+						
+							>
+								TUTORIAL <Icon path={mdiVideoOutline} size={1} />
+							</Button>
+						</Link>
+					) : null}			
+				</Grid>
+				{tool.url &&
+					<Grid item sx={{gridRow: 1}}>
+						<Link href={tool.url} target="_blank" rel="noopener noreferrer">
+							<Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />} sx={{ marginLeft: -2 }}>
+								GO TO {tool.url.indexOf('github.com') > -1 ? 'GITHUB' : tool.label.toUpperCase()}
+							</Button>
+						</Link>
+					</Grid>
+				}
+				<Grid item>
+					<Grid container spacing={1}>
+						{tags.length > 0 && tags.map(tag=>{
+							const query = (parsedParams.tags || []).indexOf(tag) > -1 ? parsedParams: {tags: [...parsedParams.tags || [], tag]}
+							return <Grid item key={tag}>
+									<Link href={`/data/tools_and_workflows?filter=${JSON.stringify(query)}`}>
+										<Chip key={tag} color="primary" variant="filled" sx={{borderRadius: 2}} label={tag}/>
+									</Link>
+								</Grid>
+						})}
 					</Grid>
 				</Grid>
 			</Grid>
-		</CardContent>
+		</CardActions>
 	</Card>
 )}
 
@@ -297,7 +277,13 @@ export default async function ToolsPage(props: {
 		orderBy: [{ publications: { _count: 'desc' } }, { label: 'asc' }, { id: 'asc' }],
 		...where_tags
 	})
-
+	const tag_counter: {[key:string]: number} = {}
+	for (const tool of tools) {
+		for (const tag of tool.tags as string[] || []) {
+			if (tag_counter[tag] === undefined) tag_counter[tag] = 0
+			tag_counter[tag] = tag_counter[tag] + 1
+		}
+	}
 	return (
 		<Grid container spacing={2} sx={{ marginTop: 2 }}>
 			<Grid item xs={12} sx={{ display: { xs: "block", sm: "none", md: "none", lg: "none", xl: "none" } }}>
@@ -329,7 +315,7 @@ export default async function ToolsPage(props: {
 						const new_tags = (parsedParams.tags || []).filter(i=>i!== tag)
 						return <Grid item key={tag}>
 								<Link href={`/data/tools_and_workflows?filter=${JSON.stringify({tags: new_tags})}`}>
-									<Chip key={tag} clickable color="primary" variant="filled" sx={{borderRadius: 2}} label={tag} icon={<Icon path={mdiCloseCircle} size={1} />}/>
+									<Chip key={tag} clickable color="primary" variant="filled" sx={{borderRadius: 2}} label={`${tag} (${tag_counter[tag]})`} icon={<Icon path={mdiCloseCircle} size={1} />}/>
 								</Link>
 							</Grid>
 					})}
