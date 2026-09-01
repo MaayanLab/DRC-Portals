@@ -1,12 +1,13 @@
 import Link from "@/utils/link";
 import Image from "@/utils/image";
 import prisma from "@/lib/prisma";
-import { Typography, Grid, Card, CardContent, Paper, Button, Stack, Box, Container, Tooltip } from "@mui/material";
+import { Typography, Grid, Card, CardContent, Paper, Button, Stack, Box, Container, Tooltip, Chip, CardActions } from "@mui/material";
 
 import Icon from '@mdi/react';
-import { mdiArrowRight, mdiVideoOutline } from "@mdi/js"
+import { mdiArrowRight, mdiVideoOutline, mdiCloseCircle } from "@mdi/js"
 import { Prisma } from "@prisma/client";
 import ClientCarousel from "../usecases/ClientCarousel";
+import { parseAsJson } from "next-usequerystate";
 
 type ToolsWithPublications = Prisma.ToolGetPayload<{
 	include: {
@@ -14,11 +15,32 @@ type ToolsWithPublications = Prisma.ToolGetPayload<{
 	}
 }>
 
-const ToolCard = ({ tool }: { tool: ToolsWithPublications }) => (
-	<Card sx={{ height: 280 }}>
+export interface ToolParams {
+	tags?: Array<string>,
+}
+
+const ToolCard = ({ tool, parsedParams }: { tool: ToolsWithPublications, parsedParams: ToolParams }) => {
+	let tags:string[] = []
+    if (Array.isArray(tool.tags)) {
+        tags = tool.tags as string[]
+    }
+	return(
+	<Card sx={{ height: 350 }}>
 		<CardContent sx={{ height: "100%" }}>
 			<Grid container spacing={2} sx={{ height: "100%" }} >
-				<Grid item xs={8} sx={{ height: "100%" }}>
+				<Grid item xs={12}>
+					<Grid container spacing={1}>
+					{tags.length > 0 && tags.map(tag=>{
+						const query = (parsedParams.tags || []).indexOf(tag) > -1 ? parsedParams: {tags: [...parsedParams.tags || [], tag]}
+						return <Grid item key={tag}>
+								<Link href={`/data/tools_and_workflows?filter=${JSON.stringify(query)}`}>
+									<Chip key={tag} color="primary" variant="filled" sx={{borderRadius: 2}} label={tag}/>
+								</Link>
+							</Grid>
+					})}
+					</Grid>
+				</Grid>
+				<Grid item xs={8}>
 					<Stack direction="column"
 						justifyContent="space-between"
 						alignItems="flex-start"
@@ -130,7 +152,7 @@ const ToolCard = ({ tool }: { tool: ToolsWithPublications }) => (
 			</Grid>
 		</CardContent>
 	</Card>
-)
+)}
 
 const CarouselCard = ({ tool }: { tool: ToolsWithPublications }) => (
 	<Box sx={{
@@ -238,7 +260,15 @@ const ServerCarousel = ({ tools }: { tools: Array<ToolsWithPublications> }) => {
 }
 
 
-export default async function ToolsPage() {
+export default async function ToolsPage(props: {
+    searchParams?: Promise<{
+        filter?: string
+    }>
+}) {
+	const searchParams = await props.searchParams
+	const query_parser = parseAsJson<ToolParams>().withDefault({tags: []})
+	const parsedParams = query_parser.parseServerSide(searchParams?.filter)
+		
 	const featured_tools = await prisma.tool.findMany({
 		where: {
 			featured: true
@@ -248,11 +278,24 @@ export default async function ToolsPage() {
 		},
 		orderBy: [{ publications: { _count: 'desc' } }, { label: 'asc' }, { id: 'asc' }],
 	})
+	const tags:string[] = []
+
+	const tag_filter = []
+    for (const tag of parsedParams.tags || []) {
+        tag_filter.push({tags: {
+                path: [],
+                array_contains: tag
+            }})
+		tags.push(tag)
+	}
+	const where_tags: {[key:string]: any} = {}
+	if (tag_filter.length) where_tags['where'] = {'OR': tag_filter}
 	const tools = await prisma.tool.findMany({
 		include: {
 			publications: true
 		},
 		orderBy: [{ publications: { _count: 'desc' } }, { label: 'asc' }, { id: 'asc' }],
+		...where_tags
 	})
 
 	return (
@@ -281,10 +324,22 @@ export default async function ToolsPage() {
 				</Typography>
 			</Grid>
 			<Grid item xs={12}>
+				<Grid container spacing={1}>
+					{tags.length > 0 && tags.map(tag=>{
+						const new_tags = (parsedParams.tags || []).filter(i=>i!== tag)
+						return <Grid item key={tag}>
+								<Link href={`/data/tools_and_workflows?filter=${JSON.stringify({tags: new_tags})}`}>
+									<Chip key={tag} clickable color="primary" variant="filled" sx={{borderRadius: 2}} label={tag} icon={<Icon path={mdiCloseCircle} size={1} />}/>
+								</Link>
+							</Grid>
+					})}
+			</Grid>
+			</Grid>
+			<Grid item xs={12}>
 				<Grid container spacing={2}>
 					{tools.map((tool) => (
 						<Grid item xs={12} sm={6} key={tool.label}>
-							<ToolCard tool={tool} />
+							<ToolCard tool={tool} parsedParams={parsedParams} />
 						</Grid>
 					))}
 				</Grid>

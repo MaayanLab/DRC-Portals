@@ -177,6 +177,7 @@ model UseCase {
   featured          Boolean?     @default(false)
   featured_image    String?
   creator_dcc_id    String?
+  tags              Json @default("[]")
   creator_dcc       DCC?         @relation(fields: [creator_dcc_id], references: [id])
   source_dccs       DCCUseCase[]
 
@@ -204,6 +205,7 @@ model Tool {
   icon              String?
   image             String?
   tutorial          Json?
+  tags              Json @default("[]")
   featured          Boolean?      @default(false)
   publications      Publication[]
 

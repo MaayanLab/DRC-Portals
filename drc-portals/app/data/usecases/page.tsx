@@ -1,13 +1,14 @@
 import Link from "@/utils/link";
 import Image from "@/utils/image";
 import prisma from "@/lib/prisma";
-import { Typography, Grid, Card, CardContent, Paper, Button, Stack, Box, Container } from "@mui/material";
+import { Typography, Grid, Card, CardContent, Paper, Button, Stack, Box, Container, Chip } from "@mui/material";
 import { Prisma } from "@prisma/client";
 import Icon from '@mdi/react';
-import { mdiArrowRight, mdiVideoOutline } from "@mdi/js"
+import { mdiArrowRight, mdiVideoOutline, mdiCloseCircle } from "@mdi/js"
 import ClientCarousel from "./ClientCarousel";
 import { parseAsJson } from "next-usequerystate";
 import PaginationComponent from "./paginate";
+import { ToolParams } from "../tools_and_workflows/page";
 type UseCaseWithDCC = Prisma.UseCaseGetPayload<{
 	include: {
 		source_dccs: {
@@ -18,10 +19,34 @@ type UseCaseWithDCC = Prisma.UseCaseGetPayload<{
 	}
 }>
 
-const UseCaseCard = ({ usecase }: { usecase: UseCaseWithDCC }) => (
+export interface UseCaseParams {
+	limit: number,
+	skip: number
+	tags: string[]
+}
+
+const UseCaseCard = ({ usecase, parsedParams }: { usecase: UseCaseWithDCC, parsedParams: UseCaseParams }) => {
+	let tags:string[] = []
+    if (Array.isArray(usecase.tags)) {
+        tags = usecase.tags as string[]
+    }
+	return(
 	<Card sx={{ height: 375 }}>
 		<CardContent>
 			<Grid container spacing={2}>
+				<Grid item xs={12}>
+					<Grid container spacing={1}>
+					{tags.length > 0 && tags.map(tag=>{
+						const query = (parsedParams.tags || []).indexOf(tag) > -1 ? parsedParams: {...parsedParams, tags: [...parsedParams.tags || [], tag]}
+						return <Grid item key={tag}>
+								<Link href={`/data/usecases?filter=${JSON.stringify(query)}`}>
+									<Chip key={tag} color="primary" variant="filled" sx={{borderRadius: 2}} label={tag}/>
+								</Link>
+							</Grid>
+					})}
+					</Grid>
+				</Grid>
+				
 				<Grid item xs={8}>
 					<Stack direction="column"
 						justifyContent="space-between"
@@ -92,7 +117,7 @@ const UseCaseCard = ({ usecase }: { usecase: UseCaseWithDCC }) => (
 			</Grid>
 		</CardContent>
 	</Card>
-)
+)}
 
 const CarouselCard = ({ usecase }: { usecase: UseCaseWithDCC }) => (
 	<Box sx={{
@@ -177,10 +202,6 @@ const ServerCarousel = ({ usecases }: { usecases: Array<UseCaseWithDCC> }) => {
 }
 
 
-export interface UseCaseParams {
-	limit: number,
-	skip: number
-}
 
 export default async function UseCasePage(props: {
 	searchParams: Promise<{
@@ -188,8 +209,9 @@ export default async function UseCasePage(props: {
 	}>
 }) {
 	const searchParams = await props.searchParams
-	const query_parser = parseAsJson<UseCaseParams>().withDefault({ limit: 10, skip: 0 })
-	const { limit = 10, skip } = query_parser.parseServerSide(searchParams.filter)
+	const query_parser = parseAsJson<UseCaseParams>().withDefault({ limit: 10, skip: 0, tags: []})
+	const parsedParams = query_parser.parseServerSide(searchParams.filter)
+	const { limit = 10, skip } = parsedParams
 	const featured_usecases = await prisma.useCase.findMany({
 		where: {
 			featured: true
@@ -203,6 +225,18 @@ export default async function UseCasePage(props: {
 		}
 	})
 	const count = await prisma.useCase.count()
+	const tags:string[] = []
+
+	const tag_filter = []
+    for (const tag of parsedParams.tags || []) {
+        tag_filter.push({tags: {
+                path: [],
+                array_contains: tag
+            }})
+		tags.push(tag)
+	}
+	const where_tags: {[key:string]: any} = {}
+	if (tag_filter.length) where_tags['where'] = {'OR': tag_filter}
 	const usecases = await prisma.useCase.findMany({
 		include: {
 			source_dccs: {
@@ -212,7 +246,8 @@ export default async function UseCasePage(props: {
 			}
 		},
 		take: limit,
-		skip
+		skip,
+		...where_tags
 	})
 
 	return (
@@ -241,10 +276,22 @@ export default async function UseCasePage(props: {
 				</Typography>
 			</Grid>
 			<Grid item xs={12}>
+				<Grid container spacing={1}>
+					{tags.length > 0 && tags.map(tag=>{
+						const new_tags = (parsedParams.tags || []).filter(i=>i!== tag)
+						return <Grid item key={tag}>
+								<Link href={`/data/usecases?filter=${JSON.stringify({...parsedParams, tags: new_tags})}`}>
+									<Chip key={tag} clickable color="primary" variant="filled" sx={{borderRadius: 2}} label={tag} icon={<Icon path={mdiCloseCircle} size={1} />}/>
+								</Link>
+							</Grid>
+					})}
+				</Grid>
+			</Grid>
+			<Grid item xs={12}>
 				<Grid container spacing={2}>
 					{usecases.map((usecase) => (
 						<Grid item xs={12} sm={6} key={usecase.title}>
-							<UseCaseCard usecase={usecase} />
+							<UseCaseCard usecase={usecase} parsedParams={parsedParams} />
 						</Grid>
 					))}
 				</Grid>
