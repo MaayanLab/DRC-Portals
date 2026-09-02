@@ -284,6 +284,8 @@ export default async function ToolsPage(props: {
 			tag_counter[tag] = tag_counter[tag] + 1
 		}
 	}
+
+	const tag_counter_list = Object.entries(tag_counter).map(([label, count])=>({label, count})).sort((a,b)=>b.count-a.count)
 	return (
 		<Grid container spacing={2} sx={{ marginTop: 2 }}>
 			<Grid item xs={12} sx={{ display: { xs: "block", sm: "none", md: "none", lg: "none", xl: "none" } }}>
@@ -311,11 +313,20 @@ export default async function ToolsPage(props: {
 			</Grid>
 			<Grid item xs={12}>
 				<Grid container spacing={1}>
-					{tags.length > 0 && tags.map(tag=>{
+					{/* {tags.length > 0 && tags.map(tag=>{
 						const new_tags = (parsedParams.tags || []).filter(i=>i!== tag)
 						return <Grid item key={tag}>
 								<Link href={`/data/tools_and_workflows?filter=${JSON.stringify({tags: new_tags})}`}>
 									<Chip key={tag} clickable color="primary" variant="filled" sx={{borderRadius: 2}} label={`${tag} (${tag_counter[tag]})`} icon={<Icon path={mdiCloseCircle} size={1} />}/>
+								</Link>
+							</Grid>
+					})} */}
+					{tag_counter_list.map(tag=>{
+						const old_tags = parsedParams.tags || []
+						const new_tags = old_tags.indexOf(tag.label) > -1 ? old_tags.filter(i=>i!== tag.label): [...old_tags, tag.label]
+						return <Grid item key={tag.label}>
+								<Link href={`/data/tools_and_workflows?filter=${JSON.stringify({...parsedParams, tags: new_tags})}`}>
+									<Chip key={tag.label} clickable color={old_tags.indexOf(tag.label) > -1 ? "secondary": "primary"} variant="filled" sx={{borderRadius: 2}} label={`${tag.label} (${tag.count})`} icon={old_tags.indexOf(tag.label) > -1 ? <Icon path={mdiCloseCircle} size={1} />: undefined}/>
 								</Link>
 							</Grid>
 					})}
