@@ -375,7 +375,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						{inputList.filter(i=>i.entity!=='gene_set').length > 1 && <SearchCard labels={inputList.filter(i=>i.entity!=='gene_set').map(i=>i.label)} />}
 					</ExpandableComponent>
 					<ExpandableComponent 
-						collapsed={false}
+						
 						icon="/centers/KC-icon.png" 
 						title="Search the Knowledge Center"
 						description="Query data and metadata from the CFDE Knowledge Center"
