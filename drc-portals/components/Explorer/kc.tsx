@@ -10,17 +10,17 @@ import { ReactNode, useEffect, useState } from "react"
 const gene_info = [
 	{
 		endpoint: (gene:string)=>`/kc_entity_gene?gene=${gene}`,
-		description: (gene:string)=>`View information from CFDE programs on ${gene}`,
+		description: (gene:string)=>`Explore ${gene} across CFDE programs`,
 		color: green[100]
 	},
 	{
 		endpoint: (gene:string)=>`/kc_gene_set_browser?model=cfde&gene=${gene}`,
-		description: (gene:string)=>`View phenotype associations of ${gene}`,
+		description: (gene:string)=>`Explore ${gene} phenotype associations`,
 		color: blue[100]
 	},
 	{
 		endpoint: (gene:string)=>`/kc_dge_gene?gene=${gene}`,
-		description: (gene:string)=>`View tissue associations of ${gene}`,
+		description: (gene:string)=>`Explore ${gene} tissue associations`,
 		color: red[100]
 	}
 ]
