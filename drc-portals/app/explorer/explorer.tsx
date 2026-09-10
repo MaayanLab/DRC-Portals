@@ -393,6 +393,22 @@ const Explorer = ({input_query, height=500}: {height?: number, input_query: {[ke
       
     </Grid>
     <Grid item xs={12}>
+      <Grid container spacing={1} justifyContent={'center'}>
+          {inputList.map(i=>(
+            <Grid item key={i.label}>
+              <Tooltip title={"Submit"} key={i.label}>
+              <Chip avatar={<Avatar sx={{backgroundColor: i.color}}><Icon style={{color: i.icon_color}} path={i.icon} size={1}/></Avatar>}
+                label={i.label}
+                sx={{backgroundColor: i.color,
+                  '&:hover': {backgroundColor: i.color,}
+                }}
+                onClick={()=>router_push(router, '/', {q: JSON.stringify(query), search: true})}
+                onDelete={()=>update_input(i.entity, i.label, 'remove')}
+              />
+              </Tooltip>
+            </Grid>
+          ))}
+      </Grid>
       <Container maxWidth="xl" sx={{height: height + geneSetPos, width: "100%", position: "relative"}}>
         <ReactFlow
           // height={500}
@@ -416,22 +432,7 @@ const Explorer = ({input_query, height=500}: {height?: number, input_query: {[ke
           proOptions={{hideAttribution: true}}
         />
       </Container>
-      <Grid container spacing={1} justifyContent={'center'}>
-          {inputList.map(i=>(
-            <Grid item key={i.label}>
-              <Tooltip title={"Submit"} key={i.label}>
-              <Chip avatar={<Avatar sx={{backgroundColor: i.color}}><Icon style={{color: i.icon_color}} path={i.icon} size={1}/></Avatar>}
-                label={i.label}
-                sx={{backgroundColor: i.color,
-                  '&:hover': {backgroundColor: i.color,}
-                }}
-                onClick={()=>router_push(router, '/', {q: JSON.stringify(query), search: true})}
-                onDelete={()=>update_input(i.entity, i.label, 'remove')}
-              />
-              </Tooltip>
-            </Grid>
-          ))}
-      </Grid>
+      
     </Grid>
     <Grid item xs={12}>
       <div className='flex justify-center'>

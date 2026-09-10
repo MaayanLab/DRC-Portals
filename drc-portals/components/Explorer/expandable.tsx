@@ -13,7 +13,7 @@ export const ExpandableComponent = ({icon, title, description, collapsed=true, w
 		children: React.ReactNode[],
 	}) => {
 	const [open, setOpen] = useState(!collapsed)
-	if (children.length === 0) return null
+	if (children.filter(c=>c!==undefined).length === 0) return null
 	return (
 		<>
 		<ListItemButton onClick={()=>setOpen(!open)}>
