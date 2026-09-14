@@ -1,13 +1,13 @@
 import Link from "@/utils/link";
-import { Typography, Button, Divider, Chip, Tooltip } from "@mui/material";
+import { Stack, Tooltip} from "@mui/material";
 import { Publication } from "@prisma/client";
-import ExportCitation from "./ExportCitation";
+import CardMedia from '@mui/material/CardMedia';
+import Typography from '@mui/material/Typography';
 
 export function addPeriodIfNeeded(text: string | undefined) {
     return text && !text.endsWith(".") ? "." : "";
 }
-export default function SimplePublicationComponent({publications, variant='caption'}: {publications: Publication[], variant?:'caption'|'subtitle2'}) {
-    
+export default function SimplePublicationComponent({publications, variant='caption', podcast=false}: {publications: Publication[], variant?:'caption'|'subtitle2', podcast?:boolean}) {
     return (
         <>
             {publications.map((pub, i)=>(
@@ -22,6 +22,17 @@ export default function SimplePublicationComponent({publications, variant='capti
                         <Typography variant={variant} sx={{color: "rgb(99,99,99)"}}>
                             {pub.authors.split(",")[0]} et al. | {pub.journal} | Published: {pub.year}
                         </Typography>
+                        {(podcast && pub.audio) && 
+                            <Stack>
+                            <CardMedia
+                                    component="audio"
+                                    controls
+                                    src={pub.audio}
+                                    sx={{ width: '100%', pt: 2, px: 2 }} 
+                                />
+                            <Typography sx={{color: "rgb(99,99,99)"}} variant={variant}>Listen to Axiom and Trinity as they discuss this paper</Typography>
+                            </Stack>
+                        }
                     </div>
                 ))}
             </>

@@ -181,7 +181,7 @@ export default async function DccDataPage(props: { params: Promise<{ dcc: string
                             {publications.length > 0 && <Grid item xs={12}>
                                 <Paper sx={{padding: 2, height: "100%"}}>
                                     <Typography variant="h4" sx={{marginBottom: 3}} color="secondary">Landmark Publication{publications.length > 1 && "s"}</Typography>
-                                    <SimplePublicationComponent publications={publications}/>
+                                    <SimplePublicationComponent podcast={true} publications={publications}/>
                                     {dcc.short_label === "Bridge2AI" ? <Button color="secondary" variant="outlined" href="https://scholar.google.com/citations?user=GK2Y-fcAAAAJ&hl=en" target="_blank" rel="noopener noreferrer">
                                         Google Scholar
                                     </Button>: null}
