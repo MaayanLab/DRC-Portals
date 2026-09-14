@@ -12,7 +12,8 @@ export default async function DccDataPage(props: { params: Promise<{ dcc: string
   const dcc_dbinfo = await prisma.dCC.findFirst({
     where: {
       short_label: dcc,
-      active: true
+      active: true,
+      hidden: false,
     },
     select: {
       id: true,
