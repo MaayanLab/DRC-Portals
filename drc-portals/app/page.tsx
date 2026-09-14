@@ -14,6 +14,7 @@ import Wheel from "./wheel"
 import { SummaryHorizontal, SummaryVertical } from "./data/processed/SummaryComponent"
 import { Popup } from "./info/modal"
 import ClientLink from '@/components/misc/ClientLink'
+import Explorer from "./explorer/explorer"
 
 const groups = [
   {
@@ -55,6 +56,10 @@ const groups = [
       {
         label: "View CFDE Tools and Workflows",
         href: "/data/tools_and_workflows"
+      },
+      {
+        label: "Explore Use Cases",
+        href: "/data/usecases"
       }
     ]
   },
@@ -78,7 +83,16 @@ const groups = [
     ]
   },
 ]
-export default async function Page() {
+export default async function Page({searchParams}: {
+  searchParams: Promise<{q: string}>
+}) {
+  const sp = await searchParams
+  const query: {[key:string]: string[] | {[key:string]: {
+      up_gene_set_id?: number,
+      down_gene_set_id?: number,
+      gene_set_id?: number
+    }}} = JSON.parse(sp.q || '{}')
+
   const publications = await prisma.publication.findMany({
         orderBy: {
           year: "desc"
@@ -88,7 +102,7 @@ export default async function Page() {
   // const dccs = await ( (await fetch("https://raw.githubusercontent.com/MaayanLab/cfde-wheel/refs/heads/main/src/dccs.json")).json())
     return (
       <Grid container spacing={2} alignItems={"flex-start"}>
-        <Popup/>
+        {/* <Popup/> */}
         <Grid item xs={12}>
           <Paper sx={{
                         boxShadow: "none", 
@@ -197,6 +211,9 @@ export default async function Page() {
                   </Container>
                 </Paper>
         </Grid> */}
+        <Grid item xs={12} sx={{mb: 5}}>
+            <Explorer height={700} input_query={query}/>
+        </Grid>
         <Grid item xs={12} md={5}>
           <Stack spacing={2}>
             <Typography variant="h2" color="secondary" sx={{textTransform: 'uppercase'}}>

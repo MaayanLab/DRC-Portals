@@ -1,13 +1,14 @@
 import Link from "@/utils/link";
 import Image from "@/utils/image";
 import prisma from "@/lib/prisma";
-import { Typography, Grid, Card, CardContent, Paper, Button, Stack, Box, Container } from "@mui/material";
+import { Typography, Grid, Card, CardContent, Paper, Button, Stack, Box, Container, Chip, CardHeader, CardActions } from "@mui/material";
 import { Prisma } from "@prisma/client";
 import Icon from '@mdi/react';
-import { mdiArrowRight, mdiVideoOutline } from "@mdi/js"
+import { mdiArrowRight, mdiVideoOutline, mdiCloseCircle } from "@mdi/js"
 import ClientCarousel from "./ClientCarousel";
 import { parseAsJson } from "next-usequerystate";
 import PaginationComponent from "./paginate";
+import { ToolParams } from "../tools_and_workflows/page";
 type UseCaseWithDCC = Prisma.UseCaseGetPayload<{
 	include: {
 		source_dccs: {
@@ -18,81 +19,81 @@ type UseCaseWithDCC = Prisma.UseCaseGetPayload<{
 	}
 }>
 
-const UseCaseCard = ({ usecase }: { usecase: UseCaseWithDCC }) => (
-	<Card sx={{ height: 375 }}>
-		<CardContent>
-			<Grid container spacing={2}>
+export interface UseCaseParams {
+	limit: number,
+	skip: number
+	tags: string[]
+}
+
+const UseCaseCard = ({ usecase, parsedParams }: { usecase: UseCaseWithDCC, parsedParams: UseCaseParams }) => {
+	let tags:string[] = []
+    if (Array.isArray(usecase.tags)) {
+        tags = usecase.tags as string[]
+    }
+	return(
+	<Card sx={{ minHeight: 350, height: "100%", display: "flex", flexDirection: "column", padding: 1 }}>
+		<CardHeader
+		avatar={<Image src={usecase.tool_icon || '/img/favicon.png'} alt={usecase.title} height={40} width={40} />}
+		title={<Typography color="secondary" variant="h5">{usecase.tool_name}</Typography>}
+		/>
+		<CardContent sx={{flexGrow: 1}}>
+			<Grid container spacing={2}>	
 				<Grid item xs={8}>
-					<Stack direction="column"
-						justifyContent="space-between"
-						alignItems="flex-start"
-						spacing={2}
-						sx={{ height: "90%" }}
-					>
-						<Stack direction="column" spacing={2}>
-							<div className="flex items-center space-x-2">
-								{usecase.tool_icon ? <Image src={usecase.tool_icon} alt={usecase.title} height={40} width={40} /> :
-									<Image src={'/img/favicon.png'} alt={usecase.title} height={40} width={40} />
-								}
-								<Typography color="secondary" variant="h5">{usecase.tool_name}</Typography>
-							</div>
-							<Typography variant="h4" color="secondary">{usecase.title}</Typography>
-							<Typography variant={'caption'} color="secondary">
-								{usecase.short_description}
-							</Typography>
-						</Stack>
-
-						{/* {usecase.link && 
-						<Link href={usecase.link} target="_blank" rel="noopener noreferrer">
-							<Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />} sx={{marginLeft: -2}}>
-								GO TO USE CASE
-							</Button>
-						</Link>} */}
-						<Stack
-							direction="column"
-							spacing={0.5}
-							sx={{
-								alignItems: 'flex-start',
-								width: '100%'
-							}}
-						>
-							{usecase.tutorial &&
-								<Link href={usecase.tutorial} target="_blank" rel="noopener noreferrer">
-									<Button
-										color="secondary"
-										endIcon={<Icon path={mdiVideoOutline} size={1} />}
-										sx={{ marginLeft: -2, marginBottom: -2.5 }}
-									>
-										TUTORIAL
-									</Button>
-								</Link>
-							}
-							{usecase.link &&
-								<Link href={usecase.link} target="_blank" rel="noopener noreferrer">
-									<Button
-										color="secondary"
-										endIcon={<Icon path={mdiArrowRight} size={1} />}
-										sx={{ marginLeft: -2 }}
-									>
-										GO TO USE CASE
-									</Button>
-								</Link>
-							}
-						</Stack>
-
-					</Stack>
-				</Grid>
+					<Typography variant="h4" color="secondary">{usecase.title}</Typography>
+					<Typography variant={'caption'} color="secondary">
+						{usecase.short_description}
+					</Typography>
+				</Grid>		
 				<Grid item xs={4}>
-					<Paper elevation={0} className="flex flex-row justify-center relative" sx={{ height: 350 }}>
-						{usecase.image ? <Image src={usecase.image} alt={usecase.title} fill={true} style={{ objectFit: "contain" }} /> :
-							<Image src={'/img/favicon.png'} alt={usecase.title} fill={true} style={{ objectFit: "contain" }} />
-						}
-					</Paper>
-				</Grid>
+					<Paper elevation={0} className="flex flex-row justify-center relative" sx={{ height: 120 }}>
+					{usecase.image ? <Image src={usecase.image} alt={usecase.title} fill={true} style={{ objectFit: "contain" }} /> :
+						<Image src={'/img/favicon.png'} alt={usecase.title} fill={true} style={{ objectFit: "contain" }} />
+					}
+					</Paper>	
+				</Grid>	
 			</Grid>
 		</CardContent>
+		<CardActions>
+			<Grid container spacing={1} justifyContent={"space-between"}>
+				
+				{usecase.tutorial &&
+					<Grid item xs={12}>
+						<Link href={usecase.tutorial} target="_blank" rel="noopener noreferrer">
+							<Button
+								color="secondary"
+								endIcon={<Icon path={mdiVideoOutline} size={1} />}
+								sx={{ marginLeft: -2, marginBottom: -2.5 }}
+							>
+								TUTORIAL
+							</Button>
+						</Link>
+					</Grid>
+				}
+				{usecase.link &&
+					<Grid item sx={{gridRow: 1}}>
+						<Link href={usecase.link} target="_blank" rel="noopener noreferrer">
+							<Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />} sx={{ marginLeft: -2 }}>
+								GO TO USE CASE
+							</Button>
+						</Link>
+					</Grid>
+				}
+				<Grid item>
+					<Grid container spacing={1}>
+						{tags.length > 0 && tags.map(tag=>{
+							const query = (parsedParams.tags || []).indexOf(tag) > -1 ? parsedParams: {tags: [...parsedParams.tags || [], tag]}
+							return <Grid item key={tag}>
+									<Link href={`/data/usecases?filter=${JSON.stringify(query)}`}>
+										<Chip key={tag} color="primary" variant="filled" sx={{borderRadius: 2}} label={tag}/>
+									</Link>
+								</Grid>
+						})}
+					</Grid>
+				</Grid>
+			</Grid>
+		</CardActions>
 	</Card>
-)
+)}
 
 const CarouselCard = ({ usecase }: { usecase: UseCaseWithDCC }) => (
 	<Box sx={{
@@ -177,10 +178,6 @@ const ServerCarousel = ({ usecases }: { usecases: Array<UseCaseWithDCC> }) => {
 }
 
 
-export interface UseCaseParams {
-	limit: number,
-	skip: number
-}
 
 export default async function UseCasePage(props: {
 	searchParams: Promise<{
@@ -188,8 +185,9 @@ export default async function UseCasePage(props: {
 	}>
 }) {
 	const searchParams = await props.searchParams
-	const query_parser = parseAsJson<UseCaseParams>().withDefault({ limit: 10, skip: 0 })
-	const { limit = 10, skip } = query_parser.parseServerSide(searchParams.filter)
+	const query_parser = parseAsJson<UseCaseParams>().withDefault({ limit: 10, skip: 0, tags: []})
+	const parsedParams = query_parser.parseServerSide(searchParams.filter)
+	const { limit = 10, skip=0 } = parsedParams
 	const featured_usecases = await prisma.useCase.findMany({
 		where: {
 			featured: true
@@ -203,7 +201,19 @@ export default async function UseCasePage(props: {
 		}
 	})
 	const count = await prisma.useCase.count()
-	const usecases = await prisma.useCase.findMany({
+	const tags:string[] = []
+
+	const tag_filter = []
+    for (const tag of parsedParams.tags || []) {
+        tag_filter.push({tags: {
+                path: [],
+                array_contains: tag
+            }})
+		tags.push(tag)
+	}
+	const where_tags: {[key:string]: any} = {}
+	if (tag_filter.length) where_tags['where'] = {'OR': tag_filter}
+	const usecases_all = await prisma.useCase.findMany({
 		include: {
 			source_dccs: {
 				include: {
@@ -211,10 +221,20 @@ export default async function UseCasePage(props: {
 				}
 			}
 		},
-		take: limit,
-		skip
+		// take: limit,
+		// skip,
+		...where_tags
 	})
-
+	const tag_counter: {[key:string]: number} = {}
+	
+	for (const tool of usecases_all) {
+		for (const tag of tool.tags as string[] || []) {
+			if (tag_counter[tag] === undefined) tag_counter[tag] = 0
+			tag_counter[tag] = tag_counter[tag] + 1
+		}
+	}
+	const tag_counter_list = Object.entries(tag_counter).map(([label, count])=>({label, count})).sort((a,b)=>b.count-a.count)
+	const usecases = usecases_all.slice(skip, skip+limit)
 	return (
 		<Grid container spacing={2} sx={{ marginTop: 2 }}>
 			<Grid item xs={12} sx={{ display: { xs: "block", sm: "none", md: "none", lg: "none", xl: "none" } }}>
@@ -241,16 +261,37 @@ export default async function UseCasePage(props: {
 				</Typography>
 			</Grid>
 			<Grid item xs={12}>
+				<Grid container spacing={1}>
+					{/* {tags.length > 0 && tags.map(tag=>{
+						const new_tags = (parsedParams.tags || []).filter(i=>i!== tag)
+						return <Grid item key={tag}>
+								<Link href={`/data/usecases?filter=${JSON.stringify({...parsedParams, tags: new_tags})}`}>
+									<Chip key={tag} clickable color="primary" variant="filled" sx={{borderRadius: 2}} label={`${tag} (${tag_counter[tag]})`} icon={<Icon path={mdiCloseCircle} size={1} />}/>
+								</Link>
+							</Grid>
+					})} */}
+					{tag_counter_list.map(tag=>{
+						const old_tags = parsedParams.tags || []
+						const new_tags = old_tags.indexOf(tag.label) > -1 ? old_tags.filter(i=>i!== tag.label): [...old_tags, tag.label]
+						return <Grid item key={tag.label}>
+								<Link href={`/data/usecases?filter=${JSON.stringify({...parsedParams, tags: new_tags})}`}>
+									<Chip key={tag.label} clickable color={old_tags.indexOf(tag.label) > -1 ? "secondary": "primary"} variant="filled" sx={{borderRadius: 2}} label={`${tag.label} (${tag.count})`} icon={old_tags.indexOf(tag.label) > -1 ? <Icon path={mdiCloseCircle} size={1} />: undefined}/>
+								</Link>
+							</Grid>
+					})}
+				</Grid>
+			</Grid>
+			<Grid item xs={12}>
 				<Grid container spacing={2}>
 					{usecases.map((usecase) => (
 						<Grid item xs={12} sm={6} key={usecase.title}>
-							<UseCaseCard usecase={usecase} />
+							<UseCaseCard usecase={usecase} parsedParams={parsedParams} />
 						</Grid>
 					))}
 				</Grid>
 			</Grid>
 			<Grid item xs={12} className="flex justify-center">
-				<PaginationComponent limit={limit} skip={skip} count={count} />
+				<PaginationComponent limit={limit} skip={skip} count={usecases_all.length} />
 			</Grid>
 		</Grid>
 	)

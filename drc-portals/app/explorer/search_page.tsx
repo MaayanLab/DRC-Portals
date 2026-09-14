@@ -20,6 +20,7 @@ import { ExpandableComponent,
 	BiomarkerKB,
 	DDKG } from "@/components/Explorer";
 import trpc from '@/lib/trpc/client'
+import { KC } from "@/components/Explorer/kc";
 
 const getTaskId = async (method:string, input: {[key:string]: string}, controller: AbortController) => {
 	const payload = {
@@ -370,8 +371,18 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						title="Search the CFDE Workbench"
 						description="Query data and metadata assets produced by the Common Fund programs that participate in the CFDE"
 					>
-						{inputList.filter(i=>i.entity!=='gene_set').map(i=>(<SearchCard key={`search-${i.label}`} labels={[i.label]} {...i} />))}
-						{inputList.filter(i=>i.entity!=='gene_set').length > 1 && <SearchCard labels={inputList.filter(i=>i.entity!=='gene_set').map(i=>i.label)} />}
+						{[...inputList.filter(i=>i.entity!=='gene_set').map(i=>(<SearchCard key={`search-${i.label}`} labels={[i.label]} {...i} />)),
+							inputList.filter(i=>i.entity!=='gene_set').length > 1 ? <SearchCard labels={inputList.filter(i=>i.entity!=='gene_set').map(i=>i.label)} />: undefined
+						]}
+						
+					</ExpandableComponent>
+					<ExpandableComponent 
+						
+						icon="/centers/KC-icon.png" 
+						title="Search the Knowledge Center"
+						description="Query integrated analysis results and scientific claims from the CFDE Knowledge Center"
+					>
+						{inputList.filter(i=>i.entity==='gene').map(i=>(<KC key={`search-${i.label}`} {...i} />))}
 					</ExpandableComponent>
 					<ExpandableComponent 
 						icon={icons.gdlpa}
