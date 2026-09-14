@@ -79,7 +79,7 @@ const options = [
       },
       {
         title: "C2M2 Text2Cypher",
-        href: "/data/graph/chat",
+        href: "/data/graph/text2cypher",
         description: "Convert natural language queries into Cypher queries to explore the CFDE Workbench Cross Cut Metaata Model (C2M2)",
         icon: mdiMessageQuestionOutline
       },
