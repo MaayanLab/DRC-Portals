@@ -22,6 +22,7 @@ model DCC {
   annotation       Json?
   cfde_partner     Boolean           @default(false)
   active           Boolean           @default(true)
+  hidden           Boolean           @default(false)
   cf_site          String?
   publications     DCCPublication[]
   Users            User[]
@@ -58,6 +59,7 @@ model Publication {
   carousel_description String?
   image                String?
   keywords             Json?
+  audio                String?
   dccs                 DCCPublication[]
   partnertships        PartnershipPublications[]
   r03s                 R03Publications[]
