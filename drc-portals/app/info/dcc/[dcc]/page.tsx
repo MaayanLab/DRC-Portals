@@ -13,14 +13,129 @@ import { notFound } from 'next/navigation'
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import Icon from "@mdi/react";
-import { Box } from "@mui/material";
-import { mdiArrowRight } from "@mdi/js";
+import { Box, Chip } from "@mui/material";
+import { mdiArrowRight, mdiVideoOutline } from "@mdi/js";
 import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent";
 import { DCCAccordion } from '@/components/misc/DCCAccordion';
 import { getDccDataObj } from '@/utils/dcc-assets';
 import { ReadMore } from "@/components/misc/ReadMore";
 import {OutreachComponent} from "@/components/misc/Outreach/featured";
 import PubButton from "./linksbutton";
+import { Tool } from "@prisma/client";
+
+const ToolCard = ({ tool }: { tool: Tool}) => {
+    let tags:string[] = []
+    if (Array.isArray(tool.tags)) {
+        tags = tool.tags as string[]
+    }
+    return(
+    <Card sx={{ height: 300, display: "flex", flexDirection: "column", padding: 1 }}>
+        <CardContent sx={{flexGrow: 1}}>
+            <Grid container spacing={2}>
+                <Grid item xs={8}>
+                    <div className="flex items-center space-x-2">
+                        {tool.icon ? <Image src={tool.icon} alt={tool.label} height={40} width={40} /> :
+                            <Image src={'/img/favicon.png'} alt={tool.label} height={40} width={40} />
+                        }
+                    </div>
+                    <Typography variant="h4" color="secondary">{tool.label}</Typography>
+                    <Typography variant={'caption'} color="secondary">
+                        {tool.short_description}
+                    </Typography>
+                </Grid>
+                <Grid item xs={4}>
+                    <Paper elevation={0} className="flex flex-row justify-center relative" sx={{ height: 120 }}>
+                        {tool.image ? <Image src={tool.image} alt={tool.label} fill={true} style={{ objectFit: "contain" }} /> :
+                            <Image src={tool.icon || '/img/favicon.png'} alt={tool.label} fill={true} style={{ objectFit: "contain" }} />
+                        }
+                    </Paper>
+                    
+                </Grid>
+                
+            </Grid>	
+        </CardContent>
+        <CardActions>
+            <Grid container spacing={1} justifyContent={"space-between"}>
+                <Grid item xs={8}>
+                    {/* {tool.publications.length > 0 &&
+                        <div className="flex items-center">
+                            <Typography variant="subtitle1"><b>Publication:</b></Typography>
+                            {tool.publications.map((pub, i) => (
+                                <Link href={`https://doi.org/${pub.doi}`} key={i} target="_blank" rel="noopener noreferrer">
+                                    <Button color="secondary">
+                                        {pub.doi}
+                                    </Button>
+                                </Link>
+                            ))}
+                        </div>
+                    } */}
+                </Grid>
+                <Grid item xs={4}>
+                    {Array.isArray(tool.tutorial) && tool.tutorial.length >= 2 ? (
+                        <Stack direction={"row"} spacing={1}>
+                            <div><Typography variant="subtitle2" color="secondary">TUTORIALS</Typography></div>
+                            {(tool.tutorial as string[]).map((url, idx) => (
+                                <Link
+                                    key={idx}
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <Button
+                                        color="secondary"
+                                        sx={{
+                                            minWidth: 0,
+                                            padding: '2px',
+                                        }}
+                                    >
+                                        <Icon path={mdiVideoOutline} size={1} />
+                                    </Button>
+                                </Link>
+                            ))}
+                        </Stack>
+                    ) : Array.isArray(tool.tutorial) && tool.tutorial.length === 1 && typeof tool.tutorial[0] === 'string' ? (
+                        <Link
+                            href={tool.tutorial[0]}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <Button
+                                color="secondary"
+                                sx={{
+                                    minWidth: 0,
+                                    padding: '2px',
+                                }}
+                        
+                            >
+                                TUTORIAL <Icon path={mdiVideoOutline} size={1} />
+                            </Button>
+                        </Link>
+                    ) : null}			
+                </Grid>
+                {tool.url &&
+                    <Grid item sx={{gridRow: 1}}>
+                        <Link href={tool.url} target="_blank" rel="noopener noreferrer">
+                            <Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />} sx={{ marginLeft: -2 }}>
+                                GO TO {tool.url.indexOf('github.com') > -1 ? 'GITHUB' : tool.label.toUpperCase()}
+                            </Button>
+                        </Link>
+                    </Grid>
+                }
+                <Grid item>
+                    <Grid container spacing={1}>
+                        {tags.length > 0 && tags.map(tag=>{
+                            return <Grid item key={tag}>
+                                        <Chip key={tag} color="primary" variant="filled" sx={{borderRadius: 2}} label={tag}/>
+                                </Grid>
+                        })}
+                    </Grid>
+                </Grid>
+            </Grid>
+        </CardActions>
+    </Card>
+)}
+
+
 export default async function DccDataPage(props: { params: Promise<{ dcc: string }> }) {
     const params = await props.params
     const now = new Date()
@@ -30,6 +145,12 @@ export default async function DccDataPage(props: { params: Promise<{ dcc: string
             active: true
         },
         include: {
+            tools: {
+                select: {
+                    tool: true
+                },
+                take: 10
+            },
             publications: {
                 select: {
                     publication: true
@@ -85,6 +206,7 @@ export default async function DccDataPage(props: { params: Promise<{ dcc: string
     })
     const outreach = dcc?.outreach || []
     const publications = dcc?.publications.map(i=>i.publication) || []
+    const tools = dcc?.tools.map(i=>i.tool) || []
     if (!dcc) return notFound()
     const assets = await getDccDataObj(prisma, dcc.id, params.dcc)
     return (
@@ -187,6 +309,18 @@ export default async function DccDataPage(props: { params: Promise<{ dcc: string
                                     </Button>: null}
                                 </Paper>
                             </Grid>}
+                        </Grid>
+                    </Grid>
+                }
+                { (tools.length > 0) && 
+                    <Grid item xs={12}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <Typography variant="h3" color="secondary">Tools and Workflows</Typography>
+                            </Grid>
+                            {tools.map(tool=><Grid item xs={12} md={6} key={tool.id}>
+                                <ToolCard tool={tool}/>
+                            </Grid>)}
                         </Grid>
                     </Grid>
                 }
