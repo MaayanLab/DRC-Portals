@@ -1,7 +1,7 @@
 import { build, buildRetry } from "@/lib/text2cypher/llm/prompts/builder";
 import { composeSchema } from "@/lib/text2cypher/llm/prompts/schema-composition";
 import { chat } from "@/lib/text2cypher/llm/ollama";
-// import { create } from "@/lib/text2cypher/llm/deepseek";
+// import { create } from "@/lib/llm/openai";
 import type { Neo4jVarType } from "@/lib/text2cypher/neo4j/types";
 import {
   extract,
@@ -11,27 +11,20 @@ import {
 } from "@/lib/text2cypher/neo4j/utils";
 import { runCypherQuery } from "@/lib/text2cypher/neo4j/queries";
 import { getActiveSchemaDefinition } from "@/lib/text2cypher/schema/active";
+import {
+  asNonNegativeInteger,
+  buildPaginationQueries,
+  resolvePipelinePagination,
+  toNeo4jParams,
+  type PipelinePaginationInput,
+  type PipelineQueries,
+} from "@/lib/text2cypher/services/pipeline-pagination";
 
 const MAX_ATTEMPTS = 3;
 
 type StructuredCypherResponse = {
   cypher: string;
   params?: Record<string, unknown>;
-};
-
-const toNeo4jParams = (
-  params?: Record<string, unknown>,
-): Record<string, Neo4jVarType> => {
-  const normalized: Record<string, Neo4jVarType> = {};
-  if (!params || typeof params !== "object" || Array.isArray(params)) {
-    return normalized;
-  }
-
-  for (const [key, value] of Object.entries(params)) {
-    normalized[key] = value as Neo4jVarType;
-  }
-
-  return normalized;
 };
 
 const parseStructuredCypherResponse = (
@@ -81,13 +74,20 @@ export interface PipelineResult {
   error: string;
   cached: boolean;
   history_id: number | null;
+  limit: number;
+  offset: number;
+  totalRowCount: number;
+  params: Record<string, Neo4jVarType>;
 }
 
 // TODO: Add system/domain prompts as a parameter(s)?
 export const runPipeline = async (
   question: string,
+  paginationInput?: PipelinePaginationInput,
 ): Promise<PipelineResult> => {
   const activeSchema = getActiveSchemaDefinition();
+  const pagination = resolvePipelinePagination(paginationInput);
+
   const result: PipelineResult = {
     question,
     cypher: "",
@@ -97,6 +97,10 @@ export const runPipeline = async (
     error: "",
     cached: false,
     history_id: null,
+    limit: pagination.limit,
+    offset: pagination.offset,
+    totalRowCount: 0,
+    params: {},
   };
 
   console.info(`Running pipeline for question: ${question}`);
@@ -220,9 +224,53 @@ export const runPipeline = async (
       continue;
     }
 
-    const cypherResult = JSON.stringify(
-      await runCypherQuery(cypher, queryParams),
-    );
+    let pipelineQueries: PipelineQueries;
+    try {
+      pipelineQueries = buildPaginationQueries(cypher, pagination);
+    } catch (e: unknown) {
+      errorMsg = e instanceof Error ? e.message : String(e);
+      console.warn(`Attempt ${attempt} pagination rewrite error: ${errorMsg}`);
+      badCypher = cypher;
+      result.error = errorMsg;
+      continue;
+    }
+
+    let cypherResult: string;
+    let totalRowCount = 0;
+
+    try {
+      const [pageRows, countRows] = await Promise.all([
+        runCypherQuery<Record<string, unknown>>(
+          pipelineQueries.pagedCypher,
+          queryParams,
+        ),
+        runCypherQuery<{ total_row_count?: number }>(
+          pipelineQueries.countCypher,
+          queryParams,
+        ),
+      ]);
+
+      const totalCandidate = asNonNegativeInteger(
+        countRows[0]?.total_row_count,
+      );
+      if (totalCandidate === null) {
+        throw new Error(
+          "Failed to compute total row count for paginated query.",
+        );
+      }
+
+      totalRowCount = totalCandidate;
+      cypherResult = JSON.stringify(pageRows);
+      cypher = pipelineQueries.pagedCypher;
+    } catch (e: unknown) {
+      errorMsg = e instanceof Error ? e.message : String(e);
+      console.warn(
+        `Attempt ${attempt} paginated query/count error: ${errorMsg}`,
+      );
+      badCypher = pipelineQueries.pagedCypher;
+      result.error = errorMsg;
+      continue;
+    }
 
     if (
       cypherResult.startsWith("CypherSyntaxError") ||
@@ -238,7 +286,9 @@ export const runPipeline = async (
     }
 
     result.cypher = cypher;
+    result.params = queryParams;
     result.results = cypherResult;
+    result.totalRowCount = totalRowCount;
     result.success = true;
     result.error = "";
     console.info(`Attempt ${attempt} succeeded`);

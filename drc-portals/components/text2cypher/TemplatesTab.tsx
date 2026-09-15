@@ -15,10 +15,15 @@ import Typography from "@mui/material/Typography";
 import { useEffect, useMemo, useState } from "react";
 
 import CypherDisplayBox from "./shared/CypherDisplayBox";
-import QueryResults from "./shared/QueryResults";
+import QueryResults, {
+  type QueryResultsPageData,
+} from "./shared/QueryResults";
 import { getTemplates, runTemplate } from "@/lib/text2cypher/api/neo4j";
-import type { QueryResultData } from "@/lib/text2cypher/neo4j/query-results";
+import { repaginatePipelineResult } from "@/lib/text2cypher/api/pipeline";
 import type { Template } from "@/lib/text2cypher/neo4j/types";
+import { usePaginatedQueryResults } from "@/lib/text2cypher/hooks/usePaginatedQueryResults";
+
+const DEFAULT_PAGE_LIMIT = 10;
 
 export default function TemplatesTab() {
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -29,8 +34,9 @@ export default function TemplatesTab() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isRunningTemplate, setIsRunningTemplate] = useState(false);
   const [runError, setRunError] = useState<string | null>(null);
-  const [resultData, setResultData] = useState<QueryResultData | null>(null);
   const [hasRunTemplate, setHasRunTemplate] = useState(false);
+  const { pageState, applyPageState, resetPageState, getPaginationConfig } =
+    usePaginatedQueryResults(DEFAULT_PAGE_LIMIT);
 
   useEffect(() => {
     let isMounted = true;
@@ -50,6 +56,8 @@ export default function TemplatesTab() {
         setSelectedTemplateId(response.templates[0]?.id ?? "");
         setParamValues({});
         setParamTouched({});
+        resetPageState();
+        setHasRunTemplate(false);
       } catch (error) {
         if (!isMounted) {
           return;
@@ -69,7 +77,7 @@ export default function TemplatesTab() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [resetPageState]);
 
   const selectedTemplate = useMemo(
     () =>
@@ -130,6 +138,7 @@ export default function TemplatesTab() {
       setIsRunningTemplate(true);
       setRunError(null);
       setHasRunTemplate(true);
+      resetPageState();
 
       try {
         const params = Object.fromEntries(
@@ -137,10 +146,25 @@ export default function TemplatesTab() {
             ([, value]) => value.trim() !== "",
           ),
         );
-        const response = await runTemplate(selectedTemplate.id, { params });
-        setResultData(response.results ?? null);
+        const response = await runTemplate(selectedTemplate.id, {
+          params,
+          limit: DEFAULT_PAGE_LIMIT,
+          offset: 0,
+        });
+        const cypher = response.cypher ?? selectedTemplate.query;
+        const normalizedParams = response.params ?? params;
+
+        applyPageState({
+          data: response.results ?? null,
+          cypher,
+          params: normalizedParams,
+          limit: response.limit ?? DEFAULT_PAGE_LIMIT,
+          offset: response.offset ?? 0,
+          totalRowCount: response.totalRowCount ?? 0,
+          requestKey: `${selectedTemplate.id}:${cypher}:${JSON.stringify(normalizedParams)}`,
+        });
       } catch (error: unknown) {
-        setResultData(null);
+        resetPageState();
         setRunError(
           error instanceof Error
             ? error.message
@@ -159,9 +183,50 @@ export default function TemplatesTab() {
     setParamValues({});
     setParamTouched({});
     setRunError(null);
-    setResultData(null);
+    resetPageState();
     setHasRunTemplate(false);
   };
+
+  const handlePaginateTemplate = async ({
+    limit,
+    offset,
+  }: {
+    limit: number;
+    offset: number;
+  }): Promise<QueryResultsPageData> => {
+    if (!pageState.cypher) {
+      throw new Error("Cannot paginate before running a template.");
+    }
+
+    const response = await repaginatePipelineResult({
+      cypher: pageState.cypher,
+      params: pageState.params,
+      limit,
+      offset,
+    });
+
+    if (!response.success) {
+      throw new Error(response.error || "Failed to paginate template results.");
+    }
+
+    const nextPage: QueryResultsPageData = {
+      data: response.results ?? null,
+      limit: response.limit ?? limit,
+      offset: response.offset ?? offset,
+      totalRowCount: response.totalRowCount ?? 0,
+    };
+
+    applyPageState({
+      ...nextPage,
+      cypher: pageState.cypher,
+      params: pageState.params,
+      requestKey: pageState.requestKey,
+    });
+
+    return nextPage;
+  };
+
+  const pagination = getPaginationConfig(handlePaginateTemplate);
 
   return (
     <Paper
@@ -270,8 +335,9 @@ export default function TemplatesTab() {
             {hasRunTemplate ? (
               <QueryResults
                 title="Query Results"
-                data={resultData}
+                data={pageState.data}
                 isLoading={isRunningTemplate}
+                pagination={pagination}
               />
             ) : null}
           </>

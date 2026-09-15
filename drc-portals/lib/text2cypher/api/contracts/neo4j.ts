@@ -9,11 +9,18 @@ export type Neo4jTemplateParamValue = string | number | boolean | null;
 
 export interface Neo4jTemplateRunRequest {
   params?: Record<string, Neo4jTemplateParamValue>;
+  limit?: number;
+  offset?: number;
 }
 
 export interface Neo4jTemplateRunResponse {
   templateId: string;
   results: QueryResultData | null;
+  cypher?: string;
+  params?: Record<string, unknown>;
+  limit?: number;
+  offset?: number;
+  totalRowCount?: number;
 }
 
 export interface Neo4jExpandNodeRequest {

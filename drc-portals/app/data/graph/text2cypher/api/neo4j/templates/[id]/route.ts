@@ -8,6 +8,11 @@ import type {
 import { normalizeGraphQueryResult } from "@/lib/text2cypher/neo4j/query-results";
 import { runCypherQuery } from "@/lib/text2cypher/neo4j/queries";
 import { getActiveSchemaDefinition } from "@/lib/text2cypher/schema/active";
+import {
+  asNonNegativeInteger,
+  buildPaginationQueries,
+  resolvePipelinePagination,
+} from "@/lib/text2cypher/services/pipeline-pagination";
 import type { Neo4jVarType } from "@/lib/text2cypher/neo4j/types";
 
 const coerceParamValue = (
@@ -51,6 +56,10 @@ export async function POST(
 
     const body = (await req.json()) as Neo4jTemplateRunRequest;
     const inputParams = body.params ?? {};
+    const pagination = resolvePipelinePagination({
+      limit: body.limit,
+      offset: body.offset,
+    });
 
     const allowedParamNames = new Set(
       template.params.map((param) => param.name),
@@ -77,18 +86,37 @@ export async function POST(
       queryParams[param.name] = coerceParamValue(rawValue, param.type);
     }
 
-    const rawResults = await runCypherQuery<Record<string, unknown>>(
-      template.query,
-      queryParams,
-    );
+    const queries = buildPaginationQueries(template.query, pagination);
+
+    const [rawResults, countRows] = await Promise.all([
+      runCypherQuery<Record<string, unknown>>(queries.pagedCypher, queryParams),
+      runCypherQuery<{ total_row_count?: unknown }>(
+        queries.countCypher,
+        queryParams,
+      ),
+    ]);
+
+    const totalRowCount = asNonNegativeInteger(countRows[0]?.total_row_count);
+    if (totalRowCount === null) {
+      throw new Error("Failed to compute total row count for template query.");
+    }
 
     const response = {
       templateId: template.id,
+      cypher: queries.pagedCypher,
+      params: queryParams,
       results: normalizeGraphQueryResult(rawResults),
+      limit: pagination.limit,
+      offset: pagination.offset,
+      totalRowCount,
     } satisfies Neo4jTemplateRunResponse;
 
     return NextResponse.json(response);
   } catch (err) {
+    if (err instanceof Error && err.message.startsWith("Invalid pagination:")) {
+      return NextResponse.json({ message: err.message }, { status: 400 });
+    }
+
     console.error("Error running template:", err);
     return NextResponse.json(
       {

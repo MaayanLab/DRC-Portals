@@ -10,9 +10,12 @@ import { runPipeline } from "@/lib/text2cypher/services/pipeline";
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) satisfies PipelineRequest;
-    const { question } = body;
+    const { question, limit, offset } = body;
 
-    const result = await runPipeline(question);
+    const result = await runPipeline(question, {
+      limit,
+      offset,
+    });
 
     let parsedResults: Record<string, unknown>[] = [];
     if (typeof result.results === "string" && result.results.trim()) {
@@ -29,13 +32,25 @@ export async function POST(req: NextRequest) {
     const response = {
       success: result.success,
       cypher: result.cypher,
+      params: result.params,
       error: result.error,
       results: normalizeGraphQueryResult(parsedResults),
-      rawResults: parsedResults,
+      limit: result.limit,
+      offset: result.offset,
+      totalRowCount: result.totalRowCount,
     } satisfies PipelineResponse;
 
     return NextResponse.json(response);
   } catch (err) {
+    if (err instanceof Error && err.message.startsWith("Invalid pagination:")) {
+      return NextResponse.json(
+        {
+          message: err.message,
+        },
+        { status: 400 },
+      );
+    }
+
     return NextResponse.json(
       {
         message: err instanceof Error ? err.message : "Unknown error",
