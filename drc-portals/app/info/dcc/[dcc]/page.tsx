@@ -29,19 +29,25 @@ const ToolCard = ({ tool }: { tool: Tool}) => {
         tags = tool.tags as string[]
     }
     return(
-    <Card sx={{ height: 300, display: "flex", flexDirection: "column", padding: 1 }}>
+    <Card sx={{ height: 250, display: "flex", flexDirection: "column", padding: 1 }}>
         <CardContent sx={{flexGrow: 1}}>
             <Grid container spacing={2}>
                 <Grid item xs={8}>
-                    <div className="flex items-center space-x-2">
-                        {tool.icon ? <Image src={tool.icon} alt={tool.label} height={40} width={40} /> :
-                            <Image src={'/img/favicon.png'} alt={tool.label} height={40} width={40} />
-                        }
-                    </div>
-                    <Typography variant="h4" color="secondary">{tool.label}</Typography>
-                    <Typography variant={'caption'} color="secondary">
-                        {tool.short_description}
-                    </Typography>
+                    <Stack justifyContent={"space-around"}>
+                        <div className="flex justify-center items-center space-x-2 mb-5">
+                            <div>
+                            {tool.icon ? <Image src={tool.icon} alt={tool.label} height={40} width={40} /> :
+                                <Image src={'/img/favicon.png'} alt={tool.label} height={40} width={40} />
+                            }
+                            </div>
+                        </div>
+                        <div>
+                            <Typography variant="h4" color="secondary">{tool.label}</Typography>
+                            <Typography variant={'caption'} color="secondary">
+                                {tool.short_description}
+                            </Typography>
+                        </div>
+                    </Stack>
                 </Grid>
                 <Grid item xs={4}>
                     <Paper elevation={0} className="flex flex-row justify-center relative" sx={{ height: 120 }}>
@@ -56,62 +62,6 @@ const ToolCard = ({ tool }: { tool: Tool}) => {
         </CardContent>
         <CardActions>
             <Grid container spacing={1} justifyContent={"space-between"}>
-                <Grid item xs={8}>
-                    {/* {tool.publications.length > 0 &&
-                        <div className="flex items-center">
-                            <Typography variant="subtitle1"><b>Publication:</b></Typography>
-                            {tool.publications.map((pub, i) => (
-                                <Link href={`https://doi.org/${pub.doi}`} key={i} target="_blank" rel="noopener noreferrer">
-                                    <Button color="secondary">
-                                        {pub.doi}
-                                    </Button>
-                                </Link>
-                            ))}
-                        </div>
-                    } */}
-                </Grid>
-                <Grid item xs={4}>
-                    {Array.isArray(tool.tutorial) && tool.tutorial.length >= 2 ? (
-                        <Stack direction={"row"} spacing={1}>
-                            <div><Typography variant="subtitle2" color="secondary">TUTORIALS</Typography></div>
-                            {(tool.tutorial as string[]).map((url, idx) => (
-                                <Link
-                                    key={idx}
-                                    href={url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    <Button
-                                        color="secondary"
-                                        sx={{
-                                            minWidth: 0,
-                                            padding: '2px',
-                                        }}
-                                    >
-                                        <Icon path={mdiVideoOutline} size={1} />
-                                    </Button>
-                                </Link>
-                            ))}
-                        </Stack>
-                    ) : Array.isArray(tool.tutorial) && tool.tutorial.length === 1 && typeof tool.tutorial[0] === 'string' ? (
-                        <Link
-                            href={tool.tutorial[0]}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <Button
-                                color="secondary"
-                                sx={{
-                                    minWidth: 0,
-                                    padding: '2px',
-                                }}
-                        
-                            >
-                                TUTORIAL <Icon path={mdiVideoOutline} size={1} />
-                            </Button>
-                        </Link>
-                    ) : null}			
-                </Grid>
                 {tool.url &&
                     <Grid item sx={{gridRow: 1}}>
                         <Link href={tool.url} target="_blank" rel="noopener noreferrer">
