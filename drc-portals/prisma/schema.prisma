@@ -34,7 +34,7 @@ model DCC {
   nodes            Node[]
   kg_assertions    KGAssertion[]
   fairAssessments  FairAssessment[]
-
+  tools            DCCTools[]
   @@map("dccs")
 }
 
@@ -210,8 +210,19 @@ model Tool {
   tags              Json @default("[]")
   featured          Boolean?      @default(false)
   publications      Publication[]
+  dccs              DCCTools[]
 
   @@map("tools")
+}
+
+model DCCTools {
+  tool    Tool @relation(fields: [tool_id], references: [id])
+  tool_id String
+  dcc            DCC         @relation(fields: [dcc_id], references: [id])
+  dcc_id         String
+
+  @@id([tool_id, dcc_id])
+  @@map("dcc_tools")
 }
 
 model DccAsset {
