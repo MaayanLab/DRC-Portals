@@ -1,5 +1,8 @@
+"use client";
+
 import {
   Box,
+  Checkbox,
   Paper,
   Skeleton,
   Table,
@@ -12,6 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useState } from "react";
 
 import type { QueryTableRow } from "@/lib/text2cypher/neo4j/query-results";
 
@@ -62,6 +66,9 @@ const getColumns = (rows: QueryTableRow[], explicitColumns?: string[]) => {
   return Array.from(keys);
 };
 
+const getRowSelectionKey = (row: QueryTableRow, rowIndex: number) =>
+  `${rowIndex}:${JSON.stringify(row)}`;
+
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.primary.main,
@@ -89,6 +96,10 @@ export default function QueryResultsTable({
   title = "Query Results",
   emptyMessage = "No results returned for this query.",
 }: QueryResultsTableProps) {
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Set<string>>(
+    () => new Set(),
+  );
+
   const resolvedColumns = getColumns(rows, columns);
   const displayColumns =
     isLoading && resolvedColumns.length === 0
@@ -99,6 +110,40 @@ export default function QueryResultsTable({
     !isLoading && rows.length === 0 && resolvedColumns.length === 0;
 
   const headerColumns = isLoading ? DEFAULT_LOADING_COLUMNS : displayColumns;
+  const rowSelectionKeys = rows.map((row, rowIndex) =>
+    getRowSelectionKey(row, rowIndex),
+  );
+  const selectableRowCount = isLoading ? 0 : rows.length;
+  const selectedRowCount = isLoading
+    ? 0
+    : rowSelectionKeys.filter((rowKey) => selectedRowKeys.has(rowKey)).length;
+  const allRowsSelected =
+    selectableRowCount > 0 && selectedRowCount === selectableRowCount;
+  const partiallySelected =
+    selectedRowCount > 0 && selectedRowCount < selectableRowCount;
+
+  const handleToggleAllRows = () => {
+    if (allRowsSelected) {
+      setSelectedRowKeys(new Set());
+      return;
+    }
+
+    setSelectedRowKeys(new Set(rowSelectionKeys));
+  };
+
+  const handleToggleRow = (rowKey: string) => {
+    setSelectedRowKeys((currentSelection) => {
+      const nextSelection = new Set(currentSelection);
+
+      if (nextSelection.has(rowKey)) {
+        nextSelection.delete(rowKey);
+      } else {
+        nextSelection.add(rowKey);
+      }
+
+      return nextSelection;
+    });
+  };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: 220 }}>
@@ -130,6 +175,19 @@ export default function QueryResultsTable({
           <Table stickyHeader size="small">
             <TableHead>
               <StyledTableRow>
+                <StyledTableCell padding="checkbox">
+                  <Checkbox
+                    checked={allRowsSelected}
+                    indeterminate={partiallySelected}
+                    disabled={selectableRowCount === 0}
+                    onChange={handleToggleAllRows}
+                    sx={{
+                      "& .MuiSvgIcon-root": {
+                        color: "white",
+                      },
+                    }}
+                  />
+                </StyledTableCell>
                 {headerColumns.map((column) => (
                   <StyledTableCell key={column}>{column}</StyledTableCell>
                 ))}
@@ -139,6 +197,9 @@ export default function QueryResultsTable({
               {isLoading ? (
                 Array.from({ length: 4 }, (_, index) => (
                   <StyledTableRow key={`loading-row-${index}`}>
+                    <StyledTableCell padding="checkbox">
+                      <Checkbox disabled />
+                    </StyledTableCell>
                     {headerColumns.map((column) => (
                       <StyledTableCell
                         key={`${column}-${index}`}
@@ -152,7 +213,7 @@ export default function QueryResultsTable({
               ) : rows.length === 0 ? (
                 <StyledTableRow>
                   <StyledTableCell
-                    colSpan={displayColumns.length || 1}
+                    colSpan={(displayColumns.length || 1) + 1}
                     align="center"
                   >
                     <Typography color="text.secondary">
@@ -161,18 +222,28 @@ export default function QueryResultsTable({
                   </StyledTableCell>
                 </StyledTableRow>
               ) : (
-                rows.map((row, rowIndex) => (
-                  <StyledTableRow key={`row-${rowIndex}`} hover>
-                    {displayColumns.map((column) => (
-                      <StyledTableCell
-                        key={`${rowIndex}-${column}`}
-                        sx={{ whiteSpace: "nowrap" }}
-                      >
-                        {formatCellValue(row[column])}
+                rows.map((row, rowIndex) => {
+                  const rowKey = getRowSelectionKey(row, rowIndex);
+
+                  return (
+                    <StyledTableRow key={`row-${rowKey}`} hover>
+                      <StyledTableCell padding="checkbox">
+                        <Checkbox
+                          checked={selectedRowKeys.has(rowKey)}
+                          onChange={() => handleToggleRow(rowKey)}
+                        />
                       </StyledTableCell>
-                    ))}
-                  </StyledTableRow>
-                ))
+                      {displayColumns.map((column) => (
+                        <StyledTableCell
+                          key={`${rowIndex}-${column}`}
+                          sx={{ whiteSpace: "nowrap" }}
+                        >
+                          {formatCellValue(row[column])}
+                        </StyledTableCell>
+                      ))}
+                    </StyledTableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>
