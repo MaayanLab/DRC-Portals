@@ -1,3 +1,5 @@
+"use client";
+
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Divider, { dividerClasses } from "@mui/material/Divider";
