@@ -15,7 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import type { QueryTableRow } from "@/lib/text2cypher/neo4j/query-results";
 
@@ -25,6 +25,13 @@ interface QueryResultsTableProps {
   isLoading?: boolean;
   title?: string;
   emptyMessage?: string;
+  onSelectionChange?: (payload: QueryResultsSelectionPayload) => void;
+}
+
+export interface QueryResultsSelectionPayload {
+  selectedRowIndexes: number[];
+  selectedRowCount: number;
+  totalRowCount: number;
 }
 
 const DEFAULT_LOADING_COLUMNS = ["Column 1", "Column 2", "Column 3"];
@@ -95,6 +102,7 @@ export default function QueryResultsTable({
   isLoading = false,
   title = "Query Results",
   emptyMessage = "No results returned for this query.",
+  onSelectionChange,
 }: QueryResultsTableProps) {
   const [selectedRowKeys, setSelectedRowKeys] = useState<Set<string>>(
     () => new Set(),
@@ -121,6 +129,26 @@ export default function QueryResultsTable({
     selectableRowCount > 0 && selectedRowCount === selectableRowCount;
   const partiallySelected =
     selectedRowCount > 0 && selectedRowCount < selectableRowCount;
+
+  useEffect(() => {
+    if (!onSelectionChange) {
+      return;
+    }
+
+    const selectedRowIndexes: number[] = [];
+
+    rowSelectionKeys.forEach((rowKey, rowIndex) => {
+      if (selectedRowKeys.has(rowKey)) {
+        selectedRowIndexes.push(rowIndex);
+      }
+    });
+
+    onSelectionChange({
+      selectedRowIndexes,
+      selectedRowCount: selectedRowIndexes.length,
+      totalRowCount: rows.length,
+    });
+  }, [onSelectionChange, rowSelectionKeys, rows.length, selectedRowKeys]);
 
   const handleToggleAllRows = () => {
     if (allRowsSelected) {

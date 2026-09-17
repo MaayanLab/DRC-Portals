@@ -306,4 +306,29 @@ RETURN
       },
     ],
   },
+  {
+    id: "dccs-with-drs-links",
+    name: "Files With DRS Links by DCC",
+    description: "",
+    query: `MATCH (d:${c2m2Schema.DCC})
+WHERE
+  toLower(d.name) CONTAINS toLower($dcc_name)
+  OR toLower(d.abbreviation) CONTAINS toLower($dcc_name)
+WITH d
+MATCH (f:${c2m2Schema.FILE})<-[contains:${c2m2Schema.CONTAINS}]-(d)
+WHERE f.access_url IS NOT NULL AND f.access_url <> ""
+WITH d, contains, f
+LIMIT 10
+RETURN
+  collect(DISTINCT d) +
+  collect(distinct f) AS nodes,
+  collect(DISTINCT contains) AS edges`,
+    params: [
+      {
+        name: "dcc_name",
+        type: "text",
+        example: "HuBMAP",
+      },
+    ],
+  },
 ];

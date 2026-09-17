@@ -18,6 +18,8 @@ import cytoscape from "cytoscape";
 import fcose from "cytoscape-fcose";
 import { useCallback, useMemo, useState } from "react";
 
+import DRSBundleButton from "@/app/data/c2m2/DRSBundleButton";
+
 import CytoscapeChartWrapper from "./CytoscapeChartWrapper";
 import QueryResultsTable from "./QueryResultsTable";
 import { DEFAULT_STYLESHEET } from "@/lib/text2cypher/constants/cy/styles/defaults";
@@ -137,6 +139,7 @@ export default function QueryResults({
   const [view, setView] = useState<ResultView>("table");
   const [graphState, setGraphState] = useState<GraphState | null>(null);
   const [isExpandingNode, setIsExpandingNode] = useState(false);
+  const [selectedRowIndexes, setSelectedRowIndexes] = useState<number[]>([]);
   const [toastState, setToastState] = useState<ToastState>({
     open: false,
     message: "",
@@ -275,6 +278,7 @@ export default function QueryResults({
         setLocalPageData(response);
         setLocalPageRequestKey(pagination.requestKey);
         setGraphState(null);
+        setSelectedRowIndexes([]);
         setPaginationError(null);
       } catch (error: unknown) {
         setPaginationError({
@@ -305,6 +309,15 @@ export default function QueryResults({
     [graphData],
   );
   const hasResults = tableRows.length > 0;
+
+  const drsBundleData = useMemo(
+    () => {
+      return tableRows.filter((_, index) =>
+        selectedRowIndexes.includes(index),
+      ).map(row => row.properties as { [key: string]: string }); // TODO: This is a kludge, shouldn't be an issue but may need revisiting if the data structure changes
+    },
+    [tableRows, selectedRowIndexes]
+  );
 
   return (
     <Stack spacing={1.5} sx={{ minHeight: 220 }}>
@@ -353,6 +366,23 @@ export default function QueryResults({
             rows={tableRows}
             isLoading={isLoading || isPaginating}
             emptyMessage={emptyMessage}
+            onSelectionChange={(nextSelection) => {
+              setSelectedRowIndexes((currentSelection) => {
+                const nextSelectionIndexes = nextSelection.selectedRowIndexes;
+
+                if (currentSelection.length !== nextSelectionIndexes.length) {
+                  return nextSelectionIndexes;
+                }
+
+                for (let index = 0; index < currentSelection.length; index++) {
+                  if (currentSelection[index] !== nextSelectionIndexes[index]) {
+                    return nextSelectionIndexes;
+                  }
+                }
+
+                return currentSelection;
+              });
+            }}
           />
 
           {paginationEnabled ? (
@@ -494,6 +524,15 @@ export default function QueryResults({
               </Stack>
             </Stack>
           ) : null}
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={0}
+            sx={{ justifyContent: "flex-start" }}
+          >
+            {controlsDisabled || selectedRowIndexes.length === 0 ? null : (
+              <DRSBundleButton data={drsBundleData} />
+            )}
+          </Stack>
         </Stack>
       ) : isLoading || isPaginating ? (
         <Paper
