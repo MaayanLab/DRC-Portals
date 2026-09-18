@@ -6,6 +6,7 @@ import type {
 } from "@/lib/text2cypher/api/contracts/neo4j";
 import { parseQueryRowsResult } from "@/lib/text2cypher/neo4j/query-results";
 import { runCypherQuery } from "@/lib/text2cypher/neo4j/queries";
+import { getActiveSchemaDefinition } from "@/lib/text2cypher/schema/active";
 
 const DEFAULT_EXPAND_DEPTH = 1;
 const MAX_EXPAND_DEPTH = 5;
@@ -66,13 +67,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const activeSchema = getActiveSchemaDefinition();
     const rawResults = await runCypherQuery<Record<string, unknown>>(
       `
       MATCH (seed:${nodeLabel} {_uuid: $nodeUuid})
-      OPTIONAL MATCH path = (seed)-[*1..${depth}]-(neighbor)
+      OPTIONAL MATCH path = (seed)-[rel *1..${depth}]-(neighbor)
+      WHERE all(r in rel WHERE type(r) IN $allowedRelationshipTypes)
       WITH seed, collect(DISTINCT path) AS paths
-      CALL {
-        WITH seed, paths
+      CALL (seed, paths) {
         UNWIND paths AS candidatePath
         WITH candidatePath
         WHERE candidatePath IS NOT NULL
@@ -83,14 +85,16 @@ export async function POST(req: NextRequest) {
           targetNode: endNode(rel)
         }) AS path_triplets
       }
+      WITH collect({ seed: seed }) AS seed, path_triplets, size(path_triplets) AS path_triplets_size
       RETURN
         CASE
-          WHEN size(path_triplets) = 0 THEN collect({ seed: seed })
+          WHEN path_triplets_size = 0 THEN seed
           ELSE path_triplets
         END AS rows
       `,
       {
         nodeUuid,
+        allowedRelationshipTypes: activeSchema.relationships.map((rel) => rel),
       },
     );
 
