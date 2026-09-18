@@ -1,7 +1,7 @@
 import { build, buildRetry } from "@/lib/text2cypher/llm/prompts/builder";
 import { composeSchema } from "@/lib/text2cypher/llm/prompts/schema-composition";
-import { chat } from "@/lib/text2cypher/llm/ollama";
-// import { create } from "@/lib/llm/openai";
+// import { chat } from "@/lib/text2cypher/llm/ollama";
+import { create } from "@/lib/text2cypher/llm/openai";
 import type { Neo4jVarType } from "@/lib/text2cypher/neo4j/types";
 import {
   extract,
@@ -151,12 +151,12 @@ export const runPipeline = async (
         `LLM messages for attempt ${attempt}: ${JSON.stringify(messages, null, 2)}`,
       );
       // Ollama API call
-      raw_response = await chat(messages);
-      raw = raw_response.message.content;
+      // raw_response = await chat(messages);
+      // raw = raw_response.message.content;
 
       // OpenAI API call
-      // raw_response = await create(messages);
-      // raw = raw_response.output_text;
+      raw_response = await create(messages);
+      raw = raw_response.output_text;
 
       // DeepSeek API call
       // raw_response = await create(messages);
