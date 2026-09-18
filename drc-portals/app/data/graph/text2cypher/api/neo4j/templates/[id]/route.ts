@@ -5,14 +5,14 @@ import type {
   Neo4jTemplateRunResponse,
   Neo4jTemplateParamValue,
 } from "@/lib/text2cypher/api/contracts/neo4j";
-import { normalizeGraphQueryResult } from "@/lib/text2cypher/neo4j/query-results";
+import { parseQueryRowsResult } from "@/lib/text2cypher/neo4j/query-results";
 import { runCypherQuery } from "@/lib/text2cypher/neo4j/queries";
-import { getActiveSchemaDefinition } from "@/lib/text2cypher/schema/active";
 import {
   asNonNegativeInteger,
   buildPaginationQueries,
   resolvePipelinePagination,
 } from "@/lib/text2cypher/services/pipeline-pagination";
+import { getActiveSchemaDefinition } from "@/lib/text2cypher/schema/active";
 import type { Neo4jVarType } from "@/lib/text2cypher/neo4j/types";
 
 const coerceParamValue = (
@@ -101,11 +101,14 @@ export async function POST(
       throw new Error("Failed to compute total row count for template query.");
     }
 
+    const parsed = parseQueryRowsResult(rawResults);
+
     const response = {
       templateId: template.id,
       cypher: queries.pagedCypher,
       params: queryParams,
-      results: normalizeGraphQueryResult(rawResults),
+      error: parsed.error,
+      rows: parsed.error ? null : parsed.rows,
       limit: pagination.limit,
       offset: pagination.offset,
       totalRowCount,

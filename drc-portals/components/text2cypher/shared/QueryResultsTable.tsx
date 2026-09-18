@@ -3,8 +3,10 @@
 import {
   Box,
   Checkbox,
+  FormControlLabel,
   Paper,
   Skeleton,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -17,16 +19,17 @@ import {
 import { styled } from "@mui/material/styles";
 import { useState, useEffect } from "react";
 
-import type { QueryTableRow } from "@/lib/text2cypher/neo4j/query-results";
-
-interface QueryResultsTableProps {
-  rows: QueryTableRow[];
-  columns?: string[];
-  isLoading?: boolean;
-  title?: string;
-  emptyMessage?: string;
-  onSelectionChange?: (payload: QueryResultsSelectionPayload) => void;
-}
+import type {
+  QueryResultRow,
+  QueryResultRowCell,
+} from "@/lib/text2cypher/neo4j/query-results";
+import {
+  getNodeDisplayLabel as formatNodeDisplayLabel,
+  getQueryResultRowColumns,
+  getQueryResultRowNodeColumns,
+  getQueryResultRowRelationshipColumns,
+  isQueryResultEdgeCell,
+} from "@/lib/text2cypher/neo4j/query-results";
 
 export interface QueryResultsSelectionPayload {
   selectedRowIndexes: number[];
@@ -34,46 +37,47 @@ export interface QueryResultsSelectionPayload {
   totalRowCount: number;
 }
 
+interface QueryResultsTableProps {
+  rows?: QueryResultRow[] | null;
+  error?: string | null;
+  isLoading?: boolean;
+  title?: string;
+  emptyMessage?: string;
+  onSelectionChange?: (payload: QueryResultsSelectionPayload) => void;
+}
+
 const DEFAULT_LOADING_COLUMNS = ["Column 1", "Column 2", "Column 3"];
 
-const formatCellValue = (value: unknown): string => {
-  if (value === null || value === undefined) {
-    return "null";
-  }
-
-  if (typeof value === "string") {
-    return value;
-  }
-
-  if (typeof value === "number" || typeof value === "boolean") {
-    return String(value);
-  }
-
-  if (Array.isArray(value)) {
-    return value.map((entry) => formatCellValue(entry)).join(", ");
-  }
-
-  if (typeof value === "object") {
-    return JSON.stringify(value);
-  }
-
-  return String(value);
+const isNodeCell = (
+  value: QueryResultRowCell,
+): value is {
+  id: string;
+  label: string;
+  properties: Record<string, unknown>;
+} => {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    "id" in value &&
+    "label" in value &&
+    "properties" in value &&
+    !("source" in value && "target" in value && "type" in value)
+  );
 };
 
-const getColumns = (rows: QueryTableRow[], explicitColumns?: string[]) => {
-  if (explicitColumns && explicitColumns.length > 0) {
-    return explicitColumns;
+const formatCellValue = (value: QueryResultRowCell) => {
+  if (isNodeCell(value)) {
+    return formatNodeDisplayLabel(value);
   }
 
-  const keys = new Set<string>();
-  rows.forEach((row) => {
-    Object.keys(row).forEach((key) => keys.add(key));
-  });
+  if (isQueryResultEdgeCell(value)) {
+    return `${value.type} (${value.source} -> ${value.target})`;
+  }
 
-  return Array.from(keys);
+  return "null";
 };
 
-const getRowSelectionKey = (row: QueryTableRow, rowIndex: number) =>
+const getRowSelectionKey = (row: QueryResultRow, rowIndex: number) =>
   `${rowIndex}:${JSON.stringify(row)}`;
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -97,8 +101,8 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 export default function QueryResultsTable({
-  rows,
-  columns,
+  rows = null,
+  error = null,
   isLoading = false,
   title = "Query Results",
   emptyMessage = "No results returned for this query.",
@@ -107,21 +111,27 @@ export default function QueryResultsTable({
   const [selectedRowKeys, setSelectedRowKeys] = useState<Set<string>>(
     () => new Set(),
   );
+  const [showRelationshipColumns, setShowRelationshipColumns] = useState(false);
 
-  const resolvedColumns = getColumns(rows, columns);
-  const displayColumns =
-    isLoading && resolvedColumns.length === 0
+  const tableRows = rows ?? [];
+  const resolvedColumns = getQueryResultRowColumns(tableRows);
+  const nodeColumns = getQueryResultRowNodeColumns(tableRows);
+  const relationshipColumns = getQueryResultRowRelationshipColumns(tableRows);
+  const visibleColumns =
+    showRelationshipColumns || nodeColumns.length === 0
+      ? resolvedColumns
+      : nodeColumns;
+  const headerColumns =
+    isLoading && visibleColumns.length === 0
       ? DEFAULT_LOADING_COLUMNS
-      : resolvedColumns;
+      : visibleColumns;
 
-  const emptyState =
-    !isLoading && rows.length === 0 && resolvedColumns.length === 0;
+  const emptyState = !isLoading && !error && tableRows.length === 0;
 
-  const headerColumns = isLoading ? DEFAULT_LOADING_COLUMNS : displayColumns;
-  const rowSelectionKeys = rows.map((row, rowIndex) =>
+  const rowSelectionKeys = tableRows.map((row, rowIndex) =>
     getRowSelectionKey(row, rowIndex),
   );
-  const selectableRowCount = isLoading ? 0 : rows.length;
+  const selectableRowCount = isLoading ? 0 : tableRows.length;
   const selectedRowCount = isLoading
     ? 0
     : rowSelectionKeys.filter((rowKey) => selectedRowKeys.has(rowKey)).length;
@@ -146,9 +156,9 @@ export default function QueryResultsTable({
     onSelectionChange({
       selectedRowIndexes,
       selectedRowCount: selectedRowIndexes.length,
-      totalRowCount: rows.length,
+      totalRowCount: tableRows.length,
     });
-  }, [onSelectionChange, rowSelectionKeys, rows.length, selectedRowKeys]);
+  }, [onSelectionChange, rowSelectionKeys, tableRows.length, selectedRowKeys]);
 
   const handleToggleAllRows = () => {
     if (allRowsSelected) {
@@ -181,7 +191,22 @@ export default function QueryResultsTable({
         </Typography>
       ) : null}
 
-      {emptyState ? (
+      {error ? (
+        <Paper
+          variant="outlined"
+          sx={{
+            p: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: 180,
+          }}
+        >
+          <Typography color="error">{error}</Typography>
+        </Paper>
+      ) : null}
+
+      {!error && emptyState ? (
         <Paper
           variant="outlined"
           sx={{
@@ -194,89 +219,113 @@ export default function QueryResultsTable({
         >
           <Typography color="text.secondary">{emptyMessage}</Typography>
         </Paper>
-      ) : (
-        <TableContainer
-          component={Paper}
-          variant="outlined"
-          sx={{ maxHeight: 420, overflow: "auto" }}
-        >
-          <Table stickyHeader size="small">
-            <TableHead>
-              <StyledTableRow>
-                <StyledTableCell padding="checkbox">
-                  <Checkbox
-                    checked={allRowsSelected}
-                    indeterminate={partiallySelected}
-                    disabled={selectableRowCount === 0}
-                    onChange={handleToggleAllRows}
-                    sx={{
-                      "& .MuiSvgIcon-root": {
-                        color: "white",
-                      },
+      ) : !error ? (
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          {relationshipColumns.length > 0 ? (
+            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    size="small"
+                    checked={showRelationshipColumns}
+                    onChange={(event) => {
+                      setShowRelationshipColumns(event.target.checked);
                     }}
                   />
-                </StyledTableCell>
-                {headerColumns.map((column) => (
-                  <StyledTableCell key={column}>{column}</StyledTableCell>
-                ))}
-              </StyledTableRow>
-            </TableHead>
-            <TableBody>
-              {isLoading ? (
-                Array.from({ length: 4 }, (_, index) => (
-                  <StyledTableRow key={`loading-row-${index}`}>
-                    <StyledTableCell padding="checkbox">
-                      <Checkbox disabled />
-                    </StyledTableCell>
-                    {headerColumns.map((column) => (
-                      <StyledTableCell
-                        key={`${column}-${index}`}
-                        sx={{ minWidth: 120 }}
-                      >
-                        <Skeleton variant="text" width="70%" />
-                      </StyledTableCell>
-                    ))}
-                  </StyledTableRow>
-                ))
-              ) : rows.length === 0 ? (
-                <StyledTableRow>
-                  <StyledTableCell
-                    colSpan={(displayColumns.length || 1) + 1}
-                    align="center"
-                  >
-                    <Typography color="text.secondary">
-                      {emptyMessage}
-                    </Typography>
-                  </StyledTableCell>
-                </StyledTableRow>
-              ) : (
-                rows.map((row, rowIndex) => {
-                  const rowKey = getRowSelectionKey(row, rowIndex);
+                }
+                label="Show relationship columns"
+                sx={{ mr: 0 }}
+              />
+            </Box>
+          ) : null}
 
-                  return (
-                    <StyledTableRow key={`row-${rowKey}`} hover>
+          <TableContainer
+            component={Paper}
+            variant="outlined"
+            sx={{ maxHeight: 420, overflow: "auto" }}
+          >
+            <Table stickyHeader size="small">
+              <TableHead>
+                <StyledTableRow>
+                  <StyledTableCell padding="checkbox">
+                    <Checkbox
+                      checked={allRowsSelected}
+                      indeterminate={partiallySelected}
+                      disabled={selectableRowCount === 0}
+                      onChange={handleToggleAllRows}
+                      sx={{
+                        "& .MuiSvgIcon-root": {
+                          color: "white",
+                        },
+                      }}
+                    />
+                  </StyledTableCell>
+                  {headerColumns.map((column) => (
+                    <StyledTableCell key={column}>{column}</StyledTableCell>
+                  ))}
+                </StyledTableRow>
+              </TableHead>
+              <TableBody>
+                {isLoading ? (
+                  Array.from({ length: 4 }, (_, index) => (
+                    <StyledTableRow key={`loading-row-${index}`}>
                       <StyledTableCell padding="checkbox">
-                        <Checkbox
-                          checked={selectedRowKeys.has(rowKey)}
-                          onChange={() => handleToggleRow(rowKey)}
-                        />
+                        <Checkbox disabled />
                       </StyledTableCell>
-                      {displayColumns.map((column) => (
+                      {headerColumns.map((column) => (
                         <StyledTableCell
-                          key={`${rowIndex}-${column}`}
-                          sx={{ whiteSpace: "nowrap" }}
+                          key={`${column}-${index}`}
+                          sx={{ minWidth: 120 }}
                         >
-                          {formatCellValue(row[column])}
+                          <Skeleton variant="text" width="70%" />
                         </StyledTableCell>
                       ))}
                     </StyledTableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+                  ))
+                ) : tableRows.length === 0 ? (
+                  <StyledTableRow>
+                    <StyledTableCell
+                      colSpan={(headerColumns.length || 1) + 1}
+                      align="center"
+                    >
+                      <Typography color="text.secondary">
+                        {emptyMessage}
+                      </Typography>
+                    </StyledTableCell>
+                  </StyledTableRow>
+                ) : (
+                  tableRows.map((row, rowIndex) => {
+                    const rowKey = getRowSelectionKey(row, rowIndex);
+
+                    return (
+                      <StyledTableRow key={`row-${rowKey}`} hover>
+                        <StyledTableCell padding="checkbox">
+                          <Checkbox
+                            checked={selectedRowKeys.has(rowKey)}
+                            onChange={() => handleToggleRow(rowKey)}
+                          />
+                        </StyledTableCell>
+                        {headerColumns.map((column) => {
+                          const value = row[column];
+
+                          return (
+                            <StyledTableCell
+                              key={`${rowIndex}-${column}`}
+                              sx={{ whiteSpace: "nowrap" }}
+                            >
+                              {formatCellValue(value ?? null)}
+                            </StyledTableCell>
+                          );
+                        })}
+                      </StyledTableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      ) : null}
     </Box>
   );
 }

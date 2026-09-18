@@ -28,8 +28,9 @@ import {
   getEmptyQueryResultData,
   mergeQueryResultDataWithNodeLimit,
   type QueryResultData,
+  type QueryResultRow,
   queryResultDataToCytoscapeElements,
-  queryResultDataToTableRows,
+  queryResultRowsToGraphData,
 } from "@/lib/text2cypher/neo4j/query-results";
 import { getActiveSchemaDefinition } from "@/lib/text2cypher/schema/active";
 import type { ExpandNodeActionPayload } from "./CytoscapeContextMenu";
@@ -44,7 +45,8 @@ const QUERY_RESULTS_NETWORK_LAYOUT: fcose.FcoseLayoutOptions = {
 };
 
 interface QueryResultsProps {
-  data: QueryResultData | null;
+  rows: QueryResultRow[] | null;
+  error?: string | null;
   isLoading?: boolean;
   title?: string;
   emptyMessage?: string;
@@ -52,7 +54,8 @@ interface QueryResultsProps {
 }
 
 export interface QueryResultsPageData {
-  data: QueryResultData | null;
+  rows: QueryResultRow[] | null;
+  error: string | null;
   limit: number;
   offset: number;
   totalRowCount: number;
@@ -80,7 +83,7 @@ interface ToastState {
 }
 
 interface GraphState {
-  baseDataRef: QueryResultData | null;
+  baseRowsRef: QueryResultRow[] | null;
   data: QueryResultData;
 }
 
@@ -121,7 +124,8 @@ const getPageWindow = (
 };
 
 export default function QueryResults({
-  data,
+  rows,
+  error = null,
   isLoading = false,
   title = "Query Results",
   emptyMessage = "No results returned for this query.",
@@ -151,7 +155,8 @@ export default function QueryResults({
     Boolean(pagination) &&
     localPageData !== null &&
     localPageRequestKey === currentRequestKey;
-  const activeData = useLocalPageData ? localPageData.data : data;
+  const activeRows = useLocalPageData ? localPageData.rows : rows;
+  const activeError = useLocalPageData ? localPageData.error : error;
   const resolvedLimit = useLocalPageData
     ? localPageData.limit
     : (pagination?.limit ?? 10);
@@ -166,16 +171,17 @@ export default function QueryResults({
   );
 
   const baseGraphData = useMemo(() => {
-    const base = activeData ?? getEmptyQueryResultData();
+    const base =
+      queryResultRowsToGraphData(activeRows) ?? getEmptyQueryResultData();
     return mergeQueryResultDataWithNodeLimit(
       getEmptyQueryResultData(),
       base,
       MAX_GRAPH_NODE_COUNT,
     ).data;
-  }, [activeData]);
+  }, [activeRows]);
 
   const graphData =
-    graphState !== null && graphState.baseDataRef === activeData
+    graphState !== null && graphState.baseRowsRef === activeRows
       ? graphState.data
       : baseGraphData;
 
@@ -218,11 +224,14 @@ export default function QueryResults({
           depth,
         });
 
-        const incomingData = response.results ?? getEmptyQueryResultData();
+        const incomingData =
+          queryResultRowsToGraphData(response.rows) ??
+          getEmptyQueryResultData();
+        const incomingError = response.error ?? null;
 
         setGraphState((currentState) => {
           const currentData =
-            currentState !== null && currentState.baseDataRef === activeData
+            currentState !== null && currentState.baseRowsRef === activeRows
               ? currentState.data
               : baseGraphData;
 
@@ -242,10 +251,14 @@ export default function QueryResults({
           }
 
           return {
-            baseDataRef: activeData,
+            baseRowsRef: activeRows,
             data: mergeSummary.data,
           };
         });
+
+        if (incomingError) {
+          showToast(incomingError, "warning");
+        }
       } catch (error: unknown) {
         showToast(
           error instanceof Error
@@ -257,7 +270,7 @@ export default function QueryResults({
         setIsExpandingNode(false);
       }
     },
-    [activeData, baseGraphData, isExpandingNode, showToast],
+    [activeRows, baseGraphData, isExpandingNode, showToast],
   );
 
   const requestPage = useCallback(
@@ -295,28 +308,19 @@ export default function QueryResults({
     [pagination],
   );
 
-  const tableRows = useMemo(() => {
-    const graphRows = queryResultDataToTableRows(graphData);
-    if (graphRows.length > 0) {
-      return graphRows;
-    }
-
-    return [];
-  }, [graphData]);
-
   const elements = useMemo(
     () => queryResultDataToCytoscapeElements(graphData),
     [graphData],
   );
-  const hasResults = tableRows.length > 0;
+  const hasResults = graphData.nodes.length > 0 || graphData.edges.length > 0;
 
   const drsBundleData = useMemo(
     () => {
-      return tableRows.filter((_, index) =>
+      return activeRows === null ? [] : activeRows.filter((_, index) =>
         selectedRowIndexes.includes(index),
-      ).map(row => row.properties as { [key: string]: string }); // TODO: This is a kludge, shouldn't be an issue but may need revisiting if the data structure changes
+      ).flatMap(row => Object.values(row)).map(cell => cell?.properties as { [key: string]: string }); // TODO: This is a kludge, shouldn't be an issue but may need revisiting if the data structure changes
     },
-    [tableRows, selectedRowIndexes]
+    [activeRows, selectedRowIndexes]
   );
 
   return (
@@ -363,7 +367,8 @@ export default function QueryResults({
         <Stack spacing={1.25}>
           <QueryResultsTable
             title=""
-            rows={tableRows}
+            rows={activeRows}
+            error={activeError}
             isLoading={isLoading || isPaginating}
             emptyMessage={emptyMessage}
             onSelectionChange={(nextSelection) => {
@@ -545,6 +550,19 @@ export default function QueryResults({
           }}
         >
           <CircularProgress size={28} />
+        </Paper>
+      ) : activeError ? (
+        <Paper
+          variant="outlined"
+          sx={{
+            p: 2,
+            minHeight: 320,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Typography color="error">{activeError}</Typography>
         </Paper>
       ) : hasResults ? (
         <CytoscapeChartWrapper

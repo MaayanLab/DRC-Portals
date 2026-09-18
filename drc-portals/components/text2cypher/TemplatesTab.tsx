@@ -155,7 +155,8 @@ export default function TemplatesTab() {
         const normalizedParams = response.params ?? params;
 
         applyPageState({
-          data: response.results ?? null,
+          rows: response.rows ?? null,
+          error: response.error ?? null,
           cypher,
           params: normalizedParams,
           limit: response.limit ?? DEFAULT_PAGE_LIMIT,
@@ -210,7 +211,8 @@ export default function TemplatesTab() {
     }
 
     const nextPage: QueryResultsPageData = {
-      data: response.results ?? null,
+      rows: response.rows ?? null,
+      error: response.error ?? null,
       limit: response.limit ?? limit,
       offset: response.offset ?? offset,
       totalRowCount: response.totalRowCount ?? 0,
@@ -335,7 +337,8 @@ export default function TemplatesTab() {
             {hasRunTemplate ? (
               <QueryResults
                 title="Query Results"
-                data={pageState.data}
+                rows={pageState.rows}
+                error={pageState.error}
                 isLoading={isRunningTemplate}
                 pagination={pagination}
               />

@@ -15,8 +15,8 @@ const SYSTEM_RULES = `
   * Never generate an unbounded query. Return at most 10 result entities.
   * Deduplicate before limiting whenever possible.
   * Return all nodes and relationships required to establish the answer, but do not traverse unrelated graph context.
-  * Always return results as collections of \`nodes\` and \`edges\` using the canonical result format below.
-  * Always use \`DISTINCT\` when collecting nodes or relationships.
+  * Always return results as a collection of row objects in \`rows\`.
+  * Always use \`DISTINCT\` when collecting pathway rows.
 
   ### Canonical Result Format
 
@@ -24,18 +24,24 @@ const SYSTEM_RULES = `
 
   \`\`\`cypher
   MATCH
-    (n:Label1)-[r:REL_TYPE]->(m:Label2),
-  WITH DISTINCT n, r, m
+    (n:Label1)-[r:REL_TYPE]->(m:Label2)-[r2:REL_TYPE2]->(o:Label3)
+  WITH DISTINCT n, r, m, r2, o
   LIMIT 10
   RETURN
-    collect(DISTINCT n) +
-    collect(DISTINCT m) AS nodes,
-    collect(DISTINCT r) AS edges
+    collect(DISTINCT {
+      n: n,
+      r: r,
+      m: m,
+      r2: r2,
+      o: o
+    }) AS rows
   \`\`\`
+
+  \`rows\` is required. Column names are implied by the object keys in each row.
 
   ### Canonical Aggregate Format
 
-  When the question asks for a computed value that is not itself a schema entity, represent the value as a synthetic node(s) and relationship(s).
+  When the question asks for a computed value that is not itself a schema entity, represent the value as synthetic node(s) and relationship(s) inside each pathway row.
 
   For example, for the user question:
 
@@ -49,18 +55,20 @@ const SYSTEM_RULES = `
   WITH st, patient_count, 'patient_count_' + randomUUID() AS patient_count_id
   LIMIT 10
   RETURN
-    collect(DISTINCT st) +
     collect(DISTINCT {
-      id: patient_count_id,
-      label: 'Text2CypherColumn',
-      properties: { value: '# of Patients: ' + toString(patient_count)}
-    }) AS nodes,
-    collect(DISTINCT {
-      type: '',
-      source: toString(elementId(st)),
-      target: patient_count_id,
-      properties: {}
-    }) AS edges
+      st: st,
+      has_patient_count: {
+        type: 'HAS_PATIENT_COUNT',
+        startNodeElementId: toString(elementId(st)),
+        endNodeElementId: patient_count_id,
+        properties: {}
+      },
+      patient_count_node: {
+        id: patient_count_id,
+        labels: ['Text2CypherColumn'],
+        properties: { value: '# of Patients: ' + toString(patient_count) }
+      }
+    }) AS rows
   \`\`\`
 
   Synthetic nodes must have:
@@ -71,7 +79,7 @@ const SYSTEM_RULES = `
 
   Synthetic relationships must have:
 
-  - type: ""
+  - type: <descriptive human-readable relationship type as string>
   - source: the source node ID
   - target: the synthetic node ID
   - properties: {}
@@ -107,7 +115,7 @@ const SYSTEM_RULES = `
   6. The query is bounded to at most 10 result entities.
   7. Results are deduplicated before limiting whenever possible.
   8. All nodes and relationships required to establish the answer are returned.
-  9. The final result conforms to the \`nodes\`/\`edges\` return format.
+  9. The final result conforms to the \`rows\` return format.
 `;
 
 export const SYSTEM_TEMPLATE = `

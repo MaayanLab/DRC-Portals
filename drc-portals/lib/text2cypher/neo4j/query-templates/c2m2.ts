@@ -15,13 +15,15 @@ export const templates: SchemaTemplates = [
 WITH disease, subject, project, organism, testedFor, contains, associatedWith
 LIMIT 10
 RETURN
-  collect(DISTINCT disease) +
-  collect(DISTINCT subject) +
-  collect(DISTINCT project) +
-  collect(DISTINCT organism) AS nodes,
-  collect(DISTINCT testedFor) +
-  collect(DISTINCT contains) +
-  collect(DISTINCT associatedWith) AS edges`,
+  collect(DISTINCT {
+    disease: disease,
+    testedFor: testedFor,
+    subject: subject,
+    associatedWith: associatedWith,
+    contains: contains,
+    project: project,
+    organism: organism
+  }) AS rows`,
     params: [
       {
         name: "disease_name",
@@ -49,43 +51,42 @@ WITH d, project_count, biosample_count, count(DISTINCT s) AS subject_count
 WITH DISTINCT d, project_count, 'project_count_' + randomUUID() AS project_count_id, biosample_count, 'biosample_count_' + randomUUID() AS biosample_count_id, subject_count, 'subject_count_' + randomUUID() AS subject_count_id
 LIMIT 10
 RETURN
-  collect(DISTINCT d) +
   collect(DISTINCT {
-    id: project_count_id,
-    labels: ['${TEXT_2_CYPHER_NODE_LABEL}'],
-    properties: { value: '# of Projects: ' + toString(project_count) }
-  }) +
-  collect(DISTINCT {
+    dcc: d,
+    projectCountEdge: {
+      type: 'HAS_PROJECT_COUNT',
+      startNodeElementId: toString(elementId(d)),
+      endNodeElementId: project_count_id,
+      properties: {}
+    },
+    projectCountNode: {
+      id: project_count_id,
+      labels: ['${TEXT_2_CYPHER_NODE_LABEL}'],
+      properties: { value: '# of Projects: ' + toString(project_count) }
+    },
+    biosampleCountEdge: {
+      type: 'HAS_BIOSAMPLE_COUNT',
+      startNodeElementId: toString(elementId(d)),
+      endNodeElementId: biosample_count_id,
+      properties: {}
+    },
+    biosampleCountNode: {
       id: biosample_count_id,
       labels: ['${TEXT_2_CYPHER_NODE_LABEL}'],
       properties: { value: '# of Biosamples: ' + toString(biosample_count) }
-  }) +
-  collect(DISTINCT {
-    id: subject_count_id,
-    labels: ['${TEXT_2_CYPHER_NODE_LABEL}'],
-    properties: { value: '# of Subjects: ' + toString(subject_count) }
-  }) AS nodes,
-  collect(DISTINCT {
-    type: 'HAS_PROJECT_COUNT',
-    isSynthetic: true,
-    startNodeElementId: toString(elementId(d)),
-    endNodeElementId: project_count_id,
-    properties: {}
-  }) +
-  collect(DISTINCT {
-    type: 'HAS_BIOSAMPLE_COUNT',
-    isSynthetic: true,
-    startNodeElementId: toString(elementId(d)),
-    endNodeElementId: biosample_count_id,
-    properties: {}
-  }) +
-  collect(DISTINCT {
-    type: 'HAS_SUBJECT_COUNT',
-    isSynthetic: true,
-    startNodeElementId: toString(elementId(d)),
-    endNodeElementId: subject_count_id,
-    properties: {}
-  }) AS edges`,
+    },
+    subjectCountEdge: {
+      type: 'HAS_SUBJECT_COUNT',
+      startNodeElementId: toString(elementId(d)),
+      endNodeElementId: subject_count_id,
+      properties: {}
+    },
+    subjectCountNode: {
+      id: subject_count_id,
+      labels: ['${TEXT_2_CYPHER_NODE_LABEL}'],
+      properties: { value: '# of Subjects: ' + toString(subject_count) }
+    }
+  }) AS rows`,
     params: [
       {
         name: "dcc_name",
@@ -116,11 +117,13 @@ CALL (a) {
 WITH a, b, sampled_from, n_contains_biosample, n
 LIMIT 10
 RETURN
-  collect(DISTINCT a) +
-  collect(DISTINCT b) +
-  collect(DISTINCT n) AS nodes,
-  collect(DISTINCT sampled_from) +
-  collect(DISTINCT n_contains_biosample) AS edges`,
+  collect(DISTINCT {
+    a: a,
+    sampled_from: sampled_from,
+    b: b,
+    n_contains_biosample: n_contains_biosample,
+    n: n
+  }) AS rows`,
     params: [
       {
         name: "anatomy_term",
@@ -164,19 +167,26 @@ WITH
   cnxn_to_d,
   st,
   st_to_cnxn
-LIMIT 10
+MATCH (d)<-[st_to_d:${c2m2Schema.CONTAINS}]-(st_direct:${c2m2Schema.COLLECTION})
 WITH
   d,
-  collect(DISTINCT d) +
-  collect(DISTINCT cnxn) +
-  collect(DISTINCT st) AS nodes,
-  collect(DISTINCT cnxn_to_d) +
-  collect(DISTINCT st_to_cnxn) AS edges
-MATCH (d)<-[st_to_d:${c2m2Schema.CONTAINS}]-(st:${c2m2Schema.COLLECTION})
-WITH d, nodes, edges, st_to_d, st
+  cnxn,
+  cnxn_to_d,
+  st,
+  st_to_cnxn,
+  st_to_d,
+  st_direct
 LIMIT 10
-WITH nodes, collect(DISTINCT st) AS new_nodes, edges, collect(DISTINCT st_to_d) AS new_edges
-RETURN nodes + new_nodes AS nodes, edges + new_edges AS edges`,
+RETURN
+  collect(DISTINCT {
+    disease: d,
+    cnxn_to_d: cnxn_to_d,
+    connection: cnxn,
+    st_to_cnxn: st_to_cnxn,
+    study: st,
+    st_to_d: st_to_d,
+    st_direct: st_direct
+  }) AS rows`,
     params: [
       {
         name: "disease_term",
@@ -230,13 +240,15 @@ WITH
     }
   END AS dt_to_file_count
 RETURN
-  collect(DISTINCT file_count_node) +
-  collect(DISTINCT at) +
-  collect(DISTINCT ff) +
-  collect(DISTINCT dt) AS nodes,
-  collect(DISTINCT at_to_file_count) +
-  collect(DISTINCT ff_to_file_count) +
-  collect(DISTINCT dt_to_file_count) AS edges`,
+  collect(DISTINCT {
+    assayType: at,
+    at_to_file_count: at_to_file_count,
+    fileCount: file_count_node,
+    fileFormat: ff,
+    ff_to_file_count: ff_to_file_count,
+    dataType: dt,
+    dt_to_file_count: dt_to_file_count
+  }) AS rows`,
     params: [
       {
         name: "assay_term",
@@ -291,13 +303,15 @@ WITH
     }
   END AS sr_to_subject_count
 RETURN
-  collect(DISTINCT subject_count_node) +
-  collect(DISTINCT t) +
-  collect(DISTINCT sx) +
-  collect(DISTINCT sr) AS nodes,
-  collect(DISTINCT organism_to_subject_count) +
-  collect(DISTINCT sx_to_subject_count) +
-  collect(DISTINCT sr_to_subject_count) AS edges`,
+  collect(DISTINCT {
+    taxonomy: t,
+    organism_to_subject_count: organism_to_subject_count,
+    subjectCount: subject_count_node,
+    sex: sx,
+    sx_to_subject_count: sx_to_subject_count,
+    race: sr,
+    sr_to_subject_count: sr_to_subject_count
+  }) AS rows`,
     params: [
       {
         name: "species_name",
@@ -319,10 +333,11 @@ MATCH (f:${c2m2Schema.FILE})<-[contains:${c2m2Schema.CONTAINS}]-(d)
 WHERE f.access_url IS NOT NULL AND f.access_url <> ""
 WITH d, contains, f
 LIMIT 10
-RETURN
-  collect(DISTINCT d) +
-  collect(distinct f) AS nodes,
-  collect(DISTINCT contains) AS edges`,
+RETURN collect(DISTINCT {
+    dcc: d,
+    file: f,
+    contains: contains
+  }) AS rows`,
     params: [
       {
         name: "dcc_name",

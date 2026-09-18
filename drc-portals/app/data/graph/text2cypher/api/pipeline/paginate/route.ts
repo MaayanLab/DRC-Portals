@@ -4,7 +4,7 @@ import type {
   PipelineRepaginateRequest,
   PipelineRepaginateResponse,
 } from "@/lib/text2cypher/api/contracts/pipeline";
-import { normalizeGraphQueryResult } from "@/lib/text2cypher/neo4j/query-results";
+import { parseQueryRowsResult } from "@/lib/text2cypher/neo4j/query-results";
 import { runCypherQuery } from "@/lib/text2cypher/neo4j/queries";
 import {
   asNonNegativeInteger,
@@ -50,11 +50,14 @@ export async function POST(req: NextRequest) {
       throw new Error("Failed to compute total row count for paginated query.");
     }
 
+    const parsed = parseQueryRowsResult(pageRows);
+
     const response = {
       success: true,
       cypher: queries.pagedCypher,
       params,
-      results: normalizeGraphQueryResult(pageRows),
+      error: parsed.error,
+      rows: parsed.error ? null : parsed.rows,
       limit: pagination.limit,
       offset: pagination.offset,
       totalRowCount,

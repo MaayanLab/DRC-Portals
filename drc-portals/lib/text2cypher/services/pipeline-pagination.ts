@@ -168,13 +168,138 @@ const stripTrailingTopLevelPagination = (queryPrefix: string): string => {
     .trimEnd();
 };
 
+const hasTopLevelUnion = (query: string): boolean => {
+  let braceDepth = 0;
+  let parenDepth = 0;
+  let bracketDepth = 0;
+  let inSingleQuote = false;
+  let inDoubleQuote = false;
+  let inBacktick = false;
+  let inLineComment = false;
+  let inBlockComment = false;
+
+  for (let i = 0; i < query.length; i++) {
+    const char = query[i];
+    const prev = i > 0 ? query[i - 1] : "";
+    const next = query[i + 1] ?? "";
+
+    if (inLineComment) {
+      if (char === "\n") {
+        inLineComment = false;
+      }
+      continue;
+    }
+
+    if (inBlockComment) {
+      if (char === "*" && next === "/") {
+        inBlockComment = false;
+        i += 1;
+      }
+      continue;
+    }
+
+    if (inSingleQuote) {
+      if (char === "'" && prev !== "\\") {
+        inSingleQuote = false;
+      }
+      continue;
+    }
+
+    if (inDoubleQuote) {
+      if (char === '"' && prev !== "\\") {
+        inDoubleQuote = false;
+      }
+      continue;
+    }
+
+    if (inBacktick) {
+      if (char === "`" && prev !== "\\") {
+        inBacktick = false;
+      }
+      continue;
+    }
+
+    if (char === "/" && next === "/") {
+      inLineComment = true;
+      i += 1;
+      continue;
+    }
+
+    if (char === "/" && next === "*") {
+      inBlockComment = true;
+      i += 1;
+      continue;
+    }
+
+    if (char === "'" && prev !== "\\") {
+      inSingleQuote = true;
+      continue;
+    }
+
+    if (char === '"' && prev !== "\\") {
+      inDoubleQuote = true;
+      continue;
+    }
+
+    if (char === "`" && prev !== "\\") {
+      inBacktick = true;
+      continue;
+    }
+
+    if (char === "{") {
+      braceDepth += 1;
+      continue;
+    }
+
+    if (char === "}") {
+      braceDepth = Math.max(0, braceDepth - 1);
+      continue;
+    }
+
+    if (char === "(") {
+      parenDepth += 1;
+      continue;
+    }
+
+    if (char === ")") {
+      parenDepth = Math.max(0, parenDepth - 1);
+      continue;
+    }
+
+    if (char === "[") {
+      bracketDepth += 1;
+      continue;
+    }
+
+    if (char === "]") {
+      bracketDepth = Math.max(0, bracketDepth - 1);
+      continue;
+    }
+
+    if (braceDepth !== 0 || parenDepth !== 0 || bracketDepth !== 0) {
+      continue;
+    }
+
+    const maybeUnion = query.slice(i, i + 6);
+    if (
+      /^union$/i.test(maybeUnion) &&
+      !/[A-Za-z0-9_]/.test(query[i + 5] ?? "") &&
+      !/[A-Za-z0-9_]/.test(query[i - 1] ?? "")
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 export const buildPaginationQueries = (
   cypher: string,
   pagination: PipelinePagination,
 ): PipelineQueries => {
-  if (/\bUNION\b/i.test(cypher)) {
+  if (hasTopLevelUnion(cypher)) {
     throw new Error(
-      "Unsupported query shape for pagination: UNION queries are not supported.",
+      "Unsupported query shape for pagination: top-level UNION queries are not supported.",
     );
   }
 

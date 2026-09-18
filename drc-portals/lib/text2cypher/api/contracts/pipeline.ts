@@ -1,4 +1,4 @@
-import type { QueryResultData } from "@/lib/text2cypher/neo4j/query-results";
+import type { QueryResultRow } from "@/lib/text2cypher/neo4j/query-results";
 
 export interface PipelineRequest {
   question: string;
@@ -10,8 +10,8 @@ export interface PipelineResponse {
   success: boolean;
   cypher?: string;
   params?: Record<string, unknown>;
-  error?: string;
-  results?: QueryResultData | null;
+  error?: string | null;
+  rows?: QueryResultRow[] | null;
   limit?: number;
   offset?: number;
   totalRowCount?: number;

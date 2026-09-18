@@ -4,7 +4,7 @@ import {
   PipelineRequest,
   PipelineResponse,
 } from "@/lib/text2cypher/api/contracts/pipeline";
-import { normalizeGraphQueryResult } from "@/lib/text2cypher/neo4j/query-results";
+import { parseQueryRowsResult } from "@/lib/text2cypher/neo4j/query-results";
 import { runPipeline } from "@/lib/text2cypher/services/pipeline";
 
 export async function POST(req: NextRequest) {
@@ -17,24 +17,42 @@ export async function POST(req: NextRequest) {
       offset,
     });
 
-    let parsedResults: Record<string, unknown>[] = [];
-    if (typeof result.results === "string" && result.results.trim()) {
-      try {
-        const parsed = JSON.parse(result.results) as unknown;
-        if (Array.isArray(parsed)) {
-          parsedResults = parsed as Record<string, unknown>[];
+    let parsedResults: Record<string, unknown>[] | null = null;
+    let parserError: string | null = null;
+
+    if (result.success) {
+      if (typeof result.results !== "string" || !result.results.trim()) {
+        parserError = "Pipeline did not return query results.";
+      } else {
+        try {
+          const parsed = JSON.parse(result.results) as unknown;
+          if (Array.isArray(parsed)) {
+            parsedResults = parsed as Record<string, unknown>[];
+          } else {
+            parserError = "Pipeline returned invalid query results.";
+          }
+        } catch {
+          parserError = "Pipeline returned invalid query results.";
         }
-      } catch {
-        parsedResults = [];
       }
     }
+
+    const parsed =
+      result.success && parserError === null && parsedResults !== null
+        ? parseQueryRowsResult(parsedResults)
+        : {
+            rows: null,
+            error: null,
+          };
+
+    const error = result.error || parserError || parsed.error || null;
 
     const response = {
       success: result.success,
       cypher: result.cypher,
       params: result.params,
-      error: result.error,
-      results: normalizeGraphQueryResult(parsedResults),
+      error,
+      rows: error ? null : parsed.rows,
       limit: result.limit,
       offset: result.offset,
       totalRowCount: result.totalRowCount,

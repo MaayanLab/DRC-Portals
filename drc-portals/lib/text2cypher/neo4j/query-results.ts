@@ -23,6 +23,18 @@ export interface QueryResultData {
   edges: QueryResultEdge[];
 }
 
+export type QueryResultRowCell = QueryResultNode | QueryResultEdge | null;
+
+export interface QueryResultRow {
+  [column: string]: QueryResultRowCell;
+}
+
+export interface QueryRowsParseResult {
+  data: QueryResultData | null;
+  rows: QueryResultRow[] | null;
+  error: string | null;
+}
+
 export interface QueryResultMergeSummary {
   data: QueryResultData;
   finalNodeCount: number;
@@ -30,8 +42,6 @@ export interface QueryResultMergeSummary {
   truncatedNodeCount: number;
   addedNodeCount: number;
 }
-
-export type QueryTableRow = Record<string, unknown>;
 
 const EMPTY_RESULT_DATA: QueryResultData = {
   nodes: [],
@@ -58,6 +68,36 @@ const asString = (value: unknown): string | null => {
   }
 
   return null;
+};
+
+const isEdgeLike = (value: unknown): value is Record<string, unknown> => {
+  if (!isObject(value)) {
+    return false;
+  }
+
+  const source =
+    asString(value.startNodeElementId) ??
+    asString(value.source) ??
+    asString(value.start);
+  const target =
+    asString(value.endNodeElementId) ??
+    asString(value.target) ??
+    asString(value.end);
+
+  return asString(value.type) !== null && Boolean(source) && Boolean(target);
+};
+
+export const isQueryResultEdgeCell = (
+  value: QueryResultRowCell,
+): value is QueryResultEdge => {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    "type" in value &&
+    "source" in value &&
+    "target" in value &&
+    "properties" in value
+  );
 };
 
 const getNodeId = (
@@ -127,49 +167,7 @@ const normalizeEdge = (value: unknown): QueryResultEdge | null => {
 export const normalizeGraphQueryResult = (
   rows: Record<string, unknown>[] | null | undefined,
 ): QueryResultData | null => {
-  const activeSchema = getActiveSchemaDefinition();
-
-  if (!rows || rows.length === 0) {
-    return null;
-  }
-
-  const nodesById = new Map<string, QueryResultNode>();
-  const edgesByKey = new Map<string, QueryResultEdge>();
-
-  rows.forEach((row) => {
-    const rawNodes = Array.isArray(row.nodes) ? row.nodes : [];
-    const rawEdges = Array.isArray(row.edges) ? row.edges : [];
-
-    rawNodes.forEach((node, index) => {
-      const normalizedNode = normalizeNode(node, index);
-      if (normalizedNode) {
-        nodesById.set(normalizedNode.id, normalizedNode);
-      }
-    });
-
-    rawEdges
-      .filter(
-        (edge) =>
-          activeSchema.relationships.includes(asString(edge.type) ?? "") ||
-          edge.isSynthetic === true,
-      )
-      .forEach((edge) => {
-        const normalizedEdge = normalizeEdge(edge);
-        if (normalizedEdge) {
-          const key = `${normalizedEdge.source}:${normalizedEdge.type}:${normalizedEdge.target}:${JSON.stringify(normalizedEdge.properties)}`;
-          edgesByKey.set(key, normalizedEdge);
-        }
-      });
-  });
-
-  if (nodesById.size === 0 && edgesByKey.size === 0) {
-    return null;
-  }
-
-  return {
-    nodes: Array.from(nodesById.values()),
-    edges: Array.from(edgesByKey.values()),
-  };
+  return parseQueryRowsResult(rows).data;
 };
 
 export const getEmptyQueryResultData = (): QueryResultData => EMPTY_RESULT_DATA;
@@ -242,31 +240,7 @@ export const mergeQueryResultDataWithNodeLimit = (
   };
 };
 
-export const queryResultDataToTableRows = (
-  data: QueryResultData | null | undefined,
-): QueryTableRow[] => {
-  if (!data) {
-    return [];
-  }
-
-  return [
-    ...data.nodes.map((node) => ({
-      kind: "node",
-      id: node.id,
-      label: node.label,
-      properties: node.properties,
-    })),
-    ...data.edges.map((edge) => ({
-      kind: "edge",
-      type: edge.type,
-      source: edge.source,
-      target: edge.target,
-      properties: edge.properties,
-    })),
-  ];
-};
-
-const getNodeDisplayLabel = (node: QueryResultNode) => {
+export const getNodeDisplayLabel = (node: QueryResultNode) => {
   const activeSchema = getActiveSchemaDefinition();
   let displayProperty = activeSchema.displayPropertyMap.get(node.label);
 
@@ -282,6 +256,235 @@ const getNodeDisplayLabel = (node: QueryResultNode) => {
     : undefined;
 
   return asString(displayValue) ?? node.label;
+};
+
+const normalizeRowCell = (
+  value: unknown,
+  index: number,
+): QueryResultRowCell | "invalid" => {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  if (isEdgeLike(value)) {
+    return normalizeEdge(value);
+  }
+
+  const normalizedNode = normalizeNode(value, index);
+  if (normalizedNode) {
+    return normalizedNode;
+  }
+
+  return "invalid";
+};
+
+const normalizeQueryResultRow = (value: unknown) => {
+  if (!isObject(value)) {
+    return {
+      row: null,
+      error: "rows must contain only object entries.",
+    };
+  }
+
+  const row: QueryResultRow = {};
+
+  Object.entries(value).forEach(([column, rawCell], index) => {
+    const normalizedCell = normalizeRowCell(rawCell, index);
+
+    if (normalizedCell === "invalid") {
+      throw new Error(
+        `rows contains an invalid value for column \"${column}\".`,
+      );
+    }
+
+    row[column] = normalizedCell;
+  });
+
+  if (Object.keys(row).length === 0) {
+    return {
+      row: null,
+      error: "rows must contain at least one column.",
+    };
+  }
+
+  return {
+    row,
+    error: null,
+  };
+};
+
+const dedupeQueryRowsEntities = (rows: QueryResultRow[]) => {
+  const nodesById = new Map<string, QueryResultNode>();
+  const edgesByKey = new Map<string, QueryResultEdge>();
+  const nodeColumns = new Set<string>();
+
+  rows.forEach((row) => {
+    Object.entries(row).forEach(([column, cell]) => {
+      if (!cell) {
+        return;
+      }
+
+      if (isQueryResultEdgeCell(cell)) {
+        edgesByKey.set(edgeIdentity(cell), cell);
+        return;
+      }
+
+      nodesById.set(cell.id, cell);
+      nodeColumns.add(column);
+    });
+  });
+
+  return {
+    data: {
+      nodes: Array.from(nodesById.values()),
+      edges: Array.from(edgesByKey.values()),
+    },
+    nodeColumns,
+  };
+};
+
+const getRawQueryRows = (firstResultRow: Record<string, unknown>) => {
+  if (isArray(firstResultRow.rows)) {
+    return asArray(firstResultRow.rows);
+  }
+
+  if (isArray(firstResultRow.path_rows)) {
+    return asArray(firstResultRow.path_rows);
+  }
+
+  return null;
+};
+
+export const getQueryResultRowColumns = (
+  rows: QueryResultRow[] | null | undefined,
+) => {
+  const orderedColumns: string[] = [];
+  const seen = new Set<string>();
+
+  (rows ?? []).forEach((row) => {
+    Object.keys(row).forEach((column) => {
+      if (seen.has(column)) {
+        return;
+      }
+
+      seen.add(column);
+      orderedColumns.push(column);
+    });
+  });
+
+  return orderedColumns;
+};
+
+export const getQueryResultRowNodeColumns = (
+  rows: QueryResultRow[] | null | undefined,
+) => {
+  const allColumns = getQueryResultRowColumns(rows);
+  const nodeColumns = new Set<string>();
+
+  (rows ?? []).forEach((row) => {
+    Object.entries(row).forEach(([column, cell]) => {
+      if (cell !== null && !isQueryResultEdgeCell(cell)) {
+        nodeColumns.add(column);
+      }
+    });
+  });
+
+  return allColumns.filter((column) => nodeColumns.has(column));
+};
+
+export const getQueryResultRowRelationshipColumns = (
+  rows: QueryResultRow[] | null | undefined,
+) => {
+  const allColumns = getQueryResultRowColumns(rows);
+  const relationshipColumns = new Set<string>();
+
+  (rows ?? []).forEach((row) => {
+    Object.entries(row).forEach(([column, cell]) => {
+      if (isQueryResultEdgeCell(cell)) {
+        relationshipColumns.add(column);
+      }
+    });
+  });
+
+  return allColumns.filter((column) => relationshipColumns.has(column));
+};
+
+export const queryResultRowsToGraphData = (
+  rows: QueryResultRow[] | null | undefined,
+): QueryResultData | null => {
+  const normalizedRows = rows ?? [];
+
+  if (normalizedRows.length === 0) {
+    return EMPTY_RESULT_DATA;
+  }
+
+  const deduped = dedupeQueryRowsEntities(normalizedRows);
+  return deduped.data.nodes.length === 0 && deduped.data.edges.length === 0
+    ? null
+    : deduped.data;
+};
+
+export const parseQueryRowsResult = (
+  rows: Record<string, unknown>[] | null | undefined,
+): QueryRowsParseResult => {
+  if (!rows || rows.length === 0) {
+    return {
+      data: null,
+      rows: null,
+      error: "Query results must return rows.",
+    };
+  }
+
+  const firstResultRow = rows[0];
+  const rawQueryRows = firstResultRow ? getRawQueryRows(firstResultRow) : null;
+
+  if (!rawQueryRows) {
+    return {
+      data: null,
+      rows: null,
+      error: "Query results must return rows as an array.",
+    };
+  }
+
+  if (rawQueryRows.length === 0) {
+    return {
+      data: EMPTY_RESULT_DATA,
+      rows: [],
+      error: null,
+    };
+  }
+
+  const normalizedRows: QueryResultRow[] = [];
+
+  for (const rawRow of rawQueryRows) {
+    try {
+      const normalized = normalizeQueryResultRow(rawRow);
+      if (normalized.error || !normalized.row) {
+        return {
+          data: null,
+          rows: null,
+          error: normalized.error,
+        };
+      }
+
+      normalizedRows.push(normalized.row);
+    } catch (error) {
+      return {
+        data: null,
+        rows: null,
+        error:
+          error instanceof Error ? error.message : "Failed to normalize rows.",
+      };
+    }
+  }
+
+  const data = queryResultRowsToGraphData(normalizedRows);
+
+  return {
+    data,
+    rows: normalizedRows,
+    error: null,
+  };
 };
 
 export const queryResultDataToCytoscapeElements = (

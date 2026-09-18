@@ -4,7 +4,7 @@ import type {
   Neo4jExpandNodeRequest,
   Neo4jExpandNodeResponse,
 } from "@/lib/text2cypher/api/contracts/neo4j";
-import { normalizeGraphQueryResult } from "@/lib/text2cypher/neo4j/query-results";
+import { parseQueryRowsResult } from "@/lib/text2cypher/neo4j/query-results";
 import { runCypherQuery } from "@/lib/text2cypher/neo4j/queries";
 
 const DEFAULT_EXPAND_DEPTH = 1;
@@ -70,16 +70,24 @@ export async function POST(req: NextRequest) {
       `
       MATCH (seed:${nodeLabel} {_uuid: $nodeUuid})
       OPTIONAL MATCH path = (seed)-[*1..${depth}]-(neighbor)
-      WITH seed, collect(DISTINCT neighbor) AS neighbors, collect(path) AS paths
+      WITH seed, collect(DISTINCT path) AS paths
       CALL {
-        WITH paths
+        WITH seed, paths
         UNWIND paths AS candidatePath
         WITH candidatePath
         WHERE candidatePath IS NOT NULL
         UNWIND relationships(candidatePath) AS rel
-        RETURN collect(DISTINCT rel) AS edges
+        RETURN collect(DISTINCT {
+          sourceNode: startNode(rel),
+          relationship: rel,
+          targetNode: endNode(rel)
+        }) AS path_triplets
       }
-      RETURN [seed] + neighbors AS nodes, edges
+      RETURN
+        CASE
+          WHEN size(path_triplets) = 0 THEN collect({ seed: seed })
+          ELSE path_triplets
+        END AS rows
       `,
       {
         nodeUuid,
@@ -93,11 +101,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const parsed = parseQueryRowsResult(rawResults);
+
     const response = {
       nodeUuid,
       nodeLabel,
       depth,
-      results: normalizeGraphQueryResult(rawResults),
+      error: parsed.error,
+      rows: parsed.error ? null : parsed.rows,
     } satisfies Neo4jExpandNodeResponse;
 
     return NextResponse.json(response);

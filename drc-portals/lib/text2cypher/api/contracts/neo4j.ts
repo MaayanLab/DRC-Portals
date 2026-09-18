@@ -1,5 +1,5 @@
 import type { Template } from "@/lib/text2cypher/neo4j/types";
-import type { QueryResultData } from "@/lib/text2cypher/neo4j/query-results";
+import type { QueryResultRow } from "@/lib/text2cypher/neo4j/query-results";
 
 export interface Neo4jTemplatesResponse {
   templates: Template[];
@@ -15,7 +15,8 @@ export interface Neo4jTemplateRunRequest {
 
 export interface Neo4jTemplateRunResponse {
   templateId: string;
-  results: QueryResultData | null;
+  rows: QueryResultRow[] | null;
+  error?: string | null;
   cypher?: string;
   params?: Record<string, unknown>;
   limit?: number;
@@ -33,5 +34,6 @@ export interface Neo4jExpandNodeResponse {
   nodeLabel: string;
   nodeUuid: string;
   depth: number;
-  results: QueryResultData | null;
+  rows: QueryResultRow[] | null;
+  error?: string | null;
 }

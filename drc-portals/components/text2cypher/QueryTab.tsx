@@ -56,7 +56,8 @@ export default function QueryTab() {
       if (result.success && result.cypher) {
         setCodeOutput(result.cypher);
         applyPageState({
-          data: result.results ?? null,
+          rows: result.rows ?? null,
+          error: result.error ?? null,
           cypher: result.cypher,
           params: result.params ?? {},
           limit: result.limit ?? DEFAULT_PAGE_LIMIT,
@@ -97,7 +98,8 @@ export default function QueryTab() {
       }
 
       const nextData: QueryResultsPageData = {
-        data: result.results ?? null,
+        rows: result.rows ?? null,
+        error: result.error ?? null,
         limit: result.limit ?? limit,
         offset: result.offset ?? offset,
         totalRowCount: result.totalRowCount ?? 0,
@@ -164,7 +166,8 @@ export default function QueryTab() {
         {hasAskedQuestion ? (
           <QueryResults
             title="Query Results"
-            data={pageState.data}
+            rows={pageState.rows}
+            error={pageState.error}
             isLoading={isLoading}
             pagination={pagination}
           />
