@@ -621,38 +621,33 @@ etc., Of course, the names of original C2M2 tables e.g., c2m2.file will remain a
 
 */
 
-DROP FUNCTION IF EXISTS c2m2.get_term_type_namespaces_fraction0();
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+------------------------ new and correct version of term_type_namespaces_fraction
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
-CREATE OR REPLACE FUNCTION c2m2.get_term_type_namespaces_fraction0()
+CREATE OR REPLACE FUNCTION c2m2.get_term_type_namespaces_fraction()
 RETURNS TABLE (
-    srno            integer,
-    table_name      text,
-    term_type       text,
+    srno integer,
+    table_name text,
+    term_type text,
     dcc_short_label varchar,
-    fraction        numeric
+    fraction numeric
 )
 LANGUAGE plpgsql
 AS $$
 DECLARE
-    pair text;
-    tbl text;
-    term_col text;
-    namespace_col text;
-    sql text;
-    v_srno integer := 0;
-
     table_column_pairs text[] := ARRAY[
         'subject|granularity',
         'subject|sex',
         'subject|ethnicity',
         'subject|age_at_enrollment',
-
         'biosample|anatomy',
         'biosample|biofluid',
         'biosample|sample_prep_method',
-
-        'biosample_from_subject|age_at_sampling',
-
+        'biosample_from_subject|age_at_sampling|biosample',
+        'biosample_from_subject|subject_local_id|biosample',
         'file|file_format',
         'file|compression_format',
         'file|data_type',
@@ -660,131 +655,172 @@ DECLARE
         'file|analysis_type',
         'file|dbgap_study_id',
 
-        'subject_disease|disease',
-        'subject_disease|association_type',
+        'subject_disease|disease|subject',
+        'subject_disease|association_type|subject',
+        'subject_phenotype|phenotype|subject',
+        'subject_role_taxonomy|role_id|subject',
+        'subject_role_taxonomy|taxonomy_id|subject',
+        'subject_substance|substance|subject',
 
-        'subject_phenotype|phenotype',
+        'biosample_disease|disease|biosample',
+        'biosample_disease|association_type|biosample',
+        'biosample_gene|gene|biosample',
+        'biosample_protein|protein|biosample',
+        'biosample_ptm|ptm|biosample',
+        'biosample_substance|substance|biosample',
 
-        'subject_role_taxonomy|role_id',
-        'subject_role_taxonomy|taxonomy_id',
-
-        'subject_substance|substance',
-
-        'biosample_disease|disease',
-        'biosample_disease|association_type',
-
-        'biosample_gene|gene',
-
-        'biosample_protein|protein',
-
-        'biosample_ptm|ptm',
-
-        'biosample_substance|substance',
-
-        'collection_anatomy|anatomy',
-
-        'collection_biofluid|biofluid',
-
-        'collection_compound|compound',
-
-        'collection_disease|disease',
-
-        'collection_gene|gene',
-
-        'collection_phenotype|phenotype',
-
-        'collection_protein|protein',
-
-        'collection_ptm|ptm',
-
-        'collection_substance|substance',
-
-        'collection_taxonomy|taxon'
+        'collection_anatomy|anatomy|collection',
+        'collection_biofluid|biofluid|collection',
+        'collection_compound|compound|collection',
+        'collection_disease|disease|collection',
+        'collection_gene|gene|collection',
+        'collection_phenotype|phenotype|collection',
+        'collection_protein|protein|collection',
+        'collection_ptm|ptm|collection',
+        'collection_substance|substance|collection',
+        'collection_taxonomy|taxon|collection'
     ];
 
+    pair text;
+    tbl text;
+    term_col text;
+    entity_tbl text;
+    namespace_col text;
+    entity_local_col text;
+    entity_namespace_col text;
+    query_sql text;
+    v_srno integer := 0;
 BEGIN
-
     FOREACH pair IN ARRAY table_column_pairs
     LOOP
         v_srno := v_srno + 1;
 
         tbl := split_part(pair, '|', 1);
         term_col := split_part(pair, '|', 2);
+        entity_tbl := split_part(pair, '|', 3);
 
-        IF tbl IN ('project','subject','biosample','collection','file') THEN
-            namespace_col := 'id_namespace';
-        ELSE
-            namespace_col := split_part(tbl, '_', 1) || '_id_namespace';
-        END IF;
+        RAISE NOTICE 'Processing %.% % (SrNo=%)',
+                     tbl, term_col, entity_tbl, v_srno;
 
-        RAISE NOTICE 'Processing %.% (SrNo=%)',
-                     tbl, term_col, v_srno;
+        IF (entity_tbl IS NULL OR entity_tbl = '')
+           OR (tbl LIKE 'collection\_%' ESCAPE '\')
+        THEN
 
-        sql := format($fmt$
-            SELECT
-                %s::integer AS srno,
-                %L::text AS table_name,
-                %L::text AS term_type,
-                m.dcc_short_label,
+            -- Core/non-relationship tables:
+            -- fraction of rows with a populated term.
+            namespace_col := CASE
+                WHEN tbl IN ('project', 'subject', 'biosample', 'collection', 'file')
+                    THEN 'id_namespace'
+                ELSE split_part(tbl, '_', 1) || '_id_namespace'
+            END;
 
+            query_sql := format(
+                $q$
+                SELECT
+                    %L::text AS table_name,
+                    %L::text AS term_type,
+                    m.dcc_short_label,
                     COUNT(*) FILTER (
                         WHERE t.%I IS NOT NULL
-                        AND trim(t.%I::text) <> ''
-                    )::numeric
-                    / NULLIF(COUNT(*), 0) AS fraction
+                          AND trim(t.%I::text) <> ''
+                    )::numeric / NULLIF(COUNT(*), 0) AS fraction
+                FROM c2m2.%I t
+                JOIN c2m2.id_namespace_dcc_id m
+                  ON t.%I = m.id_namespace_id
+                GROUP BY m.dcc_short_label
+                $q$,
+                tbl, term_col,
+                term_col, term_col,
+                tbl, namespace_col
+            );
 
-            FROM c2m2.%I t
+        ELSE
 
-            JOIN c2m2.id_namespace_dcc_id m
-                ON t.%I = m.id_namespace_id
+            -- Other relationship tables:
+            -- denominator = distinct parent entities in the parent table;
+            -- numerator = distinct parent entities having at least one
+            -- populated term in the relationship table.
+            entity_local_col := entity_tbl || '_local_id';
+            entity_namespace_col := entity_tbl || '_id_namespace';
 
-            WHERE m.dcc_short_label IS NOT NULL
+            query_sql := format(
+                $q$
+                WITH denominator AS (
+                    SELECT
+                        m.dcc_short_label,
+                        COUNT(DISTINCT e.local_id)::numeric AS entity_count
+                    FROM c2m2.%I e
+                    JOIN c2m2.id_namespace_dcc_id m
+                      ON e.id_namespace = m.id_namespace_id
+                    GROUP BY m.dcc_short_label
+                ),
+                numerator AS (
+                    SELECT
+                        m.dcc_short_label,
+                        COUNT(DISTINCT t.%I)::numeric AS entity_count
+                    FROM c2m2.%I t
+                    JOIN c2m2.id_namespace_dcc_id m
+                      ON t.%I = m.id_namespace_id
+                    WHERE t.%I IS NOT NULL
+                      AND trim(t.%I::text) <> ''
+                    GROUP BY m.dcc_short_label
+                )
+                SELECT
+                    %L::text AS table_name,
+                    %L::text AS term_type,
+                    d.dcc_short_label,
+                    COALESCE(n.entity_count, 0)::numeric
+                        / NULLIF(d.entity_count, 0) AS fraction
+                FROM denominator d
+                LEFT JOIN numerator n
+                  ON n.dcc_short_label = d.dcc_short_label
+                $q$,
+                entity_tbl,
+                entity_local_col,
+                tbl,
+                entity_namespace_col,
+                term_col, term_col,
+                tbl, term_col
+            );
 
-            GROUP BY m.dcc_short_label
+        END IF;
 
-            ORDER BY m.dcc_short_label
-        $fmt$,
+        RETURN QUERY EXECUTE format(
+            'SELECT %s::integer,
+                    q.table_name,
+                    q.term_type,
+                    q.dcc_short_label,
+                    q.fraction
+             FROM (%s) q',
             v_srno,
-            tbl,
-            term_col,
-            term_col,
-            term_col,
-            tbl,
-            namespace_col
+            query_sql
         );
 
-        RETURN QUERY EXECUTE sql;
-
     END LOOP;
-
-    RETURN;
 END;
 $$;
 
-
 CALL c2m2.print_heading(
-    'Creating term_type_namespaces_fraction0'
+    'Creating term_type_namespaces_fraction'
 );
 
-DROP TABLE IF EXISTS term_type_namespaces_fraction0;
+DROP TABLE IF EXISTS term_type_namespaces_fraction;
 
-CREATE TEMP TABLE term_type_namespaces_fraction0 AS
+CREATE TEMP TABLE term_type_namespaces_fraction AS
 SELECT
     srno,
     table_name,
     term_type,
     dcc_short_label,
     fraction
-FROM c2m2.get_term_type_namespaces_fraction0()
+FROM c2m2.get_term_type_namespaces_fraction()
 ORDER BY srno, dcc_short_label;
 
 
-SELECT *
-FROM term_type_namespaces_fraction0;
+SELECT * FROM term_type_namespaces_fraction;
 
 
-\copy (SELECT * FROM term_type_namespaces_fraction0 ORDER BY srno, dcc_short_label) TO 'term_type_namespaces_fraction0.tsv' WITH DELIMITER E'\t' NULL '' CSV HEADER;
-
+\copy (SELECT * FROM term_type_namespaces_fraction ORDER BY srno, dcc_short_label) TO 'term_type_namespaces_fraction.tsv' WITH DELIMITER E'\t' NULL '' CSV HEADER;
 
 ---------------------------------------------------------
 -- Create generic DCC pivot procedure for fractions
@@ -898,6 +934,26 @@ SELECT * FROM term_type_namespaces_fraction_pivot;
 
 \copy (SELECT * FROM term_type_namespaces_fraction_pivot ORDER BY srno) TO 'term_type_namespaces_fraction_pivot.tsv' WITH DELIMITER E'\t' NULL '' CSV HEADER;
 
+---------------------------------------------------------
+-- Generate term-type fraction pivot table
+---------------------------------------------------------
+
+CALL c2m2.print_heading(
+    'Creating term_type_namespaces_fraction_pivot'
+);
+
+CALL c2m2.create_dcc_pivot_fraction(
+    'term_type_namespaces_fraction',
+    'srno, table_name, term_type',
+    'term_type_namespaces_fraction_pivot'
+);
+
+
+SELECT * FROM term_type_namespaces_fraction_pivot;
+
+
+\copy (SELECT * FROM term_type_namespaces_fraction_pivot ORDER BY srno) TO 'term_type_namespaces_fraction_pivot.tsv' WITH DELIMITER E'\t' NULL '' CSV HEADER;
+
 /*
 Crosscheck using linux command:
 
@@ -924,7 +980,7 @@ Q: I am going back to the sql code for calculating the fraction, i.e.,
 ------------ Current code goes here ---------------------
 
 Note: After I implemented the function below based on help using these prompts, 
-I went back to modify the above function, by renaming it to *_fraction0 and write 
+I went back to modify the above function, by renaming it to *_fraction0 (later deleted) and write 
 a version in which for collection_*, we just get 1, as a user may not want to see a value > 1.
 
 There is a problem in the way I calculate the fraction for table|term combination subject_disease|disease, 
@@ -1189,6 +1245,10 @@ SELECT * from term_type_namespaces_fractionmore;
 
 \COPY term_type_namespaces_fractionmore TO 'term_type_namespaces_fractionmore.tsv' WITH (FORMAT csv, DELIMITER E'\t', HEADER true);
 
+---------------------------------------------------------
+-- Generate term-type fraction pivot table
+---------------------------------------------------------
+
 CALL c2m2.create_dcc_pivot_fraction(
     'term_type_namespaces_fractionmore',
     'table_name, term_type',
@@ -1198,225 +1258,4 @@ CALL c2m2.create_dcc_pivot_fraction(
 SELECT * from term_type_namespaces_fractionmore_pivot;
 
 \COPY term_type_namespaces_fractionmore_pivot TO 'term_type_namespaces_fractionmore_pivot.tsv' WITH (FORMAT csv, DELIMITER E'\t', HEADER true);
-
---------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------
------------------------- new and correct version of term_type_namespaces_fraction
---------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------
-
-CREATE OR REPLACE FUNCTION c2m2.get_term_type_namespaces_fraction()
-RETURNS TABLE (
-    srno integer,
-    table_name text,
-    term_type text,
-    dcc_short_label varchar,
-    fraction numeric
-)
-LANGUAGE plpgsql
-AS $$
-DECLARE
-    table_column_pairs text[] := ARRAY[
-        'subject|granularity',
-        'subject|sex',
-        'subject|ethnicity',
-        'subject|age_at_enrollment',
-        'biosample|anatomy',
-        'biosample|biofluid',
-        'biosample|sample_prep_method',
-        'biosample_from_subject|age_at_sampling|biosample',
-        'biosample_from_subject|subject_local_id|biosample',
-        'file|file_format',
-        'file|compression_format',
-        'file|data_type',
-        'file|assay_type',
-        'file|analysis_type',
-        'file|dbgap_study_id',
-
-        'subject_disease|disease|subject',
-        'subject_disease|association_type|subject',
-        'subject_phenotype|phenotype|subject',
-        'subject_role_taxonomy|role_id|subject',
-        'subject_role_taxonomy|taxonomy_id|subject',
-        'subject_substance|substance|subject',
-
-        'biosample_disease|disease|biosample',
-        'biosample_disease|association_type|biosample',
-        'biosample_gene|gene|biosample',
-        'biosample_protein|protein|biosample',
-        'biosample_ptm|ptm|biosample',
-        'biosample_substance|substance|biosample',
-
-        'collection_anatomy|anatomy|collection',
-        'collection_biofluid|biofluid|collection',
-        'collection_compound|compound|collection',
-        'collection_disease|disease|collection',
-        'collection_gene|gene|collection',
-        'collection_phenotype|phenotype|collection',
-        'collection_protein|protein|collection',
-        'collection_ptm|ptm|collection',
-        'collection_substance|substance|collection',
-        'collection_taxonomy|taxon|collection'
-    ];
-
-    pair text;
-    tbl text;
-    term_col text;
-    entity_tbl text;
-    namespace_col text;
-    entity_local_col text;
-    entity_namespace_col text;
-    query_sql text;
-    v_srno integer := 0;
-BEGIN
-    FOREACH pair IN ARRAY table_column_pairs
-    LOOP
-        v_srno := v_srno + 1;
-
-        tbl := split_part(pair, '|', 1);
-        term_col := split_part(pair, '|', 2);
-        entity_tbl := split_part(pair, '|', 3);
-
-        RAISE NOTICE 'Processing %.% % (SrNo=%)',
-                     tbl, term_col, entity_tbl, v_srno;
-
-        IF (entity_tbl IS NULL OR entity_tbl = '')
-           OR (tbl LIKE 'collection\_%' ESCAPE '\')
-        THEN
-
-            -- Core/non-relationship tables:
-            -- fraction of rows with a populated term.
-            namespace_col := CASE
-                WHEN tbl IN ('project', 'subject', 'biosample', 'collection', 'file')
-                    THEN 'id_namespace'
-                ELSE split_part(tbl, '_', 1) || '_id_namespace'
-            END;
-
-            query_sql := format(
-                $q$
-                SELECT
-                    %L::text AS table_name,
-                    %L::text AS term_type,
-                    m.dcc_short_label,
-                    COUNT(*) FILTER (
-                        WHERE t.%I IS NOT NULL
-                          AND trim(t.%I::text) <> ''
-                    )::numeric / NULLIF(COUNT(*), 0) AS fraction
-                FROM c2m2.%I t
-                JOIN c2m2.id_namespace_dcc_id m
-                  ON t.%I = m.id_namespace_id
-                GROUP BY m.dcc_short_label
-                $q$,
-                tbl, term_col,
-                term_col, term_col,
-                tbl, namespace_col
-            );
-
-        ELSE
-
-            -- Other relationship tables:
-            -- denominator = distinct parent entities in the parent table;
-            -- numerator = distinct parent entities having at least one
-            -- populated term in the relationship table.
-            entity_local_col := entity_tbl || '_local_id';
-            entity_namespace_col := entity_tbl || '_id_namespace';
-
-            query_sql := format(
-                $q$
-                WITH denominator AS (
-                    SELECT
-                        m.dcc_short_label,
-                        COUNT(DISTINCT e.local_id)::numeric AS entity_count
-                    FROM c2m2.%I e
-                    JOIN c2m2.id_namespace_dcc_id m
-                      ON e.id_namespace = m.id_namespace_id
-                    GROUP BY m.dcc_short_label
-                ),
-                numerator AS (
-                    SELECT
-                        m.dcc_short_label,
-                        COUNT(DISTINCT t.%I)::numeric AS entity_count
-                    FROM c2m2.%I t
-                    JOIN c2m2.id_namespace_dcc_id m
-                      ON t.%I = m.id_namespace_id
-                    WHERE t.%I IS NOT NULL
-                      AND trim(t.%I::text) <> ''
-                    GROUP BY m.dcc_short_label
-                )
-                SELECT
-                    %L::text AS table_name,
-                    %L::text AS term_type,
-                    d.dcc_short_label,
-                    COALESCE(n.entity_count, 0)::numeric
-                        / NULLIF(d.entity_count, 0) AS fraction
-                FROM denominator d
-                LEFT JOIN numerator n
-                  ON n.dcc_short_label = d.dcc_short_label
-                $q$,
-                entity_tbl,
-                entity_local_col,
-                tbl,
-                entity_namespace_col,
-                term_col, term_col,
-                tbl, term_col
-            );
-
-        END IF;
-
-        RETURN QUERY EXECUTE format(
-            'SELECT %s::integer,
-                    q.table_name,
-                    q.term_type,
-                    q.dcc_short_label,
-                    q.fraction
-             FROM (%s) q',
-            v_srno,
-            query_sql
-        );
-
-    END LOOP;
-END;
-$$;
-
-CALL c2m2.print_heading(
-    'Creating term_type_namespaces_fraction'
-);
-
-DROP TABLE IF EXISTS term_type_namespaces_fraction;
-
-CREATE TEMP TABLE term_type_namespaces_fraction AS
-SELECT
-    srno,
-    table_name,
-    term_type,
-    dcc_short_label,
-    fraction
-FROM c2m2.get_term_type_namespaces_fraction()
-ORDER BY srno, dcc_short_label;
-
-
-SELECT * FROM term_type_namespaces_fraction;
-
-
-\copy (SELECT * FROM term_type_namespaces_fraction ORDER BY srno, dcc_short_label) TO 'term_type_namespaces_fraction.tsv' WITH DELIMITER E'\t' NULL '' CSV HEADER;
-
----------------------------------------------------------
--- Generate term-type fraction pivot table
----------------------------------------------------------
-
-CALL c2m2.print_heading(
-    'Creating term_type_namespaces_fraction_pivot'
-);
-
-CALL c2m2.create_dcc_pivot_fraction(
-    'term_type_namespaces_fraction',
-    'srno, table_name, term_type',
-    'term_type_namespaces_fraction_pivot'
-);
-
-
-SELECT * FROM term_type_namespaces_fraction_pivot;
-
-
-\copy (SELECT * FROM term_type_namespaces_fraction_pivot ORDER BY srno) TO 'term_type_namespaces_fraction_pivot.tsv' WITH DELIMITER E'\t' NULL '' CSV HEADER;
 
