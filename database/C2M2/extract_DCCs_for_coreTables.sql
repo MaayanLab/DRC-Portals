@@ -374,6 +374,7 @@ DECLARE
         'biosample|sample_prep_method',
 
         'biosample_from_subject|age_at_sampling',
+        'biosample_from_subject|subject_local_id',
 
         'file|file_format',
         'file|compression_format',
@@ -584,11 +585,12 @@ CALL c2m2.create_dcc_pivot(
     'table_namespaces_pivot'
 );
 
+--- TABLE table_namespaces_pivot;
+
 SELECT * FROM table_namespaces_pivot;
+\copy (SELECT * FROM table_namespaces_pivot) TO table_namespaces_pivot.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
 
 CALL c2m2.print_heading('Creating term_type_namespaces_pivot');
-
---- TABLE table_namespaces_pivot;
 
 CALL c2m2.create_dcc_pivot(
     'term_type_namespaces',
@@ -599,7 +601,6 @@ CALL c2m2.create_dcc_pivot(
 SELECT * FROM term_type_namespaces_pivot;
 --- TABLE term_type_namespaces_pivot;
 
-\copy (SELECT * FROM table_namespaces_pivot) TO table_namespaces_pivot.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
 \copy (SELECT * FROM term_type_namespaces_pivot) TO term_type_namespaces_pivot.tsv WITH DELIMITER E'\t' NULL '' CSV HEADER;
 
 ---------------------------------------------------------
@@ -621,11 +622,28 @@ etc., Of course, the names of original C2M2 tables e.g., c2m2.file will remain a
 
 */
 
---------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------
------------------------- new and correct version of term_type_namespaces_fraction
---------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------
+/*
+There was a problem in the way I originally calculated the fraction for table|term combination subject_disease|disease, 
+because in such tables, all columns are required in all rows, so, naturally, the fraction will be one. 
+For such cases, the denominator should be based on the unique values in local_id column of the 
+corresponding main table such as c2m2.subject in this case. To facilitate this, I needed to specify 
+subject_disease|disease|subject to indicate in the 3rd part the name of the table whose local_id 
+column should be looked for unique values (of course for that id_namespace). Usually, the 
+corresponding main table in question is the part before the first _ e.g., subject for subject_disease or 
+subject_role_taxonomy. However, there is a catch for collection and related tables such as collection_anatomy. 
+There, c2m2.collection will have rows for others such as collection_disease. So, let us treat collection-related 
+tables and terms as before. Think about the logic to deal with this situation (doesn't apply to collection). 
+How will the code for the function change.
+
+Yes, for subject_disease: your approach: "Under this definition, a subject with multiple disease associations 
+counts only once in the numerator and once in the denominator." is correct.
+
+For collection_anatomy, for the same collection_local_id, there can be several values for anatomy in 
+different rows, so, the fraction using above approach can be actually more than 1. So, for collection_* tables, 
+let it be just null or 1 as it was before. Let us not bother about it.
+
+*/
+DROP FUNCTION IF EXISTS c2m2.get_term_type_namespaces_fraction();
 
 CREATE OR REPLACE FUNCTION c2m2.get_term_type_namespaces_fraction()
 RETURNS TABLE (
@@ -816,9 +834,7 @@ SELECT
 FROM c2m2.get_term_type_namespaces_fraction()
 ORDER BY srno, dcc_short_label;
 
-
 SELECT * FROM term_type_namespaces_fraction;
-
 
 \copy (SELECT * FROM term_type_namespaces_fraction ORDER BY srno, dcc_short_label) TO 'term_type_namespaces_fraction.tsv' WITH DELIMITER E'\t' NULL '' CSV HEADER;
 
@@ -912,27 +928,6 @@ $fmt$,
 
 END;
 $$;
-
-
----------------------------------------------------------
--- Generate term-type fraction pivot table
----------------------------------------------------------
-
-CALL c2m2.print_heading(
-    'Creating term_type_namespaces_fraction_pivot'
-);
-
-CALL c2m2.create_dcc_pivot_fraction(
-    'term_type_namespaces_fraction',
-    'srno, table_name, term_type',
-    'term_type_namespaces_fraction_pivot'
-);
-
-
-SELECT * FROM term_type_namespaces_fraction_pivot;
-
-
-\copy (SELECT * FROM term_type_namespaces_fraction_pivot ORDER BY srno) TO 'term_type_namespaces_fraction_pivot.tsv' WITH DELIMITER E'\t' NULL '' CSV HEADER;
 
 ---------------------------------------------------------
 -- Generate term-type fraction pivot table
