@@ -57,11 +57,12 @@ export default function ThemeRegistry(props:{options:any, children:any}) {
       );
     });
     const pathname = usePathname()
+    console.log(pathname)
     return (
       <CacheProvider value={cache}>
         <ThemeProvider theme={mode === 'light'? light_theme: dark_theme}>
           <CssBaseline />
-          <Background background={mode === "light" ? pathname === "/" ?'white': "#DBE0ED": 'black'}>
+          <Background background={mode === "light" ? pathname === "/v1/" ?'white': "#DBE0ED": 'black'}>
             <Box sx={{display: "flex", justifyContent: "flex-end"}}>
               <div>
                 {/* <Button href={`${mode==='light'?'/?mode=dark':'/'}`} 
