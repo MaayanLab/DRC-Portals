@@ -74,7 +74,7 @@ const options = [
       {
         title: "C2M2 Interactive Graph Search",
         href: "/data/graph",
-        description: "Explore the CFDE Workbench Cross Cut Metaata Model (C2M2) using an interactive graph-based interface to build queries",
+        description: "Explore the CFDE Workbench Cross Cut Metadata Model (C2M2) using an interactive graph-based interface to build queries",
         icon: mdiGraphOutline
       },
       {
