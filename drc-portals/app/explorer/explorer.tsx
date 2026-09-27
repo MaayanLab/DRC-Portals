@@ -429,6 +429,7 @@ const Explorer = ({input_query, height=500}: {height?: number, input_query: {[ke
           zoomOnScroll={false}
           zoomOnDoubleClick={false}
           zoomOnPinch={false}
+          preventScrolling={false}
           proOptions={{hideAttribution: true}}
         />
       </Container>
