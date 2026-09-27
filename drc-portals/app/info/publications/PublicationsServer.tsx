@@ -183,7 +183,7 @@ export default async function PublicationsServer(props:
           </Grid>
           <Grid item xs={12} sx={{marginBottom:4}}>
             {/* <Typography variant="h2" color="secondary">CFDE Associated and Common Fund Programs’ Landmark Publications</Typography> */}
-            <Typography sx={{ textAlign: "center" }} variant="h2" color="secondary">CFDE Associated and Common Fund Programs’ Landmark Publications</Typography>
+            <Typography sx={{ textAlign: "center" }} variant="h2" color="secondary">CFDE Associated and Common Fund Programs’ Publications</Typography>
           </Grid> 
           <Grid item xs={12}>
               <PublicationComponent publications={publications}/>
