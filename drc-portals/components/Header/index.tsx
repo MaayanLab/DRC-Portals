@@ -207,21 +207,23 @@ const options = [
 
 
 export default function Header({ session }: {session: Session | null }) {
-  const [open, setOpen] = useState(false)
+  const [tmo, setTmo] = useState<any>(null)
   const [subLinks, setSubLinks] = useState<{title: string, links: Array<{title: string, href: string, description: string, icon:string}>} | null>(null)
   const path:'/info' | '/data' = "/info"
   const ref = useRef<HTMLElement>(null);
   const pathname = usePathname()
   const handleClick = (data: {title: string, links: Array<{title: string, href: string, description: string, icon: string}>}) => {
+    if (tmo) clearTimeout(tmo)
     if (subLinks === null) setSubLinks(data)
     else if (data.title === subLinks.title) {
       setSubLinks(null)
     } else {
       setSubLinks(data)
     }
-    // setTimeout(() => {
-    //     setSubLinks(null)
-    // }, 5000);
+    const timeoutHandle = setTimeout(() => {
+       setSubLinks(null)
+    }, 5000);
+    setTmo(timeoutHandle)
   }
   return (
     <ClickAwayListener onClickAway={()=>setSubLinks(null)}>
