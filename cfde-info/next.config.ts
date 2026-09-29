@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/",
-        destination: "/v1",
+        destination: "/v3",
         permanent: false,
       }
     ]}
