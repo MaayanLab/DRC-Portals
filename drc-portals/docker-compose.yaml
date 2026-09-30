@@ -90,7 +90,7 @@ services:
       - DEEPDIVE_URL
       - MCP_API_KEY
   cfde-info:
-    image: maayanlab/cfde-info:0.1.9
+    image: maayanlab/cfde-info:0.1.12
     build: ../cfde-info
     platform: linux/amd64
     x-kubernetes:
