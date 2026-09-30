@@ -45,7 +45,7 @@ const SpeedDialButton = () => {
 			<Fab color="primary" onClick={handleOpen} sx={{ position: 'fixed', bottom: 130, right: 50, background: 'none' }}>
 				<Image src="https://cfde-drc.s3.us-east-2.amazonaws.com/assets/img/cfde_unified_icon.svg" alt={'nav-but'} width={70} height={70}/>
 			</Fab>
-			<Fab color="primary" href='https://cfde.info/data/chat' sx={{ position: 'fixed', bottom: 60, right: 50, backgroundColor: '#C3E1E6',
+			<Fab color="primary" href='https://cfde.cloud/data/chat' sx={{ position: 'fixed', bottom: 60, right: 50, backgroundColor: '#C3E1E6',
                         color: '#000', }}>
 				<Icon path={mdiRobot} size={2} />
 			</Fab>
