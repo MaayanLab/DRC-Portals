@@ -3,6 +3,7 @@ import {  ThemeProvider, Box, CssBaseline} from '@mui/material'
 import Footer from './footer'
 import theme from './theme'
 import SpeedDialButton from './speed_dial'
+import { Suspense } from 'react'
 
 export const metadata: Metadata = {
   title: 'CFDE Workbench',
@@ -70,8 +71,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body style={{marginLeft: 0, marginRight: 0}}>
+	<div style={{marginLeft: 0, marginRight: 0}}>
         <ThemeProvider theme={theme}>
 			<CssBaseline />
 			<Box sx={{
@@ -83,11 +83,11 @@ export default async function RootLayout({
 			}}>
 			{children}
 			</Box>
+			<Suspense>
 			<SpeedDialButton/>
+			</Suspense>
 			<Footer />
 		</ThemeProvider>
-      
-      </body>
-    </html>
+    </div>
   )
 }
