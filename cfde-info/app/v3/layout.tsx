@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
-import {  Container, CssBaseline, ThemeProvider, Box } from '@mui/material'
-
+import {  ThemeProvider, Box, CssBaseline} from '@mui/material'
+import Footer from './footer'
 import theme from './theme'
+import SpeedDialButton from './speed_dial'
+
 export const metadata: Metadata = {
   title: 'CFDE Workbench',
   description: 'Search Common Fund program metadata and processed datasets',
@@ -71,7 +73,7 @@ export default async function RootLayout({
     <html lang="en">
       <body style={{marginLeft: 0, marginRight: 0}}>
         <ThemeProvider theme={theme}>
-			{/* <CssBaseline /> */}
+			<CssBaseline />
 			<Box sx={{
 				maxWidth: "1440px",
 				width: "100%",
@@ -81,7 +83,8 @@ export default async function RootLayout({
 			}}>
 			{children}
 			</Box>
-			
+			<SpeedDialButton/>
+			<Footer />
 		</ThemeProvider>
       
       </body>
