@@ -90,17 +90,19 @@ services:
       - DEEPDIVE_URL
       - MCP_API_KEY
   cfde-info:
-    image: maayanlab/cfde-info:0.1.12
+    image: maayanlab/cfde-info:0.1.13
     build: ../cfde-info
     platform: linux/amd64
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
-        maayanlab.cloud/ingress: https://dev.info.cfde.cloud
+        maayanlab.cloud/ingress: https://info.cfde.cloud
         nginx.ingress.kubernetes.io/configuration-snippet: |
           more_set_headers "X-Robots-Tag: noindex";
     ports:
       - 8080:80
+    environment:
+      - NEXT_PUBLIC_GA_MEASUREMENT_ID
   drc-portal-worker:
     build:
       context: ..
@@ -129,21 +131,6 @@ services:
       nginx_redirect_01: /(.+) https://cfde.cloud/data/$$1
       nginx_buffering: 0
 
-  drc-portal-info-proxy:
-    image: maayanlab/proxy:1.2.13
-    x-kubernetes:
-      imagePullPolicy: IfNotPresent
-      annotations:
-        maayanlab.cloud/ingress: https://info.cfde.cloud
-    ports:
-      - 80
-    environment:
-      nginx_server_name: info.cfde.cloud
-      nginx_redirect_00: / https://cfde.cloud/info
-      nginx_redirect_01: /(.+) https://cfde.cloud/info/$$1
-      # nginx_redirect_00: /documentation(/.*)? https://data.cfde.cloud/documentation$$1
-      nginx_buffering: 0
-
   drc-portal-cfde-info-redirect:
     image: maayanlab/proxy:1.2.13
     x-kubernetes:
@@ -154,7 +141,7 @@ services:
       - 80
     environment:
       nginx_server_name: cfde.info
-      nginx_redirect_00: / https://cfde.cloud/
+      nginx_redirect_00: / https://info.cfde.cloud/
       nginx_redirect_01: /(.+) https://cfde.cloud/info/$$1
 
   drc-portal-ark-proxy:

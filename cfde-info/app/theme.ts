@@ -64,11 +64,6 @@ const theme = createTheme({
                         backgroundColor: '#C3E1E6',
                         color: '#2D5986',
                       }),
-                    ...(ownerState.variant === 'contained' &&
-                      ownerState.color === 'tertiary' && {
-                        backgroundColor: '#2D5986',
-                        color: '#FFFFFF',
-                      }),
                   }),
               },
         }
