@@ -6,6 +6,6 @@ output/
 kub/
 venv
 .venv
-package-lock.json
+/package-lock.json
 playground*
 mcp/dist

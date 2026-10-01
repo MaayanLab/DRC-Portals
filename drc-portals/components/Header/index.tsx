@@ -225,6 +225,19 @@ export default function Header({ session }: {session: Session | null }) {
     }, 5000);
     setTmo(timeoutHandle)
   }
+  // if (pathname === "/info") {
+  //   return(
+  //     <Container maxWidth="lg" >
+  //       <AppBar position="static" sx={{ color: "#2D5986", paddingTop: 2, display: { xs: "none", sm: "none", md: "none", lg: "block", xl: "block" } }}>
+  //           <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
+  //             <Grid item>
+  //               <Logo title="Common Fund Data Ecosystem" size='large' color="inherit" icon="/img/CFDE.jpg" />
+  //             </Grid>
+  //           </Grid>
+  //       </AppBar>
+  //     </Container>
+  //   )
+  // }
   return (
     <ClickAwayListener onClickAway={()=>setSubLinks(null)}>
     <div>
@@ -240,7 +253,7 @@ export default function Header({ session }: {session: Session | null }) {
                 <TopNav session={session} />
               </Stack>
             </Grid>
-            <Grid item xs={12}>
+            {pathname !== "/" && <Grid item xs={12}>
               <Grid container alignItems={"center"}>
                 {options.map(({ title, links }) => (
                   <Grid item key={title}>
@@ -251,7 +264,7 @@ export default function Header({ session }: {session: Session | null }) {
                 ))}
                 {/* <BottomNav nav={nav} path={path} /> */}
               </Grid>
-            </Grid>
+            </Grid>}
             {/* <Grid item xs={12} className='flex items-center'>
               <div className='flex flex-grow'><NavBreadcrumbs /></div>
               {path === "/data" && <SearchParamSearchField />}
