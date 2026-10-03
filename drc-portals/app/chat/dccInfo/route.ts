@@ -7,7 +7,8 @@ export async function GET() {
     await prisma.dCC.findMany({
       where: {
         cfde_partner: true,
-        active: true
+        active: true,
+        hidden: false
       },
     });
 

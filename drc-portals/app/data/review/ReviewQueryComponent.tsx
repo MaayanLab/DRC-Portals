@@ -13,12 +13,12 @@ import SQL from '@/lib/prisma/raw';
 import { schemaToDCC } from './utils';
 import { Suspense } from 'react';
 
-type PageProps = { searchParams: Record<string, string>, tab?: boolean };
+type PageProps = { searchParams: Promise<Record<string, string>>, tab?: boolean };
 
 const record_count_limit = 100000;
 
 export async function ReviewQueryComponent(props: PageProps) {
-    const searchParams = useSanitizedSearchParams(props);
+    const searchParams = useSanitizedSearchParams({ searchParams: await props.searchParams });
     const mySchemaName = searchParams.schema_name;
     console.log("In ReviewQueryComponent");
 

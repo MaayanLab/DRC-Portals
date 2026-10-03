@@ -13,15 +13,81 @@ import { notFound } from 'next/navigation'
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import Icon from "@mdi/react";
-import { Box } from "@mui/material";
-import { mdiArrowRight } from "@mdi/js";
+import { Box, Chip } from "@mui/material";
+import { mdiArrowRight, mdiVideoOutline } from "@mdi/js";
 import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent";
 import { DCCAccordion } from '@/components/misc/DCCAccordion';
 import { getDccDataObj } from '@/utils/dcc-assets';
 import { ReadMore } from "@/components/misc/ReadMore";
 import {OutreachComponent} from "@/components/misc/Outreach/featured";
 import PubButton from "./linksbutton";
-export default async function DccDataPage({ params }: { params: { dcc: string } }) {
+import { Tool } from "@prisma/client";
+
+const ToolCard = ({ tool }: { tool: Tool}) => {
+    let tags:string[] = []
+    if (Array.isArray(tool.tags)) {
+        tags = tool.tags as string[]
+    }
+    return(
+    <Card sx={{ height: 250, display: "flex", flexDirection: "column", padding: 1 }}>
+        <CardContent sx={{flexGrow: 1}}>
+            <Grid container spacing={2}>
+                <Grid item xs={8}>
+                    <Stack justifyContent={"space-around"}>
+                        <div className="flex justify-center items-center space-x-2 mb-5">
+                            <div>
+                            {tool.icon ? <Image src={tool.icon} alt={tool.label} height={40} width={40} /> :
+                                <Image src={'/img/favicon.png'} alt={tool.label} height={40} width={40} />
+                            }
+                            </div>
+                        </div>
+                        <div>
+                            <Typography variant="h4" color="secondary">{tool.label}</Typography>
+                            <Typography variant={'caption'} color="secondary">
+                                {tool.short_description}
+                            </Typography>
+                        </div>
+                    </Stack>
+                </Grid>
+                <Grid item xs={4}>
+                    <Paper elevation={0} className="flex flex-row justify-center relative" sx={{ height: 120 }}>
+                        {tool.image ? <Image src={tool.image} alt={tool.label} fill={true} style={{ objectFit: "contain" }} /> :
+                            <Image src={tool.icon || '/img/favicon.png'} alt={tool.label} fill={true} style={{ objectFit: "contain" }} />
+                        }
+                    </Paper>
+                    
+                </Grid>
+                
+            </Grid>	
+        </CardContent>
+        <CardActions>
+            <Grid container spacing={1} justifyContent={"space-between"}>
+                {tool.url &&
+                    <Grid item sx={{gridRow: 1}}>
+                        <Link href={tool.url} target="_blank" rel="noopener noreferrer">
+                            <Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />} sx={{ marginLeft: -2 }}>
+                                GO TO {tool.url.indexOf('github.com') > -1 ? 'GITHUB' : tool.label.toUpperCase()}
+                            </Button>
+                        </Link>
+                    </Grid>
+                }
+                <Grid item>
+                    <Grid container spacing={1}>
+                        {tags.length > 0 && tags.map(tag=>{
+                            return <Grid item key={tag}>
+                                        <Chip key={tag} color="primary" variant="filled" sx={{borderRadius: 2}} label={tag}/>
+                                </Grid>
+                        })}
+                    </Grid>
+                </Grid>
+            </Grid>
+        </CardActions>
+    </Card>
+)}
+
+
+export default async function DccDataPage(props: { params: Promise<{ dcc: string }> }) {
+    const params = await props.params
     const now = new Date()
     const dcc = await prisma.dCC.findFirst({
         where: {
@@ -29,6 +95,12 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
             active: true
         },
         include: {
+            tools: {
+                select: {
+                    tool: true
+                },
+                take: 10
+            },
             publications: {
                 select: {
                     publication: true
@@ -84,6 +156,7 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
     })
     const outreach = dcc?.outreach || []
     const publications = dcc?.publications.map(i=>i.publication) || []
+    const tools = dcc?.tools.map(i=>i.tool) || []
     if (!dcc) return notFound()
     const assets = await getDccDataObj(prisma, dcc.id, params.dcc)
     return (
@@ -180,12 +253,24 @@ export default async function DccDataPage({ params }: { params: { dcc: string } 
                             {publications.length > 0 && <Grid item xs={12}>
                                 <Paper sx={{padding: 2, height: "100%"}}>
                                     <Typography variant="h4" sx={{marginBottom: 3}} color="secondary">Landmark Publication{publications.length > 1 && "s"}</Typography>
-                                    <SimplePublicationComponent publications={publications}/>
+                                    <SimplePublicationComponent podcast={true} publications={publications}/>
                                     {dcc.short_label === "Bridge2AI" ? <Button color="secondary" variant="outlined" href="https://scholar.google.com/citations?user=GK2Y-fcAAAAJ&hl=en" target="_blank" rel="noopener noreferrer">
                                         Google Scholar
                                     </Button>: null}
                                 </Paper>
                             </Grid>}
+                        </Grid>
+                    </Grid>
+                }
+                { (tools.length > 0) && 
+                    <Grid item xs={12}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <Typography variant="h3" color="secondary">Tools and Workflows</Typography>
+                            </Grid>
+                            {tools.map(tool=><Grid item xs={12} md={6} key={tool.id}>
+                                <ToolCard tool={tool}/>
+                            </Grid>)}
                         </Grid>
                     </Grid>
                 }

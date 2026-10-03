@@ -160,8 +160,12 @@ export default function SearchablePagedTable(props: React.PropsWithChildren<{
               </SearchablePagedTableCellContext.Provider>
             </List>
           </Box>
-          {props.tableFooter}
-          {props.tablePagination}
+          <React.Fragment>
+            {props.tableFooter}
+          </React.Fragment>
+          <React.Fragment>
+            {props.tablePagination}
+          </React.Fragment>
         </Stack>
       </Grid>
     </Grid>

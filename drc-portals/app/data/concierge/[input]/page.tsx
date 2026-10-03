@@ -7,6 +7,7 @@ import GeneInput from "./geneInput";
 import GlycanInput from "./glycanInput";
 import PhenotypeInput from "./phenotypeInput";
 import CFDEInput from "./CFDEInput";
+import React from "react";
 
 const inputs = [
 	{
@@ -71,11 +72,12 @@ const inputs = [
 	}
 ]
 
-export default function ConciergeInput({params}: {
-	params: {
+export default function ConciergeInput(props: {
+	params: Promise<{
 		input: string
-	}
+	}>
 }) {
+	const params = React.use(props.params)
 	const inps = inputs.filter(i=>i.inputType === params.input)
 	if (inps.length === 0) return null
 	const input = inps[0]

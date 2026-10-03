@@ -22,7 +22,7 @@ const file_count_limit_bios = file_count_limit; // 500000;
 const file_count_limit_col = file_count_limit; // 500000;
 const maxTblCount = 100000;
 
-type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
+type PageProps = { params: Promise<{ id: string }>, searchParams: Promise<Record<string, string | string[] | undefined>> }
 
 function format_description(description: string) {
   if (description === 'TODO') return null
@@ -30,11 +30,12 @@ function format_description(description: string) {
 }
 
 export async function RecordInfoQueryComponent(props: PageProps) {
-  const searchParams = useSanitizedSearchParams(props);
+  const searchParams = await props.searchParams
+  const sanitizedSearchParams = useSanitizedSearchParams({ searchParams });
   console.log("In RecordInfoQueryComponent");
 
   try {
-    const results = await fetchRecordInfoQueryResults(searchParams);
+    const results = await fetchRecordInfoQueryResults(sanitizedSearchParams);
     return results;
   } catch (error) {
     console.error('Error fetching search results:', error);

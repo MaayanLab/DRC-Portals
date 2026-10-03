@@ -38,7 +38,8 @@ export default async function DataMatrix() {
       short_label: true
     },
     where: {
-      active: true
+      active: true,
+      hidden: false,
     },
     orderBy: {
       short_label: 'asc',

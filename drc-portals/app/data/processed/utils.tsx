@@ -106,6 +106,7 @@ export function predicateLabel(type: string) {
   else if (type === 'relation') type = 'assertion'
   else if (type === 'target') type = 'target node'
   else if (type === 'source') type = 'source node'
+  else if (type === 'taxon') type = 'species'
   else if (type.startsWith('inv_')) type = `${type.substring(4)} of`
   return titleCapitalize(type.replaceAll('_',' '))
 }
@@ -167,6 +168,7 @@ export function itemDescription(item: EntityExpandedType, lookup?: Record<string
   if (item['type'] === 'subject') return `A subject${lookup && item.m2o_dcc && item.m2o_dcc.id in lookup ? ` from ${lookup[item.m2o_dcc.id].a_label}` : ''} produced as part of the ${item.a_project_local_id.replaceAll('_', ' ').replaceAll('-',' ')} project`
   if (item['type'] === 'dcc_asset') return `A contributed ${item.a_filetype}${lookup && item.m2o_dcc && item.m2o_dcc.id in lookup ? ` from ${lookup[item.m2o_dcc.id].a_label}` : ''}`
   if (item['type'] === 'dcc') return `The ${item.a_label} data coordinating center`
+  if (item['type'] === 'gene') return `${item.a_ensembl ? `${item.a_ensembl} - ` : '' }${item.a_description}`
   if (item.a_description) {
     if (item.a_description.length > 100) return `${item.a_description.slice(0, 100)}...`
     return `${item.a_description}`
@@ -175,29 +177,97 @@ export function itemDescription(item: EntityExpandedType, lookup?: Record<string
   }
 }
 
-export function linkify(value: string) {
+export function itemJsonLD(item: EntityExpandedType, lookup?: Record<string, EntityType>) {
+  if (item.type === 'file') {
+    return {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@id": process.env.PUBLIC_URL,
+          "@type": "DataCatalog",
+          "name": "Common Fund Data Ecosystem (CFDE) Workbench",
+          "url": process.env.PUBLIC_URL,
+        },
+        {
+          "@type": "Dataset",
+          "name": item.a_label,
+          "description": itemDescription(item, lookup),
+          "url": `${process.env.PUBLIC_URL}/data/processed/entity/${item.type}/${item.id}`,
+          "datePublished": item.a_creation_time,
+          "creator": {
+            "@type": "Organization",
+            "name": lookup && lookup[item.m2o_dcc.id] ? lookup[item.m2o_dcc.id].a_label : item.m2o_dcc.a_label,
+            "url": lookup && lookup[item.m2o_dcc.id] ? lookup[item.m2o_dcc.id].a_homepage : item.m2o_dcc.a_homepage,
+          },
+          "provider": { "@id": process.env.PUBLIC_URL },
+          "includedInDataCatalog": { "@id": process.env.PUBLIC_URL },
+          "distribution": item.a_access_url ? [{
+            "@type": "DataDownload",
+            "contentUrl": /^https?:\/\//.exec(item.a_access_url) ? item.a_access_url : undefined,
+            "contentSize": item.a_size_in_bytes,
+            "encodingFormat": item.a_mime_type,
+          }] : undefined,
+        },
+      ]
+    }
+  } else if (item.type === 'dcc_asset' && item.a_access_url) {
+    return {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@id": process.env.PUBLIC_URL,
+          "@type": "DataCatalog",
+          "name": "Common Fund Data Ecosystem (CFDE) Workbench",
+          "url": process.env.PUBLIC_URL,
+        },
+        {
+          "@type": "Dataset",
+          "name": item.a_label,
+          "description": itemDescription(item, lookup),
+          "url": `${process.env.PUBLIC_URL}/data/processed/entity/${item.type}/${item.id}`,
+          "datePublished": item.a_created,
+          "creator": {
+            "@type": "Organization",
+            "name": lookup && lookup[item.m2o_dcc.id] ? lookup[item.m2o_dcc.id].a_label : item.m2o_dcc.a_label,
+            "url": lookup && lookup[item.m2o_dcc.id] ? lookup[item.m2o_dcc.id].a_homepage : item.m2o_dcc.a_homepage,
+          },
+          "provider": { "@id": process.env.PUBLIC_URL },
+          "includedInDataCatalog": { "@id": process.env.PUBLIC_URL },
+          "distribution": item.a_size ? [{
+            "@type": "DataDownload",
+            "contentUrl": item.a_access_url,
+            "contentSize": item.a_size,
+          }] : undefined,
+        },
+      ]
+    }
+  }
+  return undefined
+}
+
+export function linkify(value: string, label?: string) {
   const uriMatch = /^(https?|drs):\/\/(.+)/i.exec(value)
   if (uriMatch === null) {
     const nsPfMatch = /^(OBI|UBERON|data|format):(\w+)$/.exec(value)
     if (nsPfMatch !== null && nsPfMatch[1] === 'OBI') {
-      return <a className="text-blue-600 cursor:pointer underline" href={`http://purl.obolibrary.org/obo/OBI_${nsPfMatch[2]}`} target="_blank">{value}</a>
+      return <a className="text-blue-600 cursor:pointer underline" href={`http://purl.obolibrary.org/obo/OBI_${nsPfMatch[2]}`} target="_blank">{label || value}</a>
     } else if (nsPfMatch !== null && nsPfMatch[1] === 'UBERON') {
-      return <a className="text-blue-600 cursor:pointer underline" href={`http://purl.obolibrary.org/obo/UBERON_${nsPfMatch[2]}`} target="_blank">{value}</a>
+      return <a className="text-blue-600 cursor:pointer underline" href={`http://purl.obolibrary.org/obo/UBERON_${nsPfMatch[2]}`} target="_blank">{label || value}</a>
     } else if (nsPfMatch !== null && nsPfMatch[1] === 'data') {
-      return <a className="text-blue-600 cursor:pointer underline" href={`http://edamontology.org/data_${nsPfMatch[2]}`} target="_blank">{value}</a>
+      return <a className="text-blue-600 cursor:pointer underline" href={`http://edamontology.org/data_${nsPfMatch[2]}`} target="_blank">{label || value}</a>
     } else if (nsPfMatch !== null && nsPfMatch[1] === 'format') {
-      return <a className="text-blue-600 cursor:pointer underline" href={`http://edamontology.org/format_${nsPfMatch[2]}`} target="_blank">{value}</a>
+      return <a className="text-blue-600 cursor:pointer underline" href={`http://edamontology.org/format_${nsPfMatch[2]}`} target="_blank">{label || value}</a>
     } else {
       const emailMatch = /^[^ @]+@[^ @]+$/.exec(value)
       if (emailMatch !== null) {
-        return <a className="text-blue-600 cursor:pointer underline" href={`mailto:${value}`} target="_blank">{value}</a>
+        return <a className="text-blue-600 cursor:pointer underline" href={`mailto:${value}`} target="_blank">{label || value}</a>
       } else {
         return <>{value}</>
       }
     }
   }
-  if (uriMatch[1] === 'drs') return <a className="text-blue-600 cursor:pointer underline" href={`/data/drs?q=${encodeURIComponent(value)}`} target="_blank">{value}</a>
-  else return <a className="text-blue-600 cursor:pointer underline" href={value} target="_blank">{value}</a>
+  if (uriMatch[1] === 'drs') return <a className="text-blue-600 cursor:pointer underline" href={`/data/drs?q=${encodeURIComponent(value)}`} target="_blank">{label || value}</a>
+  else return <a className="text-blue-600 cursor:pointer underline" href={value} target="_blank">{label || value}</a>
 }
 
 export function parse_url(location: { pathname?: string, search?: ReadonlyURLSearchParams | URLSearchParams | string } = typeof window === 'undefined' ? {} : window.location): Record<string, string | null> {
@@ -207,6 +277,7 @@ export function parse_url(location: { pathname?: string, search?: ReadonlyURLSea
     ...Object.entries(m?.groups ?? {}).map(([k,v]) => [k, typeof v === 'string' ? decodeURIComponent(v) : v]),
   ])
 }
+
 export function create_url({ error, search, search_type, type, type_search, slug, entity_search, ...searchParams }: {
   type?: string, slug?: string,
   search?: string, filter?: string,

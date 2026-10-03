@@ -1,19 +1,24 @@
 import { Grid, Toolbar } from "@mui/material";
 import ScrollToTop from "@/components/misc/ScrollToTop";
 import { H2Renderer, H3Renderer, LinkRenderer } from '@/components/misc/ReactMarkdownRenderers'
-import dynamic from 'next/dynamic'
+import FAIRshake from '../markdown/FAIRshake.mdx'
+import OpenAPI from '../markdown/OpenAPI.mdx'
+import PWBMetanodes from '../markdown/PWBMetanodes.mdx'
+import KGAssertions from '../markdown/KGAssertions.mdx'
+
 import { notFound } from "next/navigation";
 
 const pageMap : { [ key: string ] : Function } = {
-  'FAIRshake': dynamic(() => import('../markdown/FAIRshake.mdx')),
-  'OpenAPI': dynamic(() => import('../markdown/OpenAPI.mdx')),
-  'PWBMetanodes': dynamic(() => import('../markdown/PWBMetanodes.mdx')),
-  'KGAssertions': dynamic(() => import('../markdown/KGAssertions.mdx'))
+  FAIRshake,
+  OpenAPI,
+  PWBMetanodes,
+  KGAssertions,
 }
 
-export default function StandardsPage(
-  { params } : { params: { doc: string } }
+export default async function StandardsPage(
+  props : { params: Promise<{ doc: string }> }
 ) {
+  const params = await props.params
   if (params.doc in pageMap) {
     const props = {
       components: {

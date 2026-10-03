@@ -2,7 +2,7 @@ import { RecordInfoQueryComponent} from './RecordInfoQueryComponent';
 
 import React, { Suspense } from 'react';
 
-type PageProps = { params: { id: string }, searchParams: Record<string, string | string[] | undefined> }
+type PageProps = { params: Promise<{ id: string }>, searchParams: Promise<Record<string, string | string[] | undefined>> }
 
 export default async function Page(props: PageProps) {
   console.log(props)

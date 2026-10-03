@@ -78,10 +78,10 @@ export default async function Page(props: PageProps) {
         />
       }
       columns={[
-        <>&nbsp;</>,
-        <>Label</>,
-        <>Description</>,
-        <>&nbsp;</>,
+        <React.Fragment key={0}>&nbsp;</React.Fragment>,
+        <React.Fragment key={1}>Label</React.Fragment>,
+        <React.Fragment key={2}>Description</React.Fragment>,
+        <React.Fragment key={3}>&nbsp;</React.Fragment>,
       ]}
       rows={searchRes.items.map((hit_source_target) => {
         if (!hit_source_target.type) return []

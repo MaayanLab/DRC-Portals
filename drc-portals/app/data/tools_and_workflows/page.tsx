@@ -1,12 +1,13 @@
 import Link from "@/utils/link";
 import Image from "@/utils/image";
 import prisma from "@/lib/prisma";
-import { Typography, Grid, Card, CardContent, Paper, Button, Stack, Box, Container, Tooltip } from "@mui/material";
+import { Typography, Grid, Card, CardContent, Paper, Button, Stack, Box, Container, Tooltip, Chip, CardActions } from "@mui/material";
 
 import Icon from '@mdi/react';
-import { mdiArrowRight, mdiVideoOutline } from "@mdi/js"
+import { mdiArrowRight, mdiVideoOutline, mdiCloseCircle } from "@mdi/js"
 import { Prisma } from "@prisma/client";
 import ClientCarousel from "../usecases/ClientCarousel";
+import { parseAsJson } from "next-usequerystate";
 
 type ToolsWithPublications = Prisma.ToolGetPayload<{
 	include: {
@@ -14,101 +15,65 @@ type ToolsWithPublications = Prisma.ToolGetPayload<{
 	}
 }>
 
-const ToolCard = ({ tool }: { tool: ToolsWithPublications }) => (
-	<Card sx={{ height: 280 }}>
-		<CardContent sx={{ height: "100%" }}>
-			<Grid container spacing={2} sx={{ height: "100%" }} >
-				<Grid item xs={8} sx={{ height: "100%" }}>
-					<Stack direction="column"
-						justifyContent="space-between"
-						alignItems="flex-start"
-						spacing={1}
-						sx={{ height: "90%" }}
-					>
-						<div className="flex items-center space-x-2">
-							{tool.icon ? <Image src={tool.icon} alt={tool.label} height={40} width={40} /> :
-								<Image src={'/img/favicon.png'} alt={tool.label} height={40} width={40} />
-							}
-						</div>
-						<Typography variant="h4" color="secondary">{tool.label}</Typography>
-						<Typography variant={'caption'} color="secondary">
-							{tool.short_description}
-						</Typography>
-						{tool.publications.length > 0 &&
-							<div className="flex items-center">
-								<Typography variant="subtitle1"><b>Publication:</b></Typography>
-								{tool.publications.map((pub, i) => (
-									<Link href={`https://doi.org/${pub.doi}`} key={i} target="_blank" rel="noopener noreferrer">
-										<Button color="secondary">
-											{pub.doi}
-										</Button>
-									</Link>
-								))}
-							</div>
+export interface ToolParams {
+	tags?: Array<string>,
+}
+
+const ToolCard = ({ tool, parsedParams }: { tool: ToolsWithPublications, parsedParams: ToolParams }) => {
+	let tags:string[] = []
+    if (Array.isArray(tool.tags)) {
+        tags = tool.tags as string[]
+    }
+	return(
+	<Card sx={{ height: 300, display: "flex", flexDirection: "column", padding: 1 }}>
+		<CardContent sx={{flexGrow: 1}}>
+			<Grid container spacing={2}>
+				<Grid item xs={8}>
+					<div className="flex items-center space-x-2">
+						{tool.icon ? <Image src={tool.icon} alt={tool.label} height={40} width={40} /> :
+							<Image src={'/img/favicon.png'} alt={tool.label} height={40} width={40} />
 						}
-						<Stack className=" justify-start w-full align-top" spacing={-0.5}>
-							{tool.url &&
-								<Link href={tool.url} target="_blank" rel="noopener noreferrer">
-									<Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />} sx={{ marginLeft: -2 }}>
-										GO TO {tool.url.indexOf('github.com') > -1 ? 'GITHUB' : tool.label.toUpperCase()}
-									</Button>
-								</Link>}
-						</Stack>
-					</Stack>
+					</div>
+					<Typography variant="h4" color="secondary">{tool.label}</Typography>
+					<Typography variant={'caption'} color="secondary">
+						{tool.short_description}
+					</Typography>
 				</Grid>
 				<Grid item xs={4}>
-					<Grid
-						container
-						direction="column"
-						sx={{
-							width: "100%",
-							height: "100%",
-							display: 'flex',
-							justifyContent: 'center',
-						}}
-					>
-						<Grid item sx={{ mt: 2 }}>
-							<Paper elevation={0} className="flex flex-row justify-center relative" sx={{ height: 120 }}>
-								{tool.image ? <Image src={tool.image} alt={tool.label} fill={true} style={{ objectFit: "contain" }} /> :
-									<Image src={tool.icon || '/img/favicon.png'} alt={tool.label} fill={true} style={{ objectFit: "contain" }} />
-								}
-							</Paper>
-						</Grid>
-						<Grid
-							item
-							sx={{
-								display: 'flex',
-								justifyContent: 'flex-end',
-								alignItems: 'center',
-								marginTop: 1
-							}}
-						>
-							{/* Tutorial(s) */}
-							{Array.isArray(tool.tutorial) && tool.tutorial.length >= 2 ? (
-								<>
-									<Typography variant="subtitle2" color="secondary">TUTORIALS</Typography>
-									{(tool.tutorial as string[]).map((url, idx) => (
-										<Link
-											key={idx}
-											href={url}
-											target="_blank"
-											rel="noopener noreferrer"
-										>
-											<Button
-												color="secondary"
-												sx={{
-													minWidth: 0,
-													padding: '2px',
-												}}
-											>
-												<Icon path={mdiVideoOutline} size={1} />
-											</Button>
-										</Link>
-									))}
-								</>
-							) : Array.isArray(tool.tutorial) && tool.tutorial.length === 1 && typeof tool.tutorial[0] === 'string' ? (
+					<Paper elevation={0} className="flex flex-row justify-center relative" sx={{ height: 120 }}>
+						{tool.image ? <Image src={tool.image} alt={tool.label} fill={true} style={{ objectFit: "contain" }} /> :
+							<Image src={tool.icon || '/img/favicon.png'} alt={tool.label} fill={true} style={{ objectFit: "contain" }} />
+						}
+					</Paper>
+					
+				</Grid>
+				
+			</Grid>	
+		</CardContent>
+		<CardActions>
+			<Grid container spacing={1} justifyContent={"space-between"}>
+				<Grid item xs={8}>
+					{tool.publications.length > 0 &&
+						<div className="flex items-center">
+							<Typography variant="subtitle1"><b>Publication:</b></Typography>
+							{tool.publications.map((pub, i) => (
+								<Link href={`https://doi.org/${pub.doi}`} key={i} target="_blank" rel="noopener noreferrer">
+									<Button color="secondary">
+										{pub.doi}
+									</Button>
+								</Link>
+							))}
+						</div>
+					}
+				</Grid>
+				<Grid item xs={4}>
+					{Array.isArray(tool.tutorial) && tool.tutorial.length >= 2 ? (
+						<Stack direction={"row"} spacing={1}>
+							<div><Typography variant="subtitle2" color="secondary">TUTORIALS</Typography></div>
+							{(tool.tutorial as string[]).map((url, idx) => (
 								<Link
-									href={tool.tutorial[0]}
+									key={idx}
+									href={url}
 									target="_blank"
 									rel="noopener noreferrer"
 								>
@@ -118,19 +83,56 @@ const ToolCard = ({ tool }: { tool: ToolsWithPublications }) => (
 											minWidth: 0,
 											padding: '2px',
 										}}
-								
 									>
-										TUTORIAL <Icon path={mdiVideoOutline} size={1} />
+										<Icon path={mdiVideoOutline} size={1} />
 									</Button>
 								</Link>
-							) : null}			
-						</Grid>
+							))}
+						</Stack>
+					) : Array.isArray(tool.tutorial) && tool.tutorial.length === 1 && typeof tool.tutorial[0] === 'string' ? (
+						<Link
+							href={tool.tutorial[0]}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<Button
+								color="secondary"
+								sx={{
+									minWidth: 0,
+									padding: '2px',
+								}}
+						
+							>
+								TUTORIAL <Icon path={mdiVideoOutline} size={1} />
+							</Button>
+						</Link>
+					) : null}			
+				</Grid>
+				{tool.url &&
+					<Grid item sx={{gridRow: 1}}>
+						<Link href={tool.url} target="_blank" rel="noopener noreferrer">
+							<Button color="secondary" endIcon={<Icon path={mdiArrowRight} size={1} />} sx={{ marginLeft: -2 }}>
+								GO TO {tool.url.indexOf('github.com') > -1 ? 'GITHUB' : tool.label.toUpperCase()}
+							</Button>
+						</Link>
+					</Grid>
+				}
+				<Grid item>
+					<Grid container spacing={1}>
+						{tags.length > 0 && tags.map(tag=>{
+							const query = (parsedParams.tags || []).indexOf(tag) > -1 ? parsedParams: {tags: [...parsedParams.tags || [], tag]}
+							return <Grid item key={tag}>
+									<Link href={`/data/tools_and_workflows?filter=${JSON.stringify(query)}`}>
+										<Chip key={tag} color="primary" variant="filled" sx={{borderRadius: 2}} label={tag}/>
+									</Link>
+								</Grid>
+						})}
 					</Grid>
 				</Grid>
 			</Grid>
-		</CardContent>
+		</CardActions>
 	</Card>
-)
+)}
 
 const CarouselCard = ({ tool }: { tool: ToolsWithPublications }) => (
 	<Box sx={{
@@ -238,7 +240,15 @@ const ServerCarousel = ({ tools }: { tools: Array<ToolsWithPublications> }) => {
 }
 
 
-export default async function ToolsPage() {
+export default async function ToolsPage(props: {
+    searchParams?: Promise<{
+        filter?: string
+    }>
+}) {
+	const searchParams = await props.searchParams
+	const query_parser = parseAsJson<ToolParams>().withDefault({tags: []})
+	const parsedParams = query_parser.parseServerSide(searchParams?.filter)
+		
 	const featured_tools = await prisma.tool.findMany({
 		where: {
 			featured: true
@@ -248,13 +258,34 @@ export default async function ToolsPage() {
 		},
 		orderBy: [{ publications: { _count: 'desc' } }, { label: 'asc' }, { id: 'asc' }],
 	})
+	const tags:string[] = []
+
+	const tag_filter = []
+    for (const tag of parsedParams.tags || []) {
+        tag_filter.push({tags: {
+                path: [],
+                array_contains: tag
+            }})
+		tags.push(tag)
+	}
+	const where_tags: {[key:string]: any} = {}
+	if (tag_filter.length) where_tags['where'] = {'OR': tag_filter}
 	const tools = await prisma.tool.findMany({
 		include: {
 			publications: true
 		},
 		orderBy: [{ publications: { _count: 'desc' } }, { label: 'asc' }, { id: 'asc' }],
+		...where_tags
 	})
+	const tag_counter: {[key:string]: number} = {}
+	for (const tool of tools) {
+		for (const tag of tool.tags as string[] || []) {
+			if (tag_counter[tag] === undefined) tag_counter[tag] = 0
+			tag_counter[tag] = tag_counter[tag] + 1
+		}
+	}
 
+	const tag_counter_list = Object.entries(tag_counter).map(([label, count])=>({label, count})).sort((a,b)=>b.count-a.count)
 	return (
 		<Grid container spacing={2} sx={{ marginTop: 2 }}>
 			<Grid item xs={12} sx={{ display: { xs: "block", sm: "none", md: "none", lg: "none", xl: "none" } }}>
@@ -281,10 +312,31 @@ export default async function ToolsPage() {
 				</Typography>
 			</Grid>
 			<Grid item xs={12}>
+				<Grid container spacing={1}>
+					{/* {tags.length > 0 && tags.map(tag=>{
+						const new_tags = (parsedParams.tags || []).filter(i=>i!== tag)
+						return <Grid item key={tag}>
+								<Link href={`/data/tools_and_workflows?filter=${JSON.stringify({tags: new_tags})}`}>
+									<Chip key={tag} clickable color="primary" variant="filled" sx={{borderRadius: 2}} label={`${tag} (${tag_counter[tag]})`} icon={<Icon path={mdiCloseCircle} size={1} />}/>
+								</Link>
+							</Grid>
+					})} */}
+					{tag_counter_list.map(tag=>{
+						const old_tags = parsedParams.tags || []
+						const new_tags = old_tags.indexOf(tag.label) > -1 ? old_tags.filter(i=>i!== tag.label): [...old_tags, tag.label]
+						return <Grid item key={tag.label}>
+								<Link href={`/data/tools_and_workflows?filter=${JSON.stringify({...parsedParams, tags: new_tags})}`}>
+									<Chip key={tag.label} clickable color={old_tags.indexOf(tag.label) > -1 ? "secondary": "primary"} variant="filled" sx={{borderRadius: 2}} label={`${tag.label} (${tag.count})`} icon={old_tags.indexOf(tag.label) > -1 ? <Icon path={mdiCloseCircle} size={1} />: undefined}/>
+								</Link>
+							</Grid>
+					})}
+			</Grid>
+			</Grid>
+			<Grid item xs={12}>
 				<Grid container spacing={2}>
 					{tools.map((tool) => (
 						<Grid item xs={12} sm={6} key={tool.label}>
-							<ToolCard tool={tool} />
+							<ToolCard tool={tool} parsedParams={parsedParams} />
 						</Grid>
 					))}
 				</Grid>

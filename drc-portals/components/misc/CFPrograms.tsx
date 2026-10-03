@@ -1,4 +1,4 @@
-import Link from "@/utils/link"
+import Link from "next/link"
 import Image from "@/utils/image"
 
 import Grid from '@mui/material/Grid'
@@ -13,6 +13,7 @@ async function CFPrograms({spacing=4, className, baseEndpoint}:{spacing: GridSiz
       where: {
         cfde_partner: true,
         active: true,
+        hidden: false,
         short_label: {
           in: [ "Kids First", "A2CPS", "HuBMAP", "4DN", "LINCS", "IDG", 
             "GlyGen", "Bridge2AI", "MoTrPAC", "Metabolomics", "SPARC", "HMP", "GTEx", "SenNet", "ExRNA", 'SCGE', 'SMaHT']
@@ -29,21 +30,20 @@ async function CFPrograms({spacing=4, className, baseEndpoint}:{spacing: GridSiz
     ]
     const additional_label = ['NPH']
     return (
-      <Grid container direction="row" spacing={2} justifyContent={"center"} sx={{marginTop: 5}}>
+      <Grid container direction="row" spacing={2} justifyContent={"center"}>
         {[...dccs, ...additional].map(dcc=>(
-          <Tooltip title={dcc.short_label} placement="top">
             <Grid item xs={spacing} key={dcc.short_label} className="flex items-center justify-center relative" sx={{height: 50, padding: 5, margin: 1}}>
-              { additional_label.indexOf(dcc.short_label || '') > -1 ?
-								<Link href={dcc.homepage} target="_blank" rel="noopener noreferrer">
-									<Image className={className || ''}  src={dcc.icon || ''} alt={dcc.short_label || ''} fill={true} style={{objectFit: "contain"}}/>
-								</Link>:
-								<Link href={`${baseEndpoint}/${dcc.short_label}`}>
-                  <Image className={className || ''}  src={dcc.icon || ''} alt={dcc.short_label || ''} fill={true} style={{objectFit: "contain"}}/>
-                </Link>
-								}
-              
+              <Tooltip key={dcc.short_label} title={dcc.short_label} placement="top">
+                { additional_label.indexOf(dcc.short_label || '') > -1 ?
+                  <Link href={dcc.homepage} target="_blank" rel="noopener noreferrer">
+                    <Image className={className || ''}  src={dcc.icon || ''} alt={dcc.short_label || ''} fill={true} style={{objectFit: "contain"}}/>
+                  </Link>:
+                  <Link href={`${baseEndpoint}/${dcc.short_label}`}>
+                    <Image className={className || ''}  src={dcc.icon || ''} alt={dcc.short_label || ''} fill={true} style={{objectFit: "contain"}}/>
+                  </Link>
+                  }
+              </Tooltip>    
             </Grid>
-          </Tooltip>
         ))}
       </Grid>
     )

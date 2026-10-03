@@ -106,7 +106,7 @@ export const EnrichrTermSearch = ({setInput, hideText, background, examples}: {s
             <Stack direction={"row"} alignItems="center" justifyContent={"center"}>
                 {examples !== undefined && <Typography variant="body1">Examples:</Typography>}
                 {examples !== undefined &&
-                    examples.map(example=><Button color="secondary" onClick={()=>fetchGeneSet(example.library, example.term)}><Typography variant="body1" sx={{textTransform: "lowercase"}}>{example.term}</Typography></Button>)
+                    examples.map((example, i)=><Button key={i} color="secondary" onClick={()=>fetchGeneSet(example.library, example.term)}><Typography variant="body1" sx={{textTransform: "lowercase"}}>{example.term}</Typography></Button>)
                 }
             </Stack>
         </Stack>

@@ -25,7 +25,8 @@ export default async function DCCLanding() {
     const dccs = await prisma.dCC.findMany({
         where: {
             cfde_partner: true,
-            active: true
+            active: true,
+            hidden: false,
         },
         orderBy: {
             short_label: 'asc'
@@ -40,8 +41,8 @@ export default async function DCCLanding() {
             <Grid item xs={12}>
                 <Box sx={{ minHeight: 253 }}>
                     <MasonryClient defaultHeight={1500}>
-                    {dccs.map(dcc=>(
-                            <Card sx={{paddingLeft: 2, paddingRight: 2}}>
+                    {dccs.map((dcc, i)=>(
+                            <Card key={i} sx={{paddingLeft: 2, paddingRight: 2}}>
                                 {dcc.icon &&
                                     <CardHeader
                                         avatar={

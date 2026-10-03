@@ -5,7 +5,7 @@ import { useSWRConfig } from 'swr'
 import { NetworkSchema } from './types';
 import CytoscapeComponent from 'react-cytoscapejs';
 import { Legend } from './legend';
-import { useQueryState, parseAsStringLiteral, parseAsJson, parseAsString } from 'next-usequerystate';
+import { useQueryState, parseAsJson, parseAsString } from 'next-usequerystate';
 import HubIcon from '@mui/icons-material/Hub';
 import { mdiFamilyTree,  mdiDotsCircle} from '@mdi/js';
 import Icon from '@mdi/react';

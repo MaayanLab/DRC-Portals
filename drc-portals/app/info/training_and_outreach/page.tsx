@@ -39,12 +39,12 @@ const OutreachComponent = ({outreach=[], parsedParams, now}: {
     </Grid>
   )
   
-export default async function OutreachPage ({ searchParams }: {
-    searchParams?: {
+export default async function OutreachPage (props: {
+    searchParams?: Promise<{
         filter?: string
-    }
+    }>
 }) {
-    
+    const searchParams = await props.searchParams
     const query_parser = parseAsJson<OutreachParams>().withDefault({tags:[], limit: 15, page: 0})
     const parsedParams = query_parser.parseServerSide(searchParams?.filter)
     const {tags=[], page} = parsedParams

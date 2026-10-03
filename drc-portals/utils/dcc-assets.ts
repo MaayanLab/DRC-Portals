@@ -1,10 +1,15 @@
+import elasticsearch from '@/lib/elasticsearch';
 import type { PrismaClient } from '.prisma/client'
+import { safeAsync } from './safe';
+import { EntityExpandedType } from '@/app/data/processed/utils';
 
 export type dccAsset = {
   dcc_id: string
   filetype: string;
   filename: string;
   link: string;
+  drs?: string;
+  pdp?: string;
   size?: string;
   lastmodified: string;
   creator: string | null;
@@ -90,6 +95,8 @@ function getDccShortLabel(
   }
 }
 
+const base_drs = process.env.PUBLIC_URL?.replace(/^https?/g, 'drs')
+
 async function getFile(
   prisma: PrismaClient, dccId: string, dccName: string,
   ft: string, isCurr: boolean
@@ -107,7 +114,8 @@ async function getFile(
       fileAsset: {
         select: {
           filename: true,
-          size: true
+          size: true,
+          sha256checksum: true,
         }
       },
       dcc: {
@@ -118,17 +126,35 @@ async function getFile(
     }
   })
   const filter_res = res.filter((item) => item.fileAsset != null)
+  const es_dcc_assets = await safeAsync(async () => {
+    const res = await elasticsearch.search<EntityExpandedType>({
+      index: 'entity_expanded',
+      query: {
+        bool: {
+          filter: [
+            {term: {type: 'dcc_asset'}},
+            {terms: {"a_access_url.keyword": filter_res.map(({ link }) => link)}},
+          ],
+        },
+      },
+      _source_includes: 'slug,a_access_url',
+      size: filter_res.length,
+    })
+    return Object.fromEntries(res.hits.hits.flatMap(hit => hit._source ? [[hit._source?.a_access_url, hit._source.slug] as const] : []))
+  })
   var data : dccAsset[] = await Promise.all(filter_res.map(async item => ({
     dcc_id: dccName,
     filetype: ft,
     filename: item.fileAsset ? item.fileAsset.filename : '',
     link: item.link,
+    drs: item.fileAsset?.sha256checksum ? `${base_drs}/${Buffer.from(item.fileAsset.sha256checksum, 'base64').toString('hex')}` : undefined,
+    pdp: es_dcc_assets.data ? es_dcc_assets.data[item.link] : undefined,
     size: item.fileAsset ? convertBytes(item.fileAsset.size) : undefined,
     lastmodified: item.lastmodified.toLocaleDateString("en-US"),
     creator: await getCreatorAff(
       prisma, item.creator, ft, item.dccapproved, item.drcapproved, getDccShortLabel(item.dcc, dccName)),
     dccapproved: item.dccapproved,
-    drcapproved: item.drcapproved
+    drcapproved: item.drcapproved,
     }
   )))
   return data

@@ -117,7 +117,7 @@ const Node = ({ data, isConnectable }: {data: {
 		  <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"center"}>
 			<Typography variant="body1">Examples:</Typography>
 		  {data.examples !== undefined &&
-		  	data.examples.map(example=><Button color="secondary" onClick={()=>data.update_input(data.facet, example, 'add')}><Typography variant="body1">{example}</Typography></Button>)
+		  	data.examples.map((example, i) => <Button key={i} color="secondary" onClick={()=>data.update_input(data.facet, example, 'add')}><Typography variant="body1">{example}</Typography></Button>)
 		  }
 		  </Stack>
 		</Grid>

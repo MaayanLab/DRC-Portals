@@ -20,6 +20,7 @@ import { ExpandableComponent,
 	BiomarkerKB,
 	DDKG } from "@/components/Explorer";
 import trpc from '@/lib/trpc/client'
+import { KC } from "@/components/Explorer/kc";
 
 const getTaskId = async (method:string, input: {[key:string]: string}, controller: AbortController) => {
 	const payload = {
@@ -190,8 +191,8 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 		
 		const runs:ReactNode[] = []
 
-		const run_component = ({method, icon, params, label, description, icon_color, color}: {method: string, icon: string, icon_color: string, color: string, params: {[key:string]: string}, label: string, description: string}) => (
-			<Grid item xs={6} sm={4} key={method}>
+		const run_component = ({method, icon, params, label, description, icon_color, color, i}: {method: string, icon: string, icon_color: string, color: string, params: {[key:string]: string}, label: string, description: string, i:number}) => (
+			<Grid item xs={6} sm={4} key={i}>
 		 		<Card key={method} sx={{height: '100%'}}>
 		 			<CardHeader
 		 				avatar={
@@ -222,20 +223,20 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 			if (method === 'DeepDive') {
 				if (inputList.length === 1) {
 					runs.push(
-						run_component({...v, method, params: {input}})
+						run_component({...v, method, params: {input}, i: runs.length})
 					)
 				}
 			} else if (method === "DeepDiveHypothesis") {
 				const diseases = inputList.filter(i=>i.entity === 'disease' || i.entity === 'disease or phenotype' || i.entity === 'phenotype').map(i=>i.label)
 				const genes = inputList.filter(i=>i.entity === 'gene').map(i=>i.label)
 				if (diseases.length === 1 && genes.length === 1 && inputList.length === 2) {
-					runs.push(run_component({...v, method, params: {gene: genes[0], disease: diseases[0]}}))	
+					runs.push(run_component({...v, method, params: {gene: genes[0], disease: diseases[0]}, i: runs.length}))	
 				} 
 				
 			} else if (method === "DeepDiveHypothesisAll"){
-					runs.push(run_component({...v, method: "DeepDiveCFDEAgent", params: {input: `Create a hypothesis that shows connections between ${inputList.map(i=>i.label).join(", ")}`}}))
+					runs.push(run_component({...v, method: "DeepDiveCFDEAgent", params: {input: `Create a hypothesis that shows connections between ${inputList.map(i=>i.label).join(", ")}`}, i: runs.length}))
 			} else {
-				runs.push(run_component({...v, method, params: {input}}))
+				runs.push(run_component({...v, method, params: {input}, i: runs.length}))
 			}
 		}
 		// const runs = inputList.map(a=>(
@@ -370,8 +371,18 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						title="Search the CFDE Workbench"
 						description="Query data and metadata assets produced by the Common Fund programs that participate in the CFDE"
 					>
-						{inputList.filter(i=>i.entity!=='gene_set').map(i=>(<SearchCard key={`search-${i.label}`} labels={[i.label]} {...i} />))}
-						{inputList.filter(i=>i.entity!=='gene_set').length > 1 && <SearchCard labels={inputList.filter(i=>i.entity!=='gene_set').map(i=>i.label)} />}
+						{[...inputList.filter(i=>i.entity!=='gene_set').map(i=>(<SearchCard key={`search-${i.label}`} labels={[i.label]} {...i} />)),
+							inputList.filter(i=>i.entity!=='gene_set').length > 1 ? <SearchCard labels={inputList.filter(i=>i.entity!=='gene_set').map(i=>i.label)} />: undefined
+						]}
+						
+					</ExpandableComponent>
+					<ExpandableComponent 
+						
+						icon="/centers/KC-icon.png" 
+						title="Search the Knowledge Center"
+						description="Query integrated analysis results and scientific claims from the CFDE Knowledge Center"
+					>
+						{inputList.filter(i=>i.entity==='gene').map(i=>(<KC key={`search-${i.label}`} {...i} />))}
 					</ExpandableComponent>
 					<ExpandableComponent 
 						icon={icons.gdlpa}

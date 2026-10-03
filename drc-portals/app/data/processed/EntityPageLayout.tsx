@@ -1,5 +1,5 @@
 import React from 'react'
-import { categoryLabel, create_url, EntityType, humanBytesSize, itemDescription, itemLabel, linkify, titleCapitalize } from "@/app/data/processed/utils"
+import { categoryLabel, create_url, EntityType, humanBytesSize, itemDescription, itemJsonLD, itemLabel, linkify, titleCapitalize } from "@/app/data/processed/utils"
 import { LinkedTypedNode } from "@/app/data/processed/SearchablePagedTable";
 import Link from "@/utils/link";
 import { Button } from "@mui/material";
@@ -16,9 +16,11 @@ import { Metadata, ResolvingMetadata } from 'next';
 
 type PageProps = { params: Promise<{ type: string, slug: string } & Record<string, string>> }
 
+const base_drs = process.env.PUBLIC_URL?.replace(/^https?/g, 'drs')
+
 export async function generateMetadata(props: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params
-  for (const k in props.params) params[k] = decodeURIComponent(params[k])
+  for (const k in params) params[k] = decodeURIComponent(params[k])
   const item = await getEntity(params)
   if (!item) return {}
   const dcc = await getEsDCC(item.m2o_dcc?.id)
@@ -54,7 +56,7 @@ export const getGeneSummary = React.cache(async (params: {type: string, a_label:
 
 export default async function Page(props: React.PropsWithChildren<PageProps>) {
   const params = await props.params
-  for (const k in props.params) params[k] = decodeURIComponent(params[k])
+  for (const k in params) params[k] = decodeURIComponent(params[k])
   const item = await getEntity(params)
   if (!item) notFound()
   const summary = await getGeneSummary(item)
@@ -74,6 +76,7 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
       title={itemLabel(item)}
       subtitle={categoryLabel(item.type)}
       summary={summary}
+      jsonld={itemJsonLD(item, entityLookup)}
       metadata={[
         ...Object.keys(item).toSorted().toReversed().flatMap(predicate => {
           const m = /^(a|m2o)_(.+)$/.exec(predicate)
@@ -89,14 +92,47 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
             if (m[2] === 'label') return []
             if (m[2] === 'entrez') value = <a className="text-blue-600 cursor:pointer underline" href={`https://www.ncbi.nlm.nih.gov/gene/${item[predicate as `a_${string}`]}`} target="_blank" rel="noopener noreferrer">{item[predicate as `a_${string}`]}</a>
             else if (m[2] === 'ensembl') value = <a className="text-blue-600 cursor:pointer underline" href={`https://www.ensembl.org/id/${item[predicate as `a_${string}`]}`} target="_blank" rel="noopener noreferrer">{item[predicate as `a_${string}`]}</a>
-            else if (m[2] === 'synonyms') value = (JSON.parse(value as string) as string[]).join(', ')
-            else if (/_in_bytes/.exec(m[2]) !== null) value = humanBytesSize(Number(item[predicate as `a_${string}`]))
-            else if (/_time$/.exec(m[2]) !== null) value = JSON.parse(value as string) as string
-            else if (m[2] == 'icon') value = <img className="max-w-28 max-h-48 align-top m-0 mb-2" src={value as string} />
-            else if (m[2] == 'access_url') value = <div className="flex flex-col place-items-start">
-              {linkify(value as string)}
-              <DRSCartButton access_url={value as string} />
-            </div>
+            else if (m[2] === 'uniprotkb') value = <a className="text-blue-600 cursor:pointer underline" href={`https://www.uniprot.org/uniprotkb/${item[predicate as `a_${string}`]}/entry`} target="_blank" rel="noopener noreferrer">{item[predicate as `a_${string}`]}</a>
+            else if (m[2] === 'synonyms') {
+              try {
+                value = (JSON.parse(value as string) as string[]).join(', ')
+              } catch (e) {
+                value = value as string
+              }
+            } else if (/_in_bytes/.exec(m[2]) !== null) value = humanBytesSize(Number(item[predicate as `a_${string}`]))
+            else if (/_time$/.exec(m[2]) !== null) {
+              try {
+                value = JSON.parse(value as string) as string
+              } catch (e) {
+                value = value as string
+              }
+            } else if (m[2] == 'icon') {
+              value = <img className="max-w-28 max-h-48 align-top m-0 mb-2" src={value as string} />
+            } else if (item.type === 'dcc_asset' && m[2] === 'filetype') {
+              value = <a className="text-blue-600 cursor:pointer underline" href={`/info/dcc/${item.m2o_dcc.a_label}#${value}`}>{value}</a>
+            } else if (item.type === 'dcc_asset' && m[2] === 'size') {
+              value = humanBytesSize(Number(item[predicate as `a_${string}`]))
+            } else if (item.type === 'dcc_asset' && m[2] === 'sha256checksum') {
+              const hexsum = Buffer.from(value as string, 'base64').toString('hex')
+              value = <span title={hexsum}>{hexsum.slice(0, 4)}..{hexsum.slice(-4)}</span>
+            } else if (m[2] == 'access_url') {
+              const parts = (value as string).split(/:\/\/|\//)
+              return [
+                {label: 'Access URL',
+                 value: (
+                  <div className="flex flex-col place-items-start">
+                    {linkify(value as string, `${parts[0]}://${parts[1]}${parts.length > 3 ? `/.../` : '/'}${parts[parts.length-1]}`)}
+                    <DRSCartButton access_url={value as string} />
+                  </div>
+                )},
+                {label: 'Workbench DRS', value: (
+                  <div className="flex flex-col place-items-start">
+                    {linkify(`${base_drs}/${item.id}`)}
+                    <DRSCartButton access_url={`${base_drs}/${item.id}`} />
+                  </div>
+                )},
+              ]
+            }
             else value = linkify(item[predicate as `a_${string}`])
             return [{
               label: titleCapitalize(m[2].replaceAll('_', ' ')),

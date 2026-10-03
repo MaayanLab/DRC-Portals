@@ -19,9 +19,9 @@ import { BlurSmall } from "@/components/styled/Blur"
 import prisma from "@/lib/prisma"
 import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent"
 import { ResponsivePaper } from "./styled"
-import CFDEWheel from "cfde-wheel"
+// import CFDEWheel from "cfde-wheel"
 import { Tooltip } from "@mui/material"
-
+import { Popup } from "./modal"
 export default async function Home() {
   const publications = await prisma.publication.findMany({
     orderBy: {
@@ -33,6 +33,7 @@ export default async function Home() {
   return (
     <main>
       <Grid container spacing={2} alignItems={"center"}>
+        <Popup/>
         <Grid item xs={12}>
           <BlurSmall sx={{position: 'absolute', top: -100, right: -100, zIndex: 100}}/>
           <BlurSmall sx={{position: 'absolute', bottom: -100, left: -100}}/>
@@ -73,10 +74,10 @@ export default async function Home() {
                     borderColor: "tertiary.main"
                   }}>
                       <Stack spacing={2}>
-                        <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}} variant="subtitle1">CFDE NAVIGATION WHEEL</Typography>
+                        {/* <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}} variant="subtitle1">CFDE NAVIGATION WHEEL</Typography>
                         <div style={{marginLeft: 40}}>
-                          <CFDEWheel button={true} new_window={true}/>
-                        </div>
+                          <CFDEWheel button={true} new_window={true}/> 
+                        </div> */}
                         <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 233}}variant="subtitle1">ABOUT THE WORKBENCH</Typography>
                         <Box sx={{width: 233}}>
                           <Image src="/img/workbench.png" alt="workbench" width={233} height={233}/>

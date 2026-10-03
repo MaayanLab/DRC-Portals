@@ -3,7 +3,7 @@
 
 generator client {
   provider        = "prisma-client-js"
-  binaryTargets   = ["native", "debian-openssl-3.0.x"]
+  binaryTargets   = ["native", "linux-musl", "linux-musl-openssl-3.0.x"]
   previewFeatures = ["fullTextSearch"]
 }
 
@@ -22,6 +22,7 @@ model DCC {
   annotation       Json?
   cfde_partner     Boolean           @default(false)
   active           Boolean           @default(true)
+  hidden           Boolean           @default(false)
   cf_site          String?
   publications     DCCPublication[]
   Users            User[]
@@ -33,7 +34,7 @@ model DCC {
   nodes            Node[]
   kg_assertions    KGAssertion[]
   fairAssessments  FairAssessment[]
-
+  tools            DCCTools[]
   @@map("dccs")
 }
 
@@ -58,6 +59,7 @@ model Publication {
   carousel_description String?
   image                String?
   keywords             Json?
+  audio                String?
   dccs                 DCCPublication[]
   partnertships        PartnershipPublications[]
   r03s                 R03Publications[]
@@ -177,6 +179,7 @@ model UseCase {
   featured          Boolean?     @default(false)
   featured_image    String?
   creator_dcc_id    String?
+  tags              Json @default("[]")
   creator_dcc       DCC?         @relation(fields: [creator_dcc_id], references: [id])
   source_dccs       DCCUseCase[]
 
@@ -204,10 +207,22 @@ model Tool {
   icon              String?
   image             String?
   tutorial          Json?
+  tags              Json @default("[]")
   featured          Boolean?      @default(false)
   publications      Publication[]
+  dccs              DCCTools[]
 
   @@map("tools")
+}
+
+model DCCTools {
+  tool    Tool @relation(fields: [tool_id], references: [id])
+  tool_id String
+  dcc            DCC         @relation(fields: [dcc_id], references: [id])
+  dcc_id         String
+
+  @@id([tool_id, dcc_id])
+  @@map("dcc_tools")
 }
 
 model DccAsset {

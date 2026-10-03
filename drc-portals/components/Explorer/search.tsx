@@ -61,7 +61,7 @@ export const SearchCard = ({labels, color=blueGrey[100], icon_color=blueGrey[900
 						<Stack>
 							<Typography variant="caption"><b>Search hits: </b>{`${data?.total}`}</Typography>
 							{(expand ? buckets: buckets.slice(0,3)).map(i=>(
-								<Typography variant="caption">
+								<Typography key={i.key} variant="caption">
 									<b>{i.key}: </b> {i.doc_count}
 								</Typography>
 							))}

@@ -59,6 +59,7 @@ export function SearchField({ name = 'search', defaultValue, InputProps, placeho
         return (
           <li
             {...props}
+            key={props.key}
             className={classNames(props.className, 'text-nowrap')}
             title={`${option}${!autocomplete?.type ? `(${categoryLabel(filteredOptionTypes[option])})` : ''}`}
           >
@@ -74,7 +75,9 @@ export function SearchField({ name = 'search', defaultValue, InputProps, placeho
                 {part.text.replace(/^[^\w]/, '')}
               </span>
             ))}
-            {!autocomplete?.type && <span className="text-ellipsis overflow-hidden">&nbsp;({categoryLabel(filteredOptionTypes[option])})</span>}
+            <React.Fragment>
+              {!autocomplete?.type && <span className="text-ellipsis overflow-hidden">&nbsp;({categoryLabel(filteredOptionTypes[option])})</span>}
+            </React.Fragment>
           </li>
         )
       }}
