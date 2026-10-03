@@ -16,9 +16,9 @@ fi
 #dcc_short_labels=('4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet');
 # 2025/01/06: ERCC is now labelled as ExRNA in ingest/DccAssets.tsv
 # 2026/02/03: Added Bridge2AI (even through DGPs have separate id_namespace and DCC names, the all go into onec schema)
-dcc_short_labels=('4DN' 'Bridge2AI' 'ExRNA' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet' 'SCGE');
+dcc_short_labels=('4DN' 'Bridge2AI' 'ExRNA' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet' 'SCGE' 'GEO');
 # For Dec 2025, 'Kids First' used
-dcc_short_labels=('4DN' 'Bridge2AI' 'ExRNA' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'Kids First' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet' 'SCGE');
+dcc_short_labels=('4DN' 'Bridge2AI' 'ExRNA' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'Kids First' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet' 'SCGE' 'GEO');
 #dcc_short_labels=('Bridge2AI');
 
 # define python command

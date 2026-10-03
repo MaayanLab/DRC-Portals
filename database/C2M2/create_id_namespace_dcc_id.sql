@@ -53,7 +53,11 @@ VALUES
  ('cm4ai_ppi', 'cfde_registry_dcc:cm4ai', 'Bridge2AI'),
  ('cm4ai_ploc', 'cfde_registry_dcc:cm4ai', 'Bridge2AI'),
  ('cm4ai_perturbseq', 'cfde_registry_dcc:cm4ai', 'Bridge2AI'),
- ('cm4ai_cellmaps', 'cfde_registry_dcc:cm4ai', 'Bridge2AI')
+ ('cm4ai_cellmaps', 'cfde_registry_dcc:cm4ai', 'Bridge2AI'),
+ --- Adding Bridge2AI voice DGP
+ ('bridge2ai_voice', 'cfde_registry_dcc:b2ai_voice', 'Bridge2AI'),
+ --- Adding GEO
+ ('NCBIGEO', 'cfde_registry_dcc:ncbigeo', 'GEO')
 --- Column names: id_namespace_id, dcc_id, dcc_short_label
 ;
 
