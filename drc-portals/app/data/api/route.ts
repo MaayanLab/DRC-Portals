@@ -17,18 +17,10 @@ export async function POST(request: Request) {
             },
             body: JSON.stringify(payload),
         })
-		console.log(res.statusText, res.status)
-		if (res.statusText !== 'OK') {
-			return new Response(JSON.stringify({error: await res.text()}), {
-				status: res.status,
-				headers: { 'Content-Type': 'application/json' }
-			});
-		} else {
-			return new Response(JSON.stringify(await res.json()), {
-				status: res.status,
-				headers: { 'Content-Type': 'application/json' }
-			});
-		}
+		return new Response(JSON.stringify(await res.json()), {
+			status: res.status,
+			headers: { 'Content-Type': 'application/json' }
+		});
 	 } else {
 		const params = Object.entries(payload).map(([key, val])=>`${key}=${val}`).join("&")
 		console.log(`${process.env.DEEPDIVE_URL}${methods}?${params}`)
