@@ -1,7 +1,8 @@
 // C2M2
 import c2m2Preset from "@/lib/text2cypher/constants/cy/presets/c2m2";
 import c2m2CytoscapeStyles from "@/lib/text2cypher/constants/cy/styles/c2m2";
-import { COMPACT_C2M2_DOMAIN_RULES } from "@/lib/text2cypher/llm/prompts/c2m2";
+import { C2M2_PROMPT } from "@/lib/text2cypher/llm/prompts/c2m2";
+import { C2M2_FEW_SHOT } from "@/lib/text2cypher/llm/prompts/c2m2_few_shot";
 import { templates as c2m2Templates } from "@/lib/text2cypher/neo4j/query-templates/c2m2";
 import c2m2Schema from "@/lib/text2cypher/neo4j/schemas/c2m2";
 
@@ -18,7 +19,8 @@ export const SCHEMA_REGISTRY = {
   c2m2: {
     id: "c2m2",
     displayName: "C2M2",
-    domainRules: COMPACT_C2M2_DOMAIN_RULES,
+    domainRules: C2M2_PROMPT,
+    fewShotExamples: C2M2_FEW_SHOT,
     nodes: c2m2Schema.NODES,
     nodeProperties: c2m2Schema.NODE_PROPERTIES,
     relationships: c2m2Schema.RELATIONSHIPS,
@@ -36,6 +38,7 @@ export const SCHEMA_REGISTRY = {
     id: "mw",
     displayName: "MW",
     domainRules: MW_DOMAIN_RULES,
+    fewShotExamples: "",
     nodes: mwSchema.NODES,
     nodeProperties: mwSchema.NODE_PROPERTIES,
     relationships: mwSchema.RELATIONSHIPS,

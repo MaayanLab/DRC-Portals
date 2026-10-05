@@ -9,7 +9,7 @@ export const templates: SchemaTemplates = [
     description:
       "Subjects tested for a specific disease, and their parent projects.",
     query: `MATCH
-  (disease:Disease {name: $disease_name})<-[testedFor:${c2m2Schema.TESTED_FOR}]-(subject:${c2m2Schema.SUBJECT}),
+  (disease:${c2m2Schema.DISEASE} {name: $disease_name})<-[testedFor:${c2m2Schema.TESTED_FOR}]-(subject:${c2m2Schema.SUBJECT}),
   (project:${c2m2Schema.PROJECT})-[contains:${c2m2Schema.CONTAINS}]->(subject),
   (subject)-[associatedWith:${c2m2Schema.ASSOCIATED_WITH}]->(organism:${c2m2Schema.NCBI_TAXONOMY})
 WITH disease, subject, project, organism, testedFor, contains, associatedWith

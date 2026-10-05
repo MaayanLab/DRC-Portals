@@ -21,6 +21,7 @@ export interface SchemaDefinition {
   id: string;
   displayName: string;
   domainRules: string;
+  fewShotExamples: string;
   nodes: SchemaNodes;
   nodeProperties: SchemaNodeProperties;
   relationships: SchemaRelationships;

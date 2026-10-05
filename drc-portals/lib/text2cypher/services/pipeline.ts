@@ -1,5 +1,6 @@
 import { build, buildRetry } from "@/lib/text2cypher/llm/prompts/builder";
 import { composeSchema } from "@/lib/text2cypher/llm/prompts/schema-composition";
+import { SYSTEM_PROMPT } from "@/lib/text2cypher/llm/prompts/system";
 // import { chat } from "@/lib/text2cypher/llm/ollama";
 import { create } from "@/lib/text2cypher/llm/openai";
 import type { Neo4jVarType } from "@/lib/text2cypher/neo4j/types";
@@ -85,9 +86,8 @@ export const runPipeline = async (
   question: string,
   paginationInput?: PipelinePaginationInput,
 ): Promise<PipelineResult> => {
-  const activeSchema = getActiveSchemaDefinition();
   const pagination = resolvePipelinePagination(paginationInput);
-
+  const activeSchema = getActiveSchemaDefinition();
   const result: PipelineResult = {
     question,
     cypher: "",
@@ -129,15 +129,24 @@ export const runPipeline = async (
     );
 
     let messages;
+
     if (attempt === 1) {
-      messages = build(schema, question, activeSchema.domainRules);
+      messages = build(
+        schema,
+        question,
+        SYSTEM_PROMPT,
+        activeSchema.domainRules,
+        activeSchema.fewShotExamples,
+      );
     } else {
       messages = buildRetry(
         schema,
         question,
         badCypher,
         errorMsg,
+        SYSTEM_PROMPT,
         activeSchema.domainRules,
+        activeSchema.fewShotExamples,
       );
     }
 

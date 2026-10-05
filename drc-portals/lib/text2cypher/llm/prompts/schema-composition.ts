@@ -27,11 +27,9 @@ export const composeSchema = (
   const nodes = composeNodes(nodePropertyMap);
   const relationships = composePathways(pathways);
   return [
-    "// Nodes",
-    "// e.g. -> ExampleNodeLabel: id, name, description, other_properties",
+    "### Nodes",
     `${nodes}`,
-    "// Relationship pathways",
-    "// e.g. -> (:ExampleNodeLabel)-[:EXAMPLE_RELATIONSHIP_TYPE]->(:ExampleNodeLabel)",
+    "### Relationship pathways",
     `${relationships}`,
   ].join("\n");
 };
