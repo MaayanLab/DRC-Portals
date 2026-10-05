@@ -74,7 +74,7 @@ const options = [
       {
         title: "C2M2 Interactive Graph Search",
         href: "/data/graph",
-        description: "Explore the CFDE Workbench Cross Cut Metaata Model (C2M2) using an interactive graph-based interface to build queries",
+        description: "Explore the CFDE Workbench Cross Cut Metadata Model (C2M2) using an interactive graph-based interface to build queries",
         icon: mdiGraphOutline
       },
       {
@@ -212,51 +212,66 @@ const options = [
 ]
 
 
-export default function Header({ session }: { session: Session | null }) {
-  const [open, setOpen] = useState(false)
-  const [subLinks, setSubLinks] = useState<{ title: string, links: Array<{ title: string, href: string, description: string, icon: string }> } | null>(null)
-  const path: '/info' | '/data' = "/info"
+export default function Header({ session }: {session: Session | null }) {
+  const [tmo, setTmo] = useState<any>(null)
+  const [subLinks, setSubLinks] = useState<{title: string, links: Array<{title: string, href: string, description: string, icon:string}>} | null>(null)
+  const path:'/info' | '/data' = "/info"
   const ref = useRef<HTMLElement>(null);
   const pathname = usePathname()
-  const handleClick = (data: { title: string, links: Array<{ title: string, href: string, description: string, icon: string }> }) => {
+  const handleClick = (data: {title: string, links: Array<{title: string, href: string, description: string, icon: string}>}) => {
+    if (tmo) clearTimeout(tmo)
     if (subLinks === null) setSubLinks(data)
     else if (data.title === subLinks.title) {
       setSubLinks(null)
     } else {
       setSubLinks(data)
     }
-    // setTimeout(() => {
-    //     setSubLinks(null)
-    // }, 5000);
+    const timeoutHandle = setTimeout(() => {
+       setSubLinks(null)
+    }, 5000);
+    setTmo(timeoutHandle)
   }
+  // if (pathname === "/info") {
+  //   return(
+  //     <Container maxWidth="lg" >
+  //       <AppBar position="static" sx={{ color: "#2D5986", paddingTop: 2, display: { xs: "none", sm: "none", md: "none", lg: "block", xl: "block" } }}>
+  //           <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
+  //             <Grid item>
+  //               <Logo title="Common Fund Data Ecosystem" size='large' color="inherit" icon="/img/CFDE.jpg" />
+  //             </Grid>
+  //           </Grid>
+  //       </AppBar>
+  //     </Container>
+  //   )
+  // }
   return (
-    <ClickAwayListener onClickAway={() => setSubLinks(null)}>
-      <div>
-        <Box ref={ref}>
-          <Container maxWidth="lg" >
-            <AppBar position="static" sx={{ color: "#2D5986", paddingTop: 2, display: { xs: "none", sm: "none", md: "none", lg: "block", xl: "block" } }}>
-              <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
-                <Grid item>
-                  <Logo title="CFDE Workbench" size='large' color="inherit" />
-                </Grid>
-                <Grid item>
-                  <Stack direction={"row"} alignItems={"center"}>
-                    <TopNav session={session} />
-                  </Stack>
-                </Grid>
-                <Grid item xs={12}>
-                  <Grid container alignItems={"center"}>
-                    {options.map(({ title, links }) => (
-                      <Grid item key={title}>
-                        <Button sx={{ paddingLeft: 1, paddingRight: 1 }} className="navButton" color="secondary" onClick={() => handleClick({ title, links })}>
-                          <TextNav paths={links.map(i => i.href)} clicked={subLinks?.title === title} title={title} />
-                        </Button>
-                      </Grid>
-                    ))}
-                    {/* <BottomNav nav={nav} path={path} /> */}
+    <ClickAwayListener onClickAway={()=>setSubLinks(null)}>
+    <div>
+    <Box ref={ref}>
+    <Container maxWidth="lg" >
+      <AppBar position="static" sx={{ color: "#2D5986", paddingTop: 2, display: { xs: "none", sm: "none", md: "none", lg: "block", xl: "block" } }}>
+          <Grid container justifyContent={"space-between"} alignItems={"center"} spacing={2}>
+            <Grid item>
+              <Logo title="CFDE Workbench" size='large' color="inherit" />
+            </Grid>
+            <Grid item>
+              <Stack direction={"row"} alignItems={"center"}>
+                <TopNav session={session} />
+              </Stack>
+            </Grid>
+            {pathname !== "/" && <Grid item xs={12}>
+              <Grid container alignItems={"center"}>
+                {options.map(({ title, links }) => (
+                  <Grid item key={title}>
+                    <Button sx={{paddingLeft: 1, paddingRight: 1}}className="navButton" color="secondary" onClick={()=>handleClick({title, links})}>
+                      <TextNav paths={links.map(i=>i.href)} clicked={subLinks?.title === title} title={title}/>
+                    </Button>
                   </Grid>
-                </Grid>
-                {/* <Grid item xs={12} className='flex items-center'>
+                ))}
+                {/* <BottomNav nav={nav} path={path} /> */}
+              </Grid>
+            </Grid>}
+            {/* <Grid item xs={12} className='flex items-center'>
               <div className='flex flex-grow'><NavBreadcrumbs /></div>
               {path === "/data" && <SearchParamSearchField />}
             </Grid> */}
