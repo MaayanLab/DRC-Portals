@@ -2,7 +2,7 @@ services:
   drc-portal-app:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal:1.5.10
+    image: maayanlab/drc-portal:1.5.14
     deploy:
       replicas: 3
       resources:
@@ -46,10 +46,12 @@ services:
       - GSC_DATABASE_URL=${PROD_GSC_DATABASE_URL}
       - MCP_API_KEY
       - ELASTICSEARCH_URL=${PROD_ELASTICSEARCH_URL:-http://elastic:${ELASTICSEARCH_PASSWORD}@drc-portal-elasticsearch:9200}
+      - DEEPDIVE_TOKEN
+      - DEEPDIVE_URL
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:1.5.10-rc.2
+    image: maayanlab/drc-portal-dev:1.5.10-rc.3
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
