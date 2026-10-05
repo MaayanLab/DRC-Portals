@@ -261,7 +261,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 		// 		</Card>
 		// 	</Grid>
       	// ))
-		const articles = runnables.map((i: {[key:string]: any})=>
+		const articles = runnables.filter((i: {[key:string]: any})=>i.output !== null).map((i: {[key:string]: any})=>
 			<Grid item xs={6} sm={4} key={i.output.runnable_id}>
 				<Card key={i.output.runnable_id} sx={{height: '100%'}}>
 					<CardHeader

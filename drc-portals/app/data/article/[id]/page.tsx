@@ -1,8 +1,3 @@
-import ReactMarkdown from "react-markdown";
-import remarkGfm from 'remark-gfm'
-import Link from 'next/link';
-import { Grid, Skeleton, Typography } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
 import Article from "./article";
 
 
