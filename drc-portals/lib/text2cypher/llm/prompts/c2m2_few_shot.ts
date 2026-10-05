@@ -27,7 +27,7 @@ export const C2M2_FEW_SHOT = `
 
 \`\`\`json
 {
-  "cypher": "CALL () {\n  MATCH (project:Project)-[contains:CONTAINS]->(entity:Subject)-[tested_for:TESTED_FOR]->(disease:Disease)\n  WHERE toLower(disease.name) CONTAINS toLower($disease)\n  RETURN project, contains, entity, tested_for, disease\n  UNION\n  MATCH (project:Project)-[contains:CONTAINS]->(entity:Biosample)-[tested_for:TESTED_FOR]->(disease:Disease)\n  WHERE toLower(disease.name) CONTAINS toLower($disease)\n  RETURN project, contains, entity, tested_for, disease\n}\nWITH DISTINCT project, contains, entity, tested_for, disease\nLIMIT 10\nRETURN collect(DISTINCT {project: project, contains: contains, subject_or_biosample: entity, tested_for: tested_for, disease: disease}) AS rows",
+  "cypher": "CALL () {\n MATCH (project:Project)-[contains:CONTAINS]->(entity:Subject)-[tested_for:TESTED_FOR]->(disease:Disease)\n WHERE toLower(disease.name) CONTAINS toLower($disease)\n  RETURN project, contains, entity, tested_for, disease\n  UNION\n  MATCH (project:Project)-[contains:CONTAINS]->(entity:Biosample)-[tested_for:TESTED_FOR]->(disease:Disease)\n  WHERE toLower(disease.name) CONTAINS toLower($disease)\n RETURN project, contains, entity, tested_for, disease\n}\nWITH DISTINCT project, contains, entity, tested_for, disease\nLIMIT 10\nRETURN collect(DISTINCT {project: project, contains: contains, subject_or_biosample: entity, tested_for: tested_for, disease: disease}) AS rows",
   "params": {
     "disease": "glioblastoma"
   },
@@ -45,7 +45,7 @@ export const C2M2_FEW_SHOT = `
 
 \`\`\`json
 {
-  "cypher": "MATCH (disease:Disease)<-[tested_for:TESTED_FOR]-(subject:Subject)-[has_ethnicity:HAS_ETHNICITY]->(ethnicity:SubjectEthnicity)\nWHERE toLower(disease.name) CONTAINS toLower($disease) AND ethnicity.name = $ethnicity\nWITH DISTINCT disease, tested_for, subject, has_ethnicity, ethnicity\nLIMIT 10\nRETURN collect(DISTINCT {disease: disease, tested_for: tested_for, subject: subject, has_ethnicity: has_ethnicity, ethnicity: ethnicity}) AS rows",
+  "cypher": "MATCH (disease:Disease)<-[tested_for:TESTED_FOR]-(subject:Subject)-[is_ethnicity:IS_ETHNICITY]->(ethnicity:SubjectEthnicity)\nWHERE toLower(disease.name) CONTAINS toLower($disease) AND ethnicity.name = $ethnicity\nWITH DISTINCT disease, tested_for, subject, is_ethnicity, ethnicity\nLIMIT 10\nRETURN collect(DISTINCT {disease: disease, tested_for: tested_for, subject: subject, is_ethnicity: is_ethnicity, ethnicity: ethnicity}) AS rows",
   "params": {
     "ethnicity": "Hispanic or Latino",
     "disease": "diabetes"
@@ -64,7 +64,7 @@ export const C2M2_FEW_SHOT = `
 
 \`\`\`json
 {
-  "cypher": "MATCH (disease:Disease)<-[tested_for:TESTED_FOR]-(subject:Subject)-[has_race:HAS_RACE]->(race:SubjectRace)\nWHERE toLower(disease.name) CONTAINS toLower($disease) AND race.name = $race\nWITH DISTINCT disease, tested_for, subject, has_race, race\nLIMIT 10\nRETURN collect(DISTINCT {disease: disease, tested_for: tested_for, subject: subject, has_race: has_race, race: race}) AS rows",
+  "cypher": "MATCH (disease:Disease)<-[tested_for:TESTED_FOR]-(subject:Subject)-[is_race:IS_RACE]->(race:SubjectRace)\nWHERE toLower(disease.name) CONTAINS toLower($disease) AND race.name = $race\nWITH DISTINCT disease, tested_for, subject, is_race, race\nLIMIT 10\nRETURN collect(DISTINCT {disease: disease, tested_for: tested_for, subject: subject, is_race: is_race, race: race}) AS rows",
   "params": {
     "race": "Black or African American",
     "disease": "alzheimer's"
@@ -119,7 +119,7 @@ export const C2M2_FEW_SHOT = `
 
 \`\`\`json
 {
-  "cypher": "MATCH (study:Study)-[contains:CONTAINS]->(file:File)-[is_data_type:IS_DATA_TYPE]->(data_type:DataType)\nWHERE toLower(data_type.name) CONTAINS toLower($data_type)\nWITH DISTINCT study, contains, file, is_data_type, data_type\nLIMIT 10\nRETURN collect(DISTINCT {study: study, contains: contains, file: file, is_data_type: is_data_type, data_type: data_type}) AS rows",
+  "cypher": "MATCH (project:Project)-[contains:CONTAINS]->(file:File)-[is_data_type:IS_DATA_TYPE]->(data_type:DataType)\nWHERE toLower(data_type.name) CONTAINS toLower($data_type)\nWITH DISTINCT project, contains, file, is_data_type, data_type\nLIMIT 10\nRETURN collect(DISTINCT {project: project, contains: contains, file: file, is_data_type: is_data_type, data_type: data_type}) AS rows",
   "params": {
     "data_type": "gene expression"
   },
@@ -175,7 +175,7 @@ export const C2M2_FEW_SHOT = `
 
 \`\`\`json
 {
-  "cypher": "MATCH (subject:Subject)<-[sampled_from_subject:SAMPLED_FROM]-(biosample:Biosample)-[sampled_from_anatomy:SAMPLED_FROM]->(anatomy:Anatomy)\nMATCH (subject)-[tested_for:TESTED_FOR]->(disease:Disease)\nMATCH (subject)-[associated_with:ASSOCIATED_WITH]->(taxonomy:NCBITaxonomy)\nWHERE toLower(anatomy.name) CONTAINS toLower($anatomy)\n  AND toLower(disease.name) CONTAINS toLower($disease)\n  AND toLower(taxonomy.name) CONTAINS toLower($organism)\nWITH DISTINCT subject, sampled_from_subject, biosample, sampled_from_anatomy, anatomy, tested_for, disease, associated_with, taxonomy\nLIMIT 10\nRETURN collect(DISTINCT {subject: subject, sampled_from_subject: sampled_from_subject, biosample: biosample, sampled_from_anatomy: sampled_from_anatomy, anatomy: anatomy, tested_for: tested_for, disease: disease, associated_with: associated_with, taxonomy: taxonomy}) AS rows",
+  "cypher": "MATCH (subject:Subject)<-[sampled_from_subject:SAMPLED_FROM]-(biosample:Biosample)-[sampled_from_anatomy:SAMPLED_FROM]->(anatomy:Anatomy)\nMATCH (subject)-[tested_for:TESTED_FOR]->(disease:Disease)\nMATCH (subject)-[associated_with:ASSOCIATED_WITH]->(taxonomy:NCBITaxonomy)\nWHERE toLower(anatomy.name) CONTAINS toLower($anatomy)\n  AND toLower(disease.name) CONTAINS toLower($disease)\n AND toLower(taxonomy.name) CONTAINS toLower($organism)\nWITH DISTINCT subject, sampled_from_subject, biosample, sampled_from_anatomy, anatomy, tested_for, disease, associated_with, taxonomy\nLIMIT 10\nRETURN collect(DISTINCT {subject: subject, sampled_from_subject: sampled_from_subject, biosample: biosample, sampled_from_anatomy: sampled_from_anatomy, anatomy: anatomy, tested_for: tested_for, disease: disease, associated_with: associated_with, taxonomy: taxonomy}) AS rows",
   "params": {
     "anatomy": "lung",
     "disease": "adenocarcinoma",
@@ -227,7 +227,6 @@ export const C2M2_FEW_SHOT = `
 **Question**
 
 > Find collections containing brain cancer data.
-
 **Response**
 
 \`\`\`json

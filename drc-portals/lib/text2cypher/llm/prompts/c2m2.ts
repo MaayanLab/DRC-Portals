@@ -1,4 +1,5 @@
-export const C2M2_PROMPT = `Domain rules override general query-construction preferences, but they do not override the Hard Constraints.
+export const C2M2_PROMPT = `
+Domain rules override general query-construction preferences, but they do not override the Hard Constraints.
 
 ### DCC Abbreviations
 
@@ -111,7 +112,7 @@ User question:
 Relevant filtering pattern:
 
 \`\`\`cypher
-MATCH (disease:Disease)<-[:TESTED_FOR]-(subject:Subject)-[:HAS_ETHNICITY]->(ethnicity:SubjectEthnicity)
+MATCH (disease:Disease)<-[:TESTED_FOR]-(subject:Subject)-[:IS_ETHNICITY]->(ethnicity:SubjectEthnicity)
 WHERE ethnicity.name = $ethnicity
   AND toLower(disease.name) CONTAINS toLower($disease)
 \`\`\`
@@ -134,7 +135,7 @@ User question:
 Relevant filtering pattern:
 
 \`\`\`cypher
-MATCH (disease:Disease)<-[:TESTED_FOR]-(subject:Subject)-[:HAS_RACE]->(race:SubjectRace)
+MATCH (disease:Disease)<-[:TESTED_FOR]-(subject:Subject)-[:IS_RACE]->(race:SubjectRace)
 WHERE race.name = $race
   AND toLower(disease.name) CONTAINS toLower($disease)
 \`\`\`
