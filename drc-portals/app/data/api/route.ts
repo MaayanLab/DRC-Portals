@@ -1,6 +1,3 @@
-import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import { headers } from "next/headers";
 
 
 export async function POST(request: Request) {
@@ -12,7 +9,6 @@ export async function POST(request: Request) {
 		});
 	}
 	if (methods === 'runRunnable') {
-		console.log(process.env.DEEPDIVE_TOKEN, process.env.DEEPDIVE_URL, payload)
 		const res = await fetch(`${process.env.DEEPDIVE_URL}/${methods}?batch=1`, {
             method: 'POST',
             headers: {
@@ -21,6 +17,7 @@ export async function POST(request: Request) {
             },
             body: JSON.stringify(payload),
         })
+		console.log(res.statusText, res.status)
 		if (res.statusText !== 'OK') {
 			return new Response(JSON.stringify({error: await res.text()}), {
 				status: res.status,
