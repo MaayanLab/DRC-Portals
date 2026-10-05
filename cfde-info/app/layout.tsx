@@ -74,24 +74,24 @@ export default async function RootLayout({
   return (
 	 <html lang="en">
       	<body>
-			<div style={{marginLeft: 0, marginRight: 0}}>
-				<ThemeProvider theme={theme}>
-					<CssBaseline />
-					<Box sx={{
-						maxWidth: "1440px",
-						width: "100%",
-						margin: "0px auto",
-						containerType: "inline-size",
-						overflow: "hidden"
-					}}>
-					{children}
-					</Box>
-					<Suspense>
-					<SpeedDialButton/>
-					</Suspense>
-					<Footer />
-				</ThemeProvider>
-			</div>
+          <div style={{marginLeft: 0, marginRight: 0}}>
+            <ThemeProvider theme={theme}>
+              <CssBaseline />
+              <Box sx={{
+                maxWidth: "1440px",
+                width: "100%",
+                margin: "0px auto",
+                containerType: "inline-size",
+                overflow: "hidden"
+              }}>
+              {children}
+              </Box>
+              <Suspense>
+              <SpeedDialButton/>
+              </Suspense>
+              <Footer />
+            </ThemeProvider>
+          </div>
       {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ? <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} /> : null}
 		</body>
 	</html>
