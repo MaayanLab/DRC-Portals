@@ -1,10 +1,11 @@
-import Link from "@/utils/link";
+import dynamic from "next/dynamic";
 import { Card, CardActions, CardContent, Grid, Tooltip} from "@mui/material";
 import { Publication } from "@prisma/client";
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import Image from "@/utils/image";
 import { grey } from "@mui/material/colors";
+const Link = dynamic(()=>import('@/utils/link'))
 export function addPeriodIfNeeded(text: string | undefined) {
     return text && !text.endsWith(".") ? "." : "";
 }
