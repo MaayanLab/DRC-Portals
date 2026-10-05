@@ -290,6 +290,13 @@ def api_fair(row):
         except KeyboardInterrupt: raise
         except: traceback.print_exc(file=sys.stderr)
 
+    if row['mcpServer']:
+        mcpServerLink = f"{row['link']}/.well-known/mcp.json"
+        webpage_response = requests.get(mcpServerLink).json()
+    if row['skills']:
+        skillsLink = f"{row['link']}/.well-known/skills.md"
+        webpage_response = requests.get(skillsLink).text()
+
     rubric = {
         "Compatible with AI Plugins": mean(fairshake_aiplugin_compatible),
         "Website has Open Graph protocol for ChatBot usage": mean(fairshake_ogp),

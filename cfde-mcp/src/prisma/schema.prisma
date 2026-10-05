@@ -136,6 +136,8 @@ model code_assets {
   openAPISpec       Boolean?
   smartAPISpec      Boolean?
   smartAPIURL       String?
+  mcpServer         Boolean?
+  skills            Boolean?
   entityPageExample String?
   dcc_assets        dcc_assets @relation(fields: [link], references: [link])
 

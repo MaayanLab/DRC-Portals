@@ -182,6 +182,8 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
         openAPISpecs: false,
         smartAPISpecs: false,
         smartAPIUrl: '',
+        mcpServer: false,
+        skills: false,
         entityPageExample: '',
         description: '',
         dcc: '',
@@ -201,6 +203,8 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
                         description: version.codeAsset.description || '',
                         openAPISpecs: !!version.codeAsset.openAPISpec,
                         smartAPISpecs: !!version.codeAsset.smartAPISpec,
+                        mcpServer: !!version.codeAsset.mcpServer,
+                        skills: !!version.codeAsset.skills,
                         smartAPIUrl: version.codeAsset.smartAPIURL || '',
                         entityPageExample: version.codeAsset.entityPageExample || '',
                     })
@@ -446,6 +450,8 @@ export function CodeForm(user: { name?: string | null, email?: string | null, ro
                             <FormGroup>
                                 <FormControlLabel control={<Checkbox />} label="OpenAPI Specifications" name="openAPISpecs" value={form.openAPISpecs} onChange={(evt, checked) => {setForm(form => ({ ...form, openAPISpecs: checked }))}} />
                                 <FormControlLabel control={<Checkbox />} label="Deposited in SmartAPI" name="smartAPISpecs" value={form.smartAPISpecs} onChange={(evt, checked) => {setForm(form => ({ ...form, smartAPISpecs: checked }))}} />
+                                <FormControlLabel control={<Checkbox />} label="Has MCP for AI Agents? (/.well-known/mcp.json)" name="skills" value={form.mcpServer} onChange={(evt, checked) => {setForm(form => ({ ...form, mcpServer: checked }))}} />
+                                <FormControlLabel control={<Checkbox />} label="Has Skills for AI Agents? (/.well-known/skills.md)" name="mcpServer" value={form.skills} onChange={(evt, checked) => {setForm(form => ({ ...form, skills: checked }))}} />
                             </FormGroup>
                         }
                         {smartSelected &&
