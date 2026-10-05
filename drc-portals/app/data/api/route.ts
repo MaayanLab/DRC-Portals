@@ -31,16 +31,9 @@ export async function POST(request: Request) {
 				}
 			}
 		)
-		if (res.statusText !== 'OK') {
-			return new Response(JSON.stringify({error: await res.text()}), {
+		return new Response(JSON.stringify(await res.json()), {
 				status: res.status,
 				headers: { 'Content-Type': 'application/json' }
 			});
-		} else {
-			return new Response(JSON.stringify(await res.json()), {
-				status: res.status,
-				headers: { 'Content-Type': 'application/json' }
-			});
-		}
 	 }
 }
