@@ -137,7 +137,7 @@ export default function CytoscapeChartWrapper({
 
   useEffect(() => {
     const cy = cyRef.current;
-    if (cy === undefined) {
+    if (cy === undefined || cy === null) {
       return;
     }
 

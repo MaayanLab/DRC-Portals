@@ -88,7 +88,7 @@ export function useCytoscapeInteractionEvents({
 
     const bindEvents = () => {
       const cy = cyRef.current;
-      if (cy === undefined) {
+      if (cy === undefined || cy === null) {
         frameId = window.requestAnimationFrame(bindEvents);
         return;
       }

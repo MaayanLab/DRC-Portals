@@ -21,7 +21,7 @@ export default function ChartToolbar(cmpProps: ChartToolbarProps) {
 
   const handleZoom = (zoomOut: boolean) => {
     const cy = cyRef.current;
-    if (cy !== undefined) {
+    if (cy !== undefined && cy !== null) {
       let currentZoom = cy.zoom();
       const zoomModifier =
         (currentZoom / (currentZoom + 1)) * (zoomOut ? -1 : 1);
@@ -36,7 +36,7 @@ export default function ChartToolbar(cmpProps: ChartToolbarProps) {
 
   const handleFit = () => {
     const cy = cyRef.current;
-    if (cy !== undefined) {
+    if (cy !== undefined && cy !== null) {
       cy.fit();
     }
   };

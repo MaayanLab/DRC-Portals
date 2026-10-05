@@ -30,8 +30,8 @@ export default function CytoscapeContainer({
 }: CytoscapeContainerProps) {
   return (
     <CytoscapeComponent
-      cy={(cy) => {
-        cyRef.current = cy;
+      cy={(cy: cytoscape.Core) => {
+        Object.assign({ current: cy }, cyRef)
       }}
       layout={layout}
       elements={elements}

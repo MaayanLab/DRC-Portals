@@ -120,7 +120,7 @@ export default function CytoscapeContextMenu({
 
     const bindEvents = () => {
       const cy = cyRef.current;
-      if (cy === undefined) {
+      if (cy === undefined || cy === null) {
         frameId = window.requestAnimationFrame(bindEvents);
         return;
       }
@@ -291,7 +291,7 @@ export default function CytoscapeContextMenu({
         return;
       }
 
-      if (actionId === "centerOnNode" && cy !== undefined) {
+      if (actionId === "centerOnNode" && cy !== undefined && cy !== null) {
         const cyNode = cy.getElementById(node.id);
         if (cyNode.nonempty()) {
           cy.animate(
@@ -305,7 +305,7 @@ export default function CytoscapeContextMenu({
         }
       }
 
-      if (actionId === "selectNeighbors" && cy !== undefined) {
+      if (actionId === "selectNeighbors" && cy !== undefined && cy !== null) {
         const cyNode = cy.getElementById(node.id);
 
         if (cyNode.nonempty()) {
