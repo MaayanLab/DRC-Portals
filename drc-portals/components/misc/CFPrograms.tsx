@@ -13,6 +13,7 @@ async function CFPrograms({spacing=4, className, baseEndpoint}:{spacing: GridSiz
       where: {
         cfde_partner: true,
         active: true,
+        hidden: false,
         short_label: {
           in: [ "Kids First", "A2CPS", "HuBMAP", "4DN", "LINCS", "IDG", 
             "GlyGen", "Bridge2AI", "MoTrPAC", "Metabolomics", "SPARC", "HMP", "GTEx", "SenNet", "ExRNA", 'SCGE', 'SMaHT']

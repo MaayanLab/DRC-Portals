@@ -25,7 +25,8 @@ export default async function DCCLanding() {
     const dccs = await prisma.dCC.findMany({
         where: {
             cfde_partner: true,
-            active: true
+            active: true,
+            hidden: false,
         },
         orderBy: {
             short_label: 'asc'
