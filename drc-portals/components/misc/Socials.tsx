@@ -4,8 +4,6 @@ import Link from "@/utils/link"
 import IconButton from "@mui/material/IconButton"
 import Twitter from "@/public/img/icons/Twitter.svg"
 import Email from "@/public/img/icons/email.svg"
-import Facebook from "@/public/img/icons/Facebook.svg"
-import Linkedin from "@/public/img/icons/Linkedin.svg"
 import Youtube from "@/public/img/icons/Youtube.svg"
 import { MailTo } from "@/utils/mailto"
 

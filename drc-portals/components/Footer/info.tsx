@@ -1,5 +1,4 @@
-'use client'
-import Image from '@/utils/image'
+'use server'
 import Link from '@/utils/link'
 
 import { mdiGithub, mdiBugOutline, mdiEmail} from '@mdi/js';
@@ -15,7 +14,6 @@ import Divider from '@mui/material/Divider'
 import { Logo } from '../styled/Logo';
 import IconButton from '@mui/material/IconButton';
 import SocialMedia from '../misc/Socials';
-import { usePathname } from 'next/navigation';
 
 const Consortium = () => (
   <Stack spacing={2}>
@@ -52,8 +50,6 @@ const Resources = () => (
 )
 
 export default async function InfoFooter() {
-  const pathname = usePathname()
-  if (pathname === "/info") return null
   return (
     <Paper sx={{background: "#2D5986", color: "#FFF", padding: 2, paddingTop: 5, borderRadius: 0}}>
       <Container maxWidth="lg" sx={{display: {sm: "none", xs: "none", md: "block"}}}>
