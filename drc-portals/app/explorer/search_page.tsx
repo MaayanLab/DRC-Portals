@@ -372,7 +372,7 @@ export const Search = ({inputList}: {inputList: {entity: string, label: string, 
 						description="Query data and metadata assets produced by the Common Fund programs that participate in the CFDE"
 					>
 						{[...inputList.filter(i=>i.entity!=='gene_set').map(i=>(<SearchCard key={`search-${i.label}`} labels={[i.label]} {...i} />)),
-							inputList.filter(i=>i.entity!=='gene_set').length > 1 ? <SearchCard labels={inputList.filter(i=>i.entity!=='gene_set').map(i=>i.label)} />: undefined
+							inputList.filter(i=>i.entity!=='gene_set').length > 1 ? <SearchCard key="combo" labels={inputList.filter(i=>i.entity!=='gene_set').map(i=>i.label)} />: undefined
 						]}
 						
 					</ExpandableComponent>
