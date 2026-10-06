@@ -2,7 +2,7 @@
 
 import cytoscape from "cytoscape";
 import CytoscapeComponent from "react-cytoscapejs";
-import { RefObject } from "react";
+import { MutableRefObject } from "react";
 
 import type { CytoscapeLayoutOptions } from "@/lib/text2cypher/cytoscape/types";
 
@@ -12,7 +12,7 @@ import type { CytoscapeLayoutOptions } from "@/lib/text2cypher/cytoscape/types";
 interface CytoscapeContainerProps {
   elements: cytoscape.ElementDefinition[];
   layout: CytoscapeLayoutOptions;
-  cyRef: RefObject<cytoscape.Core | undefined>;
+  cyRef: MutableRefObject<cytoscape.Core | undefined>;
   stylesheet:
   | string
   | cytoscape.StylesheetJsonBlock
@@ -31,7 +31,7 @@ export default function CytoscapeContainer({
   return (
     <CytoscapeComponent
       cy={(cy: cytoscape.Core) => {
-        Object.assign({ current: cy }, cyRef)
+        cyRef.current = cy;
       }}
       layout={layout}
       elements={elements}
