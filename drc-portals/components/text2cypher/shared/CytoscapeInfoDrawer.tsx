@@ -9,12 +9,14 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
+import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 
 import { getNodeColor } from "@/lib/text2cypher/cytoscape/styles";
+import { isHttpUrlLike } from "@/lib/text2cypher/utils/url";
 import type {
   CytoscapeSelectedNode,
   CytoscapeSelectedRelationship,
@@ -161,6 +163,9 @@ function PropertyDetailsTable({
             isLongValue && !isExpanded
               ? `${formattedValue.slice(0, PROPERTY_VALUE_TRUNCATION_LENGTH)}...`
               : formattedValue;
+          const isCollapsedLongValue = isLongValue && !isExpanded;
+          const isLinkValue =
+            !isCollapsedLongValue && isHttpUrlLike(formattedValue);
 
           return (
             <Fragment key={propertyName}>
@@ -193,18 +198,38 @@ function PropertyDetailsTable({
                       gap: 0.5,
                     }}
                   >
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        flex: 1,
-                        minWidth: 0,
-                        lineHeight: 1.45,
-                        overflowWrap: "anywhere",
-                        whiteSpace: isExpanded ? "pre-wrap" : "normal",
-                      }}
-                    >
-                      {displayValue}
-                    </Typography>
+                    {isLinkValue ? (
+                      <Link
+                        variant="body2"
+                        href={formattedValue}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        underline="hover"
+                        sx={{
+                          flex: 1,
+                          minWidth: 0,
+                          lineHeight: 1.45,
+                          overflowWrap: "anywhere",
+                          whiteSpace: isExpanded ? "pre-wrap" : "normal",
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        {displayValue}
+                      </Link>
+                    ) : (
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          flex: 1,
+                          minWidth: 0,
+                          lineHeight: 1.45,
+                          overflowWrap: "anywhere",
+                          whiteSpace: isExpanded ? "pre-wrap" : "normal",
+                        }}
+                      >
+                        {displayValue}
+                      </Typography>
+                    )}
                     <Tooltip
                       title={
                         copiedProperty === propertyName

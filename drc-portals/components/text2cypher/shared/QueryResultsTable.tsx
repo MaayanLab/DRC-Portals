@@ -4,6 +4,7 @@ import {
   Box,
   Checkbox,
   FormControlLabel,
+  Link,
   Paper,
   Skeleton,
   Switch,
@@ -30,6 +31,7 @@ import {
   getQueryResultRowRelationshipColumns,
   isQueryResultEdgeCell,
 } from "@/lib/text2cypher/neo4j/query-results";
+import { isHttpUrlLike } from "@/lib/text2cypher/utils/url";
 
 export interface QueryResultsSelectionPayload {
   selectedRowIndexes: number[];
@@ -307,13 +309,26 @@ export default function QueryResultsTable({
                         </StyledTableCell>
                         {headerColumns.map((column) => {
                           const value = row[column];
+                          const formattedValue = formatCellValue(value ?? null);
+                          const isLinkValue = isHttpUrlLike(formattedValue);
 
                           return (
                             <StyledTableCell
                               key={`${rowIndex}-${column}`}
                               sx={{ whiteSpace: "nowrap" }}
                             >
-                              {formatCellValue(value ?? null)}
+                              {isLinkValue ? (
+                                <Link
+                                  href={formattedValue}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  underline="hover"
+                                >
+                                  {formattedValue}
+                                </Link>
+                              ) : (
+                                formattedValue
+                              )}
                             </StyledTableCell>
                           );
                         })}
