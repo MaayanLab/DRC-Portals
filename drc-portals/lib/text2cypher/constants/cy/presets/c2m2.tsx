@@ -1190,15 +1190,6 @@ const EDGES: SchemaCytoscapeElements = [
   {
     classes: ["term-relationship"],
     data: {
-      id: BIOSAMPLE_TESTED_FOR_PHENOTYPE_EDGE_ID,
-      source: BIOSAMPLE_NODE_ID,
-      target: PHENOTYPE_NODE_ID,
-      type: c2m2Schema.TESTED_FOR,
-    },
-  },
-  {
-    classes: ["term-relationship"],
-    data: {
       id: BIOSAMPLE_TESTED_FOR_DISEASE_EDGE_ID,
       source: BIOSAMPLE_NODE_ID,
       target: DISEASE_NODE_ID,
