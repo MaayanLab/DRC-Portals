@@ -149,6 +149,44 @@ Relevant parameters:
 }
 \`\`\`
 
+### SubjectSex
+
+\`SubjectSex\` is a special controlled-vocabulary Term node that uses
+exact matching rather than partial matching.
+
+Valid \`SubjectSex\` names are:
+
+- \`Female\`
+- \`Male\`
+- \`Indeterminate\`
+
+When the user's value clearly corresponds to one of these values:
+
+- Use the exact canonical value listed above as the parameter value.
+
+Example:
+
+User question:
+
+> Find male Down's syndrome subjects.
+
+Relevant filtering pattern:
+
+\`\`\`cypher
+MATCH (disease:Disease)<-[:TESTED_FOR]-(subject:Subject)-[:IS_SEX]->(sex:SubjectSex)
+WHERE sex.name = $sex
+  AND toLower(disease.name) CONTAINS toLower($disease)
+\`\`\`
+
+Relevant parameters:
+
+\`\`\`json
+{
+  "sex": "Male",
+  "disease": "down's syndrome"
+}
+\`\`\`
+
 ### AssayType, AnalysisType, and DataType
 
 \`AssayType\`, \`AnalysisType\`, and \`DataType\` may contain semantically overlapping terms.
