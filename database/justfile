@@ -81,7 +81,7 @@ es_create_index_base: es_create_index_entity es_create_index_m2m
 
 # ingest just the dcc assets as records
 [cache]
-es_ingest_dcc_assets: venv es_create_index_base
+es_ingest_dcc_assets: venv ingestion es_create_index_base
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
@@ -91,7 +91,7 @@ es_ingest_dcc_assets: venv es_create_index_base
 
 # ingest the contents of .gmt assets
 [cache]
-es_ingest_gmts: venv es_create_index_base
+es_ingest_gmts: venv ingestion es_create_index_base
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
@@ -101,7 +101,7 @@ es_ingest_gmts: venv es_create_index_base
 
 # ingest the contents of KGAssertion assets
 [cache]
-es_ingest_kg: venv es_create_index_base
+es_ingest_kg: venv ingestion es_create_index_base
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
@@ -119,7 +119,7 @@ es_check_c2m2: venv
 
 # ingest the contents of C2M2 assets
 [cache]
-es_ingest_c2m2: venv es_create_index_base es_check_c2m2
+es_ingest_c2m2: venv ingestion es_create_index_base es_check_c2m2
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
@@ -132,7 +132,7 @@ es_ingest_c2m2: venv es_create_index_base es_check_c2m2
 
 # ingest all DCC assets
 [parallel]
-es_ingest_base: es_ingest_dcc_assets es_ingest_gmts es_ingest_kg es_ingest_c2m2
+es_ingest_base: ingestion es_ingest_dcc_assets es_ingest_gmts es_ingest_kg es_ingest_c2m2
 
 # add pagerank to ingested entities
 [cache]
@@ -320,7 +320,7 @@ _ingest_dcc_asset dcc_asset:
 			print('WARN: No handler for', dcc_asset['link'])
 
 # ingest all the current dcc assets in parallel
-ingest_all_dcc_assets: venv es_create_index_base
+ingest_all_dcc_assets: venv ingestion es_create_index_base
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	just INDEX_VERSION={{ INDEX_VERSION }} ingest_dcc_assets {{ quote(split(`just get_dcc_assets`, "\n")) }}
