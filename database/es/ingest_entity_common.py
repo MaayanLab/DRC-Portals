@@ -24,6 +24,12 @@ def process_safe_cache(output: pathlib.Path, writefn):
         # we aquired the lock
         try:
           writefn(output)
+        except:
+          if output.is_file():
+            output.unlink()
+          elif output.is_dir():
+            import shutil
+            shutil.rmtree(output)
         finally:
           # release the lock
           output.with_stem('.lock').unlink()
