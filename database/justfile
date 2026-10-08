@@ -271,15 +271,28 @@ ingest_dcc_assets *dcc_assets: *(ingest_dcc_asset *dcc_assets)
 
 # ingest a single dcc asset
 [cache]
-ingest_dcc_asset dcc_asset:
+ingest_dcc_asset dcc_asset: 
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
 	# ingest dcc asset
+	DCC_ASSET={{quote(dcc_asset)}} just _check_dcc_asset {{quote(dcc_asset)}}
 	DCC_ASSET={{quote(dcc_asset)}} just _ingest_dcc_asset {{quote(dcc_asset)}}
 	# re-calculate stuff in elasticsearch
 	es POST "/entity_{{INDEX_VERSION}}/_refresh"
 	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
+
+[cache]
+_check_dcc_asset dcc_asset:
+	#!/usr/bin/env -S PYTHONPATH=.:es uv run python
+	import os, sys, json
+	dcc_asset = json.loads(os.getenv('DCC_ASSET'))
+	if dcc_asset['filetype'] == 'C2M2':
+		if dcc_asset['sha256checksum'] is None:
+			dcc_asset['sha256checksum'] = float('nan')
+		from check_c2m2_files import check_c2m2_datapackage
+		print("Checking", dcc_asset['link'], "...")
+		check_c2m2_datapackage(dcc_asset)
 
 _ingest_dcc_asset dcc_asset:
 	#!/usr/bin/env -S PYTHONPATH=.:es uv run python
@@ -307,7 +320,7 @@ _ingest_dcc_asset dcc_asset:
 			print('WARN: No handler for', dcc_asset['link'])
 
 # ingest all the current dcc assets in parallel
-ingest_all_dcc_assets: venv es_create_index_base es_check_c2m2
+ingest_all_dcc_assets: venv es_create_index_base
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	just INDEX_VERSION={{ INDEX_VERSION }} ingest_dcc_assets {{ quote(split(`just get_dcc_assets`, "\n")) }}
