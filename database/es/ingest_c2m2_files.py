@@ -60,10 +60,8 @@ c2m2_reference_tables_mappings = {
 def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
   file_path = ensure_dcc_asset(ingest_path / 'c2m2s', file)
   c2m2_extract_path = ensure_unzipped(file_path)
-  #
-  c2m2_datapackage_json, = pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.json')
-  c2m2_datapackage_db = c2m2_datapackage_json.parent/'C2M2_datapackage.sqlite'
-  assert c2m2_datapackage_db.exists(), f'You should have run check_c2m2_files first {c2m2_datapackage_db.absolute()}'
+  c2m2_datapackage_db, = pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.sqlite')
+  c2m2_datapackage_json = c2m2_datapackage_db.parent / 'C2M2_datapackage.json'
   conn = sqlite3.connect(c2m2_datapackage_db)
   pkg = Package(str(c2m2_datapackage_json))
   with pdp_helper(es_bulk, version=version) as helper:

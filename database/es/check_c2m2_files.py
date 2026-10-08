@@ -24,13 +24,6 @@ def check_c2m2_datapackage(file):
       subprocess.run(['cfde-c2m2', 'init'], cwd=str(c2m2_datapackage_json.parent.absolute()), check=True)
       subprocess.run(['cfde-c2m2', 'prepare'], cwd=str(c2m2_datapackage_json.parent.absolute()), check=True)
       subprocess.run(['cfde-c2m2', 'validate'], cwd=str(c2m2_datapackage_json.parent.absolute()), check=True)
-      pkg = Package(str(c2m2_datapackage_json))
-      print(f"  {str(c2m2_datapackage_json.parent)}")
-      for rc_name in pkg.resource_names:
-        print(f"      {rc_name}")
-        with pkg.get_resource(rc_name) as rc:
-          for _ in rc.row_stream:
-            pass
     except:
       if c2m2_datapackage_db.exists(): c2m2_datapackage_db.unlink()
       raise

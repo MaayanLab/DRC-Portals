@@ -276,23 +276,10 @@ ingest_dcc_asset dcc_asset:
 	set -euxo pipefail
 	source es/ingest_common.sh
 	# ingest dcc asset
-	DCC_ASSET={{quote(dcc_asset)}} just _check_dcc_asset {{quote(dcc_asset)}}
 	DCC_ASSET={{quote(dcc_asset)}} just _ingest_dcc_asset {{quote(dcc_asset)}}
 	# re-calculate stuff in elasticsearch
 	es POST "/entity_{{INDEX_VERSION}}/_refresh"
 	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
-
-[cache]
-_check_dcc_asset dcc_asset:
-	#!/usr/bin/env -S PYTHONPATH=.:es uv run python
-	import os, sys, json
-	dcc_asset = json.loads(os.getenv('DCC_ASSET'))
-	if dcc_asset['filetype'] == 'C2M2':
-		if dcc_asset['sha256checksum'] is None:
-			dcc_asset['sha256checksum'] = float('nan')
-		from check_c2m2_files import check_c2m2_datapackage
-		print("Checking", dcc_asset['link'], "...")
-		check_c2m2_datapackage(dcc_asset)
 
 _ingest_dcc_asset dcc_asset:
 	#!/usr/bin/env -S PYTHONPATH=.:es uv run python
@@ -310,6 +297,8 @@ _ingest_dcc_asset dcc_asset:
 			from ingest_gmts import ingest_gmt
 			ingest_gmt(es_bulk, dcc_asset, version="{{INDEX_VERSION}}")
 		elif dcc_asset['filetype'] == 'C2M2':
+			from check_c2m2_files import check_c2m2_datapackage
+			check_c2m2_datapackage(dcc_asset)
 			from ingest_c2m2_files import ingest_c2m2_datapackage
 			from ingest_c2m2_index import ingest_c2m2_index
 			ingest_c2m2_datapackage(es_bulk, dcc_asset, version="{{INDEX_VERSION}}")
