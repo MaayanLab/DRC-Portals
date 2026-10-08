@@ -17,10 +17,10 @@ def process_safe_cache(output: pathlib.Path, writefn):
       #  and waiting before reading our token back. if more
       #  than one procs tried to create the lock, the last
       #  writer will get it, the rest will wait
-      token = str(uuid.uuidv4())
+      token = str(uuid.uuid4())
       output.with_stem('.lock').write_text(token)
       time.sleep(0.5+random.random())
-      if output.with_stem('.lock').read_texthe () == token:
+      if output.with_stem('.lock').read_text() == token:
         # we aquired the lock
         try:
           writefn(output)
