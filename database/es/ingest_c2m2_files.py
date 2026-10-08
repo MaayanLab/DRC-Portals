@@ -13,7 +13,7 @@ from frictionless import Package
 
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
-from ingest_entity_common import gene_info, process_safe_cache, sqlite3dict, sqlite3dictquery, ensure_dcc_asset
+from ingest_entity_common import gene_info, process_safe_cache, sqlite3dict, sqlite3dictquery, ensure_dcc_asset, ensure_unzipped
 
 def predicate_from_fields(fields):
   if len(fields) == 1: return fields[0]

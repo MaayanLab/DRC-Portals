@@ -45,8 +45,9 @@ def ensure_dcc_asset(files_path: pathlib.Path, file):
   return fetch_or_cache(file['link'].replace(' ', '%20'), file_path)
 
 def unzip_file_path(file_path, extract_path):
-    with zipfile.ZipFile(file_path, 'r') as z:
-      z.extractall(extract_path)
+  import zipfile
+  with zipfile.ZipFile(file_path, 'r') as z:
+    z.extractall(extract_path)
 
 def ensure_unzipped(file_path):
   return process_safe_cache(file_path.parent / file_path.stem, functools.partial(unzip_file_path, file_path))
