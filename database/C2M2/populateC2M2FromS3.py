@@ -60,6 +60,9 @@ varchar_gin_trgm_ops_str="gin_trgm_ops" # or ""
 # Need to be able to exlcude records with keywords in IDs as well, so include those columns
 searchable_col_exclude_pattern = r'id_namespace$|creation_time|size_in_bytes' #r'^project_|_id$|temp'
 
+# If not actually_read_tables then why even create schema; if still want to delete and create schema, comment the line below
+actually_create_schema = actually_create_schema * actually_read_tables
+
 actually_ingest_tables = actually_create_schema * actually_read_tables * actually_ingest_tables
 
 newline = '\n'
@@ -451,8 +454,13 @@ for dummy_x in [1]:
     for dummy_z in [1]:
       for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
         cur_dcc_short_label = c2m2['short_label'];
+        # Incorporate lastmodified in subfolder name so that if 
+        # a DCC has more than one program/DGP and filename is same, then no overwrite issue, e.g., Bridge2AI SGPs
+        lastmodified_raw = c2m2['lastmodified'];
+        lastmodified_str = lastmodified_raw.replace(":", "-").replace(" ", "_")
         print(f"\n================================== DCC short label: {cur_dcc_short_label} =============================================");
-        c2m2_path = c2m2s_path/c2m2['short_label']/c2m2['filename']
+        c2m2_path = c2m2s_path/c2m2['short_label']/lastmodified_str/c2m2['filename']
+        print(f"\n\tc2m2_path: {c2m2_path}");
         c2m2_path.parent.mkdir(parents=True, exist_ok=True)
         if not c2m2_path.exists():
           import urllib.request
@@ -464,6 +472,7 @@ for dummy_x in [1]:
             c2m2_zip.extractall(c2m2_extract_path)
 
         cqf.write(f"/* =============== DCC short label: {cur_dcc_short_label} =============== */{newline}");
+        cqf.write(f"/* ==== c2m2_path: {c2m2_path} === */{newline}");
 
         # Reset all values in table_exists_dict to all 0
         table_exists_dict = {key: 0 for key in table_exists_dict}
@@ -541,8 +550,11 @@ for dummy_x in [1]:
                     if(debug > 0): print(f"#Lines in file {table_str}: {numlines_in_file}");
 
                     if(numlines_in_file - df.shape[0] != 1):
-                        raise ValueError(f'#Lines in file should be just 1 more than #rows in df{newline}' +
-                                         f'#Lines in file {table_str}: {numlines_in_file}{newline}#Rows of df:{df.shape[0]}');
+                        #raise ValueError(f'#Lines in file should be just 1 more than #rows in df{newline}' +
+                        #                 f'#Lines in file {table_str}: {numlines_in_file}{newline}#Rows of df:{df.shape[0]}');
+                        # Just warn
+                        print(f'Warning: Generally, #lines in file should be just 1 more than #rows in df{newline}' +
+                            f'#Lines in file {table_str}: {numlines_in_file}{newline}#Rows of df:{df.shape[0]}');
                     
                     if(df.shape[0] > 0):
                         # drop duplicate rows to begin with

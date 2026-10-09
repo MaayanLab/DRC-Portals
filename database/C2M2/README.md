@@ -112,6 +112,8 @@ logf=kwlog/log_cleaned_extract_keyword_phrases.log
 mkdir -p ${logdir}
 echo -e "actually_read_tables = 1\n" > set_actually_read_tables.py
 python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_ingestion_${ymd}.log; ${python_cmd} populateC2M2FromS3.py 2>&1 | tee ${logf} ; date_div >> ${logf}; 
+#python_cmd=python3;ymd=$(date +%y%m%d); logf=${logdir}/C2M2_ingestion_${ymd}.log; nohup ${python_cmd} populateC2M2FromS3.py > ${logf} 2>&1 &
+date_div >> ${logf}; 
 # Check for any warning or errors
 egrep -i -e "Warning" ${logf} > ${logdir}/warning_in_schemaC2M2_ingestion_${ymd}.log;
 cat ${logdir}/warning_in_schemaC2M2_ingestion_${ymd}.log;
@@ -204,10 +206,11 @@ python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} $
 #
 #logf=${logdir}/log_sanitize_C2M2_tables_for_keywords_C2M2_2.log
 logf=${logdir}/log_sanitize_C2M2_tables_for_keywords_C2M2.log
-logf=${logdir}/log_sanitize_C2M2_tables_for_keywords_ALL.log
+#logf=${logdir}/log_sanitize_C2M2_tables_for_keywords_ALL.log
 # psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql -L ${logf};
 date_div > ${logf};
-psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql 2>&1 | tee ${logf};
+psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql 2>&1 | tee "${logf}";
+#nohup psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql > "${logf}" 2>&1 &
 #psql "$(python3 dburl.py)" -a -f sanitize_C2M2_tables_for_keywords.sql;
 date_div >> ${logf};
 
@@ -225,6 +228,12 @@ date_div >> ${logf};
 psql "$(python3 dburl.py)" -a -f c2m2_other_tables.sql -L ${logf}
 date_div >> ${logf};
 #psql "$(python3 dburl.py ${env_file_name})" -a -f c2m2_other_tables.sql -o ${logdir}/log_c2m2_other_tables.log
+
+# To save space, drop the searchable column from tables like c2m2.file, c2m2.file_describles_biosample, etc.
+logf=${logdir}/log_c2m2_drop_searchable_from_file_table.log
+date_div >> ${logf};
+psql "$(python3 dburl.py)" -a -f c2m2_drop_searchable_from_file_table.sql -L ${logf}
+date_div >> ${logf};
 
 # After ingesting c2m2 files, create the table ffl_biosample by running (be in the database/C2M2 folder)
 # ffl_biosample needs project_data_type, so, run c2m2_other_tables.sql first
@@ -292,7 +301,7 @@ psql "$(python3 dburl.py)" -a -f ingest_slim.sql -o ${logf}
 date_div >> ${logf};
 
 ## In the table c2m2.file, add the column access_url
-## Now this is already added in the C2M2 schema, so, do not run these lines. To check prefixes usied in 
+## Now this is already added in the C2M2 schema, so, do not run these lines. To check prefixes used in 
 ## persistent_id and access_url:
 ## drc=# select distinct id_namespace, SPLIT_PART(persistent_id, ':', 1) as persistent_id_prefix, SPLIT_PART (access_url, ':', 1) as access_url_prefix from c2m2.file where persistent_id like '%:%' OR access_url like '%:%' limit 100;
 #logf=${logdir}/log_create_access_urls.log
@@ -301,7 +310,10 @@ date_div >> ${logf};
 
 # To create additional indexes on some tables for faster query
 # ChatGPT suggests: for indexing use gin with gin_trgm_ops as in: USING gin(colname gin_trgm_ops);
-# This can be applied to columns of ffl tables as well.
+# This can be applied to columns of ffl tables as well (now already in files c2m2_combine_biosample_collection*.sql).
+# On Btree, look at use of varchar_pattern_ops as in
+# CREATE INDEX idx_users_username_pattern ON users (username varchar_pattern_ops);
+# since default locale is en_US.UTF-8 [get using \l]
 logf=${logdir}/log_c2m2_other_indexes.log
 date_div >> ${logf};
 psql "$(python3 dburl.py)" -a -f c2m2_other_indexes.sql -o ${logf}
@@ -320,12 +332,14 @@ date_div >> ${logf};
 # It is better to do direct ingest into the public schema, but others such as _4dn, metabolomics, etc. (DCC-name specific schema which have metadata only from that DCC) and c2m2 (which has metadata from all the DCCs) can be copied over to the other DB.
 #host1=sc-cfdedb.sdsc.edu; host2=localhost; dbname=drc; sch=Metabolomics;
 #host1=localhost; host2=sc-cfdedb.sdsc.edu; dbname=drc; sch=c2m2;
-host1=localhost; host2=sc-cfdedbdev.sdsc.edu; port1=5434; port2=5432; dbname=drc; sch=c2m2;
+host1=localhost; host2=sc-cfdedb.sdsc.edu; port1=5434; port2=5432; dbname=drc; sch=c2m2; user1=drc; user2=drcadmin;
+#host1=localhost; host2=localhost; port1=5434; port2=5433; dbname=drc; sch=c2m2; user1=drc; user2=drc;
 # Example of 
 ymd=$(date +%y%m%d);
-logf=${logdir}/main_pg_dump_log_${ymd}.log
+ymdt=$(date +%y%m%d-%H%M%S);
+logf=${logdir}/main_pg_dump_log_${ymdt}.log
 #date_div > ${logf};
-./pg_dump_host1_to_host2.sh ${host1} ${host2} ${port1} ${port2} ${dbname} ${logdir} ${sch} > ${logf} 2>&1
+./pg_dump_host1_to_host2.sh ${host1} ${host2} ${port1} ${port2} ${dbname} ${logdir} ${user1} ${user2} ${sch} > ${logf} 2>&1
 date_div >> ${logf};
 
 #-------------------------------------------------------------------------------------------------------
@@ -349,6 +363,7 @@ This step is necessary if DB/table schema has been changed.
 To fetch the current database schema and update your Prisma schema, use the following command:
 
 ```bash
+# be in the drc-portals folder
 npx prisma db pull --schema=prisma/c2m2/schema.prisma --url "postgresql://drc:drcpass@localhost:5434/drc?schema=c2m2"
 ```
 This command will:

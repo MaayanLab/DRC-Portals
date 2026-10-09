@@ -1,15 +1,15 @@
 # This script is generally to be run by Mano only after understanding its contents.
 # Use pg_dump and psql to directly copy all schema and tables from host1/db to host2/db
 # assuming suitable write acsess is already granted.
-# Run syntax: ymd=$(date +%y%m%d); ./pg_dump_host1_to_host2.sh <host1> <host2> <port1> <port2> <dbname> <logdir> schema1 schema2 ... >> main_pg_dump_log_${ymd}.log 2>&1
-# Examples: ymd=$(date +%y%m%d); ./pg_dump_host1_to_host2.sh sc-cfdedb.sdsc.edu localhost 5432 5434 drc log_dbserver Metabolomics >> main_pg_dump_log_${ymd}.log 2>&1
-# Examples: ymd=$(date +%y%m%d); ./pg_dump_host1_to_host2.sh sc-cfdedb.sdsc.edu sc-cfdedbdev.sdsc.edu  5432 5432 drc log_dbserver Metabolomics >> main_pg_dump_log_${ymd}.log 2>&1
+# Run syntax: ymd=$(date +%y%m%d); ./pg_dump_host1_to_host2.sh <host1> <host2> <port1> <port2> <dbname> <logdir> <user1> <user2> schema1 schema2 ... >> main_pg_dump_log_${ymd}.log 2>&1
+# Examples: ymd=$(date +%y%m%d); ./pg_dump_host1_to_host2.sh sc-cfdedb.sdsc.edu localhost 5432 5434 drc log_dbserver drc drc Metabolomics >> main_pg_dump_log_${ymd}.log 2>&1
+# Examples: ymd=$(date +%y%m%d); ./pg_dump_host1_to_host2.sh sc-cfdedb.sdsc.edu sc-cfdedbdev.sdsc.edu  5432 5432 drc log_dbserver drc drcadmin Metabolomics >> main_pg_dump_log_${ymd}.log 2>&1
 
 echo -e "----------- $0 script started: Current date and time: $(date)";
 
 if [[ $# -lt 2 ]]; then
-        echo -e "Usage: $0 <host1> <host2> <port1> <port2> [<dbname> [<logdir> [schema1 [schema2 ...]]]]";
-	echo -e "If more than two arguments, then 3rd arg is port1, 4th is port2, 5th is dbname and 6th is logdir, followed by one or more schema names.";
+        echo -e "Usage: $0 <host1> <host2> <port1> <port2> [<dbname> [<logdir> [<user1> {<user2> [schema1 [schema2 ...]]]]]]";
+	echo -e "If more than two arguments, then 3rd arg is port1, 4th is port2, 5th is dbname, 6th is logdir, 7th is user1 and 8th is user2, followed by one or more schema names.";
         exit 1;
 fi
 
@@ -17,8 +17,8 @@ host1=$1
 host2=$2
 #port1=5434
 #port2=5432
-user1=drc
-user2=drcadmin
+#user1=drc
+#user2=drc
 
 #port1=5434
 if [[ $# -lt 3 ]]; then
@@ -51,6 +51,20 @@ else
         logdir=$6
 fi
 
+if [[ $# -lt 7 ]]; then
+        echo -e "No user1 specified, so it will assume drc.";
+        user1=drc
+else
+        user1=$7
+fi
+
+if [[ $# -lt 8 ]]; then
+        echo -e "No user2 specified, so it will assume drcadmin.";
+        user1=drc
+else
+        user2=$8
+fi
+
 echo -e "host1:port1:user1: ${host1}:${port1}:${user1}";
 echo -e "host2:port2:user2: ${host2}:${port2}:${user2}";
 echo -e "dname:${dbname}";
@@ -61,14 +75,16 @@ echo -e "logdir:${logdir}";
 #schemas=('c2m2' 'slim' '_4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC');
 #schemas=('_4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet');
 # ERCC is now ExRNA
+schemas=('_4DN' 'Bridge2AI' 'ExRNA' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet' 'SCGE', 'geo_project');
 schemas=('_4DN' 'Bridge2AI' 'ExRNA' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet' 'SCGE');
 #schemas=('Metabolomics');
+schemas=('C2M2');
 
-if [[ $# -lt 7 ]]; then
+if [[ $# -lt 9 ]]; then
         echo -e "The program will loop over all schemas:";
 	echo "${schemas[@]}";
 else
-	shift; shift; shift; shift; shift; shift;
+	shift; shift; shift; shift; shift; shift; shift; shift;
 	schemas=("$@")
         echo -e "The program will loop over the specified schemas:";
 	echo "${schemas[@]}";
@@ -100,8 +116,22 @@ for sch in "${schemas[@]}"; do
         # For dropping tables but not schema, specify like -t schemaname.*
         # Use pg_dump for psql 16 instead of some other
 
-	/usr/pgsql-16/bin/pg_dump --clean --if-exists --no-owner --no-acl -v -h ${host1} -p ${port1} -U ${user1} -d ${dbname} -t ${sch}.* \
-                -Fp | psql -b -v ON_ERROR_STOP=1 -h ${host2} -p ${port2} -U ${user2} -d ${dbname} -o ${logf}
+        # If the schema doesn't exist on the target, create it first
+        psql -h ${host2} -p ${port2} -U ${user2} -d ${dbname} -c "CREATE SCHEMA IF NOT EXISTS ${sch};"
+
+        copy_all_from_schema=1
+
+        if [ "${copy_all_from_schema}" -eq 1 ]; then
+                echo "Copy everything"
+                # if want everything from the schema, not just tables and associated things
+                /usr/pgsql-16/bin/pg_dump --clean --if-exists --no-owner --no-acl -v -h "${host1}" -p ${port1} -U ${user1} -d "${dbname}" -n "${sch}" \
+                        -Fp | psql -b -v ON_ERROR_STOP=1 -h "${host2}" -p ${port2} -U "${user2}" -d "${dbname}" -o "${logf}"
+        else
+                echo "Copy tables only"
+                /usr/pgsql-16/bin/pg_dump --clean --if-exists --no-owner --no-acl -v -h "${host1}" -p ${port1} -U ${user1} -d "${dbname}" -t "${sch}.*" \
+                        -Fp | psql -b -v ON_ERROR_STOP=1 -h "${host2}" -p ${port2} -U "${user2}" -d "${dbname}" -o "${logf}"
+        fi
+
 	#pg_dump --clean --if-exists --no-owner --no-acl -v -h ${host1} -p ${port1} -U ${user1} -d ${dbname} -n ${sch} \
         #-t "${sch}.dcc" -t "${sch}.anatomy" -Fp -f pg_dump_${dbname}_from_cfdedb_${ymd}.sql
 

@@ -686,6 +686,7 @@ model file {
   bundle_collection_local_id                       String?                     @default("") @db.VarChar
   dbgap_study_id                                   String?                     @default("") @db.VarChar
   access_url                                       String?                     @default("") @db.VarChar
+  searchable                                       String?                     @default("") @db.VarChar
   analysis_type_file_analysis_typeToanalysis_type  analysis_type?              @relation("file_analysis_typeToanalysis_type", fields: [analysis_type], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_analysis_type_7")
   assay_type_file_assay_typeToassay_type           assay_type?                 @relation("file_assay_typeToassay_type", fields: [assay_type], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_assay_type_6")
   collection                                       collection?                 @relation(fields: [bundle_collection_id_namespace, bundle_collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_collection_8")
@@ -700,6 +701,7 @@ model file {
   file_in_collection                               file_in_collection[]
 
   @@id([id_namespace, local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_file_idx_searchable", type: Gin)
   @@index([project_id_namespace, project_local_id, assay_type, data_type, analysis_type, file_format], map: "file_proj_assay_data_idx")
   @@index([analysis_type], map: "idx_file_analysis_type")
   @@index([assay_type], map: "idx_file_assay_type")
@@ -714,10 +716,12 @@ model file_describes_biosample {
   file_local_id          String    @db.VarChar
   biosample_id_namespace String    @db.VarChar
   biosample_local_id     String    @db.VarChar
+  searchable             String?   @default("") @db.VarChar
   biosample              biosample @relation(fields: [biosample_id_namespace, biosample_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_describes_biosample_biosample_2")
   file                   file      @relation(fields: [file_id_namespace, file_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_describes_biosample_file_1")
 
   @@id([file_id_namespace, file_local_id, biosample_id_namespace, biosample_local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_file_describes_biosample_idx_searchable", type: Gin)
   @@index([biosample_id_namespace], map: "idx_file_biosample_bs_idns")
   @@index([biosample_local_id], map: "idx_file_biosample_bs_local")
   @@index([file_id_namespace], map: "idx_file_biosample_file_idns")
@@ -756,10 +760,12 @@ model file_describes_subject {
   file_local_id        String  @db.VarChar
   subject_id_namespace String  @db.VarChar
   subject_local_id     String  @db.VarChar
+  searchable           String? @default("") @db.VarChar
   file                 file    @relation(fields: [file_id_namespace, file_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_describes_subject_file_1")
   subject              subject @relation(fields: [subject_id_namespace, subject_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_describes_subject_subject_2")
 
   @@id([file_id_namespace, file_local_id, subject_id_namespace, subject_local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_file_describes_subject_idx_searchable", type: Gin)
   @@index([file_id_namespace], map: "idx_file_subject_file_idns")
   @@index([file_local_id], map: "idx_file_subject_file_local")
   @@index([subject_id_namespace], map: "idx_file_subject_subj_idns")
@@ -783,10 +789,12 @@ model file_in_collection {
   file_local_id           String     @db.VarChar
   collection_id_namespace String     @db.VarChar
   collection_local_id     String     @db.VarChar
+  searchable              String?    @default("") @db.VarChar
   collection              collection @relation(fields: [collection_id_namespace, collection_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_in_collection_collection_2")
   file                    file       @relation(fields: [file_id_namespace, file_local_id], references: [id_namespace, local_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_file_in_collection_file_1")
 
   @@id([file_id_namespace, file_local_id, collection_id_namespace, collection_local_id])
+  @@index([searchable(ops: raw("gin_trgm_ops"))], map: "c2m2_file_in_collection_idx_searchable", type: Gin)
 }
 
 model gene {
