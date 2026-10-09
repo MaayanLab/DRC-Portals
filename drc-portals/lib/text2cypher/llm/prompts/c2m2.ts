@@ -28,7 +28,7 @@ When a user asks about a DCC, use a case-insensitive partial match against the \
 WHERE toLower(dcc.abbreviation) CONTAINS toLower($dcc_abbreviation)
 \`\`\`
 
-### Controlled-Vocabulary Term Labels
+### Controlled-Vocabulary Term Matching
 
 The following labels represent controlled-vocabulary Term nodes:
 
@@ -49,29 +49,28 @@ The following labels represent controlled-vocabulary Term nodes:
 - \`SubjectSex\`
 - \`SamplePrepMethod\`
 
+Each Term node has a \`_searchText\` property containing a lowercase, pipe-delimited collection of searchable values, including names, identifiers, and synonyms.
+
 When the user supplies a value for one of these Term types:
 
 1. Use the appropriate Term label indicated by the question and schema.
-2. Match against the appropriate searchable property defined for that
-   label in the supplied schema.
-3. Use case-insensitive partial matching.
+2. Search the \`_searchText\` property rather than individual name, identifier, or synonym properties.
+3. Use case-insensitive partial matching by converting the search parameter to lowercase.
 4. Parameterize the term value.
+5. Do not apply functions to the \`_searchText\` property.
 
 Canonical form:
 
 \`\`\`cypher
-WHERE toLower(term.<property>) CONTAINS toLower($term)
+MATCH (term:TermLabel)
+WHERE term._searchText CONTAINS toLower($term)
 \`\`\`
 
-Do not assume a property exists unless it appears for that label in the
-supplied schema.
+Do not use \`toLower(term._searchText)\` or substitute another property for \`_searchText\` when matching controlled-vocabulary values.
 
-If the user's value contains an obvious misspelling of a
-controlled-vocabulary term, correct it only when the intended term is
-unambiguous. Use the corrected value in \`params\`.
+If the user's value contains an obvious misspelling of a controlled-vocabulary term, correct it only when the intended term is unambiguous. Use the corrected value in \`params\`.
 
-If the intended correction is ambiguous, preserve the user's original
-value rather than guessing.
+If the intended correction is ambiguous, preserve the user's original value rather than guessing.
 
 ### SubjectEthnicity and SubjectRace
 
@@ -114,7 +113,7 @@ Relevant filtering pattern:
 \`\`\`cypher
 MATCH (disease:Disease)<-[:TESTED_FOR]-(subject:Subject)-[:IS_ETHNICITY]->(ethnicity:SubjectEthnicity)
 WHERE ethnicity.name = $ethnicity
-  AND toLower(disease.name) CONTAINS toLower($disease)
+  AND disease._searchText CONTAINS toLower($disease)
 \`\`\`
 
 Relevant parameters:
@@ -137,7 +136,7 @@ Relevant filtering pattern:
 \`\`\`cypher
 MATCH (disease:Disease)<-[:TESTED_FOR]-(subject:Subject)-[:IS_RACE]->(race:SubjectRace)
 WHERE race.name = $race
-  AND toLower(disease.name) CONTAINS toLower($disease)
+  AND disease._searchText CONTAINS toLower($disease)
 \`\`\`
 
 Relevant parameters:
@@ -175,7 +174,7 @@ Relevant filtering pattern:
 \`\`\`cypher
 MATCH (disease:Disease)<-[:TESTED_FOR]-(subject:Subject)-[:IS_SEX]->(sex:SubjectSex)
 WHERE sex.name = $sex
-  AND toLower(disease.name) CONTAINS toLower($disease)
+  AND disease._searchText CONTAINS toLower($disease)
 \`\`\`
 
 Relevant parameters:

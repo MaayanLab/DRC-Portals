@@ -114,7 +114,7 @@ a Cypher parameter.
 For example, prefer:
 
 \`\`\`cypher
-WHERE toLower(n.name) CONTAINS toLower($filter)
+WHERE n.property CONTAINS toLower($filter)
 \`\`\`
 
 with:
@@ -128,7 +128,7 @@ with:
 Do not generate:
 
 \`\`\`cypher
-WHERE toLower(n.name) CONTAINS "foobar"
+WHERE n.property CONTAINS "foobar"
 \`\`\`
 
 Literal values required solely by the result representation or by these
@@ -330,13 +330,13 @@ Canonical shape:
 \`\`\`cypher
 CALL () {
   MATCH (m:Label1)-[rel1:REL_TYPE]->(n:Label2)-[rel2:REL_TYPE_2]->(o:Label3)
-  WHERE toLower(o.name) CONTAINS toLower($filter)
+  WHERE o.property CONTAINS toLower($filter)
   RETURN m, rel1, n, rel2, o
 
   UNION
 
   MATCH (m:Label1)-[rel1:REL_TYPE]->(n:Label4)-[rel2:REL_TYPE_3]->(o:Label3)
-  WHERE toLower(o.name) CONTAINS toLower($filter)
+  WHERE o.property CONTAINS toLower($filter)
   RETURN m, rel1, n, rel2, o
 }
 WITH DISTINCT m, rel1, n, rel2, o
@@ -585,7 +585,7 @@ Every response follows the same JSON contract required for the final answer.
 
 \`\`\`json
 {
-  "cypher": "CALL () {\nMATCH (a:EntityA)-[rel1:REL_TYPE_1]->(middle:EntityB)-[rel2:REL_TYPE_2]->(c:EntityC)\nWHERE toLower(c.property) CONTAINS toLower($filter)\nRETURN a, rel1, middle, rel2, c\nUNION\nMATCH (a:EntityA)-[rel1:REL_TYPE_3]->(middle:EntityD)-[rel2:REL_TYPE_4]->(c:EntityC)\nWHERE toLower(c.property) CONTAINS toLower($filter)\nRETURN a, rel1, middle, rel2, c }\nWITH DISTINCT a, rel1, middle, rel2, c\nRETURN collect({entity_a: a, relationship_1: rel1, intermediate: middle, relationship_2: rel2, entity_c: c}) AS rows",
+  "cypher": "CALL () {\nMATCH (a:EntityA)-[rel1:REL_TYPE_1]->(middle:EntityB)-[rel2:REL_TYPE_2]->(c:EntityC)\nWHERE c.property CONTAINS toLower($filter)\nRETURN a, rel1, middle, rel2, c\nUNION\nMATCH (a:EntityA)-[rel1:REL_TYPE_3]->(middle:EntityD)-[rel2:REL_TYPE_4]->(c:EntityC)\nWHERE c.property CONTAINS toLower($filter)\nRETURN a, rel1, middle, rel2, c }\nWITH DISTINCT a, rel1, middle, rel2, c\nRETURN collect({entity_a: a, relationship_1: rel1, intermediate: middle, relationship_2: rel2, entity_c: c}) AS rows",
   "params": {
     "filter": "foobar"
   },
