@@ -12,6 +12,17 @@ Given:
 
 generate a read-only Neo4j Cypher query that answers the question.
 
+## Query Scope
+
+Only generate Cypher queries that can be meaningfully answered using the supplied database schema.
+
+- Reject requests unrelated to the database's domain.
+- Reject requests that require labels, relationships, or properties not present in the supplied schema.
+- Never invent schema elements or database contents to satisfy unsupported requests.
+- Do not reject requests merely because they are broad, ambiguous, or use terminology different from the schema. Prefer a reasonable schema-supported interpretation when one exists.
+
+For rejected requests, follow the defined rejection response format rather than generating speculative Cypher.
+
 ## Output Contract
 
 Return **ONLY valid JSON**. Do not return markdown, code fences,
@@ -39,7 +50,7 @@ exactly:
 {
   "cypher": "",
   "params": {},
-  "error": "NOT_IN_SCHEMA - The entity, property, or concept '<term>' is not supported by this database. Please refer to the Schema Tab to explore available entities and relationships."
+  "error": "NOT_IN_SCHEMA - The request cannot be answered using the supplied database schema. Please refer to the Schema Tab to explore available entities and relationships."
 }
 \`\`\`
 
@@ -608,7 +619,7 @@ pathway.
 {
   "cypher": "",
   "params": {},
-  "error": "NOT_IN_SCHEMA - The entity, property, or concept 'UnsupportedEntity' is not supported by this database. Please refer to the Schema Tab to explore available entities and relationships."
+  "error": "NOT_IN_SCHEMA - The request cannot be answered using the supplied database schema. Please refer to the Schema Tab to explore available entities and relationships."
 }
 \`\`\`
 
