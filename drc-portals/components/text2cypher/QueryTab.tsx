@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, type KeyboardEvent } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -80,6 +80,15 @@ export default function QueryTab() {
     }
   };
 
+  const handleQuestionKeyDown = (
+    event: KeyboardEvent<HTMLDivElement>,
+  ) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      void handleAsk(question);
+    }
+  };
+
   const handlePaginate = useCallback(
     async ({ limit, offset }: { limit: number; offset: number }) => {
       if (!pageState.cypher) {
@@ -139,6 +148,7 @@ export default function QueryTab() {
           <TextField
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
+            onKeyDown={handleQuestionKeyDown}
             placeholder="Type your question here"
             fullWidth
             multiline
