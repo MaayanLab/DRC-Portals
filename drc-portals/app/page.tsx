@@ -79,6 +79,10 @@ const groups = [
       {
         label: "Read the Documentation",
         href: "/data/documentation"
+      },
+      {
+        label: "CFDE Liver Resource",
+        href: "https://cfdeliverresource.org/"
       }
     ]
   },
@@ -146,7 +150,22 @@ export default async function Page({searchParams}: {
                           <Icon path={group.icon} size={2} />
                           <Typography variant="h5"><b>{group.title}</b></Typography>
                         </Button>
-                        {group.links.map(link=><Button component={ClientLink} color="primary" href={link.href} key={link.label} sx={{
+                        {group.links.map(link=>link.href.startsWith("http") ?
+                        <Button sx={{
+                            padding: 0.5,
+                            '&:hover': {
+                              backgroundColor: '#9cbcde',
+                              color: '#2D5986',
+                              boxShadow: 'none',
+                            },
+                          }}
+                          key={link.label}
+                          target="_blank" rel="noopener noreferrer"
+                          component={ClientLink} href={group.href}
+                          >
+                            <Typography variant="body1" sx={{textAlign: "center"}}>{link.label}</Typography>
+                        </Button>:
+                        <Button component={ClientLink} color="primary" href={link.href} key={link.label} sx={{
                           padding: 0.5,
                           '&:hover': {
                             backgroundColor: '#9cbcde',
