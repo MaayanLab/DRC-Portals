@@ -161,7 +161,7 @@ export default async function Page({searchParams}: {
                           }}
                           key={link.label}
                           target="_blank" rel="noopener noreferrer"
-                          component={ClientLink} href={group.href}
+                          component={ClientLink} href={link.href}
                           >
                             <Typography variant="body1" sx={{textAlign: "center"}}>{link.label}</Typography>
                         </Button>:
