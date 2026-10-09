@@ -17,13 +17,19 @@ def process_safe_cache(output: pathlib.Path, writefn):
       #  and waiting before reading our token back. if more
       #  than one procs tried to create the lock, the last
       #  writer will get it, the rest will wait
-      token = str(uuid.uuidv4())
+      token = str(uuid.uuid4())
       output.with_stem('.lock').write_text(token)
       time.sleep(0.5+random.random())
-      if output.with_stem('.lock').read_texthe () == token:
+      if output.with_stem('.lock').read_text() == token:
         # we aquired the lock
         try:
           writefn(output)
+        except:
+          if output.is_file():
+            output.unlink()
+          elif output.is_dir():
+            import shutil
+            shutil.rmtree(output)
         finally:
           # release the lock
           output.with_stem('.lock').unlink()
@@ -45,8 +51,9 @@ def ensure_dcc_asset(files_path: pathlib.Path, file):
   return fetch_or_cache(file['link'].replace(' ', '%20'), file_path)
 
 def unzip_file_path(file_path, extract_path):
-    with zipfile.ZipFile(file_path, 'r') as z:
-      z.extractall(extract_path)
+  import zipfile
+  with zipfile.ZipFile(file_path, 'r') as z:
+    z.extractall(extract_path)
 
 def ensure_unzipped(file_path):
   return process_safe_cache(file_path.parent / file_path.stem, functools.partial(unzip_file_path, file_path))

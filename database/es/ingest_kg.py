@@ -9,8 +9,8 @@ from tqdm.auto import tqdm
 
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 import urllib.request, urllib.parse
-from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident, ensure_dcc_asset
-from ingest_entity_common import gene_info, sqlite3dict
+from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
+from ingest_entity_common import gene_info, sqlite3dict, ensure_dcc_asset, ensure_unzipped
 
 #%%
 # for now, we'll map entity types to get less junk/duplication

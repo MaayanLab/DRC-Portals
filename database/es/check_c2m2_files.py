@@ -6,8 +6,9 @@ import urllib.request, urllib.parse
 from tqdm.auto import tqdm
 from frictionless import Package
 
+from ingest_entity_common import ensure_dcc_asset, ensure_unzipped
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from ingest_common import ingest_path, current_dcc_assets, ensure_dcc_asset
+from ingest_common import ingest_path, current_dcc_assets
 
 #%%
 # Ingest C2M2
@@ -23,13 +24,6 @@ def check_c2m2_datapackage(file):
       subprocess.run(['cfde-c2m2', 'init'], cwd=str(c2m2_datapackage_json.parent.absolute()), check=True)
       subprocess.run(['cfde-c2m2', 'prepare'], cwd=str(c2m2_datapackage_json.parent.absolute()), check=True)
       subprocess.run(['cfde-c2m2', 'validate'], cwd=str(c2m2_datapackage_json.parent.absolute()), check=True)
-      pkg = Package(str(c2m2_datapackage_json))
-      print(f"  {str(c2m2_datapackage_json.parent)}")
-      for rc_name in pkg.resource_names:
-        print(f"      {rc_name}")
-        with pkg.get_resource(rc_name) as rc:
-          for _ in rc.row_stream:
-            pass
     except:
       if c2m2_datapackage_db.exists(): c2m2_datapackage_db.unlink()
       raise

@@ -13,7 +13,7 @@ from frictionless import Package
 
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
-from ingest_entity_common import gene_info, process_safe_cache, sqlite3dict, sqlite3dictquery, ensure_dcc_asset
+from ingest_entity_common import gene_info, process_safe_cache, sqlite3dict, sqlite3dictquery, ensure_dcc_asset, ensure_unzipped
 
 def predicate_from_fields(fields):
   if len(fields) == 1: return fields[0]
@@ -60,10 +60,8 @@ c2m2_reference_tables_mappings = {
 def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
   file_path = ensure_dcc_asset(ingest_path / 'c2m2s', file)
   c2m2_extract_path = ensure_unzipped(file_path)
-  #
-  c2m2_datapackage_json, = pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.json')
-  c2m2_datapackage_db = c2m2_datapackage_json.parent/'C2M2_datapackage.sqlite'
-  assert c2m2_datapackage_db.exists(), f'You should have run check_c2m2_files first {c2m2_datapackage_db.absolute()}'
+  c2m2_datapackage_db, = pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.sqlite')
+  c2m2_datapackage_json = c2m2_datapackage_db.parent / 'C2M2_datapackage.json'
   conn = sqlite3.connect(c2m2_datapackage_db)
   pkg = Package(str(c2m2_datapackage_json))
   with pdp_helper(es_bulk, version=version) as helper:
