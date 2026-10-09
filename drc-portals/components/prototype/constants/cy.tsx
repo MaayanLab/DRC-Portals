@@ -1710,15 +1710,6 @@ const SCHEMA_EDGES = [
   {
     classes: ["term-relationship"],
     data: {
-      id: BIOSAMPLE_TESTED_FOR_PHENOTYPE_EDGE_ID,
-      source: BIOSAMPLE_NODE_ID,
-      target: PHENOTYPE_NODE_ID,
-      label: TESTED_FOR_TYPE,
-    },
-  },
-  {
-    classes: ["term-relationship"],
-    data: {
       id: BIOSAMPLE_TESTED_FOR_DISEASE_EDGE_ID,
       source: BIOSAMPLE_NODE_ID,
       target: DISEASE_NODE_ID,
