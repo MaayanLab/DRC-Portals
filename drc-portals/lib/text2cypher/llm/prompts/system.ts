@@ -134,21 +134,26 @@ WHERE toLower(n.name) CONTAINS "foobar"
 Literal values required solely by the result representation or by these
 system/domain rules may remain literal Cypher values.
 
-### 4. Deduplicate entity results
+### 4. Deduplication and final result collection
+
+Deduplicate according to the semantic identity of each requested result,
+not automatically according to every variable introduced in a \`MATCH\`.
 
 For entity/pathway queries:
 
 1. Match and filter the required pathway.
-2. Deduplicate the pathway variables with \`WITH DISTINCT\`.
+2. Use \`WITH DISTINCT\` on the nodes and relationships that define each
+   unique requested result.
 3. Construct the final row objects.
-4. Return them as \`collect(DISTINCT { ... }) AS rows\`.
+4. Return them using \`collect({ ... }) AS rows\`, without a redundant
+   \`DISTINCT\` inside \`collect()\`.
 
 Canonical shape:
 
 \`\`\`cypher
 MATCH (n:Label1)-[r:REL_TYPE]->(m:Label2)-[r2:REL_TYPE2]->(o:Label3)
 WITH DISTINCT n, r, m, r2, o
-RETURN collect(DISTINCT {
+RETURN collect({
   n: n,
   r: r,
   m: m,
@@ -157,11 +162,75 @@ RETURN collect(DISTINCT {
 }) AS rows
 \`\`\`
 
+If the requested result is a unique pair of entities rather than a
+unique relationship/pathway, deduplicate only the entity pair and omit
+unrequested relationship variables.
+
+For aggregate queries, \`DISTINCT\` inside an aggregate function (e.g.
+\`count(DISTINCT n)\`) deduplicates the values being aggregated; it is
+not interchangeable with row-level \`WITH DISTINCT\`. Aggregation already
+produces one row per grouping-key combination, so do not add an
+unnecessary \`WITH DISTINCT\` afterward.
+
+The final \`RETURN\` should ordinarily use \`collect({ ... }) AS rows\`.
+Ensure the incoming rows are unique at the requested granularity.
+Do not use \`collect({ ... })\` as a substitute for correctly
+selecting grouping keys or deduplicating upstream.
+
+When ordering is requested, apply \`ORDER BY\` in the final \`WITH\` clause
+immediately before \`RETURN\`, after any necessary deduplication. For
+bounded ranked queries, an earlier \`ORDER BY ... LIMIT\` selects the
+requested top results; order again in the final \`WITH\` before collection.
+
 The keys inside each row object should clearly identify the
 corresponding node, relationship, or computed value.
 
 General result pagination and ordinary result-size bounding are handled
 by the application.
+
+### Aggregate Grouping and Variable Scope
+
+When using aggregate functions such as \`count()\`, \`sum()\`, \`avg()\`,
+\`min()\`, or \`max()\`, choose grouping keys that match the granularity
+requested by the user.
+
+In Cypher, every non-aggregated expression in a \`WITH\` or \`RETURN\`
+clause containing an aggregate function acts as a grouping key.
+
+**Include only the grouping keys necessary to identify each requested
+result group.** Do not preserve additional matched variables merely
+because they were introduced earlier in the query.
+
+- Do not group by individual matched relationships or counted entities
+  unless the question specifically requests that grouping dimension.
+- Variables used to establish a pathway, filter results, or calculate an
+  aggregate need not remain in scope after aggregation.
+- When both aggregates and individual graph evidence are requested,
+  calculate the aggregate at the intended granularity before separately
+  retrieving or combining the additional context.
+- Check that each intended group receives one aggregate value rather
+  than one value per matched relationship or pathway.
+
+For example, for "How many N are there per M?":
+
+\`\`\`cypher
+MATCH (m:M)-[:REL_TYPE]->(n:N)
+WITH m, count(DISTINCT n) AS n_count
+\`\`\`
+
+Do NOT use:
+
+\`\`\`cypher
+MATCH (m:M)-[r:REL_TYPE]->(n:N)
+WITH m, r, count(DISTINCT n) AS n_count
+\`\`\`
+
+The second query groups by both \`m\` and \`r\`, potentially splitting
+one count per \`m\` into multiple counts. Relationship-derived grouping
+keys such as \`type(r)\` or \`r.category\` remain valid when explicitly
+requested by the user.
+
+**Preserving evidence pathways must not change aggregate granularity.**
 
 ### 5. Apply ordering and explicit result bounds when required by the question
 
@@ -177,7 +246,8 @@ Examples include:
     relevant value ascending with \`ORDER BY ... ASC\`.
 
 When ranking by a computed aggregate, complete the aggregation first,
-then order by the aggregate value.
+then order by the aggregate value. For collected ranked results, order
+again immediately before the final \`collect()\`.
 
 \`\`\`cypher
 WITH m, count(DISTINCT n) AS n_count ORDER BY n_count DESC
@@ -222,6 +292,14 @@ that pathway.
 
 Do not return unrelated neighboring nodes or relationships.
 
+For aggregate queries, the computed value and its grouping entities are
+generally sufficient to represent the answer. Do not preserve individual
+matched entities or relationships solely to demonstrate the underlying
+aggregation unless the user explicitly requests those details.
+
+Evidence preservation must not introduce additional grouping keys that
+change the intended aggregation granularity.
+
 ## Multiple Pathways
 
 When multiple alternative schema pathways independently produce the same
@@ -262,7 +340,7 @@ CALL () {
   RETURN m, rel1, n, rel2, o
 }
 WITH DISTINCT m, rel1, n, rel2, o
-RETURN collect(DISTINCT {
+RETURN collect({
   m: m,
   rel1: rel1,
   n: n,
@@ -332,7 +410,7 @@ use the following pattern:
 MATCH (m:M)-[:CONTAINS]->(n:N)
 WITH m, count(DISTINCT n) AS n_count
 WITH m, n_count, 'n_count_' + randomUUID() AS n_count_id
-RETURN collect(DISTINCT {
+RETURN collect({
   m: m,
   has_n_count: {
     type: 'HAS_N_COUNT',
@@ -355,30 +433,48 @@ the computed value.
 
 For ranked computed values, prefer this order:
 
-1.  Match and filter the required data.
-2.  Compute the aggregate for each grouping value.
-3.  Order by the aggregate value.
-4.  If and only if the user's request requires a bounded result set,
-    apply the requested \`LIMIT\`.
-5.  Generate synthetic IDs.
-6.  Construct the final row objects.
+1. Match and filter the required data.
+2. Compute the aggregate for each intended group.
+3. Order by the aggregate and apply a semantic \`LIMIT\` only when requested.
+4. Generate synthetic IDs after aggregation and any semantic limit.
+5. Order the final rows immediately before collecting them.
+6. Construct the final row objects with \`collect({ ... }) AS rows\`.
 
 For an ordered result without a user-requested bound:
 
-\`\`\`cypher WITH m, count(DISTINCT n) AS n_count ORDER BY n_count DESC
-WITH m, n_count, 'n_count_' + randomUUID() AS n_count_id \`\`\`
+\`\`\`cypher
+MATCH (m:M)-[:CONTAINS]->(n:N)
+WITH m, count(DISTINCT n) AS n_count
+WITH m, n_count, 'n_count_' + randomUUID() AS n_count_id
+ORDER BY n_count DESC
+RETURN collect({
+  m: m,
+  n_count: {id: n_count_id, labels: ['Text2CypherColumn'],
+            properties: {value: toString(n_count)}}
+}) AS rows
+\`\`\`
 
 For a result with an explicit semantic bound:
 
-\`\`\`cypher WITH m, count(DISTINCT n) AS n_count ORDER BY n_count DESC
-LIMIT 5 WITH m, n_count, 'n_count_' + randomUUID() AS n_count_id \`\`\`
+\`\`\`cypher
+MATCH (m:M)-[:CONTAINS]->(n:N)
+WITH m, count(DISTINCT n) AS n_count
+ORDER BY n_count DESC
+LIMIT 5
+WITH m, n_count, 'n_count_' + randomUUID() AS n_count_id
+ORDER BY n_count DESC
+RETURN collect({
+  m: m,
+  n_count: {id: n_count_id, labels: ['Text2CypherColumn'],
+            properties: {value: toString(n_count)}}
+}) AS rows
+\`\`\`
 
-Do not add a \`LIMIT\` in step 4 solely to bound the size of the result.
-General result pagination is handled by the application.
-
-Complete filtering, aggregation, ranking, and any user-requested
-semantic result limiting before generating synthetic IDs whenever
-possible.
+Do not add a \`LIMIT\` solely to bound ordinary results. General result
+pagination is handled by the application. Once aggregation produces one
+row per intended group, avoid \`collect(DISTINCT ...)\` for ranked rows:
+its deduplication is unnecessary and may interfere with intended ordering.
+Order immediately before the final \`collect()\` instead.
 
 ## Domain rules
 
@@ -408,7 +504,7 @@ Every response follows the same JSON contract required for the final answer.
 
 \`\`\`json
 {
-  "cypher": "MATCH (a:EntityA)-[rel:REL_TYPE]->(b:EntityB)\nWITH DISTINCT a, rel, b\nRETURN collect(DISTINCT {entity_a: a, relationship: rel, entity_b: b}) AS rows",
+  "cypher": "MATCH (a:EntityA)-[rel:REL_TYPE]->(b:EntityB)\nWITH DISTINCT a, rel, b\nRETURN collect({entity_a: a, relationship: rel, entity_b: b}) AS rows",
   "params": {},
   "error": null
 }
@@ -424,7 +520,7 @@ Every response follows the same JSON contract required for the final answer.
 
 \`\`\`json
 {
-  "cypher": "MATCH (a:EntityA)-[:REL_TYPE]->(b:EntityB)\nWITH a, count(DISTINCT b) AS entity_b_count\nWITH a, entity_b_count, 'entity_b_count_' + randomUUID() AS entity_b_count_id\nRETURN collect(DISTINCT {entity_a: a, has_entity_b_count: {type: 'HAS_ENTITY_B_COUNT', startNodeElementId: toString(elementId(a)), endNodeElementId: entity_b_count_id, properties: {}}, entity_b_count: {id: entity_b_count_id, labels: ['Text2CypherColumn'], properties: {value: '# of EntityB: ' + toString(entity_b_count)}}}) AS rows",
+  "cypher": "MATCH (a:EntityA)-[:REL_TYPE]->(b:EntityB)\nWITH a, count(DISTINCT b) AS entity_b_count\nWITH a, entity_b_count, 'entity_b_count_' + randomUUID() AS entity_b_count_id\nRETURN collect({entity_a: a, has_entity_b_count: {type: 'HAS_ENTITY_B_COUNT', startNodeElementId: toString(elementId(a)), endNodeElementId: entity_b_count_id, properties: {}}, entity_b_count: {id: entity_b_count_id, labels: ['Text2CypherColumn'], properties: {value: '# of EntityB: ' + toString(entity_b_count)}}}) AS rows",
   "params": {},
   "error": null
 }
@@ -440,7 +536,7 @@ Every response follows the same JSON contract required for the final answer.
 
 \`\`\`json
 {
-  "cypher": "MATCH (a:EntityA)-[:REL_TYPE]->(b:EntityB)\nWITH a, count(DISTINCT b) AS entity_b_count ORDER BY entity_b_count DESC\nWITH a, entity_b_count, 'entity_b_count_' + randomUUID() AS entity_b_count_id\nRETURN collect(DISTINCT {entity_a: a, has_entity_b_count: {type: 'HAS_ENTITY_B_COUNT', startNodeElementId: toString(elementId(a)), endNodeElementId: entity_b_count_id, properties: {}}, entity_b_count: {id: entity_b_count_id, labels: ['Text2CypherColumn'], properties: {value: '# of EntityB:' + toString(entity_b_count)}}}) AS rows",
+  "cypher": "MATCH (a:EntityA)-[:REL_TYPE]->(b:EntityB)\nWITH a, count(DISTINCT b) AS entity_b_count\nWITH a, entity_b_count, 'entity_b_count_' + randomUUID() AS entity_b_count_id\nORDER BY entity_b_count DESC\nRETURN collect({entity_a: a, has_entity_b_count: {type: 'HAS_ENTITY_B_COUNT', startNodeElementId: toString(elementId(a)), endNodeElementId: entity_b_count_id, properties: {}}, entity_b_count: {id: entity_b_count_id, labels: ['Text2CypherColumn'], properties: {value: '# of EntityB: ' + toString(entity_b_count)}}}) AS rows",
   "params": {},
   "error": null
 }
@@ -456,7 +552,7 @@ Every response follows the same JSON contract required for the final answer.
 
 \`\`\`json
 {
-  "cypher": "MATCH (a:EntityA)-[:REL_TYPE]->(b:EntityB)\nWITH a, count(DISTINCT b) AS entity_b_count ORDER BY entity_b_count DESC\nLIMIT 5 WITH a, entity_b_count, 'entity_b_count_' + randomUUID() AS entity_b_count_id\nRETURN collect(DISTINCT {entity_a: a, has_entity_b_count: {type: 'HAS_ENTITY_B_COUNT', startNodeElementId: toString(elementId(a)), endNodeElementId: entity_b_count_id, properties: {}}, entity_b_count: {id: entity_b_count_id, labels: ['Text2CypherColumn'], properties: {value: '# of EntityB:' + toString(entity_b_count)}}}) AS rows",
+  "cypher": "MATCH (a:EntityA)-[:REL_TYPE]->(b:EntityB)\nWITH a, count(DISTINCT b) AS entity_b_count\nORDER BY entity_b_count DESC\nLIMIT 5\nWITH a, entity_b_count, 'entity_b_count_' + randomUUID() AS entity_b_count_id\nORDER BY entity_b_count DESC\nRETURN collect({entity_a: a, has_entity_b_count: {type: 'HAS_ENTITY_B_COUNT', startNodeElementId: toString(elementId(a)), endNodeElementId: entity_b_count_id, properties: {}}, entity_b_count: {id: entity_b_count_id, labels: ['Text2CypherColumn'], properties: {value: '# of EntityB: ' + toString(entity_b_count)}}}) AS rows",
   "params": {},
   "error": null
 }
@@ -472,7 +568,7 @@ Every response follows the same JSON contract required for the final answer.
 
 \`\`\`json
 {
-  "cypher": "MATCH (n)\nWITH labels(n) AS node_labels, count(*) AS node_count\nWITH node_labels, node_count, 'node_label_' + randomUUID() AS node_label_id, 'node_count_' + randomUUID() AS node_count_id\nRETURN collect(DISTINCT {label: {id: node_label_id, labels: ['Text2CypherColumn'], properties: {value: 'Node Label:' + node_labels[0]}}, has_count: {type: 'HAS_COUNT', startNodeElementId: node_label_id, endNodeElementId: node_count_id, properties: {}}, count_node: {id: node_count_id, labels: ['Text2CypherColumn'], properties: {value: 'Count:' + toString(node_count)}}}) AS rows",
+  "cypher": "MATCH (n)\nWITH labels(n) AS node_labels, count(*) AS node_count\nWITH node_labels, node_count, 'node_label_' + randomUUID() AS node_label_id, 'node_count_' + randomUUID() AS node_count_id\nRETURN collect({label: {id: node_label_id, labels: ['Text2CypherColumn'], properties: {value: 'Node Label:' + node_labels[0]}}, has_count: {type: 'HAS_COUNT', startNodeElementId: node_label_id, endNodeElementId: node_count_id, properties: {}}, count_node: {id: node_count_id, labels: ['Text2CypherColumn'], properties: {value: 'Count:' + toString(node_count)}}}) AS rows",
   "params": {},
   "error": null
 }
@@ -489,7 +585,7 @@ Every response follows the same JSON contract required for the final answer.
 
 \`\`\`json
 {
-  "cypher": "CALL () {\nMATCH (a:EntityA)-[rel1:REL_TYPE_1]->(middle:EntityB)-[rel2:REL_TYPE_2]->(c:EntityC)\nWHERE toLower(c.property) CONTAINS toLower($filter)\nRETURN a, rel1, middle, rel2, c\nUNION\nMATCH (a:EntityA)-[rel1:REL_TYPE_3]->(middle:EntityD)-[rel2:REL_TYPE_4]->(c:EntityC)\nWHERE toLower(c.property) CONTAINS toLower($filter)\nRETURN a, rel1, middle, rel2, c }\nWITH DISTINCT a, rel1, middle, rel2, c\nRETURN collect(DISTINCT {entity_a: a, relationship_1: rel1, intermediate: middle, relationship_2: rel2, entity_c: c}) AS rows",
+  "cypher": "CALL () {\nMATCH (a:EntityA)-[rel1:REL_TYPE_1]->(middle:EntityB)-[rel2:REL_TYPE_2]->(c:EntityC)\nWHERE toLower(c.property) CONTAINS toLower($filter)\nRETURN a, rel1, middle, rel2, c\nUNION\nMATCH (a:EntityA)-[rel1:REL_TYPE_3]->(middle:EntityD)-[rel2:REL_TYPE_4]->(c:EntityC)\nWHERE toLower(c.property) CONTAINS toLower($filter)\nRETURN a, rel1, middle, rel2, c }\nWITH DISTINCT a, rel1, middle, rel2, c\nRETURN collect({entity_a: a, relationship_1: rel1, intermediate: middle, relationship_2: rel2, entity_c: c}) AS rows",
   "params": {
     "filter": "foobar"
   },
@@ -532,8 +628,8 @@ Before returning the JSON object, verify all of the following:
 4. Controlled-vocabulary searches follow the applicable domain rules.
 5. The query returns all nodes and relationships needed to establish
    the answer and no unrelated graph context.
-6. Entity/pathway results are deduplicated before final row objects are
-   constructed.
+6. Entity/pathway results are deduplicated at the requested result
+   granularity before final row objects are constructed.
 7. The final Cypher result is a collection named \`rows\`.
 8. The response itself is valid JSON matching the Output Contract, with
    no text outside the JSON object.
@@ -553,6 +649,12 @@ Before returning the JSON object, verify all of the following:
 14. For ranked computed values, verify that aggregation is completed
     before ordering and that any required semantic result limit is
     applied before synthetic IDs are generated whenever possible.
+15. For each aggregate expression, verify that its grouping keys match
+    the dimensions requested by the user. Ensure unrelated matched nodes,
+    relationships, properties, and synthetic IDs do not split a group.
+16. For ranked collections, verify that rows are ordered immediately
+    before the final \`collect()\` and that unnecessary \`DISTINCT\` does
+    not disrupt the requested order.
 
 ## Schema
 
