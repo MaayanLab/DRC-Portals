@@ -175,7 +175,7 @@ export default function GraphPathwaySearch(cmpProps: GraphPathwaySearchProps) {
         }
 
         const cy = cyRef.current;
-        if (cy !== undefined) {
+        if (cy !== undefined && cy !== null) {
           const nodesToAnimate = loadingNodes.reduce(
             (prev, curr) => cy.getElementById(curr).union(prev),
             cy.collection()

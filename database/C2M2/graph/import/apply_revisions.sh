@@ -22,6 +22,7 @@ files=(
     "add_subject_granularity_synonyms.cypher"
     "add_subject_race_synonyms.cypher"
     "add_subject_sex_synonyms.cypher"
+    "add_search_text_to_CVs.cypher"
 )
 
 # Load env vars

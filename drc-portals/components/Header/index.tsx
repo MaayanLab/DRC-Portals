@@ -25,32 +25,32 @@ import { Session } from "next-auth"
 import { useRef, useState } from 'react';
 import { Button } from '@mui/material';
 import { ListItemButton } from '@mui/material';
-import { mdiAccountGroup, mdiAccountSwitch, mdiBook, mdiCalendar, mdiCompass, mdiDataMatrix, mdiFileDocument, mdiFormatListGroup, mdiGesture, mdiGraphOutline, mdiHammer, mdiHome, mdiHomeGroup, mdiInformation, mdiLaptop, mdiMagnify, mdiRobotOutline, mdiSend, mdiSetCenter } from '@mdi/js';
+import { mdiAccountGroup, mdiAccountSwitch, mdiBook, mdiCalendar, mdiCompass, mdiDataMatrix, mdiFileDocument, mdiFormatListGroup, mdiGesture, mdiGraphOutline, mdiHammer, mdiHome, mdiHomeGroup, mdiInformation, mdiLaptop, mdiMagnify, mdiMessageQuestionOutline, mdiRobotOutline, mdiSend, mdiSetCenter } from '@mdi/js';
 import Icon from '@mdi/react';
 import usePathname from '@/utils/pathname';
-export const TopNav = ({ session }: {session: Session | null }) => {
-  
+export const TopNav = ({ session }: { session: Session | null }) => {
+
   return (
     <>
-    {/* <Link href={"/info"}>
+      {/* <Link href={"/info"}>
       <Typography variant={isInfo ? "nav_highlighted": "nav"}><b>Info</b></Typography>
     </Link> */}
-    <Link href={"/"}>
-    <Typography variant={"nav_highlighted"}><b>Data</b></Typography>
-    </Link>
-    <Link href={"https://cfdeknowledge.org/r/kc_landing"}  target="_blank" rel="noopener noreferrer">
-      <Typography variant="nav"><b>Knowledge</b></Typography>
-    </Link>
-    <Link href={"https://cfdeworkspace.org/"} target="_blank" rel="noopener noreferrer">
-      <Typography variant="nav"><b>Cloud</b></Typography>
-    </Link>
-    <Link href={"https://orau.org/cfde-trainingcenter/"}  target="_blank" rel="noopener noreferrer">
-      <Typography variant="nav"><b>training</b></Typography>
-    </Link>
-    <Link href={"https://cfdeconnect.org/"}  target="_blank" rel="noopener noreferrer">
-      <Typography variant="nav"><b>coordination</b></Typography>
-    </Link>
-    <UserComponent session={session} />
+      <Link href={"/"}>
+        <Typography variant={"nav_highlighted"}><b>Data</b></Typography>
+      </Link>
+      <Link href={"https://cfdeknowledge.org/r/kc_landing"} target="_blank" rel="noopener noreferrer">
+        <Typography variant="nav"><b>Knowledge</b></Typography>
+      </Link>
+      <Link href={"https://cfdeworkspace.org/"} target="_blank" rel="noopener noreferrer">
+        <Typography variant="nav"><b>Cloud</b></Typography>
+      </Link>
+      <Link href={"https://orau.org/cfde-trainingcenter/"} target="_blank" rel="noopener noreferrer">
+        <Typography variant="nav"><b>training</b></Typography>
+      </Link>
+      <Link href={"https://cfdeconnect.org/"} target="_blank" rel="noopener noreferrer">
+        <Typography variant="nav"><b>coordination</b></Typography>
+      </Link>
+      <UserComponent session={session} />
     </>
   )
 }
@@ -76,6 +76,12 @@ const options = [
         href: "/data/graph",
         description: "Explore the CFDE Workbench Cross Cut Metadata Model (C2M2) using an interactive graph-based interface to build queries",
         icon: mdiGraphOutline
+      },
+      {
+        title: "C2M2 Text2Cypher",
+        href: "/data/graph/text2cypher",
+        description: "Convert natural language queries into Cypher queries to explore the CFDE Workbench Cross Cut Metaata Model (C2M2)",
+        icon: mdiMessageQuestionOutline
       },
       {
         title: "CFDE AI Chatbot Assistant",
@@ -113,7 +119,7 @@ const options = [
         icon: mdiGesture
       }
     ]
-  },{
+  }, {
     title: "Explore the Ecosystem",
     links: [
       {
@@ -121,7 +127,7 @@ const options = [
         href: "/",
         description: "Go to the CFDE Workbench Homepage",
         icon: mdiHome
-      },{
+      }, {
         title: "Common Fund Programs",
         href: "/info/dcc",
         description: "Learn more about the CFDE participating Common Fund Programs",
@@ -181,28 +187,28 @@ const options = [
       }
     ]
   },
-{
-  title: "Documentation",
-  links: [
-    {
-      title: "Documentation",
-      href: "/data/documentation",
-      description: "Explore protocols, standards, and guidelines related to the CFDE",
-      icon: mdiFileDocument
-    }
-  ]
-},
-{
-  title: "About",
-  links: [
-    {
-      title: "About",
-      href: "/info/about",
-      description: "Learn more about the CFDE and the Data Resource Center",
-      icon: mdiInformation
-    }
-  ]
-}
+  {
+    title: "Documentation",
+    links: [
+      {
+        title: "Documentation",
+        href: "/data/documentation",
+        description: "Explore protocols, standards, and guidelines related to the CFDE",
+        icon: mdiFileDocument
+      }
+    ]
+  },
+  {
+    title: "About",
+    links: [
+      {
+        title: "About",
+        href: "/info/about",
+        description: "Learn more about the CFDE and the Data Resource Center",
+        icon: mdiInformation
+      }
+    ]
+  }
 ]
 
 
@@ -269,36 +275,36 @@ export default function Header({ session }: {session: Session | null }) {
               <div className='flex flex-grow'><NavBreadcrumbs /></div>
               {path === "/data" && <SearchParamSearchField />}
             </Grid> */}
-          </Grid>
-      </AppBar>
-      <AppBar position="static" sx={{ display: { xs: "block", sm: "block", md: "block", lg: "none", xl: "none" } }}>
-        <Stack spacing={1}>
-          <DRCDrawer path={path} options={options} session={session} />
-          {/* {(path === "/data") && <SearchParamSearchField />} */}
-        </Stack>
-      </AppBar>
-    </Container>
-    </Box>  
-    <Popper sx={{bgcolor: "#A5B4DB", width:"100%", zIndex: 100}} placement={'bottom-start'} open={subLinks!==null} anchorEl={ref.current}>
-      <Container maxWidth="lg">
-        <List sx={{width: "100%"}}>
-          {(subLinks?.links || []).map(i=>(
-            <ListItemButton onClick={()=>setSubLinks(null)}href={i.href} component={Link} key={i.title}>
-              <ListItemIcon>
-                <Icon path={i.icon} size={1} />
-              </ListItemIcon>
-              <ListItemText primary={i.title} secondary={i.description}/>
-            </ListItemButton>
-          ))}
-        </List>
-      </Container>
-    </Popper>      
-    {/* <Container maxWidth="lg">
+              </Grid>
+            </AppBar>
+            <AppBar position="static" sx={{ display: { xs: "block", sm: "block", md: "block", lg: "none", xl: "none" } }}>
+              <Stack spacing={1}>
+                <DRCDrawer path={path} options={options} session={session} />
+                {/* {(path === "/data") && <SearchParamSearchField />} */}
+              </Stack>
+            </AppBar>
+          </Container>
+        </Box>
+        <Popper sx={{ bgcolor: "#A5B4DB", width: "100%", zIndex: 100 }} placement={'bottom-start'} open={subLinks !== null} anchorEl={ref.current}>
+          <Container maxWidth="lg">
+            <List sx={{ width: "100%" }}>
+              {(subLinks?.links || []).map(i => (
+                <ListItemButton onClick={() => setSubLinks(null)} href={i.href} component={Link} key={i.title}>
+                  <ListItemIcon>
+                    <Icon path={i.icon} size={1} />
+                  </ListItemIcon>
+                  <ListItemText primary={i.title} secondary={i.description} />
+                </ListItemButton>
+              ))}
+            </List>
+          </Container>
+        </Popper>
+        {/* <Container maxWidth="lg">
       <Box sx={{marginLeft: 3}}>
         <NavBreadcrumbs />
       </Box>
     </Container> */}
-    </div>
+      </div>
     </ClickAwayListener>
   )
 }
