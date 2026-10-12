@@ -1,0 +1,31 @@
+#2024/11/27: Mano
+# First fetch files from Glygen by 
+
+go to folder: 000_raw_files_from_GlyGen
+
+and run
+
+./fetch.sh
+
+The downloaded files have current date in their name. Go to the parent (this) folder. 
+
+In the next script, zz00_convert_CSV.pl, change the date accordingly in one of the file names, e.g., the line:
+
+#my $inFile = '000_raw_files_from_GlyGen/glycan_pubchem_status-2024-11-26.csv';
+my $inFile = '000_raw_files_from_GlyGen/glycan_pubchem_status-2025-08-15.csv';
+
+Changed the shebang line to:
+#!/usr/bin/perl
+##!/usr/local/bin/perl
+
+Then, run it as
+./zz00_convert_CSV.pl
+
+Then, run the other two as (in sequence, after the previous one completes):
+
+./zz01_load_pubchem_synonyms_to_insert.pl
+./zz02_create_compound_records_for_uncovered_GlyTouCan_ACs.pl
+
+All three perl scripts ran without any issues.
+
+

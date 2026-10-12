@@ -62,7 +62,13 @@ dccIconTable["4DN"] = "/img/4DN.png";
 dccIconTable["Bridge2AI"] = "/img/Bridge2AI.png";
 dccIconTable["cm4ai"] = "/img/Bridge2AI.png";
 dccIconTable["aireadi"] = "/img/Bridge2AI.png";
+dccIconTable["b2ai_voice"] = "/img/Bridge2AI.png";
+dccIconTable["b2ai"] = "/img/Bridge2AI.png";
 dccIconTable["ERCC"] = "/img/exRNA.png";
+dccIconTable["GEO"] = "/img/GEO.png";
+dccIconTable["geo_project"] = "/img/GEO.png";
+dccIconTable["GEO Project"] = "/img/GEO.png";
+dccIconTable["GEO"] = "/img/GEO.png";
 dccIconTable["GTEx"] = "/img/GTEx.png";
 dccIconTable["GlyGen"] = "/img/glygen.png";
 dccIconTable["HMP"] = "/img/HMP.png";
@@ -81,7 +87,9 @@ dccCFlinkTable["4DN"] = "4DN";
 dccCFlinkTable["Bridge2AI"] = "Bridge2AI";
 dccCFlinkTable["cm4ai"] = "Bridge2AI";
 dccCFlinkTable["aireadi"] = "Bridge2AI";
+dccCFlinkTable["b2ai_voice"] = "Bridge2AI";
 dccCFlinkTable["ERCC"] = "ExRNA";
+dccCFlinkTable["GEO"] = "GEO Project";
 dccCFlinkTable["GTEx"] = "GTEx";
 dccCFlinkTable["GlyGen"] = "GlyGen";
 dccCFlinkTable["HMP"] = "HMP";
@@ -236,6 +244,9 @@ export const schemaToDCC = [
   { schema: 'bridge2ai', label: 'Bridge2AI' },
   { schema: 'ercc', label: 'ERCC' },
   { schema: 'exrna', label: 'ExRNA' },
+  /* { schema: 'geo_project', label: 'GEO Project' }, */
+  /* { schema: 'geo_project', label: 'GEO' }, */
+  { schema: 'geo_project', label: 'Gene Expression Omnibus' },
   { schema: 'glygen', label: 'GlyGen' },
   { schema: 'gtex', label: 'GTex' },
   { schema: 'hmp', label: 'HMP' },
@@ -552,6 +563,7 @@ const dccAbbrTable: { [key: string]: string } = {
   "4D NUCLEOME DATA COORDINATION AND INTEGRATION CENTER": "4DN",
   "Cell Maps for Artificial Intelligence": "Bridge2AI",
   "Artificial Intelligence Ready and Exploratory Atlas for Diabetes Insights": "Bridge2AI",
+  "Bridge2AI Voice": "Bridge2AI",
   "The Extracellular Communication Consortium Data Coordination Center": "ExRNA",
   "Genotype-Tissue Expression Project": "GTEx",
   "GlyGen": "GlyGen",

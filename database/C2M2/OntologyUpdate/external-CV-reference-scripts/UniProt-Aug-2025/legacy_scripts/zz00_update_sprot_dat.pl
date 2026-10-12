@@ -1,0 +1,279 @@
+#!/usr/local/bin/perl
+
+use strict;
+
+$| = 1;
+
+# PARAMETERS
+
+my $inFile = '/local/db/uniprot/latest/swissprot/uniprot_sprot.dat';
+
+my $dateFile = '000_sprot_run_begin_date.txt';
+
+my $outFile = '001_sprot.dat_parsed.tsv';
+
+my $displayIncrement = 1000000;
+
+# EXECUTION
+
+system("(echo -n 'Run began '; date) > $dateFile");
+
+system("echo >> $dateFile");
+
+system("(echo 'Listing of /local/db/uniprot/latest/:'; echo) >> $dateFile");
+
+system("/bin/ls -alF /local/db/uniprot/latest/ >> $dateFile");
+
+open IN, "<$inFile" or die("Can't open $inFile for reading.\n");
+
+open OUT, ">$outFile" or die("Can't open $outFile for writing.\n");
+
+print OUT "UniProtKB-AC\tUniProtKB-ID\tdescription\tsynonyms\torganism\n";
+
+my $lineCount = 0;
+
+my $recording = 1;
+
+my $lastDeTag = '';
+
+my $ac = '';
+
+my $id = '';
+
+my $desc = '';
+
+my $suffix = '';
+
+my $synonyms = {};
+
+my $organism = '';
+
+print STDERR "Scanning $inFile...\n\n";
+
+while ( chomp( my $line = <IN> ) ) {
+    
+    $lineCount++;
+
+    if ( $line =~ /^\/\// ) {
+        
+        if ( $desc ne '' ) {
+            
+            $desc .= $suffix;
+        }
+
+        print OUT join("\t",
+                                    $ac,
+                                    $id,
+                                    $desc,
+                                    '[' . join(", ", map { "\"$_\"" } keys %$synonyms ) . ']',
+                                    $organism
+                            ) . "\n";
+
+        $ac = '';
+        $id = '';
+        $desc = '';
+        $suffix = '';
+        $synonyms = {};
+        $organism = '';
+
+        $recording = 1;
+        $lastDeTag = '';
+
+    } elsif ( $line =~ /^OX\s+NCBI_TaxID=(\d+)/i ) {
+        
+        my $taxID = $1;
+        
+        $organism = "NCBI:txid$taxID";
+        
+    } elsif ( $recording ) {
+        
+        if ( $line =~ /^ID\s+(\S+)/ ) {
+            
+            $id = $1;
+
+            $id =~ s/[;]+$//;
+
+        } elsif ( $line =~ /^AC\s+(\S.*)/ ) {
+            
+            my $acString = $1;
+
+            $acString =~ s/;\s+/;/g;
+
+            $acString =~ s/\s+$//;
+
+            $acString =~ s/;$//;
+
+            $acString =~ s/\s+$//;
+
+            my @acVals = split(/;/, $acString);
+
+            foreach my $acVal ( @acVals ) {
+                
+                if ( $ac eq '' ) {
+                    
+                    $ac = $acVal;
+
+                } else {
+                    
+                    # Add as a synonym.
+
+                    $synonyms->{$acVal} = 1;
+                }
+            }
+
+        } elsif ( $line =~ /^DE\s+(Flags):\s+Fragment/ ) {
+            
+            $lastDeTag = $1;
+
+            $suffix = ' (fragment)';
+
+        } elsif ( $line =~ /^DE\s+(Flags):\s+Precursor/ ) {
+            
+            $lastDeTag = $1;
+
+            $suffix = ' (precursor)';
+
+        } elsif ( $line =~ /^DE\s+(Contains):/ ) {
+            
+            $lastDeTag = $1;
+            
+            $recording = 0;
+
+        } elsif ( $line =~ /^DE\s+(Includes):/ ) {
+            
+            $lastDeTag = $1;
+
+            $recording = 0;
+
+        } elsif ( $line =~ /^DE\s+(RecName):\s+(.*)$/ ) {
+            
+            $lastDeTag = $1;
+
+            my $nameString = $2;
+
+            if ( $nameString =~ /^Full=(.*)$/ ) {
+                
+                my $nameVal = &nameStrip($1);
+
+                if ( $nameVal ne '' ) {
+                    
+                    $desc = $nameVal;
+                }
+
+            } elsif ( $nameString =~ /^Short=(.*)$/ ) {
+                
+                my $synVal = &nameStrip($1);
+
+                if ( $synVal ne '' ) {
+                    
+                    $synonyms->{$synVal} = 1;
+                }
+
+            } elsif ( $nameString =~ /^EC=(.*)$/ ) {
+                
+                my $ecVal = &nameStrip($1);
+
+                if ( $ecVal ne '' ) {
+                    
+                    $synonyms->{"EC:$ecVal"} = 1;
+                }
+            }
+
+        } elsif ( $line =~ /^DE\s+(AltName):\s+(.*)$/ ) {
+            
+            $lastDeTag = $1;
+
+            my $nameString = $2;
+
+            if ( $nameString =~ /^Full=(.*)$/ ) {
+                
+                my $synVal = &nameStrip($1);
+
+                if ( $synVal ne '' ) {
+                    
+                    $synonyms->{$synVal} = 1;
+                }
+
+            } elsif ( $nameString =~ /^EC=(.*)$/ ) {
+                
+                my $ecVal = &nameStrip($1);
+
+                if ( $ecVal ne '' ) {
+                    
+                    $synonyms->{"EC:$ecVal"} = 1;
+                }
+            }
+
+        } elsif ( $lastDeTag eq 'RecName' ) {
+            
+            # Assumes 'Full=' never occurs on a tagless line.
+
+            if ( $line =~ /^DE\s+Short=(.*)$/ ) {
+                
+                my $synVal = &nameStrip($1);
+
+                if ( $synVal ne '' ) {
+                    
+                    $synonyms->{$synVal} = 1;
+                }
+
+            } elsif ( $line =~ /^DE\s+EC=(.*)$/ ) {
+                
+                my $ecVal = &nameStrip($1);
+
+                if ( $ecVal ne '' ) {
+                    
+                    $synonyms->{"EC:$ecVal"} = 1;
+                }
+            }
+
+        } elsif ( $lastDeTag eq 'AltName' ) {
+            
+            if ( $line =~ /^DE\s+EC=(.*)$/ ) {
+                
+                my $ecVal = &nameStrip($1);
+
+                if ( $ecVal ne '' ) {
+                    
+                    $synonyms->{"EC:$ecVal"} = 1;
+                }
+            }
+        }
+
+    } # end if ( recording )
+
+    if ( $lineCount % $displayIncrement == 0 ) {
+        
+        print STDERR "    ...scanned $lineCount lines...\n";
+    }
+
+} # end while ( line iterator )
+
+print STDERR "\n...done. Scanned $lineCount lines total.\n";
+
+close OUT;
+
+close IN;
+
+
+
+# SUBROUTINES
+
+sub nameStrip {
+    
+    my $value = shift;
+
+    $value =~ s/\s+$//;
+
+    $value =~ s/[;]+$//;
+
+    $value =~ s/\s+$//;
+
+    $value =~ s/{.*}$//;
+
+    $value =~ s/\s+$//;
+
+    $value =~ s/(?<!\\)"/\\"/g;
+
+    return $value;
+}

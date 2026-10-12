@@ -1,0 +1,64 @@
+#!/usr/bin/bash
+
+#2024/11/26: Mano
+# This README file is written as a bash shell script
+
+#List of files: may be after running one or more scripts:
+
+#[mano@sc-cfdewebdev zz99_merge_GlyTouCan_and_PubChem_data-Aug-2025]$ ls -al
+total 12725792
+drwxrwsr-x.  2 mano drc       4096 Aug 18 19:42 .
+drwxrwsr-x. 19 mano drc       4096 Aug 18 19:17 ..
+-rwxrw-r--.  1 mano drc       3062 Aug 18 19:42 add_missing_compound.sh
+-rw-r--r--.  1 mano drc 2532667173 Aug 18 19:41 compound.2025-08-11.tsv.gz
+-rwxrw-r--.  1 mano drc        488 Oct 11  2024 make-sample-files.sh
+-rw-rw-r--.  1 mano drc       2719 Nov 27  2024 missing_compounds.tsv
+-rw-rw-r--.  1 mano drc       3382 Aug 18 19:42 README.20250811
+-rw-r--r--.  1 mano drc 4411310251 Aug 18 19:41 substance.2025-08-11.tsv.gz
+-rw-rw-r--.  1 mano drc    7697801 Nov 26  2024 temp1_compound.GlyTouCan_appendix.tsv
+-rwxrwxr-x.  1 mano drc       1543 Oct 11  2024 truncate_to_first_X_synonyms.pl
+-rw-r--r--.  1 mano drc  496850138 Aug 18 19:42 unready_SIDs.tsv
+-rw-rw-r--.  1 mano drc          0 Nov 26  2024 unseen_CIDs.txt
+-rw-rw-r--.  1 mano drc     342800 Nov 26  2024 unseen_SIDs.txt
+-rwxrwxr-x.  1 mano drc       2758 Aug 18 19:26 zz00_make_new_compound_file.pl
+-rwxrwxr-x.  1 mano drc       2774 Aug 18 19:27 zz01_make_new_substance_file.pl
+-rwxrwxr-x.  1 mano drc        722 Aug 18 19:29 zz02_append_new_compound_entries.bash
+-rwxrwxr-x.  1 mano drc        328 Nov 27  2024 zz03_qsub_gzip_commands.bash
+-rw-rw-r--.  1 mano drc       3387 Nov 27  2024 zz99_run_all.sh
+
+# Snapshot from 2026/08/04:
+[mano@sc-cfdewebdev zz99_merge_GlyTouCan_and_PubChem_data-Aug-2026]$ ls -al
+total 7710088
+drwxrwsr-x.  2 mano drc       4096 Aug  4 19:12 .
+drwxrwsr-x. 25 mano drc       4096 Aug  4 18:38 ..
+-rwxrw-r--.  1 mano drc       3605 Aug  4 12:52 add_missing_compound.sh
+-rw-rw-r--.  1 mano drc    7554061 Aug  4 16:15 compound.2026-07-27.first_5000_records.tsv
+-rw-rw-r--.  1 mano drc    2149603 Aug  4 16:15 compound.2026-07-27.first_5000_records.tsv.gz
+-rw-rw-r--.  1 mano drc 2611383544 Aug  4 15:59 compound.2026-07-27.tsv.gz
+-rw-rw-r--.  1 mano drc       3787 Aug  4 16:15 log_zz99.log
+-rwxrw-r--.  1 mano drc       1388 Aug 21  2025 make-sample-files.sh
+-rw-rw-r--.  1 mano drc      31823 Aug  4 16:05 missing_compounds_noheader.tsv
+-rw-rw-r--.  1 mano drc      31852 Aug  4 16:05 missing_compounds.tsv
+-rw-rw-r--.  1 mano drc      64642 Aug  4 16:05 missing_compounds.tsv_raw.tsv
+-rw-rw-r--.  1 mano drc       1825 Jul 31 15:58 README.20250811
+-rw-rw-r--.  1 mano drc     476052 Aug  4 16:15 substance.2026-07-27.first_5000_records.tsv
+-rw-rw-r--.  1 mano drc     139501 Aug  4 16:15 substance.2026-07-27.first_5000_records.tsv.gz
+-rw-rw-r--.  1 mano drc 4725820008 Aug  4 15:59 substance.2026-07-27.tsv.gz
+-rw-rw-r--.  1 mano drc    8366408 Aug  4 15:59 temp1_compound.GlyTouCan_appendix.tsv
+-rwxrwxr-x.  1 mano drc       1543 Oct 11  2024 truncate_to_first_X_synonyms.pl
+-rw-r--r--.  1 mano drc  538606512 Aug  4 15:52 unready_SIDs.tsv
+-rw-rw-r--.  1 mano drc          0 Aug  4 15:55 unseen_CIDs.txt
+-rw-rw-r--.  1 mano drc     417320 Aug  4 15:59 unseen_SIDs.txt
+-rwxrwxr-x.  1 mano drc       3476 Jul 31 15:51 zz00_make_new_compound_file.pl
+-rwxrwxr-x.  1 mano drc       3236 Jul 31 15:51 zz01_make_new_substance_file.pl
+-rwxrwxr-x.  1 mano drc       1003 Jul 31 15:51 zz02_append_new_compound_entries.bash
+-rwxrwxr-x.  1 mano drc        328 Aug 19  2025 zz03_qsub_gzip_commands.bash
+-rwxrwxr-x.  1 mano drc       7181 Aug  4 19:12 zz99_run_all.sh
+
+# See the script file zz99_run_all.sh  and run
+logf=log_zz99.log
+#./zz99_run_all.sh 2>&1 | tee ${logf}
+# Mano: 2026-07-31: can specify arguments on the cmd itself, although I double check 
+# the default value in zz99_run_all.sh as well (seems redundant)
+./zz99_run_all.sh Aug-2026 2026-07-27 2>&1 | tee ${logf}
+

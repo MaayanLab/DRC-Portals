@@ -1,0 +1,47 @@
+# Mano-2024-11-15
+First run the bash scripts (refresh.sh, which might call other scripts) inside 000_raw_PubChem_files, subfolders Compound and Substance, to download raw files. 
+Then, run the perl scripts listed at the end of the bash script zz99_*.bash one after another manually to ensure 
+you can fix any errors that arise or run the whole bash script in one go.
+
+Files with the name run_on_TSCC*.sh are batch scripts for Slurm scheduler. These correspond to calling respective perl scripts, such as
+run_on_TSCC_zz02_seed_substance_TSV.sh
+calls zz02_seed_substance_TSV.pl
+
+and
+
+run_on_TSCC_zz06_add_substance_synonyms.multijob.sh
+calls zz06_add_substance_synonyms.multijob.pl
+
+
+# Mano-2024-11-18
+On TSCC, I used a safe estimate of 3600 seconds to allow the zz06*.pl to complete, after submitting 52 instances of 
+zz06a_add_substance_synonyms.one_chunk.pl (called from zz06_add_substance_synonyms.multijob.pl) on the node that gets 
+alloted when run_on_TSCC_zz06_add_substance_synonyms.multijob.sh is run
+
+Final output files compound.tsv and substance.tsv are in the folder 001_stupidly_large_reference_tables. gzip them and 
+them copy these two files along with other scripts files and README file back to any other server for use with C2M2.
+gzip command
+$ gzip -k compound.tsv substance.tsv
+
+To see some lines from gzipped file, use the zcat command:
+zcat compound.tsv.gz | more
+To count lines in a gzipped file, use, e.g.,
+zcat compound.tsv.gz | wc -l
+or, for paralle gzip/gunzip:
+unpigz -p 4 -c compound.tsv.gz | wc -l
+
+To compare the first columns of the older and new versions of the files, use dates in the file names and then compare using the script:
+example, assumning that the input files exist, else specify suitable names, after copying or renaming, etc.
+e.g, 
+cd 001_stupidly_large_reference_tables
+mv compound.tsv.gz compound.2024-11-12.tsv.gz && mv substance.tsv.gz substance.2024-11-12.tsv.gz
+./find_common_uniq_firstcol.sh compound.2023-05-24.tsv.gz compound.2024-11-12.tsv.gz compound_2023-05-24_2024-11-12
+./find_common_uniq_firstcol.sh substance.2023-05-24.tsv.gz substance.2024-11-12.tsv.gz substance_2023-05-24_2024-11-12
+
+OR if the older files are at: /tscc/lustre/ddn/scratch/mano/external_CV_reference_files
+then use
+oldf=/tscc/lustre/ddn/scratch/mano/external_CV_reference_files
+newf=./001_stupidly_large_reference_tables
+./find_common_uniq_firstcol.sh ${oldf}/compound.tsv.gz ${newf}/compound.2024-11-12.tsv.gz compound_2023-05-24_2024-11-12
+./find_common_uniq_firstcol.sh ${oldf}/substance.tsv.gz ${newf}/substance.2024-11-12.tsv.gz substance_2023-05-24_2024-11-12
+
