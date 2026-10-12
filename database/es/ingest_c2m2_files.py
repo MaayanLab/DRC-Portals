@@ -1,11 +1,10 @@
 #%%
-import re
 import traceback
 import zipfile
 import pathlib
 import pandas as pd
 import concurrent.futures
-import urllib.request, urllib.parse
+import urllib.request
 import functools
 import sqlite3
 from tqdm.auto import tqdm
@@ -19,19 +18,6 @@ def predicate_from_fields(fields):
   if len(fields) == 1: return fields[0]
   elif len(fields) == 2 and fields[0].endswith('_id_namespace') and fields[1].endswith('_local_id'): return fields[0][:-len('_id_namespace')]
   else: raise NotImplementedError(fields)
-
-def valid_access_url(access_url):
-  return type(access_url) == str and re.match(r'^(https?|drs|ftp|s3|gs|gsiftp|globus|htsget|ftps|sftp)://', access_url) is not None
-
-def persistent_id_probably_access_url(access_url):
-  if type(access_url) == str:
-    # these IRIs are certainly access urls
-    if re.match(r'^(drs|ftp|s3|gs|gsiftp|globus|htsget|ftps|sftp)://', access_url) is not None:
-      return True
-    # http(s) could be, probably is if the final path component seems to be a file with an extension
-    if re.match(r'^https?://.+?/[^/]+?\.[^/\.]+$', access_url) is not None:
-      return True
-  return False
 
 #%%
 # ensure reference tables are downloaded
@@ -149,14 +135,6 @@ def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
             edge_type = 'm2o'
             if 'filename' in row: row['label'] = row['filename']
             else: row['label'] = row['local_id']
-            if rc_name == 'file':
-              # remove access_url if present and invalid
-              if not valid_access_url(row.get('access_url')):
-                row['access_url'] = None
-              # use persistent id if it's "probably" an access url
-              if not row['access_url']:
-                if persistent_id_probably_access_url(row.get('persistent_id')):
-                  row['access_url'] = row['persistent_id']
             # add dcc info to top-level-project
             pk = ':'.join([row['id_namespace'], row['local_id']])
             if rc_name == 'project' and pk in project_lookup:
