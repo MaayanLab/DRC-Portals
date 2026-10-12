@@ -46,7 +46,6 @@ The following labels represent controlled-vocabulary Term nodes:
 - \`DataType\`
 - \`FileFormat\`
 - \`SubjectGranularity\`
-- \`SubjectSex\`
 - \`SamplePrepMethod\`
 
 Each Term node has a \`_searchText\` property containing a lowercase, pipe-delimited collection of searchable values, including names, identifiers, and synonyms.
@@ -55,7 +54,7 @@ When the user supplies a value for one of these Term types:
 
 1. Use the appropriate Term label indicated by the question and schema.
 2. Search the \`_searchText\` property rather than individual name, identifier, or synonym properties.
-3. Use case-insensitive partial matching by converting the search parameter to lowercase.
+3. Perform partial matching against the pre-normalized lowercase _searchText property by applying toLower() to the search parameter. Never apply functions to _searchText itself.
 4. Parameterize the term value.
 5. Do not apply functions to the \`_searchText\` property.
 

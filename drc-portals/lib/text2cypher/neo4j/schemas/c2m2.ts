@@ -71,10 +71,6 @@ const SUBJECT_RELATEDS: SchemaNodes = [
 const SAMPLE_PREP_METHOD = "SamplePrepMethod";
 const BIOSAMPLE_RELATEDS: SchemaNodes = [SAMPLE_PREP_METHOD];
 
-// Meta labels
-const SYNONYM = "Synonym";
-const METAS: SchemaNodes = [SYNONYM];
-
 // Set of all node labels
 
 const NODES: SchemaNodes = [
@@ -103,14 +99,13 @@ const NODES: SchemaNodes = [
   SUBJECT_RACE,
   SUBJECT_SEX,
   SUBSTANCE,
-  SYNONYM,
 ];
 
 const NODE_PROPERTIES: SchemaNodeProperties = new Map([
-  [ANALYSIS_TYPE, ["synonyms", "name", "description", "id"]],
-  [ANATOMY, ["synonyms", "name", "description", "id"]],
-  [ASSAY_TYPE, ["synonyms", "name", "description", "id"]],
-  [BIOFLUID, ["synonyms", "name", "description", "id"]],
+  [ANALYSIS_TYPE, ["synonyms", "name", "description", "id", "_searchText"]],
+  [ANATOMY, ["synonyms", "name", "description", "id", "_searchText"]],
+  [ASSAY_TYPE, ["synonyms", "name", "description", "id", "_searchText"]],
+  [BIOFLUID, ["synonyms", "name", "description", "id", "_searchText"]],
   [BIOSAMPLE, ["persistent_id", "local_id", "creation_time"]],
   [
     COLLECTION,
@@ -124,7 +119,7 @@ const NODE_PROPERTIES: SchemaNodeProperties = new Map([
       "has_time_series_data",
     ],
   ],
-  [COMPOUND, ["synonyms", "name", "description", "id"]],
+  [COMPOUND, ["synonyms", "name", "description", "id", "_searchText"]],
   [
     DCC,
     [
@@ -137,8 +132,8 @@ const NODE_PROPERTIES: SchemaNodeProperties = new Map([
       "contact_email",
     ],
   ],
-  [DATA_TYPE, ["synonyms", "name", "description", "id"]],
-  [DISEASE, ["synonyms", "name", "description", "id"]],
+  [DATA_TYPE, ["synonyms", "name", "description", "id", "_searchText"]],
+  [DISEASE, ["synonyms", "name", "description", "id", "_searchText"]],
   [
     FILE,
     [
@@ -154,11 +149,14 @@ const NODE_PROPERTIES: SchemaNodeProperties = new Map([
       "mime",
     ],
   ],
-  [FILE_FORMAT, ["synonyms", "name", "description", "id"]],
-  [GENE, ["synonyms", "name", "description", "id", "organism"]],
+  [FILE_FORMAT, ["synonyms", "name", "description", "id", "_searchText"]],
+  [GENE, ["synonyms", "name", "description", "id", "organism", "_searchText"]],
   [ID_NAMESPACE, ["name", "description", "id", "abbreviation"]],
-  [NCBI_TAXONOMY, ["synonyms", "name", "description", "id", "clade"]],
-  [PHENOTYPE, ["synonyms", "name", "description", "id"]],
+  [
+    NCBI_TAXONOMY,
+    ["synonyms", "name", "description", "id", "clade", "_searchText"],
+  ],
+  [PHENOTYPE, ["synonyms", "name", "description", "id", "_searchText"]],
   [
     PROJECT,
     [
@@ -170,8 +168,11 @@ const NODE_PROPERTIES: SchemaNodeProperties = new Map([
       "abbreviation",
     ],
   ],
-  [PROTEIN, ["synonyms", "name", "description", "id"]],
-  [SAMPLE_PREP_METHOD, ["synonyms", "name", "description", "id"]],
+  [PROTEIN, ["synonyms", "name", "description", "id", "_searchText"]],
+  [
+    SAMPLE_PREP_METHOD,
+    ["synonyms", "name", "description", "id", "_searchText"],
+  ],
   [
     SUBJECT,
     [
@@ -185,11 +186,10 @@ const NODE_PROPERTIES: SchemaNodeProperties = new Map([
     ],
   ],
   [SUBJECT_ETHNICITY, ["name", "description", "id"]],
-  [SUBJECT_GRANULARITY, ["name", "description", "id"]],
+  [SUBJECT_GRANULARITY, ["name", "description", "id", "_searchText"]],
   [SUBJECT_RACE, ["name", "description", "id"]],
   [SUBJECT_SEX, ["name", "description", "id"]],
-  [SUBSTANCE, ["synonyms", "name", "id"]],
-  [SYNONYM, ["name"]],
+  [SUBSTANCE, ["synonyms", "name", "id", "_searchText"]],
 ]);
 
 // Relationship types
@@ -238,10 +238,6 @@ const RELATIONSHIPS: SchemaRelationships = [
 ];
 
 const PATHWAYS: SchemaPathways = [
-  [ANALYSIS_TYPE, HAS_SYNONYM, SYNONYM],
-  [ANATOMY, HAS_SYNONYM, SYNONYM],
-  [ASSAY_TYPE, HAS_SYNONYM, SYNONYM],
-  [BIOFLUID, HAS_SYNONYM, SYNONYM],
   [BIOSAMPLE, ASSOCIATED_WITH, SUBSTANCE],
   [BIOSAMPLE, ASSOCIATED_WITH, GENE],
   [BIOSAMPLE, PREPPED_VIA, SAMPLE_PREP_METHOD],
@@ -261,12 +257,9 @@ const PATHWAYS: SchemaPathways = [
   [COLLECTION, CONTAINS, GENE],
   [COLLECTION, DEFINED_BY, PROJECT],
   [COLLECTION, IS_SUPERSET_OF, COLLECTION],
-  [COMPOUND, HAS_SYNONYM, SYNONYM],
   [DCC, CONTAINS, COLLECTION],
   [DCC, CONTAINS, PROJECT],
   [DCC, REGISTERED, ID_NAMESPACE],
-  [DATA_TYPE, HAS_SYNONYM, SYNONYM],
-  [DISEASE, HAS_SYNONYM, SYNONYM],
   [FILE, DESCRIBES, BIOSAMPLE],
   [FILE, DESCRIBES, COLLECTION],
   [FILE, DESCRIBES, SUBJECT],
@@ -274,24 +267,18 @@ const PATHWAYS: SchemaPathways = [
   [FILE, GENERATED_BY_ASSAY_TYPE, ASSAY_TYPE],
   [FILE, IS_DATA_TYPE, DATA_TYPE],
   [FILE, IS_FILE_FORMAT, FILE_FORMAT],
-  [FILE_FORMAT, HAS_SYNONYM, SYNONYM],
   [GENE, HAS_SOURCE, NCBI_TAXONOMY],
-  [GENE, HAS_SYNONYM, SYNONYM],
   [ID_NAMESPACE, CONTAINS, COLLECTION],
   [ID_NAMESPACE, CONTAINS, BIOSAMPLE],
   [ID_NAMESPACE, CONTAINS, FILE],
   [ID_NAMESPACE, CONTAINS, PROJECT],
   [ID_NAMESPACE, CONTAINS, SUBJECT],
-  [NCBI_TAXONOMY, HAS_SYNONYM, SYNONYM],
   [PHENOTYPE, ASSOCIATED_WITH, GENE],
-  [PHENOTYPE, HAS_SYNONYM, SYNONYM],
   [PROJECT, CONTAINS, BIOSAMPLE],
   [PROJECT, CONTAINS, FILE],
   [PROJECT, CONTAINS, SUBJECT],
   [PROJECT, IS_PARENT_OF, PROJECT],
   [PROTEIN, HAS_SOURCE, NCBI_TAXONOMY],
-  [PROTEIN, HAS_SYNONYM, SYNONYM],
-  [SAMPLE_PREP_METHOD, HAS_SYNONYM, SYNONYM],
   [SUBJECT, ASSOCIATED_WITH, NCBI_TAXONOMY],
   [SUBJECT, IS_ETHNICITY, SUBJECT_ETHNICITY],
   [SUBJECT, IS_GRANULARITY, SUBJECT_GRANULARITY],
@@ -299,12 +286,7 @@ const PATHWAYS: SchemaPathways = [
   [SUBJECT, IS_SEX, SUBJECT_SEX],
   [SUBJECT, TESTED_FOR, PHENOTYPE],
   [SUBJECT, TESTED_FOR, DISEASE],
-  [SUBJECT_ETHNICITY, HAS_SYNONYM, SYNONYM],
-  [SUBJECT_GRANULARITY, HAS_SYNONYM, SYNONYM],
-  [SUBJECT_RACE, HAS_SYNONYM, SYNONYM],
-  [SUBJECT_SEX, HAS_SYNONYM, SYNONYM],
   [SUBSTANCE, ASSOCIATED_WITH, COMPOUND],
-  [SUBSTANCE, HAS_SYNONYM, SYNONYM],
 ];
 
 const schema = {
@@ -343,7 +325,6 @@ const schema = {
   IS_RACE,
   IS_SEX,
   IS_SUPERSET_OF,
-  METAS,
   NCBI_TAXONOMY,
   PHENOTYPE,
   PREPPED_VIA,
@@ -359,7 +340,6 @@ const schema = {
   SUBJECT_RELATEDS,
   SUBJECT_SEX,
   SUBSTANCE,
-  SYNONYM,
   TERMS,
   TESTED_FOR,
   NODES,
