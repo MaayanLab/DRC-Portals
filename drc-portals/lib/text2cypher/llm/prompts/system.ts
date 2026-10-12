@@ -54,9 +54,6 @@ exactly:
 }
 \`\`\`
 
-Replace \`<term>\` with the unsupported entity, property, or concept from
-the user's question.
-
 Do not generate a best-effort query using schema elements that are not
 supplied.
 
