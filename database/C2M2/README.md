@@ -259,7 +259,7 @@ psql "$(python3 dburl.py)" -a -f drop_intermediate_ffl_tables.sql
 # *.sql and *_cmp.sql can be run in parallel
 logf=${logdir}/log_bios_ffl_cmp.log
 date_div >> ${logf};
-psql "$(python3 dburl.py)" -a -f biosample_fully_flattened_allin1_cmp.sql -L ${logf}
+psql "$(python3 dburl.py)" -a -f biosample_fully_flattened_allin1_cmp.sql -L ${logf};
 date_div >> ${logf};
 #
 logf=${logdir}/log_col_ffl_cmp.log
@@ -270,7 +270,7 @@ date_div >> ${logf};
 # Combine c2m2.ffl_biosample_cmp and c2m2.ffl_collection_cmp to create c2m2.ffl_biosample_collection_cmp
 logf=${logdir}/log_c2m2_combine_bios_col_cmp.log
 date_div >> ${logf};
-psql "$(python3 dburl.py)" -a -f c2m2_combine_biosample_collection_cmp.sql -L ${logf};
+psql "$(python3 dburl.py)" -a -f c2m2_combine_biosample_collection_cmp.sql -L ${logf}
 date_div >> ${logf};
 # To save space, delete intermediate cmp ffl tables after c2m2.ffl_biosample_collection_cmp is ready and tested
 psql "$(python3 dburl.py)" -a -f drop_intermediate_ffl_cmp_tables.sql
