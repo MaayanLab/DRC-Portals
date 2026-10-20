@@ -289,7 +289,7 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     left join c2m2.protein_gene
         on (c2m2.protein_gene.gene = c2m2.gene.id)
     --- Join with c2m2.protein moved after join with c2m2.ptm     
-    ---left join c2m2.protein
+    ---left join c2m2.protein /* If there was a c2m2.biosample_protein table, that could be used here*/
     ---    on ((c2m2.protein_gene.protein = c2m2.protein.id) OR (c2m2.ptm.protein = c2m2.protein.id))
 
     left join c2m2.substance
@@ -298,7 +298,7 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     left join c2m2.compound
         on (c2m2.substance.compound = c2m2.compound.id)
 
-    /* Mano: 2024/05/01: use OR with c2m2.subject.*/
+    /* Mano: 2024/05/01: use OR with c2m2.subject. */
     --- Solution for future: require that project_local_id for subject/biosample pairs be the same. Also, 
     --- wherever possible, biosample should come from subject, i.e., there should be no biosample without 
     --- subject. Also, for a biosample/subject pair, if biosample is part of a collection, then the 
@@ -308,7 +308,12 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     This is hapening for several DCCs. See test queries in ..../C2M2/c2m2_crosscheck_basic_queries.sql date 2025/01/17
     So, like that for joining c2m2.subject_in_collection, in the OR part require that 
     the subject is not in biosample_from_subject */
-    left join c2m2.project
+    /* 2026/10/19
+    In table c2m2.project and c2m2.project_data_type, there are some project_local_id, which are not in 
+    c2m2.biosample table (but some are there). In the resulting table, I want to include all project_local_id 
+    from c2m2.project. So, I can do full join on c2m2.project.
+    */
+    full join c2m2.project
         on ((c2m2.biosample.project_local_id = c2m2.project.local_id and
         c2m2.biosample.project_id_namespace = c2m2.project.id_namespace)
         OR ((c2m2.subject.project_local_id = c2m2.project.local_id and
@@ -499,8 +504,18 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     left join c2m2.protein /* If there was a c2m2.biosample_protein table, that could be used here */
         on ((c2m2.protein_gene.protein = c2m2.protein.id) OR (c2m2.ptm.protein = c2m2.protein.id))
 
-    where ((c2m2.biosample.local_id is not null) OR (c2m2.subject.local_id is not null))
-    --- without on null biosample or subject, #rows = 4328439 on 2024/05/02 subject_in_collection added & project from subject too
+    /* 
+    --- 2026/10/19: added OR (c2m2.project.local_id is not null) as now doing full join on c2m2.project
+    Further condition not needed as all projects in collection_defined_by_project are already related to 
+    biosamples or subjects only. The counts below are the same:
+    select count(distinct project_local_id) from c2m2.collection_defined_by_project ;
+    select count(distinct tmp.project_local_id) from 
+        (select distinct cdp.project_local_id from c2m2.collection_defined_by_project cdp 
+            left join c2m2.biosample_in_collection bic on cdp.collection_local_id = bic.collection_local_id 
+            left join c2m2.subject_in_collection sic on cdp.collection_local_id = sic.collection_local_id) tmp;
+    */
+    where ((c2m2.biosample.local_id is not null) OR (c2m2.subject.local_id is not null) OR (c2m2.project.local_id is not null))
+    --- without non null biosample or subject, #rows = 4328439 on 2024/05/02 subject_in_collection added & project from subject too
     --- with non null biosample or subject, #rows = 
 
     --- Added GROUP BY since count_bios column added
