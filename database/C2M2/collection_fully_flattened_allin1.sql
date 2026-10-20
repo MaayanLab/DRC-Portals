@@ -496,7 +496,7 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     left join c2m2.ptm_subtype
         on (c2m2.ptm.ptm_subtype = c2m2.ptm_subtype.id)
 
-    left join c2m2.protein /* If there was a c2m2.biosample_protein table, that could be used here */
+    left join c2m2.protein
         on ((c2m2.collection_protein.protein = c2m2.protein.id) OR (c2m2.ptm.protein = c2m2.protein.id))
 
 
