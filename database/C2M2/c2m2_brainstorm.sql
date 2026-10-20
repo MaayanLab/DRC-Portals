@@ -211,3 +211,133 @@ dynamically use it in the CTE during query to restrict the project set.
 Include it in the record_info URL and there this can apply as a filter on 
 the c2m2.file table (project is already set to just one value).
 */
+
+--- 2026/10/19: after full join with project_data_type
+--- check with bridge2ai_voice
+select distinct biosample_local_id,subject_local_id,collection_local_id,project_local_id,data_type_id,file_format_id from c2m2.ffl_biosample where dcc_name ilike '%Voice%' and project_local_id ilike '%\_%';
+--- Some from IDG:
+select distinct biosample_local_id,subject_local_id,collection_local_id,project_local_id,data_type_id,file_format_id from c2m2.ffl_biosample where dcc_name ilike '%illuminating the%';
+
+--- rows with missing dcc_name:
+select distinct biosample_local_id, subject_local_id, project_local_id, collection_local_id from c2m2.ffl_biosample where project_id_namespace is null;
+
+--- Cases where project_local_id is null for some subject_local_id:
+select distinct c2m2.biosample.local_id as biosample_local_id, c2m2.subject.local_id as subject_local_id, c2m2.project.local_id as project_local_id from
+    c2m2.biosample
+    full join c2m2.biosample_from_subject
+        on (c2m2.biosample.local_id = c2m2.biosample_from_subject.biosample_local_id and
+        c2m2.biosample.id_namespace = c2m2.biosample_from_subject.biosample_id_namespace)
+
+    full join c2m2.subject
+        on (c2m2.biosample_from_subject.subject_local_id = c2m2.subject.local_id and
+        c2m2.biosample_from_subject.subject_id_namespace = c2m2.subject.id_namespace)
+
+    left join c2m2.project
+        on (
+        ((c2m2.biosample.project_local_id = c2m2.project.local_id and
+        c2m2.biosample.project_id_namespace = c2m2.project.id_namespace)
+        OR ((c2m2.subject.project_local_id = c2m2.project.local_id and
+        c2m2.subject.project_id_namespace = c2m2.project.id_namespace) AND
+        NOT(c2m2.subject.local_id = c2m2.biosample_from_subject.subject_local_id and
+        c2m2.subject.id_namespace = c2m2.biosample_from_subject.subject_id_namespace)
+        ))
+        )
+
+where c2m2.project.local_id is null;
+--- where c2m2.subject.local_id = 'PT_5XV92E5Y';
+
+--- See which biosample_from_subject.biosample_local_id are null
+DROP TABLE IF EXISTS b_s_bfs;
+CREATE TEMP TABLE b_s_bfs AS
+select distinct COALESCE(c2m2.biosample.id_namespace, c2m2.subject.id_namespace, 
+c2m2.biosample_from_subject.biosample_id_namespace, c2m2.biosample_from_subject.subject_id_namespace) as idnmspc, 
+c2m2.biosample.local_id as biosample_local_id, c2m2.subject.local_id as subject_local_id,
+c2m2.biosample_from_subject.biosample_local_id as bfs_biosample_local_id,
+c2m2.biosample_from_subject.subject_local_id as bfs_subject_local_id
+ from
+    c2m2.biosample
+    full join c2m2.biosample_from_subject
+        on (c2m2.biosample.local_id = c2m2.biosample_from_subject.biosample_local_id and
+        c2m2.biosample.id_namespace = c2m2.biosample_from_subject.biosample_id_namespace)
+
+    full join c2m2.subject
+        on (c2m2.biosample_from_subject.subject_local_id = c2m2.subject.local_id and
+        c2m2.biosample_from_subject.subject_id_namespace = c2m2.subject.id_namespace)
+order by biosample_local_id, subject_local_id, bfs_biosample_local_id, bfs_subject_local_id;
+
+select distinct idnmspc as idnmspc_null_biosample from b_s_bfs where biosample_local_id is null;
+select distinct idnmspc as idnmspc_null_subject from b_s_bfs where subject_local_id is null;
+select distinct idnmspc as idnmspc_null_bfs_biosample from b_s_bfs where bfs_biosample_local_id is null;
+select distinct idnmspc as idnmspc_null_bfs_subject from b_s_bfs where bfs_subject_local_id is null;
+
+select distinct idnmspc as idnmspc_null_biosample, count(*) from b_s_bfs where biosample_local_id is null group by idnmspc order by idnmspc;
+select distinct idnmspc as idnmspc_null_subject, count(*) from b_s_bfs where subject_local_id is null group by idnmspc order by idnmspc;
+select distinct idnmspc as idnmspc_null_bfs_biosample, count(*) from b_s_bfs where bfs_biosample_local_id is null group by idnmspc order by idnmspc;
+select distinct idnmspc as idnmspc_null_bfs_subject, count(*) from b_s_bfs where bfs_subject_local_id is null group by idnmspc order by idnmspc;
+
+---- 2026/10/20: Changing condition on biosample-subject relationshiop
+/*
+(
+    (c2m2.subject.project_local_id = c2m2.project.local_id and
+        c2m2.subject.project_id_namespace = c2m2.project.id_namespace) AND
+        NOT(c2m2.subject.local_id = c2m2.biosample_from_subject.subject_local_id and
+        c2m2.subject.id_namespace = c2m2.biosample_from_subject.subject_id_namespace)
+)
+
+To
+(
+    (c2m2.subject.project_local_id = c2m2.project.local_id and
+        c2m2.subject.project_id_namespace = c2m2.project.id_namespace) AND
+        (c2m2.biosample_from_subject.biosample_local_id IS NULL OR
+        c2m2.biosample_from_subject.subject_local_id IS NULL)
+)
+*/
+--- This should return 0 rows
+select distinct c2m2.biosample.local_id as biosample_local_id, c2m2.subject.local_id as subject_local_id, c2m2.project.local_id as project_local_id from
+    c2m2.biosample
+    full join c2m2.biosample_from_subject
+        on (c2m2.biosample.local_id = c2m2.biosample_from_subject.biosample_local_id and
+        c2m2.biosample.id_namespace = c2m2.biosample_from_subject.biosample_id_namespace)
+
+    full join c2m2.subject
+        on (c2m2.biosample_from_subject.subject_local_id = c2m2.subject.local_id and
+        c2m2.biosample_from_subject.subject_id_namespace = c2m2.subject.id_namespace)
+
+    left join c2m2.project
+        on (
+        (c2m2.biosample.project_local_id = c2m2.project.local_id and
+            c2m2.biosample.project_id_namespace = c2m2.project.id_namespace)
+        OR ( (c2m2.subject.project_local_id = c2m2.project.local_id and
+            c2m2.subject.project_id_namespace = c2m2.project.id_namespace) and
+            (c2m2.biosample_from_subject.biosample_local_id IS NULL or
+                c2m2.biosample_from_subject.subject_local_id IS NULL) )
+        )
+where c2m2.project.local_id is null;
+
+--- Extedned one including project_data_type
+--- This should return 0 rows
+select distinct c2m2.biosample.local_id as biosample_local_id, c2m2.subject.local_id as subject_local_id, c2m2.project.local_id as project_local_id from
+    c2m2.biosample
+    full join c2m2.biosample_from_subject
+        on (c2m2.biosample.local_id = c2m2.biosample_from_subject.biosample_local_id and
+        c2m2.biosample.id_namespace = c2m2.biosample_from_subject.biosample_id_namespace)
+    full join c2m2.subject
+        on (c2m2.biosample_from_subject.subject_local_id = c2m2.subject.local_id and
+        c2m2.biosample_from_subject.subject_id_namespace = c2m2.subject.id_namespace)
+    FULL JOIN c2m2.project_data_type
+        ON (c2m2.biosample.project_local_id = c2m2.project_data_type.project_local_id AND 
+        c2m2.biosample.project_id_namespace = c2m2.project_data_type.project_id_namespace)
+    left join c2m2.project
+        on (
+        ((c2m2.biosample.project_local_id = c2m2.project.local_id and
+        c2m2.biosample.project_id_namespace = c2m2.project.id_namespace)
+        OR ((c2m2.subject.project_local_id = c2m2.project.local_id and
+        c2m2.subject.project_id_namespace = c2m2.project.id_namespace) AND
+        (c2m2.biosample_from_subject.biosample_local_id IS NULL or
+            c2m2.biosample_from_subject.subject_local_id IS NULL)
+        ))
+        OR ( c2m2.biosample.local_id IS NULL AND c2m2.subject.local_id IS NULL AND
+            (c2m2.project_data_type.project_local_id = c2m2.project.local_id AND
+            c2m2.project_data_type.project_id_namespace = c2m2.project.id_namespace) )
+        )
+where c2m2.project.local_id is null;

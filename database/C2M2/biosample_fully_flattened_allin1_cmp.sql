@@ -256,6 +256,13 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
         --- with exclusion (NOT), no bloating; full joins gives 1976858, so, keep full join only
         --- This does exclude some collections related to the subjects
 
+    /* 2026/10/19: need to have all projects from c2mn2.project_data_type, so full join here.
+    Full join takes only a simple condition.
+    */
+    FULL JOIN c2m2.project_data_type
+        ON (c2m2.biosample.project_local_id = c2m2.project_data_type.project_local_id AND 
+        c2m2.biosample.project_id_namespace = c2m2.project_data_type.project_id_namespace)
+
 --- SECOND PART USES LEFT JOIN
 
 --- JOIN ALL TABLES --- full outer join or inner join or left join or right join?
@@ -308,19 +315,31 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     This is hapening for several DCCs. See test queries in ..../C2M2/c2m2_crosscheck_basic_queries.sql date 2025/01/17
     So, like that for joining c2m2.subject_in_collection, in the OR part require that 
     the subject is not in biosample_from_subject */
+
     /* 2026/10/19
-    In table c2m2.project and c2m2.project_data_type, there are some project_local_id, which are not in 
-    c2m2.biosample table (but some are there). In the resulting table, I want to include all project_local_id 
-    from c2m2.project. So, I can do full join on c2m2.project.
+    Full join on c2m2.project could not be done as full join needs simple condition.
+    Left join can take complex conditions. Get if biosample/subject project is null, 
+    take that project from c2m2.project_data_type.
+    See also the file c2m2_brainstorm.sql for why changed from
+    NOT(c2m2.subject.local_id = c2m2.biosample_from_subject.subject_local_id and
+        c2m2.subject.id_namespace = c2m2.biosample_from_subject.subject_id_namespace)
+    to
+    (c2m2.biosample_from_subject.biosample_local_id IS NULL or
+                c2m2.biosample_from_subject.subject_local_id IS NULL)
     */
-    full join c2m2.project
-        on ((c2m2.biosample.project_local_id = c2m2.project.local_id and
+    left join c2m2.project
+        on (
+        ((c2m2.biosample.project_local_id = c2m2.project.local_id and
         c2m2.biosample.project_id_namespace = c2m2.project.id_namespace)
         OR ((c2m2.subject.project_local_id = c2m2.project.local_id and
         c2m2.subject.project_id_namespace = c2m2.project.id_namespace) AND
-        NOT(c2m2.subject.local_id = c2m2.biosample_from_subject.subject_local_id and
-        c2m2.subject.id_namespace = c2m2.biosample_from_subject.subject_id_namespace)
+        (c2m2.biosample_from_subject.biosample_local_id IS NULL or
+            c2m2.biosample_from_subject.subject_local_id IS NULL)
         ))
+        OR ( c2m2.biosample.local_id IS NULL AND c2m2.subject.local_id IS NULL AND
+            (c2m2.project_data_type.project_local_id = c2m2.project.local_id AND
+            c2m2.project_data_type.project_id_namespace = c2m2.project.id_namespace) )
+        )
         /* we are not defining the new table fl_biosample; just creating and populating it directly.
         We need to keep track of mapping of the columns in the new table as they relate to the original tables.*/
         --- THIS CAN BE A PROBLEM
@@ -334,9 +353,11 @@ from ---c2m2.fl_biosample --- Now, doing FULL JOIN of five key biosample-related
     */
     
     /* Mano: 2024/03/04: added data_type */
+    /* moved before c2m2.project
     LEFT JOIN c2m2.project_data_type 
         ON (c2m2.project.local_id = c2m2.project_data_type.project_local_id AND 
         c2m2.project.id_namespace = c2m2.project_data_type.project_id_namespace)
+    */
 
     /* Moved from below so that can be used in join c2m2.id_namespace_dcc_id */
     left join c2m2.collection
@@ -753,4 +774,15 @@ select count(*) from c2m2.collection_ptm;
 select dcc_name,count(*) from c2m2.ffl_biosample_collection_cmp where ptm_site_type_name != '' group by dcc_name order by dcc_name;
 select dcc_name,count(*) from c2m2.ffl_biosample_cmp where ptm_site_type_name != '' group by dcc_name order by dcc_name;
 select dcc_name,count(*) from c2m2.ffl_collection_cmp where ptm_site_type_name != '' group by dcc_name order by dcc_name;
+*/
+
+/*
+--- 2026/10/19: after full join with project_data_type
+--- check with bridge2ai_voice
+select distinct biosample_local_id,subject_local_id,collection_local_id,project_local_id,data_type_id,file_format_id from c2m2.ffl_biosample where dcc_name ilike '%Voice%' and project_local_id ilike '%\_%';
+--- Some from IDG:
+select distinct biosample_local_id,subject_local_id,collection_local_id,project_local_id,data_type_id,file_format_id from c2m2.ffl_biosample where dcc_name ilike '%illuminating the%';
+
+--- rows with missing dcc_name:
+select distinct biosample_local_id, subject_local_id, project_local_id, collection_local_id from c2m2.ffl_biosample where project_id_namespace is null;
 */
