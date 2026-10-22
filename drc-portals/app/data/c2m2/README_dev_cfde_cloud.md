@@ -517,3 +517,46 @@ https://dev.cfde.cloud/data/c2m2/search/record_info?q=blood&t=dcc_name:Illuminat
 
 Faster version: With t in q: less than 0.1 s
 https://dev.cfde.cloud/data/c2m2/search/record_info?q=blood%20%22Illuminating%20the%20Druggable%20Genome%22%20%22idg_tcrd_diseases%22%20%22hematopoietic%20system%20disease%22%20%22JSON%22&t=dcc_name:Illuminating%20the%20Druggable%20Genome|project_local_id:idg_tcrd_diseases|disease_name:hematopoietic%20system%20disease|ncbi_taxonomy_name:Unspecified|anatomy_name:Unspecified|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:Unspecified|subject_ethnicity_name:Unspecified|subject_sex_name:Unspecified|subject_race_name:Unspecified|file_format_name:JSON|ptm_type_name:Unspecified|ptm_subtype_name:Unspecified|ptm_site_type_name:Unspecified
+
+### Example from Bridge2AI Voice
+
+#### Search voice, apply DCC filter B2AI Voice and file format TSV
+https://dev.cfde.cloud/data/c2m2/search/voice?page=1&t=dcc%3ABridge2AI+Voice%7Cfile_format%3ATSV&p=1
+https://dev.cfde.cloud/data/search/voice/c2m2?t=dcc%3ABridge2AI+Voice%7Cfile_format%3ATSV&p=1
+
+
+#### Select a record
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=voice%20%22Bridge2AI%20Voice%22%20%22adult_registered%22%20%22Text%22%20%22TSV%22&t=dcc_name:Bridge2AI%20Voice|project_local_id:adult_registered|disease_name:Unspecified|ncbi_taxonomy_name:Unspecified|anatomy_name:Unspecified|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Text|assay_type_name:Unspecified|subject_ethnicity_name:Unspecified|subject_sex_name:Unspecified|subject_race_name:Unspecified|file_format_name:TSV|ptm_type_name:Unspecified|ptm_subtype_name:Unspecified|ptm_site_type_name:Unspecified
+
+#### Remove file format filter to get more results: Note: projects which have files don't have biosamples or subjects and there is no connection between biosample and subject (as of 2026/10/21)
+You may have to apply anatomy filter
+Select some other record
+
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=voice%20%22Bridge2AI%20Voice%22%20%22adult%22%20%22laryngitis%22%20%22larynx%22&t=dcc_name:Bridge2AI%20Voice|project_local_id:adult|disease_name:laryngitis|ncbi_taxonomy_name:Unspecified|anatomy_name:larynx|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:Unspecified|subject_ethnicity_name:Unspecified|subject_sex_name:Unspecified|subject_race_name:Unspecified|file_format_name:Unspecified|ptm_type_name:Unspecified|ptm_subtype_name:Unspecified|ptm_site_type_name:Unspecified
+
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=voice%20%22Bridge2AI%20Voice%22%20%22adult%22%20%22amyotrophic%20lateral%20sclerosis%22%20%22larynx%22&t=dcc_name:Bridge2AI%20Voice|project_local_id:adult|disease_name:amyotrophic%20lateral%20sclerosis|ncbi_taxonomy_name:Unspecified|anatomy_name:larynx|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:Unspecified|subject_ethnicity_name:Unspecified|subject_sex_name:Unspecified|subject_race_name:Unspecified|file_format_name:Unspecified|ptm_type_name:Unspecified|ptm_subtype_name:Unspecified|ptm_site_type_name:Unspecified
+
+#### Something from the next page:
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=voice%20%22Bridge2AI%20Voice%22%20%22peds%22%20%22larynx%22&t=dcc_name:Bridge2AI%20Voice|project_local_id:peds|disease_name:Unspecified|ncbi_taxonomy_name:Unspecified|anatomy_name:larynx|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:Unspecified|subject_ethnicity_name:Unspecified|subject_sex_name:Unspecified|subject_race_name:Unspecified|file_format_name:Unspecified|ptm_type_name:Unspecified|ptm_subtype_name:Unspecified|ptm_site_type_name:Unspecified
+
+### Search Bridge2AI
+https://dev.cfde.cloud/data/processed/search/bridge2ai/c2m2?page=1
+https://dev.cfde.cloud/data/c2m2/search/bridge2ai?page=1
+https://dev.cfde.cloud/data/search/bridge2ai/c2m2?p=1
+
+#### Apply file format filter: JSON
+https://dev.cfde.cloud/data/processed/search/bridge2ai/c2m2?page=1&t=file_format%3AJSON&p=1
+https://dev.cfde.cloud/data/c2m2/search/bridge2ai?page=1&t=file_format%3AJSON&p=1
+https://dev.cfde.cloud/data/search/bridge2ai/c2m2?p=1&t=file_format%3AJSON
+
+Select a record:
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=bridge2ai%20%22Bridge2AI%20Voice%22%20%22adult_registered%22%20%22Text%22%20%22JSON%22&t=dcc_name:Bridge2AI%20Voice|project_local_id:adult_registered|disease_name:Unspecified|ncbi_taxonomy_name:Unspecified|anatomy_name:Unspecified|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Text|assay_type_name:Unspecified|subject_ethnicity_name:Unspecified|subject_sex_name:Unspecified|subject_race_name:Unspecified|file_format_name:JSON|ptm_type_name:Unspecified|ptm_subtype_name:Unspecified|ptm_site_type_name:Unspecified
+(Note: this project has file but no biosample or subject; that is how they submitted their metadata)
+
+#### Go back, apply DCC filter aireadi
+https://dev.cfde.cloud/data/processed/search/bridge2ai/c2m2?page=1&p=1&t=dcc%3AArtificial+Intelligence+Ready+and+Exploratory+Atlas+for+Diabetes+Insights
+
+Select some record
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=bridge2ai%20%22Artificial%20Intelligence%20Ready%20and%20Exploratory%20Atlas%20for%20Diabetes%20Insights%22%20%22aireadi%22%20%22type%202%20diabetes%20mellitus%22%20%2212%20lead%20electrocardiogram%22&t=dcc_name:Artificial%20Intelligence%20Ready%20and%20Exploratory%20Atlas%20for%20Diabetes%20Insights|project_local_id:aireadi|disease_name:type%202%20diabetes%20mellitus|ncbi_taxonomy_name:Unspecified|anatomy_name:Unspecified|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:12%20lead%20electrocardiogram|subject_ethnicity_name:Unspecified|subject_sex_name:Unspecified|subject_race_name:Unspecified|file_format_name:Unspecified|ptm_type_name:Unspecified|ptm_subtype_name:Unspecified|ptm_site_type_name:Unspecified
+
+https://dev.cfde.cloud/data/c2m2/search/record_info?q=bridge2ai%20%22Artificial%20Intelligence%20Ready%20and%20Exploratory%20Atlas%20for%20Diabetes%20Insights%22%20%22aireadi%22%20%22type%202%20diabetes%20mellitus%22%20%22Continuous%20Glucose%20Monitoring%22&t=dcc_name:Artificial%20Intelligence%20Ready%20and%20Exploratory%20Atlas%20for%20Diabetes%20Insights|project_local_id:aireadi|disease_name:type%202%20diabetes%20mellitus|ncbi_taxonomy_name:Unspecified|anatomy_name:Unspecified|biofluid_name:Unspecified|gene_name:Unspecified|protein_name:Unspecified|compound_name:Unspecified|data_type_name:Unspecified|assay_type_name:Continuous%20Glucose%20Monitoring|subject_ethnicity_name:Unspecified|subject_sex_name:Unspecified|subject_race_name:Unspecified|file_format_name:Unspecified|ptm_type_name:Unspecified|ptm_subtype_name:Unspecified|ptm_site_type_name:Unspecified
