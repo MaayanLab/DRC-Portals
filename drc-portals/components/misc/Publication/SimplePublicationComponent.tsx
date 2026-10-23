@@ -1,11 +1,8 @@
 import dynamic from "next/dynamic";
-import { Card, CardActions, CardContent, Grid, Tooltip} from "@mui/material";
+import { Stack, Tooltip} from "@mui/material";
 import { Publication } from "@prisma/client";
-import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
-import Image from "@/utils/image";
-import { grey } from "@mui/material/colors";
-import AudioCard from "./AudioCard";
+const AudioCard = dynamic(()=>import('./AudioCard'))
 const Link = dynamic(()=>import('@/utils/link'))
 export function addPeriodIfNeeded(text: string | undefined) {
     return text && !text.endsWith(".") ? "." : "";
@@ -15,44 +12,27 @@ export default function SimplePublicationComponent({publications, variant='capti
         <>
             {publications.map((pub, i)=>(
                     <div key={i} className="mb-5 space-x-1">
-                        <Tooltip title={pub.title}>
-                            <Link target="_blank" rel="noopener noreferrer" href={pub.pmid ? `https://pubmed.ncbi.nlm.nih.gov/${pub.pmid}/`: `https://doi.org/${pub.doi}`}>
-                                <Typography color="secondary" variant={variant} sx={{overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", maxWidth: "fit-content", display: "block"}}>
-                                    <b>{pub.title}</b>
+                        <Stack direction="row" spacing={1}>
+                            {(podcast && pub.audio) &&
+                                <Tooltip title={'Listen to an engaging AI-generated podcast about this publication.'}>
+                                    <AudioCard audio={pub.audio} img={'/img/axiom_podcast.jpeg'}/>
+                                </Tooltip>
+                            }
+                            <Stack>
+                                <Tooltip title={pub.title}>
+                                    <Link target="_blank" rel="noopener noreferrer" href={pub.pmid ? `https://pubmed.ncbi.nlm.nih.gov/${pub.pmid}/`: `https://doi.org/${pub.doi}`}>
+                                        <Typography color="secondary" variant={variant} sx={{overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", maxWidth: "fit-content", display: "block"}}>
+                                            <b>{pub.title}</b>
+                                        </Typography>
+                                    </Link>
+                                </Tooltip>
+                                <Typography color="secondary" variant={variant} sx={{color: "rgb(99,99,99)"}}>
+                                    {pub.authors.split(",")[0]} et al. | {pub.journal} | Published: {pub.year}
                                 </Typography>
-                            </Link>
-                        </Tooltip>
-                        <Typography color="secondary" variant={variant} sx={{color: "rgb(99,99,99)"}}>
-                            {pub.authors.split(",")[0]} et al. | {pub.journal} | Published: {pub.year}
-                        </Typography>
-                        {(podcast && pub.audio) &&
-                        <AudioCard audio={pub.audio} img={'/img/axiom.png'}/>
-                            // <Card sx={{width: 350}}>
-                            //     <CardContent>
-                            //         <Grid container spacing={1}>
-                            //             <Grid item xs={7}>
-                            //                 <Typography variant={variant}>Listen to an engaging AI-generated podcast about this publication.</Typography>
-                            //             </Grid>
-                            //             <Grid item xs={5}>
-                            //                 <Image src="/img/axiom.png" alt="axiom" width={150} height={150}/>
-                            //             </Grid>
-                            //         </Grid>
-                                    
-                            //     </CardContent>
-                            //     <CardActions>
-                            //         <CardMedia
-                            //             component="audio"
-                            //             controls
-                            //             src={pub.audio}
-                            //             sx={{ width: '100%', 
-                            //                 '&::-webkit-media-controls-panel': {
-                            //                     backgroundColor: grey[100],
-                            //                 },
-                            //             }} 
-                            //         />
-                            //     </CardActions>
-                            // </Card> 
-                        }
+                            </Stack>
+                        </Stack>
+                        
+                        
                     </div>
                 ))}
             </>

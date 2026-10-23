@@ -116,12 +116,13 @@ const options = [
   },{
     title: "Explore the Ecosystem",
     links: [
-      {
-        title: "Homepage",
-        href: "/",
-        description: "Go to the CFDE Workbench Homepage",
-        icon: mdiHome
-      },{
+      // {
+      //   title: "Homepage",
+      //   href: "/",
+      //   description: "Go to the CFDE Workbench Homepage",
+      //   icon: mdiHome
+      // }
+      ,{
         title: "Common Fund Programs",
         href: "/info/dcc",
         description: "Learn more about the CFDE participating Common Fund Programs",
