@@ -12,10 +12,14 @@ export async function POST(req: NextRequest) {
     const body = (await req.json()) satisfies PipelineRequest;
     const { question, limit, offset } = body;
 
-    const result = await runPipeline(question, {
-      limit,
-      offset,
-    });
+    const result = await runPipeline(
+      question,
+      {
+        limit,
+        offset,
+      },
+      req.signal,
+    );
 
     let parsedResults: Record<string, unknown>[] | null = null;
     let parserError: string | null = null;

@@ -15,16 +15,28 @@ const serializeParams = (params: { [key: string]: Neo4jVarType }) => {
 export const runCypherQuery = async <T extends RecordShape>(
   query: string,
   params?: { [key: string]: Neo4jVarType },
+  signal?: AbortSignal,
 ): Promise<T[]> => {
   const session = getSession();
+  const closeSessionOnAbort = () => {
+    void session
+      .close()
+      .catch((error: unknown) =>
+        console.warn("Failed to close canceled Neo4j session:", error),
+      );
+  };
 
   try {
+    signal?.throwIfAborted();
+    signal?.addEventListener("abort", closeSessionOnAbort, { once: true });
     const clean = query.trim();
     const res = await session.executeRead((tx) => {
       return tx.run(clean, serializeParams(params || {}));
     });
+    signal?.throwIfAborted();
     return res.records.map((record) => record.toObject());
   } catch (e: unknown) {
+    signal?.throwIfAborted();
     if (e instanceof Neo4jError) {
       if (e.code === "Neo.ClientError.Statement.SyntaxError") {
         return Promise.reject(`CypherSyntaxError: ${e.message}`);
@@ -34,6 +46,7 @@ export const runCypherQuery = async <T extends RecordShape>(
     }
     return Promise.reject(`An unexpected error occurred: ${e}`);
   } finally {
+    signal?.removeEventListener("abort", closeSessionOnAbort);
     await session.close();
   }
 };

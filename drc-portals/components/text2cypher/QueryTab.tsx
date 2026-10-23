@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useState, type KeyboardEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -28,13 +34,25 @@ export default function QueryTab() {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [hasAskedQuestion, setHasAskedQuestion] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const { pageState, applyPageState, resetPageState, getPaginationConfig } =
     usePaginatedQueryResults(DEFAULT_PAGE_LIMIT);
 
   const PIPELINE_ERROR_PLACEHOLDER =
     "// The pipeline did not return a valid result. Please try again, or try another question.\n";
 
+  useEffect(
+    () => () => {
+      abortControllerRef.current?.abort();
+    },
+    [],
+  );
+
   const handleAsk = async (input: string) => {
+    if (abortControllerRef.current) {
+      return;
+    }
+
     if (!input.trim()) {
       resetPageState();
       setHasAskedQuestion(false);
@@ -46,13 +64,18 @@ export default function QueryTab() {
     setIsLoading(true);
     resetPageState();
     setCodeOutput("// Running pipeline...\n");
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
 
     try {
-      const result = await getPipelineResult({
-        question: input,
-        limit: DEFAULT_PAGE_LIMIT,
-        offset: 0,
-      });
+      const result = await getPipelineResult(
+        {
+          question: input,
+          limit: DEFAULT_PAGE_LIMIT,
+          offset: 0,
+        },
+        abortController.signal,
+      );
       if (result.success && result.cypher) {
         setCodeOutput(result.cypher);
         applyPageState({
@@ -72,12 +95,23 @@ export default function QueryTab() {
         setCodeOutput(PIPELINE_ERROR_PLACEHOLDER);
       }
     } catch (error: unknown) {
+      if (abortController.signal.aborted) {
+        resetPageState();
+        setHasAskedQuestion(false);
+        setCodeOutput("// Pipeline canceled.\n");
+        return;
+      }
       console.warn(error instanceof Error ? error.message : String(error));
       resetPageState();
       setCodeOutput(PIPELINE_ERROR_PLACEHOLDER);
     } finally {
+      abortControllerRef.current = null;
       setIsLoading(false);
     }
+  };
+
+  const handleCancel = () => {
+    abortControllerRef.current?.abort();
   };
 
   const handleQuestionKeyDown = (
@@ -167,7 +201,22 @@ export default function QueryTab() {
           >
             {isLoading ? "Working..." : "Ask"}
           </Button>
-          {isLoading ? <CircularProgress size={24} /> : null}
+          {isLoading ? (
+            <Button
+              variant="outlined"
+              size="large"
+              onClick={handleCancel}
+              startIcon={
+                <CircularProgress
+                  size={16}
+                  color="inherit"
+                  aria-label="Query pipeline is running"
+                />
+              }
+            >
+              Cancel
+            </Button>
+          ) : null}
         </Box>
 
         <CypherDisplayBox cypher={codeOutput} title="Generated Cypher" />

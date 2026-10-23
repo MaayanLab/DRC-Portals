@@ -9,8 +9,12 @@ const client = new OpenAI({
 
 export const create = async (
   input: string | OpenAI.Responses.ResponseInput | undefined,
+  signal?: AbortSignal,
 ) =>
-  await client.responses.create({
-    model: OPENAI_MODEL,
-    input,
-  });
+  await client.responses.create(
+    {
+      model: OPENAI_MODEL,
+      input,
+    },
+    { signal },
+  );

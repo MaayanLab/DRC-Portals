@@ -85,6 +85,7 @@ export interface PipelineResult {
 export const runPipeline = async (
   question: string,
   paginationInput?: PipelinePaginationInput,
+  signal?: AbortSignal,
 ): Promise<PipelineResult> => {
   const pagination = resolvePipelinePagination(paginationInput);
   const activeSchema = getActiveSchemaDefinition();
@@ -123,6 +124,7 @@ export const runPipeline = async (
   let errorMsg = "";
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    signal?.throwIfAborted();
     result.attempts = attempt;
     console.info(
       `Attempt ${attempt}/${MAX_ATTEMPTS} for question: ${question}`,
@@ -164,13 +166,14 @@ export const runPipeline = async (
       // raw = raw_response.message.content;
 
       // OpenAI API call
-      raw_response = await create(messages);
+      raw_response = await create(messages, signal);
       raw = raw_response.output_text;
 
       // DeepSeek API call
       // raw_response = await create(messages);
       // raw = raw_response.output_text;
     } catch (e: unknown) {
+      signal?.throwIfAborted();
       if (e instanceof Error) {
         errorMsg = e.message;
       } else {
@@ -252,10 +255,12 @@ export const runPipeline = async (
         runCypherQuery<Record<string, unknown>>(
           pipelineQueries.pagedCypher,
           queryParams,
+          signal,
         ),
         runCypherQuery<{ total_row_count?: number }>(
           pipelineQueries.countCypher,
           queryParams,
+          signal,
         ),
       ]);
 
@@ -272,6 +277,7 @@ export const runPipeline = async (
       cypherResult = JSON.stringify(pageRows);
       cypher = pipelineQueries.pagedCypher;
     } catch (e: unknown) {
+      signal?.throwIfAborted();
       errorMsg = e instanceof Error ? e.message : String(e);
       console.warn(
         `Attempt ${attempt} paginated query/count error: ${errorMsg}`,
