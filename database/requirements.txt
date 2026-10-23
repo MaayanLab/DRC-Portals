@@ -10,3 +10,4 @@ elasticsearch>=9,<10
 frictionless
 nltk<3.10
 pyyaml
+cfde-c2m2

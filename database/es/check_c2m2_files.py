@@ -1,10 +1,6 @@
 #%%
-import zipfile
 import pathlib
 import subprocess
-import urllib.request, urllib.parse
-from tqdm.auto import tqdm
-from frictionless import Package
 
 from ingest_entity_common import ensure_dcc_asset, ensure_unzipped
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
