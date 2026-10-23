@@ -4,8 +4,13 @@ import {
   Box,
   Checkbox,
   FormControlLabel,
+  IconButton,
   Link,
+  Menu,
+  MenuItem,
+  MenuList,
   Paper,
+  Popper,
   Skeleton,
   Switch,
   Table,
@@ -17,6 +22,8 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { styled } from "@mui/material/styles";
 import { useState, useEffect } from "react";
 
@@ -31,6 +38,7 @@ import {
   getQueryResultRowRelationshipColumns,
   isQueryResultEdgeCell,
 } from "@/lib/text2cypher/neo4j/query-results";
+import { getActiveSchemaDefinition } from "@/lib/text2cypher/schema/active";
 import { isHttpUrlLike } from "@/lib/text2cypher/utils/url";
 
 export interface QueryResultsSelectionPayload {
@@ -67,8 +75,20 @@ const isNodeCell = (
   );
 };
 
-const formatCellValue = (value: QueryResultRowCell) => {
+const formatCellValue = (value: QueryResultRowCell, property?: string) => {
   if (isNodeCell(value)) {
+    if (property) {
+      const propertyValue = value.properties[property];
+
+      if (propertyValue === null || propertyValue === undefined) {
+        return "null";
+      }
+
+      return typeof propertyValue === "object"
+        ? JSON.stringify(propertyValue)
+        : String(propertyValue);
+    }
+
     return formatNodeDisplayLabel(value);
   }
 
@@ -114,6 +134,37 @@ export default function QueryResultsTable({
     () => new Set(),
   );
   const [showRelationshipColumns, setShowRelationshipColumns] = useState(false);
+  // Display-only overrides; they never affect row ordering or pagination.
+  const [columnProperties, setColumnProperties] = useState<
+    Record<string, string>
+  >({});
+  const [menuState, setMenuState] = useState<{
+    column: string;
+    anchor: HTMLElement;
+  } | null>(null);
+  const [submenuAnchor, setSubmenuAnchor] = useState<HTMLElement | null>(null);
+
+  const closeMenu = () => {
+    setMenuState(null);
+    setSubmenuAnchor(null);
+  };
+
+  const getColumnPropertyOptions = (column: string) => {
+    const nodeProperties = getActiveSchemaDefinition().nodeProperties;
+    const options = new Set<string>();
+
+    for (const row of rows ?? []) {
+      const cell = row[column];
+
+      if (isNodeCell(cell ?? null)) {
+        (nodeProperties.get((cell as { label: string }).label) ?? []).forEach(
+          (property) => options.add(property),
+        );
+      }
+    }
+
+    return Array.from(options);
+  };
 
   const tableRows = rows ?? [];
   const resolvedColumns = getQueryResultRowColumns(tableRows);
@@ -263,7 +314,39 @@ export default function QueryResultsTable({
                     />
                   </StyledTableCell>
                   {headerColumns.map((column) => (
-                    <StyledTableCell key={column}>{column}</StyledTableCell>
+                    <StyledTableCell key={column}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: 1,
+                        }}
+                      >
+                        <span>
+                          {column}
+                          {columnProperties[column]
+                            ? ` (${columnProperties[column]})`
+                            : ""}
+                        </span>
+                        {!isLoading &&
+                        getColumnPropertyOptions(column).length > 0 ? (
+                          <IconButton
+                            size="small"
+                            aria-label={`Column options for ${column}`}
+                            onClick={(event) =>
+                              setMenuState({
+                                column,
+                                anchor: event.currentTarget,
+                              })
+                            }
+                            sx={{ color: "white", ml: "auto" }}
+                          >
+                            <MoreVertIcon fontSize="small" />
+                          </IconButton>
+                        ) : null}
+                      </Box>
+                    </StyledTableCell>
                   ))}
                 </StyledTableRow>
               </TableHead>
@@ -309,7 +392,10 @@ export default function QueryResultsTable({
                         </StyledTableCell>
                         {headerColumns.map((column) => {
                           const value = row[column];
-                          const formattedValue = formatCellValue(value ?? null);
+                          const formattedValue = formatCellValue(
+                            value ?? null,
+                            columnProperties[column],
+                          );
                           const isLinkValue = isHttpUrlLike(formattedValue);
 
                           return (
@@ -339,6 +425,56 @@ export default function QueryResultsTable({
               </TableBody>
             </Table>
           </TableContainer>
+
+          <Menu
+            anchorEl={menuState?.anchor ?? null}
+            open={menuState !== null}
+            onClose={closeMenu}
+          >
+            <Box
+              onMouseEnter={(event) => setSubmenuAnchor(event.currentTarget)}
+              onMouseLeave={() => setSubmenuAnchor(null)}
+            >
+              <MenuItem>
+                <Typography sx={{ flexGrow: 1 }}>Set column property</Typography>
+                <ChevronRightIcon fontSize="small" />
+              </MenuItem>
+              <Popper
+                open={submenuAnchor !== null && menuState !== null}
+                anchorEl={submenuAnchor}
+                placement="right-start"
+                sx={{ zIndex: (theme) => theme.zIndex.modal + 1 }}
+              >
+                <Paper elevation={8} sx={{ maxHeight: 320, overflow: "auto" }}>
+                  <MenuList dense>
+                    {(menuState
+                      ? getColumnPropertyOptions(menuState.column)
+                      : []
+                    ).map((property) => (
+                      <MenuItem
+                        key={property}
+                        selected={
+                          menuState !== null &&
+                          columnProperties[menuState.column] === property
+                        }
+                        onClick={() => {
+                          if (menuState) {
+                            setColumnProperties((current) => ({
+                              ...current,
+                              [menuState.column]: property,
+                            }));
+                          }
+                          closeMenu();
+                        }}
+                      >
+                        {property}
+                      </MenuItem>
+                    ))}
+                  </MenuList>
+                </Paper>
+              </Popper>
+            </Box>
+          </Menu>
         </Box>
       ) : null}
     </Box>
