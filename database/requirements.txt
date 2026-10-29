@@ -11,8 +11,5 @@ frictionless
 nltk<3.10
 pyyaml
 cfde-c2m2
-<<<<<<< HEAD
 boto3
-=======
 cfde-xmt[pandas]
->>>>>>> 002c84cf (XMT ingest)
