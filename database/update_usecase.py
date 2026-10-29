@@ -6,35 +6,12 @@ from datetime import date
 from uuid import uuid5, NAMESPACE_URL
 import boto3
 from botocore.exceptions import ClientError
+from upload_common import upload_file
 from ingest_common import pg_connect
 connection = pg_connect()
 import json
 if len(sys.argv) == 0 or not sys.argv[1].endswith("tsv"):
     raise Exception("Please add a tsv file")
-
-def upload_file(file_name, bucket, object_name=None):
-    """Upload a file to an S3 bucket
-
-    :param file_name: File to upload
-    :param bucket: Bucket to upload to
-    :param object_name: S3 object name. If not specified then file_name is used
-    :return: True if file was uploaded, else False
-    """
-
-    # If S3 object_name was not specified, use file_name
-    if object_name is None:
-        object_name = os.path.basename(file_name)
-
-    # Upload the file
-    s3_client = boto3.client('s3')
-    try:
-        response = s3_client.upload_file(file_name, bucket, object_name)
-    except ClientError as e:
-        print(e)
-        return False
-    return True
-
-bucket = 'cfde-drc'
 
 filename = sys.argv[1]
 dccs = pd.read_csv('ingest/DCC.tsv', sep="\t", index_col=0, header=0)
@@ -84,17 +61,17 @@ print("Uploading to s3")
 
 filename = usecase_file.replace('usecase_files', 'database/usecase_files')
 print(filename)
-upload_file(usecase_file, bucket, filename)
+upload_file(usecase_file, filename)
 filename = filename.replace(now, "current")
 print(filename)
-upload_file(usecase_file, bucket, filename)
+upload_file(usecase_file, filename)
 
 filename = dcc_usecase_file.replace('usecase_files', 'database/usecase_files')
 print(filename)
-upload_file(dcc_usecase_file, bucket, filename)
+upload_file(dcc_usecase_file, filename)
 filename = filename.replace(now, "current")
 print(filename)
-upload_file(dcc_usecase_file, bucket, filename)
+upload_file(dcc_usecase_file, filename)
 
 # ingest
 print("ingesting...")
