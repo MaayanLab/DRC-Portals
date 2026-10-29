@@ -91,11 +91,11 @@ es_ingest_dcc_assets: venv ingestion es_create_index_base
 
 # ingest the contents of .gmt assets
 [cache]
-es_ingest_gmts: venv ingestion es_create_index_base
+es_ingest_xmts: venv ingestion es_create_index_base
 	#!/usr/bin/env bash
 	set -euxo pipefail
 	source es/ingest_common.sh
-	INDEX_VERSION={{ INDEX_VERSION }} uv run es/ingest_gmts.py
+	INDEX_VERSION={{ INDEX_VERSION }} uv run es/ingest_xmts.py
 	es POST "/entity_{{INDEX_VERSION}}/_refresh"
 	es POST "/m2m_{{INDEX_VERSION}}/_refresh"
 
@@ -132,7 +132,7 @@ es_ingest_c2m2: venv ingestion es_create_index_base es_check_c2m2
 
 # ingest all DCC assets
 [parallel]
-es_ingest_base: ingestion es_ingest_dcc_assets es_ingest_gmts es_ingest_kg es_ingest_c2m2
+es_ingest_base: ingestion es_ingest_dcc_assets es_ingest_xmts es_ingest_kg es_ingest_c2m2
 
 # add pagerank to ingested entities
 [cache]
@@ -293,9 +293,9 @@ _ingest_dcc_asset dcc_asset:
 		if dcc_asset['filetype'] == 'KG Assertions':
 			from ingest_kg import ingest_kg
 			ingest_kg(es_bulk, dcc_asset, version="{{INDEX_VERSION}}")
-		elif dcc_asset['filetype'] == 'XMT' and dcc_asset['filename'].endswith('.gmt'):
-			from ingest_gmts import ingest_gmt
-			ingest_gmt(es_bulk, dcc_asset, version="{{INDEX_VERSION}}")
+		elif dcc_asset['filetype'] == 'XMT':
+			from ingest_xmts import ingest_xmt
+			ingest_xmt(es_bulk, dcc_asset, version="{{INDEX_VERSION}}")
 		elif dcc_asset['filetype'] == 'C2M2':
 			from check_c2m2_files import check_c2m2_datapackage
 			check_c2m2_datapackage(dcc_asset)
