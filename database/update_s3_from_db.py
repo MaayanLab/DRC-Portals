@@ -7,6 +7,7 @@ from botocore.exceptions import ClientError
 import csv
 import json
 import pathlib
+import traceback
 from ingest_common import pg_connect
 connection = pg_connect()
 
@@ -85,6 +86,6 @@ for table in tables:
 			df.replace(r'\r+|\n+|\t+', '', regex=True).to_csv(filename, index=False, sep="\t", quoting=csv.QUOTE_NONE)
 		upload_file(filename, bucket, s3_filename)
 	except Exception as e:
-		print(f"failed {table}", e)
+		print(f"failed {table}", traceback.format_exc())
 		# cur.rollback()
 		cur.close()
