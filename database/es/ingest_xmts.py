@@ -10,7 +10,7 @@ from ingest_entity_common import gene_info, ensure_dcc_asset
 def ingest_xmt(es_bulk, file, version="staging"):
   import xmt
   if 'l1000_cp' in file['filename']: return
-  file_path = ensure_dcc_asset(ingest_path / 'gmts', file)
+  file_path = ensure_dcc_asset(ingest_path / 'xmts', file)
   xmt_file = xmt.from_file(file_path)
   if file_path.suffix == '.gmt':
     xmt_file.frontmatter['entity'] = 'hgnc.symbol:'
