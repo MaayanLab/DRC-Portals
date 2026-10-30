@@ -47,6 +47,16 @@ es_scruitinize: venv
 	source es/ingest_common.sh
 	uv run es/scruitinize_dcc_assets.py
 
+es_find_unindexed_c2m2_datapackages:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	find ingest/c2m2s -type f -name 'C2M2_datapackage.json' -exec sh -c '
+		for file do
+			dir=${file%/*}
+			[ -e "$dir/C2M2_datapackage.sqlite" ] || printf "%s\n" "$dir"
+		done
+	' sh {} +
+
 # create the index for entities
 [cache]
 es_create_index_entity:
