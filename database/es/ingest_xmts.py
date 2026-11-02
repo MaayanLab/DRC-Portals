@@ -16,14 +16,16 @@ def ingest_xmt(es_bulk, file, version="staging"):
     xmt_file.frontmatter['entity'] = 'hgnc.symbol:'
   elif file_path.suffix == '.dmt':
     xmt_file.frontmatter['entity'] = 'drug'
+  elif file_path.suffix == '.rbpmt':
+    xmt_file.frontmatter['entity'] = 'RNA-Binding Protein'
   elif file_path.suffix != '.xmt':
-    raise NotImplementedError(file_path.suffix)
+    print(f"WARN: unrecognized suffix for XMT {file_path.suffix}")
   #
   xmt_set_type, xmt_term_type = {
     'hgnc.symbol:': ('gene_set', 'gene'),
     'ensembl:': ('gene_set', 'gene'),
     'drug': ('drug_set', 'drug'),
-  }.get(xmt_file.frontmatter['term'], ('set', 'term'))
+  }.get(xmt_file.frontmatter.get('term'), ('set', 'term'))
   xmt_asset = dict(
     label=file['filename'],
     access_url=file['link'],
