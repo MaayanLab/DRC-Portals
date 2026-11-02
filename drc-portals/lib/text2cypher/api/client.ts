@@ -10,11 +10,7 @@ export class ApiClient {
     return response.json();
   }
 
-  async post<T>(
-    url: string,
-    body: unknown,
-    signal?: AbortSignal,
-  ): Promise<T> {
+  async post<T>(url: string, body: unknown, signal?: AbortSignal): Promise<T> {
     const response = await fetch(url, {
       method: "POST",
       headers: {

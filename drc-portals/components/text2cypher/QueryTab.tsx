@@ -1,20 +1,20 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type KeyboardEvent,
-} from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import Tooltip from "@mui/material/Tooltip";
+import MicIcon from "@mui/icons-material/Mic";
+import MicOffIcon from "@mui/icons-material/MicOff";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 
+import { applySpeechMapper } from "@/utils/speech";
 import CypherDisplayBox from "./shared/CypherDisplayBox";
 import QueryResults, {
   type QueryResultsPageData,
@@ -26,9 +26,73 @@ import {
 import { usePaginatedQueryResults } from "@/lib/text2cypher/hooks/usePaginatedQueryResults";
 
 const DEFAULT_PAGE_LIMIT = 10;
+const MAX_RECORDING_MS = 10000;
 
 export default function QueryTab() {
   const [question, setQuestion] = useState("");
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [speechError, setSpeechError] = useState<string | null>(null);
+  const recorderRef = useRef<any>(null);
+  const recordingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+
+  const stopRecording = useCallback(async () => {
+    if (recordingTimeoutRef.current) {
+      clearTimeout(recordingTimeoutRef.current);
+      recordingTimeoutRef.current = null;
+    }
+    const recorder = recorderRef.current;
+    if (!recorder) return;
+    setIsRecording(false);
+    setIsTranscribing(true);
+    try {
+      const [, blob] = await recorder.stop().getMp3();
+      if (blob.size < 10) return;
+      const formData = new FormData();
+      formData.append("file", blob);
+      formData.append("model", "whisper-1");
+      const response = await fetch("/chat/transcribe", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) throw new Error("Transcription failed.");
+      const transcribed = await response.json();
+      if (transcribed.text) setQuestion(applySpeechMapper(transcribed.text));
+    } catch (error) {
+      console.warn(error);
+      setSpeechError("Could not transcribe audio. Please try again.");
+    } finally {
+      setIsTranscribing(false);
+    }
+  }, []);
+
+  const startRecording = useCallback(async () => {
+    setSpeechError(null);
+    try {
+      if (!recorderRef.current) {
+        const MicRecorder = require("mic-recorder-to-mp3");
+        recorderRef.current = new MicRecorder({ bitRate: 128 });
+      }
+      await recorderRef.current.start();
+      setIsRecording(true);
+      recordingTimeoutRef.current = setTimeout(
+        () => void stopRecording(),
+        MAX_RECORDING_MS,
+      );
+    } catch (error) {
+      console.warn(error);
+      setSpeechError("Could not access the microphone.");
+    }
+  }, [stopRecording]);
+
+  useEffect(
+    () => () => {
+      if (recordingTimeoutRef.current) clearTimeout(recordingTimeoutRef.current);
+    },
+    [],
+  );
   const [codeOutput, setCodeOutput] = useState(
     "// Generated Cypher will appear here\n",
   );
@@ -188,6 +252,35 @@ export default function QueryTab() {
             multiline
             minRows={2}
             variant="outlined"
+            error={Boolean(speechError)}
+            helperText={
+              speechError ??
+              (isRecording
+                ? "Listening... click the mic to stop"
+                : isTranscribing
+                  ? "Transcribing..."
+                  : undefined)
+            }
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end" sx={{ alignSelf: "flex-start", mt: 1 }}>
+                  <Tooltip title={isRecording ? "Stop recording" : "Speak your question"}>
+                    <span>
+                      <IconButton
+                        aria-label={isRecording ? "Stop recording" : "Start recording"}
+                        color={isRecording ? "error" : "default"}
+                        disabled={isTranscribing || isLoading}
+                        onClick={() =>
+                          void (isRecording ? stopRecording() : startRecording())
+                        }
+                      >
+                        {isRecording ? <MicIcon /> : <MicOffIcon />}
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
         </Box>
 
