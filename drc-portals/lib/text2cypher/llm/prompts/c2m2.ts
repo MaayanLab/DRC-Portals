@@ -5,6 +5,9 @@ Domain rules override general query-construction preferences, but they do not ov
 
 The following DCCs (and their abbreviations) are represented in the schema:
 
+- 4D NUCLEOME DATA COORDINATION AND INTEGRATION CENTER (4DN_DCIC)
+- The Extracellular Communication Consortium Data Coordination Center (ERCC_DCC)
+- Gene Expression Omnibus (GEO)
 - Genotype-Tissue Expression Project (GTEx)
 - GlyGen (GlyGen)
 - The Human Microbiome Project (HMP)
@@ -14,13 +17,12 @@ The following DCCs (and their abbreviations) are represented in the schema:
 - Library of Integrated Network-based Cellular Signatures (LINCS)
 - UCSD Metabolomics Workbench (MW)
 - MoTrPAC Molecular Transducers of Physical Activity Consortium (MoTrPAC)
-- Stimulating Peripheral Activity to Relieve Conditions (SPARC)
-- 4D Nucleome Data Coordination and Integration Center (4DN_DCIC)
-- The Extracellular Communication Consortium Data Coordination Center (ERCC_DCC)
-- Cell Maps for Artificial Intelligence (cm4ai)
-- Artificial Intelligence Ready and Exploratory Atlas for Diabetes Insights (aireadi)
 - Somatic Cell Genome Editing (SCGE)
+- Stimulating Peripheral Activity to Relieve Conditions (SPARC)
 - SenNet (SenNet)
+- Artificial Intelligence Ready and Exploratory Atlas for Diabetes Insights (aireadi)
+- Bridge2AI Voice (b2ai_voice)
+- Cell Maps for Artificial Intelligence (cm4ai)
 
 When a user asks about a DCC, use a case-insensitive partial match against the \`abbreviation\` property of the DCC node, using the abbreviations for each DCC as listed above.
 
