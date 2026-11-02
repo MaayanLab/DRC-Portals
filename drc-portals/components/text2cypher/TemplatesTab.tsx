@@ -12,7 +12,7 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import CypherDisplayBox from "./shared/CypherDisplayBox";
 import QueryResults, {
@@ -35,6 +35,7 @@ export default function TemplatesTab() {
   const [isRunningTemplate, setIsRunningTemplate] = useState(false);
   const [runError, setRunError] = useState<string | null>(null);
   const [hasRunTemplate, setHasRunTemplate] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const { pageState, applyPageState, resetPageState, getPaginationConfig } =
     usePaginatedQueryResults(DEFAULT_PAGE_LIMIT);
 
@@ -79,6 +80,13 @@ export default function TemplatesTab() {
     };
   }, [resetPageState]);
 
+  useEffect(
+    () => () => {
+      abortControllerRef.current?.abort();
+    },
+    [],
+  );
+
   const selectedTemplate = useMemo(
     () =>
       templates.find((template) => template.id === selectedTemplateId) ??
@@ -120,7 +128,17 @@ export default function TemplatesTab() {
     setParamTouched((current) => ({ ...current, [paramName]: true }));
   };
 
+  const handleCancel = () => {
+    abortControllerRef.current?.abort();
+  };
+
   const handleRunTemplate = () => {
+    // If a template is already running, cancel it before starting a new one.
+    if (abortControllerRef.current) {
+      handleCancel();
+      return;
+    }
+
     if (!selectedTemplate) {
       return;
     }
@@ -134,6 +152,9 @@ export default function TemplatesTab() {
       return;
     }
 
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
     const run = async () => {
       setIsRunningTemplate(true);
       setRunError(null);
@@ -146,11 +167,15 @@ export default function TemplatesTab() {
             ([, value]) => value.trim() !== "",
           ),
         );
-        const response = await runTemplate(selectedTemplate.id, {
-          params,
-          limit: DEFAULT_PAGE_LIMIT,
-          offset: 0,
-        });
+        const response = await runTemplate(
+          selectedTemplate.id,
+          {
+            params,
+            limit: DEFAULT_PAGE_LIMIT,
+            offset: 0,
+          },
+          abortController.signal,
+        );
         const cypher = response.cypher ?? selectedTemplate.query;
         const normalizedParams = response.params ?? params;
 
@@ -166,12 +191,19 @@ export default function TemplatesTab() {
         });
       } catch (error: unknown) {
         resetPageState();
+        if (abortController.signal.aborted) {
+          setHasRunTemplate(false);
+          return;
+        }
         setRunError(
           error instanceof Error
             ? error.message
             : "Failed to run selected template.",
         );
       } finally {
+        if (abortControllerRef.current === abortController) {
+          abortControllerRef.current = null;
+        }
         setIsRunningTemplate(false);
       }
     };
@@ -180,6 +212,7 @@ export default function TemplatesTab() {
   };
 
   const handleTemplateSelectionChange = (templateId: string) => {
+    abortControllerRef.current?.abort();
     setSelectedTemplateId(templateId);
     setParamValues({});
     setParamTouched({});
@@ -320,15 +353,33 @@ export default function TemplatesTab() {
 
             <CypherDisplayBox cypher={selectedTemplate.query} />
 
-            <Button
-              variant="contained"
-              size="large"
-              onClick={handleRunTemplate}
-              disabled={isRunningTemplate || hasParamErrors}
-              fullWidth
-            >
-              {isRunningTemplate ? "Running..." : "Run Template"}
-            </Button>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={handleRunTemplate}
+                disabled={isRunningTemplate || hasParamErrors}
+                fullWidth
+              >
+                {isRunningTemplate ? "Running..." : "Run Template"}
+              </Button>
+              {isRunningTemplate ? (
+                <Button
+                  variant="outlined"
+                  size="large"
+                  onClick={handleCancel}
+                  startIcon={
+                    <CircularProgress
+                      size={16}
+                      color="inherit"
+                      aria-label="Query template is running"
+                    />
+                  }
+                >
+                  Cancel
+                </Button>
+              ) : null}
+            </Box>
 
             {runError ? (
               <Typography color="error">{runError}</Typography>

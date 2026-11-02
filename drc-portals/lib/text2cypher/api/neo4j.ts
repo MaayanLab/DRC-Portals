@@ -12,10 +12,15 @@ const NEO4J_API_PREFIX = "/data/graph/text2cypher/api/neo4j";
 export const getTemplates = () =>
   api.get<Neo4jTemplatesResponse>(`${NEO4J_API_PREFIX}/templates`);
 
-export const runTemplate = (id: string, body: Neo4jTemplateRunRequest) =>
+export const runTemplate = (
+  id: string,
+  body: Neo4jTemplateRunRequest,
+  signal?: AbortSignal,
+) =>
   api.post<Neo4jTemplateRunResponse>(
     `${NEO4J_API_PREFIX}/templates/${id}`,
     body,
+    signal,
   );
 
 export const expandNode = (body: Neo4jExpandNodeRequest) =>

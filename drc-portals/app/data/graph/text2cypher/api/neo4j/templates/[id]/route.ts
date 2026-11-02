@@ -89,10 +89,15 @@ export async function POST(
     const queries = buildPaginationQueries(template.query, pagination);
 
     const [rawResults, countRows] = await Promise.all([
-      runCypherQuery<Record<string, unknown>>(queries.pagedCypher, queryParams),
+      runCypherQuery<Record<string, unknown>>(
+        queries.pagedCypher,
+        queryParams,
+        req.signal,
+      ),
       runCypherQuery<{ total_row_count?: unknown }>(
         queries.countCypher,
         queryParams,
+        req.signal,
       ),
     ]);
 
