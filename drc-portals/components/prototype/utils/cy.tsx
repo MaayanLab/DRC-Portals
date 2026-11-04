@@ -419,7 +419,7 @@ export const downloadChartData = (
 ) => {
   const action = () => {
     const cy = cyRef.current;
-    if (cy !== undefined) {
+    if (cy !== undefined && cy !== null) {
       downloadCyAsJson(cy.elements());
     }
   };
@@ -442,7 +442,7 @@ export const downloadChartPNG = (
 ) => {
   const action = () => {
     const cy = cyRef.current;
-    if (cy !== undefined) {
+    if (cy !== undefined && cy !== null) {
       downloadCyAsPNG(cy);
     }
   };
@@ -464,7 +464,7 @@ export const rebindEventHandlers = (
   newHandlers: CytoscapeEvent[]
 ) => {
   const cy = cyRef.current;
-  if (cy !== undefined) {
+  if (cy !== undefined && cy !== null) {
     prevHandlers.forEach((handler) => {
       if (handler.target !== undefined) {
         cy.unbind(handler.event, handler.target, handler.callback);
