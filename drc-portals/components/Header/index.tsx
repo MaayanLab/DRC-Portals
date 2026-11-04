@@ -123,11 +123,6 @@ const options = [
     title: "Explore the Ecosystem",
     links: [
       {
-        title: "Homepage",
-        href: "/",
-        description: "Go to the CFDE Workbench Homepage",
-        icon: mdiHome
-      }, {
         title: "Common Fund Programs",
         href: "/info/dcc",
         description: "Learn more about the CFDE participating Common Fund Programs",
@@ -259,7 +254,7 @@ export default function Header({ session }: {session: Session | null }) {
                 <TopNav session={session} />
               </Stack>
             </Grid>
-            {pathname !== "/" && <Grid item xs={12}>
+            <Grid item xs={12}>
               <Grid container alignItems={"center"}>
                 {options.map(({ title, links }) => (
                   <Grid item key={title}>
@@ -270,7 +265,7 @@ export default function Header({ session }: {session: Session | null }) {
                 ))}
                 {/* <BottomNav nav={nav} path={path} /> */}
               </Grid>
-            </Grid>}
+            </Grid>
             {/* <Grid item xs={12} className='flex items-center'>
               <div className='flex flex-grow'><NavBreadcrumbs /></div>
               {path === "/data" && <SearchParamSearchField />}

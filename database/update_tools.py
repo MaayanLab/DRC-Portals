@@ -7,36 +7,12 @@ from uuid import uuid5, NAMESPACE_URL
 import boto3
 import pathlib
 from botocore.exceptions import ClientError
+from upload_common import upload_file
 from ingest_common import pg_connect
 connection = pg_connect()
 
 if len(sys.argv) == 0 or not sys.argv[1].endswith("tsv"):
     raise Exception("Please add a tsv file")
-
-def upload_file(file_name, bucket, object_name=None):
-    """Upload a file to an S3 bucket
-
-    :param file_name: File to upload
-    :param bucket: Bucket to upload to
-    :param object_name: S3 object name. If not specified then file_name is used
-    :return: True if file was uploaded, else False
-    """
-
-    # If S3 object_name was not specified, use file_name
-    if object_name is None:
-        object_name = os.path.basename(file_name)
-
-    # Upload the file
-    s3_client = boto3.client('s3')
-    try:
-        response = s3_client.upload_file(file_name, bucket, object_name)
-    except ClientError as e:
-        print(e)
-        return False
-    return True
-
-bucket = 'cfde-drc'
-
 
 filename = sys.argv[1]
 publication_df = pd.read_csv('https://cfde-drc.s3.amazonaws.com/database/files/current_publications.tsv', sep="\t", index_col=0)
@@ -73,17 +49,17 @@ print("Uploading to s3")
 
 filename = publication_file.replace('publication_files', 'database/files')
 print(filename)
-upload_file(publication_file, bucket, filename)
+upload_file(publication_file, filename)
 filename = filename.replace(now, "current")
 print(filename)
-upload_file(publication_file, bucket, filename)
+upload_file(publication_file, filename)
 
 filename = tool_file.replace('tool_files', 'database/files')
 print(filename)
-upload_file(tool_file, bucket, filename)
+upload_file(tool_file, filename)
 filename = filename.replace(now, "current")
 print(filename)
-upload_file(tool_file, bucket, filename)
+upload_file(tool_file, filename)
 
 # ingest
 print("ingesting...")

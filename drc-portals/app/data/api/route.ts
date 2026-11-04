@@ -1,6 +1,3 @@
-import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import { headers } from "next/headers";
 
 
 export async function POST(request: Request) {
@@ -12,7 +9,6 @@ export async function POST(request: Request) {
 		});
 	}
 	if (methods === 'runRunnable') {
-		console.log(process.env.DEEPDIVE_TOKEN, process.env.DEEPDIVE_URL, payload)
 		const res = await fetch(`${process.env.DEEPDIVE_URL}/${methods}?batch=1`, {
             method: 'POST',
             headers: {
@@ -21,17 +17,10 @@ export async function POST(request: Request) {
             },
             body: JSON.stringify(payload),
         })
-		if (res.statusText !== 'OK') {
-			return new Response(JSON.stringify({error: await res.text()}), {
-				status: res.status,
-				headers: { 'Content-Type': 'application/json' }
-			});
-		} else {
-			return new Response(JSON.stringify(await res.json()), {
-				status: res.status,
-				headers: { 'Content-Type': 'application/json' }
-			});
-		}
+		return new Response(JSON.stringify(await res.json()), {
+			status: res.status,
+			headers: { 'Content-Type': 'application/json' }
+		});
 	 } else {
 		const params = Object.entries(payload).map(([key, val])=>`${key}=${val}`).join("&")
 		console.log(`${process.env.DEEPDIVE_URL}${methods}?${params}`)
@@ -42,16 +31,9 @@ export async function POST(request: Request) {
 				}
 			}
 		)
-		if (res.statusText !== 'OK') {
-			return new Response(JSON.stringify({error: await res.text()}), {
+		return new Response(JSON.stringify(await res.json()), {
 				status: res.status,
 				headers: { 'Content-Type': 'application/json' }
 			});
-		} else {
-			return new Response(JSON.stringify(await res.json()), {
-				status: res.status,
-				headers: { 'Content-Type': 'application/json' }
-			});
-		}
 	 }
 }

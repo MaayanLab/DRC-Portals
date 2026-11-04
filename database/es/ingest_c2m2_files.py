@@ -1,11 +1,10 @@
 #%%
-import re
 import traceback
 import zipfile
 import pathlib
 import pandas as pd
 import concurrent.futures
-import urllib.request, urllib.parse
+import urllib.request
 import functools
 import sqlite3
 from tqdm.auto import tqdm
@@ -13,25 +12,12 @@ from frictionless import Package
 
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from ingest_common import ingest_path, current_dcc_assets, es_helper, pdp_helper, label_ident
-from ingest_entity_common import gene_info, process_safe_cache, sqlite3dict, sqlite3dictquery, ensure_dcc_asset
+from ingest_entity_common import gene_info, process_safe_cache, sqlite3dict, sqlite3dictquery, ensure_dcc_asset, ensure_unzipped
 
 def predicate_from_fields(fields):
   if len(fields) == 1: return fields[0]
   elif len(fields) == 2 and fields[0].endswith('_id_namespace') and fields[1].endswith('_local_id'): return fields[0][:-len('_id_namespace')]
   else: raise NotImplementedError(fields)
-
-def valid_access_url(access_url):
-  return type(access_url) == str and re.match(r'^(https?|drs|ftp|s3|gs|gsiftp|globus|htsget|ftps|sftp)://', access_url) is not None
-
-def persistent_id_probably_access_url(access_url):
-  if type(access_url) == str:
-    # these IRIs are certainly access urls
-    if re.match(r'^(drs|ftp|s3|gs|gsiftp|globus|htsget|ftps|sftp)://', access_url) is not None:
-      return True
-    # http(s) could be, probably is if the final path component seems to be a file with an extension
-    if re.match(r'^https?://.+?/[^/]+?\.[^/\.]+$', access_url) is not None:
-      return True
-  return False
 
 #%%
 # ensure reference tables are downloaded
@@ -60,10 +46,8 @@ c2m2_reference_tables_mappings = {
 def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
   file_path = ensure_dcc_asset(ingest_path / 'c2m2s', file)
   c2m2_extract_path = ensure_unzipped(file_path)
-  #
-  c2m2_datapackage_json, = pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.json')
-  c2m2_datapackage_db = c2m2_datapackage_json.parent/'C2M2_datapackage.sqlite'
-  assert c2m2_datapackage_db.exists(), f'You should have run check_c2m2_files first {c2m2_datapackage_db.absolute()}'
+  c2m2_datapackage_db, = pathlib.Path(c2m2_extract_path).rglob('C2M2_datapackage.sqlite')
+  c2m2_datapackage_json = c2m2_datapackage_db.parent / 'C2M2_datapackage.json'
   conn = sqlite3.connect(c2m2_datapackage_db)
   pkg = Package(str(c2m2_datapackage_json))
   with pdp_helper(es_bulk, version=version) as helper:
@@ -151,14 +135,6 @@ def ingest_c2m2_datapackage(es_bulk, file, version="staging"):
             edge_type = 'm2o'
             if 'filename' in row: row['label'] = row['filename']
             else: row['label'] = row['local_id']
-            if rc_name == 'file':
-              # remove access_url if present and invalid
-              if not valid_access_url(row.get('access_url')):
-                row['access_url'] = None
-              # use persistent id if it's "probably" an access url
-              if not row['access_url']:
-                if persistent_id_probably_access_url(row.get('persistent_id')):
-                  row['access_url'] = row['persistent_id']
             # add dcc info to top-level-project
             pk = ':'.join([row['id_namespace'], row['local_id']])
             if rc_name == 'project' and pk in project_lookup:
