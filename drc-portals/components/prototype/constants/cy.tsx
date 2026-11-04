@@ -31,6 +31,7 @@ import {
   IS_GRANULARITY_TYPE,
   IS_PARENT_OF_TYPE,
   IS_RACE_TYPE,
+  HAS_ROLE_TYPE,
   IS_SEX_TYPE,
   IS_SUPERSET_OF_TYPE,
   NCBI_TAXONOMY_LABEL,
@@ -45,6 +46,7 @@ import {
   SUBJECT_GRANULARITY_LABEL,
   SUBJECT_LABEL,
   SUBJECT_RACE_LABEL,
+  SUBJECT_ROLE_LABEL,
   SUBJECT_SEX_LABEL,
   SUBSTANCE_LABEL,
   TESTED_FOR_TYPE,
@@ -461,6 +463,7 @@ const SUBJECT_NODE_ID = "subject-label";
 const SUBJECT_SEX_NODE_ID = "subject-sex-label";
 const SUBJECT_ETHNICITY_NODE_ID = "subject-ethnicity-label";
 const SUBJECT_RACE_NODE_ID = "subject-race-label";
+const SUBJECT_ROLE_NODE_ID = "subject-role-label";
 const SUBJECT_GRANULARITY_NODE_ID = "subject-granularity-label";
 const BIOSAMPLE_NODE_ID = "biosample-label";
 const SAMPLE_PREP_METHOD_NODE_ID = "sample-prep-method-label";
@@ -507,6 +510,7 @@ const SUBJECT_IS_GRANULARITY_EDGE_ID = "subject-is-granularity";
 const SUBJECT_IS_ETHNICITY_EDGE_ID = "subject-is-ethnicity";
 const SUBJECT_IS_RACE_EDGE_ID = "subject-is-race";
 const SUBJECT_IS_SEX_EDGE_ID = "subject-is-sex";
+const SUBJECT_HAS_ROLE_EDGE_ID = "subject-has-role";
 const SUBJECT_ASSOCIATED_WITH_TAXONOMY_EDGE_ID =
   "subject-associated-with-taxonomy";
 const SUBJECT_ASSOCIATED_WITH_SUBSTANCE_EDGE_ID =
@@ -550,6 +554,7 @@ const SUBJECT_SEX_POS = {
   y: SUBJECT_ETHNICITY_POS.y + 32,
 };
 const SUBJECT_RACE_POS = { x: SUBJECT_POS.x + 100, y: SUBJECT_SEX_POS.y };
+const SUBJECT_ROLE_POS = { x: SUBJECT_POS.x, y: SUBJECT_RACE_POS.y + 50 };
 const SUBJECT_GRANULARITY_POS = {
   x: SUBJECT_POS.x + 175,
   y: SUBJECT_ETHNICITY_POS.y,
@@ -1195,6 +1200,21 @@ const SCHEMA_NODES = [
     },
   },
   {
+    classes: [NODE_CLASS_MAP.get(SUBJECT_ROLE_LABEL) || ""],
+    position: SUBJECT_ROLE_POS,
+    locked: true,
+    data: {
+      id: SUBJECT_ROLE_NODE_ID,
+      label: SUBJECT_ROLE_LABEL,
+      neo4j: {
+        labels: [SUBJECT_ROLE_LABEL],
+        properties: {
+          description: "A role assigned to this subject.",
+        },
+      },
+    },
+  },
+  {
     classes: [NODE_CLASS_MAP.get(SUBJECT_GRANULARITY_LABEL) || ""],
     position: SUBJECT_GRANULARITY_POS,
     locked: true,
@@ -1633,6 +1653,15 @@ const SCHEMA_EDGES = [
       source: SUBJECT_NODE_ID,
       target: SUBJECT_RACE_NODE_ID,
       label: IS_RACE_TYPE,
+    },
+  },
+  {
+    classes: ["subject-related-relationship"],
+    data: {
+      id: SUBJECT_HAS_ROLE_EDGE_ID,
+      source: SUBJECT_NODE_ID,
+      target: SUBJECT_ROLE_NODE_ID,
+      label: HAS_ROLE_TYPE,
     },
   },
   {
@@ -2525,6 +2554,10 @@ export const SCHEMA_STYLESHEET: any[] = [
       ),
       "segment-radii": 20,
     },
+  },
+  {
+    selector: `edge#${SUBJECT_HAS_ROLE_EDGE_ID}`,
+    style: {},
   },
   {
     selector: `edge#${SUBJECT_IS_SEX_EDGE_ID}`,

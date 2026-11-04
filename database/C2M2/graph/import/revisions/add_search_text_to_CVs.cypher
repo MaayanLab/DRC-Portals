@@ -86,12 +86,12 @@ CALL (n) {
 IN TRANSACTIONS OF 10000 ROWS;
 CREATE TEXT INDEX index_SubjectGranularity__searchText IF NOT EXISTS FOR (n:SubjectGranularity) ON (n._searchText);
 
-MATCH (n:SubjectSex)
+MATCH (n:SubjectRole)
 CALL (n) {
     SET n._searchText = '|' + toLower(n.name) + '|'
 }
 IN TRANSACTIONS OF 10000 ROWS;
-CREATE TEXT INDEX index_SubjectSex__searchText IF NOT EXISTS FOR (n:SubjectSex) ON (n._searchText);
+CREATE TEXT INDEX index_SubjectRole__searchText IF NOT EXISTS FOR (n:SubjectRole) ON (n._searchText);
 
 MATCH (n:SamplePrepMethod)
 CALL (n) {

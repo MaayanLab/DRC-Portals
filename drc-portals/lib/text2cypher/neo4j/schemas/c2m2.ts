@@ -58,12 +58,14 @@ const FILE_RELATEDS: SchemaNodes = [
 // Subject related entity labels
 const SUBJECT_ETHNICITY = "SubjectEthnicity";
 const SUBJECT_RACE = "SubjectRace";
+const SUBJECT_ROLE = "SubjectRole";
 const SUBJECT_GRANULARITY = "SubjectGranularity";
 const SUBJECT_SEX = "SubjectSex";
 const SUBJECT_RELATEDS: SchemaNodes = [
   SUBJECT_ETHNICITY,
   SUBJECT_GRANULARITY,
   SUBJECT_RACE,
+  SUBJECT_ROLE,
   SUBJECT_SEX,
 ];
 
@@ -97,6 +99,7 @@ const NODES: SchemaNodes = [
   SUBJECT_ETHNICITY,
   SUBJECT_GRANULARITY,
   SUBJECT_RACE,
+  SUBJECT_ROLE,
   SUBJECT_SEX,
   SUBSTANCE,
 ];
@@ -189,6 +192,7 @@ const NODE_PROPERTIES: SchemaNodeProperties = new Map([
   [SUBJECT_GRANULARITY, ["name", "description", "id", "_searchText"]],
   [SUBJECT_RACE, ["name", "description", "id"]],
   [SUBJECT_SEX, ["name", "description", "id"]],
+  [SUBJECT_ROLE, ["name", "description", "id", "_searchText"]],
   [SUBSTANCE, ["synonyms", "name", "id", "_searchText"]],
 ]);
 
@@ -212,6 +216,7 @@ const IS_PARENT_OF = "IS_PARENT_OF";
 const DESCRIBES = "DESCRIBES";
 const TESTED_FOR = "TESTED_FOR";
 const IS_RACE = "IS_RACE";
+const HAS_ROLE = "HAS_ROLE";
 const HAS_SYNONYM = "HAS_SYNONYM";
 
 const RELATIONSHIPS: SchemaRelationships = [
@@ -235,6 +240,7 @@ const RELATIONSHIPS: SchemaRelationships = [
   IS_GRANULARITY,
   IS_RACE,
   IS_SEX,
+  HAS_ROLE,
 ];
 
 const PATHWAYS: SchemaPathways = [
@@ -283,6 +289,7 @@ const PATHWAYS: SchemaPathways = [
   [SUBJECT, IS_ETHNICITY, SUBJECT_ETHNICITY],
   [SUBJECT, IS_GRANULARITY, SUBJECT_GRANULARITY],
   [SUBJECT, IS_RACE, SUBJECT_RACE],
+  [SUBJECT, HAS_ROLE, SUBJECT_ROLE],
   [SUBJECT, IS_SEX, SUBJECT_SEX],
   [SUBJECT, TESTED_FOR, PHENOTYPE],
   [SUBJECT, TESTED_FOR, DISEASE],
@@ -323,6 +330,7 @@ const schema = {
   IS_GRANULARITY,
   IS_PARENT_OF,
   IS_RACE,
+  HAS_ROLE,
   IS_SEX,
   IS_SUPERSET_OF,
   NCBI_TAXONOMY,
@@ -337,6 +345,7 @@ const schema = {
   SUBJECT_ETHNICITY,
   SUBJECT_GRANULARITY,
   SUBJECT_RACE,
+  SUBJECT_ROLE,
   SUBJECT_RELATEDS,
   SUBJECT_SEX,
   SUBSTANCE,

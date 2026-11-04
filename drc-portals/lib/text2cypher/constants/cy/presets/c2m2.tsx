@@ -54,6 +54,7 @@ const SUBJECT_NODE_ID = "subject-label";
 const SUBJECT_SEX_NODE_ID = "subject-sex-label";
 const SUBJECT_ETHNICITY_NODE_ID = "subject-ethnicity-label";
 const SUBJECT_RACE_NODE_ID = "subject-race-label";
+const SUBJECT_ROLE_NODE_ID = "subject-role-label";
 const SUBJECT_GRANULARITY_NODE_ID = "subject-granularity-label";
 const BIOSAMPLE_NODE_ID = "biosample-label";
 const SAMPLE_PREP_METHOD_NODE_ID = "sample-prep-method-label";
@@ -99,6 +100,7 @@ const FILE_DESCRIBES_BIOSAMPLE_EDGE_ID = "file-describes-biosample";
 const SUBJECT_IS_GRANULARITY_EDGE_ID = "subject-is-granularity";
 const SUBJECT_IS_ETHNICITY_EDGE_ID = "subject-is-ethnicity";
 const SUBJECT_IS_RACE_EDGE_ID = "subject-is-race";
+const SUBJECT_HAS_ROLE_EDGE_ID = "subject-has-role";
 const SUBJECT_IS_SEX_EDGE_ID = "subject-is-sex";
 const SUBJECT_ASSOCIATED_WITH_TAXONOMY_EDGE_ID =
   "subject-associated-with-taxonomy";
@@ -144,6 +146,7 @@ const SUBJECT_SEX_POS = {
   y: SUBJECT_ETHNICITY_POS.y + 32,
 };
 const SUBJECT_RACE_POS = { x: SUBJECT_POS.x + 100, y: SUBJECT_SEX_POS.y };
+const SUBJECT_ROLE_POS = { x: SUBJECT_POS.x, y: SUBJECT_RACE_POS.y + 50 };
 const SUBJECT_GRANULARITY_POS = {
   x: SUBJECT_POS.x + 175,
   y: SUBJECT_ETHNICITY_POS.y,
@@ -731,6 +734,18 @@ const NODES: SchemaCytoscapeElements = [
   },
   {
     classes: [
+      c2m2CytoscapeStyles.NODE_CLASS_MAP.get(c2m2Schema.SUBJECT_ROLE) || "",
+    ],
+    position: SUBJECT_ROLE_POS,
+    locked: true,
+    data: {
+      id: SUBJECT_ROLE_NODE_ID,
+      label: SUBJECT_RELATED_NODE_LABEL,
+      displayLabel: c2m2Schema.SUBJECT_ROLE,
+    },
+  },
+  {
+    classes: [
       c2m2CytoscapeStyles.NODE_CLASS_MAP.get(c2m2Schema.SUBJECT_GRANULARITY) ||
       "",
     ],
@@ -1113,6 +1128,15 @@ const EDGES: SchemaCytoscapeElements = [
       source: SUBJECT_NODE_ID,
       target: SUBJECT_RACE_NODE_ID,
       type: c2m2Schema.IS_RACE,
+    },
+  },
+  {
+    classes: ["subject-related-relationship"],
+    data: {
+      id: SUBJECT_HAS_ROLE_EDGE_ID,
+      source: SUBJECT_NODE_ID,
+      target: SUBJECT_ROLE_NODE_ID,
+      type: c2m2Schema.HAS_ROLE,
     },
   },
   {
@@ -1935,6 +1959,10 @@ const STYLESHEET: SchemaCytoscapeStylesheet = [
       ),
       "segment-radii": [20],
     },
+  },
+  {
+    selector: `edge#${SUBJECT_HAS_ROLE_EDGE_ID}`,
+    style: {},
   },
   {
     selector: `edge#${SUBJECT_IS_SEX_EDGE_ID}`,
