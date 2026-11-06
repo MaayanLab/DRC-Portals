@@ -1,5 +1,5 @@
 import type { Config } from 'tailwindcss'
-
+import tailwindtypography from '@tailwindcss/typography'
 const config: Config = {
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -35,7 +35,7 @@ const config: Config = {
     },
   },
   plugins: [
-    require('@tailwindcss/typography'),
+    tailwindtypography,
   ],
 }
 export default config
