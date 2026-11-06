@@ -67,7 +67,7 @@ const WorkbenchFacetTool = [
 			'm2o_source.id', 'm2o_relation.id', 'm2o_target.id',
 			)
 			const searchRes = await elasticsearch.search<EntityExpandedType, TermAggType<typeof facets[0]>>({
-			index: 'entity_expanded',
+			index: `entity_${process.env.INDEX_VERSION}_expanded`,
 			query: {
 				bool: {
 				filter,
@@ -78,7 +78,7 @@ const WorkbenchFacetTool = [
 			rest_total_hits_as_int: true,
 			})
 			const entityLookupRes = await elasticsearch.search<EntityExpandedType>({
-			index: 'entity_expanded',
+			index: `entity_${process.env.INDEX_VERSION}_expanded`,
 			query: {
 				ids: {
 				values: Array.from(new Set([

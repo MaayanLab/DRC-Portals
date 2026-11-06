@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function Summary({ include }: { include?: string[] }) {
   const { data: summaryRes, error } = await safeAsync(() => elasticsearch.search<EntityType, TermAggType<'types'>>({
-    index: 'entity_expanded',
+    index: `entity_${process.env.INDEX_VERSION}_expanded`,
     size: 0,
     aggs: {
       types: {

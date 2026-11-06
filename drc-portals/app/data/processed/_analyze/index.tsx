@@ -18,7 +18,7 @@ import elasticsearch from '@/lib/elasticsearch';
 
 export const getGeneSet = React.cache(async (id: string) => {
   const searchRes = await elasticsearch.search<EntityExpandedType>({
-    index: 'entity_expanded',
+    index: `entity_${process.env.INDEX_VERSION}_expanded`,
     query: {
       query_string: {
         query: `${id} type:gene`,

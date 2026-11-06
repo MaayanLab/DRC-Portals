@@ -50,6 +50,7 @@ services:
       - ELASTICSEARCH_URL=${PROD_ELASTICSEARCH_URL:-http://elastic:${ELASTICSEARCH_PASSWORD}@drc-portal-elasticsearch:9200}
       - DEEPDIVE_TOKEN
       - DEEPDIVE_URL
+      - INDEX_VERSION
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
@@ -93,6 +94,7 @@ services:
       - DEEPDIVE_TOKEN
       - DEEPDIVE_URL
       - MCP_API_KEY
+      - INDEX_VERSION
   cfde-info:
     image: maayanlab/cfde-info:0.1.14
     build: ../cfde-info
