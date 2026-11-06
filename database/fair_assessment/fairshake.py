@@ -479,39 +479,32 @@ def c2m2_fair(directory):
 def xmt_fair(xmt_path, row):
     """Run FAIR Assessment for a XMT file asset given its filepath and database row"""
     # initialize fairshake variables
-    fairshake_drs = 1
-    fairshake_persistent = 0
-    fairshake_ontological_count = 0
-    fairshake_standard_elements = []
-    gene_set_count = 0
-    set_labels = set()
-    with xmt_path.open('r') as fr:
-      for line in tqdm(fr, desc=f"Processing {row['dcc_short_label']}/{row['filename']}..."):
-        gene_set_count += 1
-        line_split = list(map(str.strip, line.split('\t')))
-        if len(line_split) < 3: continue
-        x_set_label, x_set_description, *x_set_elements = line_split
-        set_labels.add(x_set_label)
-        term_ontological = check_ontology_in_term(x_set_label.replace('_', ' '))
-        if term_ontological:
-          fairshake_ontological_count +=1
-        # standard_elements = []
-        # if row['filename'].endswith('.gmt'):
-        #     standard_elements = [1 if len(gene_lookup.get(raw_gene, [])) > 0 else 0 for raw_gene in x_set_elements]
-        # else:
-        #     standard_elements = [1 if check_ontology_in_term(raw_gene.replace('_', ':')) else 0 for raw_gene in x_set_elements]
-        # sum_standard_elements = sum(standard_elements)  
-        # fairshake_standard_elements.append(sum_standard_elements/len(x_set_elements))
-
-    fair_assessment_results={"XMT Terms contain ontological reference": fairshake_ontological_count/gene_set_count if gene_set_count > 0 else None,
-                            # "XMT Elements are normalized to a standard": mean(fairshake_standard_elements), 
-                            "XMT Elements are normalized to a standard": None,
-                            "XMT Terms are unique": 1. if gene_set_count == len(set_labels) else 0.,
-                            "Accessible via DRS": fairshake_drs,
-                            "Persistent URL": fairshake_persistent
-                            }
-    return fair_assessment_results
-          
+    rubric = {
+        'Machine readable metadata': 0.0,
+        'XMT Terms contain ontological reference': None,
+        'XMT Elements are normalized to a standard': None,
+        'XMT Terms are unique': None,
+        'Accessible via DRS': 1.0,
+        'Persistent URL': 0.0,
+    }
+    import xmt
+    try:
+        xmt_file = xmt.from_file(xmt_path)
+        rubric['Machine readable metadata'] = 1.0 if xmt_file.frontmatter['version'] == '1.0' else 0.5
+        set_labels = set()
+        onto_count = 0
+        term_count = 0
+        for term in xmt_file.terms:
+            if check_ontology_in_term(term.replace('_', ' ')): onto_count += 1
+            set_labels.add(term)
+            term_count += 1
+        rubric['XMT Terms are unique'] = 1. if term_count == len(set_labels) else 0.
+        rubric['XMT Terms contain ontological reference'] = (onto_count / term_count) if term_count > 0 else None
+        rubric['XMT Elements are normalized to a standard'] = 1. if xmt_file.frontmatter['entity'].endswith(':') else 0.0
+    except KeyboardInterrupt: raise
+    except:
+        import traceback; traceback.print_exc()
+    return rubric
 
 def attribute_tables_fair(attr_table_path, row):
     """Run FAIR Assessment for an Attribute table file asset given its filepath and database row"""

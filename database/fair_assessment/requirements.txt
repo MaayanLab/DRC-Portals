@@ -1,6 +1,7 @@
 BeautifulSoup4
 c2m2-assessment @ git+https://github.com/nih-cfde/c2m2-assessment@v0.1.2
 cfde-c2m2 @ git+https://github.com/MaayanLab/cfde-c2m2@v0.1.0
+cfde-xmt[pandas]==0.2.1
 frictionless
 h5py
 numpy
@@ -8,6 +9,6 @@ psycopg2-binary
 python-dotenv
 requests
 SQLAlchemy==1.4.36
-pandas==2.1.4
+pandas
 tqdm
 pyyaml

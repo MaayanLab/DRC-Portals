@@ -26,8 +26,8 @@ function AccessControledDccAssetLink({ item, href, ...props }: React.PropsWithCh
     <DisableableLink disabled={disabled} href={href} {...props}>
       {props.children ?? item.filename}
     </DisableableLink>
-    {item.drs && <>&nbsp;<DisableableLink disabled={disabled} href={`/data/drs?q=${encodeURIComponent(item.drs)}`} {...props}>🔗</DisableableLink></>}
-    {item.pdp && <>&nbsp;<DisableableLink disabled={disabled} href={`${process.env.PUBLIC_URL}/data/processed/entity/dcc_asset/${item.pdp}`} {...props}>🔍</DisableableLink></>}
+    {item.drs && !disabled && <>&nbsp;<DisableableLink disabled={disabled} href={`/data/drs?q=${encodeURIComponent(item.drs)}`} {...props}>🔗</DisableableLink></>}
+    {item.pdp && !disabled && <>&nbsp;<DisableableLink disabled={disabled} href={`${process.env.PUBLIC_URL}/data/processed/entity/dcc_asset/${item.pdp}`} {...props}>🔍</DisableableLink></>}
   </span>
 }
 

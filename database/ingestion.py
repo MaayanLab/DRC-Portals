@@ -626,8 +626,16 @@ cur.execute('''
     select link, lastmodified, current, creator, 
             dcc_id, drcapproved, dccapproved, deleted, created
     from dcc_assets_tmp
-    on conflict (link)
-      do nothing;
+    on conflict (link) do update set
+      lastmodified = EXCLUDED.lastmodified,
+      current = EXCLUDED.current,
+      creator = EXCLUDED.creator,
+      dcc_id = EXCLUDED.dcc_id,
+      drcapproved = EXCLUDED.drcapproved,
+      dccapproved = EXCLUDED.dccapproved,
+      deleted = EXCLUDED.deleted,
+      created = EXCLUDED.created
+    ;
   ''')
 cur.execute('drop table dcc_assets_tmp;')
 connection.commit()
