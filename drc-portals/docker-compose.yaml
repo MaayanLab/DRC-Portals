@@ -50,10 +50,11 @@ services:
       - ELASTICSEARCH_URL=${PROD_ELASTICSEARCH_URL:-http://elastic:${ELASTICSEARCH_PASSWORD}@drc-portal-elasticsearch:9200}
       - DEEPDIVE_TOKEN
       - DEEPDIVE_URL
+      - INDEX_VERSION=${PROD_INDEX_VERSION:-}
   drc-portal-app-dev:
     build: .
     platform: linux/amd64
-    image: maayanlab/drc-portal-dev:1.5.10-rc.6
+    image: maayanlab/drc-portal-dev:1.5.18-rc.1
     x-kubernetes:
       imagePullPolicy: IfNotPresent
       annotations:
@@ -93,6 +94,7 @@ services:
       - DEEPDIVE_TOKEN
       - DEEPDIVE_URL
       - MCP_API_KEY
+      - INDEX_VERSION=${DEV_INDEX_VERSION:-}
   cfde-info:
     image: maayanlab/cfde-info:0.1.14
     build: ../cfde-info
@@ -110,7 +112,7 @@ services:
       context: ..
       dockerfile: worker/Dockerfile
     platform: linux/amd64
-    image: maayanlab/drc-portal-worker:0.24.4
+    image: maayanlab/drc-portal-worker:1.6.0
     x-kubernetes:
       imagePullPolicy: IfNotPresent
     environment:
@@ -118,6 +120,7 @@ services:
       - C2M2_DATABASE_URL=${PROD_C2M2_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=c2m2&pool_timeout=0&connection_limit=10&connect_timeout=30}
       - PDP_DATABASE_URL=${PROD_PDP_DATABASE_URL:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PRIMARY_DATABASE}:5432/${POSTGRES_DB}?schema=public&pool_timeout=0&connection_limit=10&connect_timeout=30}
       - NEXTAUTH_EMAIL
+      - INDEX_VERSION=${PROD_INDEX_VERSION:-}
 
   drc-portal-data-proxy:
     image: maayanlab/proxy:1.2.13
@@ -178,21 +181,53 @@ services:
     volumes:
       - drc-portal-postgres:/var/lib/postgresql/data
 
-  drc-portal-postgres-2:
-    image: postgres:16
-    x-kubernetes:
-      imagePullPolicy: IfNotPresent
-    shm_size: 1Gb
-    environment:
-      - POSTGRES_DB
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-    ports:
-      - 5432:5432
-    volumes:
-      - drc-portal-postgres-2:/var/lib/postgresql/data
+  # drc-portal-postgres-2:
+  #   image: postgres:16
+  #   x-kubernetes:
+  #     imagePullPolicy: IfNotPresent
+  #   shm_size: 1Gb
+  #   environment:
+  #     - POSTGRES_DB
+  #     - POSTGRES_USER
+  #     - POSTGRES_PASSWORD
+  #   ports:
+  #     - 5432:5432
+  #   volumes:
+  #     - drc-portal-postgres-2:/var/lib/postgresql/data
 
-  drc-portal-elasticsearch:
+  # drc-portal-elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:9.1.5
+  #   restart: unless-stopped
+  #   x-kubernetes:
+  #     imagePullPolicy: IfNotPresent
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         cpus: '2.0'
+  #         memory: ${ELASTICSEARCH_MEMORY_RESERVATION:-3072M}
+  #       limits:
+  #         memory: ${ELASTICSEARCH_MEMORY_LIMIT:-6144M}
+  #   environment:
+  #     - cluster.name=elastic
+  #     - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
+  #     - discovery.type=single-node
+  #     - cluster.routing.allocation.disk.threshold_enabled=false
+  #     - bootstrap.memory_lock=true
+  #     - xpack.security.http.ssl.enabled=false
+  #     - xpack.security.transport.ssl.enabled=false
+  #     - ES_JAVA_OPTS=-Xms${ELASTICSEARCH_MEMORY_RESERVATION:-3072M} -Xmx${ELASTICSEARCH_MEMORY_RESERVATION:-3072M}
+  #     - AWS_ACCESS_KEY_ID=${ELASTICSEARCH_S3_ACCESS_KEY_ID}
+  #     - AWS_SECRET_ACCESS_KEY=${ELASTICSEARCH_S3_SECRET_ACCESS_KEY}
+  #   ports:
+  #     - 9200:9200
+  #   volumes:
+  #     - drc-portal-elasticsearch:/usr/share/elasticsearch/data
+
+  drc-portal-elasticsearch-2:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.1.5
     restart: unless-stopped
     x-kubernetes:
@@ -220,9 +255,9 @@ services:
       - AWS_ACCESS_KEY_ID=${ELASTICSEARCH_S3_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${ELASTICSEARCH_S3_SECRET_ACCESS_KEY}
     ports:
-      - 9200:9200
+      - 9200
     volumes:
-      - drc-portal-elasticsearch:/usr/share/elasticsearch/data
+      - drc-portal-elasticsearch-2:/usr/share/elasticsearch/data
 
   drc-portal-backup:
     build: ../database/backup
@@ -334,6 +369,11 @@ volumes:
   drc-portal-elasticsearch:
     x-kubernetes:
       size: 100Gi
+      class: gp2
+
+  drc-portal-elasticsearch-2:
+    x-kubernetes:
+      size: 512Gi
       class: gp2
 
 x-kubernetes:
