@@ -12,3 +12,4 @@ nltk<3.10
 pyyaml
 cfde-c2m2
 boto3
+cfde-xmt[pandas]

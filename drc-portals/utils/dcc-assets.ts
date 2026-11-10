@@ -128,7 +128,7 @@ async function getFile(
   const filter_res = res.filter((item) => item.fileAsset != null)
   const es_dcc_assets = await safeAsync(async () => {
     const res = await elasticsearch.search<EntityExpandedType>({
-      index: 'entity_expanded',
+      index: `entity_${process.env.INDEX_VERSION}_expanded`,
       query: {
         bool: {
           filter: [

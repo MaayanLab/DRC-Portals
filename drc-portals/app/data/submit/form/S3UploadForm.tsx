@@ -42,9 +42,9 @@ export type DCCAssetWithFileAsset = Prisma.DccAssetGetPayload<{
 export const metaDataAssetOptions = [
   {
     asset: 'XMT',
-    description: <Typography fontSize={12}> XMT files are text files that contain a collection of sets of a given entity type, for example, a library of gene sets. The 'X' in XMT stands for any entity type. It is an extension to GMT which stands for <Link color="secondary" href="https://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#GMT:_Gene_Matrix_Transposed_file_format_.28.2A.gmt.29" target="_blank">Gene Matrix Transpose</Link> that is used to store gene sets. Besides .gmt files, XMT files can be .dmt files which are XMT files that contain a collection of drug sets, or .mmt files which contain metabolite sets. Other sets for other entities are also valid. On each row of an XMT file, the first column contains the term associated with the set, while all other columns contain the set entities. The field separator between columns should be a {`<tab>`} character.
+    description: <Typography fontSize={12}> XMT files are text files that contain a collection of sets of a given entity type, for example, a library of gene sets. The 'X' in XMT stands for any entity type. See the <Link color="secondary" href="https://github.com/MaayanLab/xmt" target="_blank">XMT helper library</Link> for more information about this format.
     </Typography>,
-    example: <Link href="https://cfde-drc.s3.amazonaws.com/GTEx/XMT/2023-03-10/GTEx_XMT_2023-03-10_GTEx_Tissues_V8_2023.gmt" color="secondary" target="_blank">GTEx_Tissues_V8_2023.gmt</Link>
+    example: <Link href="https://cfde-drc.s3.amazonaws.com/GTEx/XMT/2026-10-29/GTEx_Tissues_V8_2023.xmt" color="secondary" target="_blank">GTEx_Tissues_V8_2023.xmt</Link>
   },
   {
     asset: 'C2M2',
@@ -284,7 +284,7 @@ export function S3UploadForm(user: { name?: string | null, email?: string | null
                     Attribute Table: .h5 or .hdf5
                   </ListItem>
                   <ListItem sx={{ display: 'list-item', padding: 0 }}>
-                    XMT: .(x)mt e.g .gmt or .dmt
+                    XMT: .xmt
                   </ListItem>
                 </List>
                 See the {' '}
