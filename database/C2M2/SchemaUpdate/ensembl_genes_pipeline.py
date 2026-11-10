@@ -1,9 +1,28 @@
 import csv
 import os
+import sys
 from pathlib import Path
 import re
 import requests
 from collections import defaultdict
+
+#------------------------------ Use arguments passed to set two variables ------------------------------
+# Check if both arguments were passed; exit with a usage message if not
+if len(sys.argv) < 4:
+    print("Usage: python script.py <ontologyPathStr> <last_master_relpath> <ens_proc_rel_dir>")
+    sys.argv = [
+        "script.py",
+        "/mnt/share/cfdeworkbench/C2M2/ontology", 
+        "external_CV_reference_files_202509/ensembl_genes.2025-08-20.tsv", 
+        "external-CV-reference-scripts/Ensembl-Aug-2026"
+    ]
+    print("No arguments provided. Using default fallback paths for testing.\n")
+
+# Extract the arguments (sys.argv[0] is always the script name itself)
+ontologyPathStr = sys.argv[1]
+last_master_relpath = sys.argv[2]
+ens_proc_rel_dir = sys.argv[3]
+#-------------------------------------------------------------------------------------------------------
 
 # Function to read TSV files and return their data as a list of dictionaries
 def read_tsv(file_path):
@@ -60,9 +79,13 @@ def extract_synonyms_ensembl(ensembl_id):
         return []
 
 # Paths to input TSV files
-ontologyPath = Path('/mnt/share/cfdeworkbench/C2M2/ontology')
-file1 = Path(ontologyPath/'external_CV_reference_files_202412/ensembl_genes.2024-08-18.tsv'); # Last master ontology table used (also on OSF)
-ens_proc_rel_dir='external-CV-reference-scripts/Ensembl-Aug-2025'
+# Now ontologyPath, last_master_relpath and ens_proc_rel_dir are set near the top using input arguments
+#ontologyPath = Path('/mnt/share/cfdeworkbench/C2M2/ontology')
+ontologyPath = Path(ontologyPathStr)
+#last_master_relpath='external_CV_reference_files_202412/ensembl_genes.2024-08-18.tsv'
+#file1 = Path(ontologyPath/'external_CV_reference_files_202412/ensembl_genes.2024-08-18.tsv'); # Last master ontology table used (also on OSF)
+file1 = Path(ontologyPath/last_master_relpath); # Last master ontology table used (also on OSF)
+#ens_proc_rel_dir='external-CV-reference-scripts/Ensembl-Aug-2025'
 file2 = Path(ontologyPath/ens_proc_rel_dir/'002_all/ensembl_genes.tsv') # From latest GFF processed
 file3 = Path(ontologyPath/ens_proc_rel_dir/'C2M2_genes.tsv') # From DRC DB
 
@@ -94,8 +117,12 @@ filtered_rows = [row for row in unique_rows.values() if row['id'] not in conflic
 print(f"Identified IDs with conflicting names")
 
 # Update names in conflicted rows to match the official Ensembl name
+cnt=0;
 for row in conflicted_rows:
+    cnt = cnt + 1
     official_name = get_ensembl_official_name(row['id'])
+    if(cnt % 1000 == 0):
+        print(f"cnt:{cnt}, official_name:{official_name}")
     if official_name and row['name'] != official_name:
         row['name'] = official_name
 
@@ -112,8 +139,12 @@ results = {}
 base_url_bdcw = "https://bdcw.org/geneid/rest/species/hsa/GeneIDType/ENSEMBL/GeneListStr/{}/USE_NCBI_GENE_INFO/0/View/json"
 
 # Update and clean synonyms for each row
+cnt=0
 for row in final_data:
+    cnt = cnt + 1
     ensembl_id = row['id']
+    if(cnt % 1000 == 0):
+        print(f"cnt:{cnt}, ensembl_id:{ensembl_id}")
     # Clean existing synonyms
     if 'synonyms' in row:
         synonyms = row['synonyms']

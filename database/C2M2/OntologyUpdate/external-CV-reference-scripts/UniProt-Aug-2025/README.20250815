@@ -1,0 +1,5 @@
+##!/bin/bash
+#
+# See and call the script file add_missing_uniprot.sh
+./add_missing_uniprot.sh protein_v2025.03_r2025-06-18 protein schema_update_test_other_changes /mnt/share/mano/CFDE/C2M2_sub
+

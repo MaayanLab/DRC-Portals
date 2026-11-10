@@ -1,7 +1,7 @@
 # Run syntax: python_cmd=python3; ./call_populateC2M2FromS3_DCCnameASschema.sh ${python_cmd} DCC1 DCC1 DCC3 ...
 
 # If ingesting files from only one DCC (into schema mw), e.g., during per-DCC submission review and validation, can specify dcc_short_label as argument, e.g.,
-#dcc_short=Metabolomics; ymd=$(date +%y%m%d); logf=log/C2M2_ingestion_${dcc_short}_${ymd}.log; python populateC2M2FromS3.py ${dcc_short} 2>&1 | tee ${logf}
+#dcc_short=Metabolomics; ymd=$(date +%y%m%d); logf="log/C2M2_ingestion_${dcc_short}_${ymd}.log"; python populateC2M2FromS3.py "${dcc_short}" 2>&1 | tee ${logf}
 #egrep -i -e "Warning" ${logf} ; egrep -i -e "Error" ${logf} ;
 
 if [[ $# -lt 2 ]]; then
@@ -15,8 +15,13 @@ fi
 # 2024/12/18: SenNet added
 #dcc_short_labels=('4DN' 'ERCC' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet');
 # 2025/01/06: ERCC is now labelled as ExRNA in ingest/DccAssets.tsv
-dcc_short_labels=('4DN' 'ExRNA' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet' 'SCGE');
-#dcc_short_labels=('Metabolomics');
+# 2026/02/03: Added Bridge2AI (even through DGPs have separate id_namespace and DCC names, the all go into onec schema)
+dcc_short_labels=('4DN' 'Bridge2AI' 'ExRNA' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'KidsFirst' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet' 'SCGE' 'geo_project');
+# For Dec 2025, 'Kids First' used
+# Added geo_project needs to match with short_label in DCC.tsv ( https://cfde-drc.s3.amazonaws.com/database/files/current_dccs.tsv )
+# DB schema name is based on this
+dcc_short_labels=('4DN' 'Bridge2AI' 'ExRNA' 'GTEx' 'GlyGen' 'HMP' 'HuBMAP' 'IDG' 'Kids First' 'LINCS' 'Metabolomics' 'MoTrPAC' 'SPARC' 'SenNet' 'SCGE' 'geo_project');
+#dcc_short_labels=('Bridge2AI');
 
 # define python command
 python_cmd=$1
@@ -44,7 +49,7 @@ echo "===================== New run ====================" > ${errorf};
 # Iterate over the elements of the array dcc_short_labels using a for loop
 for dcc_short in "${dcc_short_labels[@]}"; do
 	logf=${logdir}/C2M2_ingestion_${dcc_short}_${ymd}.log; 
-	${python_cmd} populateC2M2FromS3.py ${dcc_short} ${logdir} 2>&1 | tee ${logf}
+	${python_cmd} populateC2M2FromS3.py "${dcc_short}" ${logdir} 2>&1 | tee ${logf}
 
 	echo "===================== DCC: ${dcc_short} ====================" >> ${warnf};
 	egrep -i -e "Warning" ${logf} >> ${warnf}; 
@@ -62,6 +67,8 @@ echo -e "After data is ingested in schema c2m2, and also in dcc-name-based schem
 
 count_sql_allf=${logdir}/CountQuery_Crosscheck_ALL.sql
 count_sql_of=${logdir}/CountQuery_Crosscheck_output.log
+mismatchf_tmp=${logdir}/CountQuery_Crosscheck_mismatch_tmp.log
+mismatchf_agg=${logdir}/CountQuery_Crosscheck_mismatch_agg.log
 mismatchf=${logdir}/CountQuery_Crosscheck_mismatch.log
 
 if [ -f "${count_sql_allf}" ]; then
@@ -75,11 +82,13 @@ cat ${logdir}/CountQuery_Crosscheck_*.sql > ${count_sql_allf}
 #exec_sql_codestr="psql -h localhost -U drc -d drc -p [5432|5433] -f ${count_sql_allf} -o ${count_sql_of}"
 dburlstr='"$(python3 dburl.py)"'
 exec_sql_codestr="psql ${dburlstr} -f ${count_sql_allf} -o ${count_sql_of}"
-mismatch_cmdstr="egrep -i -e 'do not match' ${count_sql_of} > ${mismatchf};"
+mismatch_tmp_cmdstr="egrep -i -e 'do not match' ${count_sql_of} > ${mismatchf_tmp};"
+mismatch_agg_cmdstr="./CountQuery_aggregate.sh ${mismatchf_tmp} ${mismatchf_agg};"
+mismatch_cmdstr="egrep -i -e 'do not match' ${mismatchf_agg} > ${mismatchf};"
 
-echo -e "${exec_sql_codestr}\n${mismatch_cmdstr}";
+echo -e "\n${exec_sql_codestr}\n${mismatch_tmp_cmdstr}\n${mismatch_agg_cmdstr}\n${mismatch_cmdstr}";
 
-echo -e "# Next, you can check the file ${mismatchf} by opening it, or by running:\n";
+echo -e "\n# Next, you can check the file ${mismatchf} by opening it, or by running:\n";
 echo -e "wc -l ${mismatchf} #Count of lines in the file\n";
 echo -e "cat ${mismatchf} |more\n";
 

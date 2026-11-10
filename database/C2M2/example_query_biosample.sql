@@ -756,12 +756,16 @@ SELECT count(*) FROM
   );
 
 --- Some more trials
+EXPLAIN ANALYZE
 select distinct dcc_name, dcc_abbreviation, project_id_namespace,project_name, project_local_id,biosample_id_namespace, 
 biosample_local_id from c2m2.ffl_biosample_collection where searchable @@ websearch_to_tsquery('english', 'metabolic disease male');
+EXPLAIN ANALYZE
 select distinct dcc_name, dcc_abbreviation, project_name from c2m2.ffl_biosample_collection where 
 searchable @@ websearch_to_tsquery('english', 'metabolic disease male');
 
+EXPLAIN ANALYZE
 select distinct dcc_name, dcc_abbreviation, project_id_namespace,project_name, project_local_id,biosample_id_namespace, 
 biosample_local_id from c2m2.ffl_biosample_collection where searchable @@ websearch_to_tsquery('english', 'hispanic female cancer');
+EXPLAIN ANALYZE
 select distinct dcc_name, dcc_abbreviation, project_name from c2m2.ffl_biosample_collection where 
 searchable @@ websearch_to_tsquery('english', 'hispanic female cancer');

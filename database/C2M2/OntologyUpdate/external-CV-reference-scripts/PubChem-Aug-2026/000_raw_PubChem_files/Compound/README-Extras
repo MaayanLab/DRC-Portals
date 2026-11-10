@@ -1,0 +1,190 @@
+README-Extras: auxiliary information files for PubChem
+
+These files contain data present in PubChem but not part of the
+individual structure records. Each file is regenerated in full with
+every full or incremental dump, and so will always correspond to the
+most current state of the database. MD5 checksums are present for
+each file.
+
+SID-MeSH (or CID-MeSH):
+
+    This file contains associations between SID/CID and MeSH terms.
+    The format is a simple text file where each line has an id,
+    followed by one or more MeSH terms associated with that id,
+    separated by tab characters. Note that each term may contain
+    multiple words separated by spaces. If there is more than one
+    MeSH term for a given SID/CID, then the "best" term - most
+    frequent based on depositors' synonyms for that structure - will
+    come first.
+
+MeSH-Pharm:
+
+    This is a mapping from MeSH terms to the pharmacological
+    action(s) assigned to each term (by MeSH), for each term used in
+    the PubChem Substance or Compound database; it is thus only a
+    subset of all MeSH terms. Along with the aforementioned
+    SID/CID-MeSH files, this allows one to map SID/CID to
+    pharmacological actions. The format is a simple text file where
+    each line has a MeSH term followed by one or more pharmacological
+    actions associated with that term, separated by tabs. Note that
+    both terms and pharmacological actions may themselves have more
+    than one word, separated by spaces.
+    
+Source-Names:
+
+    PubChem Depositors have both a "Data Source ID" - which for newer
+    depositors is a numeric identifier but for older depositors is a
+    text name; and a "Display Name" - which is the name shown on the
+    depositor's substance summaries. There may be more than one
+    display name, and the most recent one is what is shown. However,
+    the substance blobs stored on this FTP site or downloaded live
+    contain only the depositor source id in the attribution. This file
+    maps source id to display name, and lists on each line (separated 
+    by tabs) the depositor source id, the corresponding display name, 
+    and the date when that display name was added. If the source id 
+    and display name are the same (mainly for older depositors), they 
+    are not listed in this file.
+
+CID-SID.gz:
+
+    This is a mapping of CID to SID(s) from which each CID is derived.
+    It is a gzipped text file where each line has CID, the SID it is
+    linked to, and the type, all separated by tabs. The type is an
+    integer that indicates the relationship of the CID to that SID:
+    
+        1   Standardized Form of the Deposited Substance (all atoms)
+        2   Component of the Standardized Form (compoonents may be
+            neutralized)
+
+CID-Component.gz:
+
+    This is a mapping of CID to its component CID(s). It is a gzipped 
+    text file where each line has a CID, followed by a tab-separated
+    list of component CIDs. Note that if there is only a single
+    component, it will be the neutralized form. If there are multiple
+    components, they are the (neutralized) separate covalent units.
+
+CID-Synonym-filtered.gz:
+CID-Synonym-unfiltered.gz:
+
+    These are listings of all names associated with a CID. The
+    unfiltered list are names aggregated from all SIDs whose 
+    standardized form is that CID, sorted by weight with the "best"
+    names first. The filtered list has some names removed that are
+    considered inconsistent with the structure. Both are gzipped text
+    files with CID, tab, and name on each line. Note that the
+    names may be composed of more than one word, separated by spaces.
+    
+CID-Parent.gz:
+
+    This is a listing of all CIDs with parents. It is a gzipped text
+    file with CID, tab, and parent on each line. Note that a CID may
+    be a parent of itself, or may have no parent.
+    
+CID-InChI-Key.gz:
+
+    This is a listing of all CIDs with their full InChI strings and
+    InChI keys. It is a gzipped text file with CID, tab, InChI, tab,
+    InChI Key on each line.
+    
+CID-SMILES.gz:
+
+    This is a listing of all CIDs with their isomeric SMILES. It is 
+    a gzipped text file with CID, tab, SMILES on each line.
+    
+CID-IUPAC.gz:
+
+    This is a listing of all CIDs with their computed IUPAC names. 
+    It is a gzipped text file with CID, tab, IUPAC on each line. Note
+    that the names may contain UTF8 characters.
+    
+CID-Title.gz:
+
+    This is a listing of all CIDs with the name chosen as title for
+    the respective compound summary page. It is a gzipped text file 
+    with CID, tab, title on each line.
+    
+CID-Date.gz:
+
+    This is a listing of all (live) CIDs with their creation date -
+    the date when that CID first appeared in PubChem. It is a gzipped
+    text file with CID, tab, and date (YYYY-MM-DD) on each line.
+    
+CID-LCSS.xml.gz:
+
+    This is an XML file containing the compound summary data for all
+    LCSS records within the PubChem Compound database.
+
+CID-Patent.gz:
+
+    This is a listing of all patent documents linked to CIDs. These
+		are in Google's "publication number" format, following PubChem's
+		matching of depositor-supplied patent identifiers to publication
+		numbers. It is a gzipped text file with CID, tab, and publication
+		number on each line.
+
+CID-PMID.gz:
+
+    This is a listing of all PubMed IDs (PMIDs) linked to CIDs. It 
+    is a gzipped text file with CID, tab, PMID, tab, and type on 
+    each line. The types are:
+        
+        1   PMIDs provided by PubChem Substance depositors
+        2   PMIDs from the MeSH heading(s) linked to the given CID
+        3   PMIDs provided by PubMed publishers
+        4   PMIDs associated through BioAssays
+        
+CID-Mass.gz:
+
+    This is a listing of all CIDs with their molecular formulas and
+    monoisotopic and exact masses. It is a gzipped text file with 
+    CID, tab, formula, tab, monoisotopic mass, tab, exact mass on 
+    each line.
+    
+SID-Date.gz:
+
+    This is a listing of all (live) SIDs with their creation and
+    modification dates - the date when that SID first appeared in
+    PubChem, and the date when it was last modified (to bring it to
+    the current version). It is a gzipped text file with SID, tab,
+    creation date (YYYY-MM-DD), tab, and modification date on each
+    line.    
+    
+SID-Map.gz:
+
+    This is a listing of all (live) SIDs with their source names and
+    registry identifiers, and the standardized CID if present. It is 
+    a gzipped text file where each line contains at least three
+    columns: SID, tab, source name, tab, registry identifier; then
+    a fourth column of tab, CID if there is a standardized CID for 
+    the given SID.
+    
+SID-Synonym.gz:
+
+    This is a listing of all (live) SIDs with their depositor
+    provided synonyms (one per line). It is a gzipped text file with
+    SID, tab, synonym on each line.
+        
+CID-Preferred.gz:
+
+    This is a listing of CIDs that are no longer live, and that have
+    a new "preferred" form as a result of restandardization of the
+    PubChem database. It is a gzipped text file with old CID, tab,
+    and new preferred CID on each line.
+        
+
+:-=  Fair Use Disclaimer  =-:
+
+Databases of molecular data on the NCBI FTP site include such
+examples as nucleotide sequences (GenBank), protein sequences,
+macromolecular structures, molecular variation, gene expression, and
+mapping data. They are designed to provide and encourage access
+within the scientific community to sources of current and
+comprehensive information. Therefore, NCBI itself places no
+restrictions on the use or distribution of the data contained
+therein. However, some submitters of the original data may claim
+patent, copyright, or other intellectual property rights in all or a
+portion of the data they have submitted. NCBI is not in a position to
+assess the validity of such claims and, therefore, cannot provide
+comment or unrestricted permission concerning the use, copying, or
+distribution of the information contained in the molecular databases.

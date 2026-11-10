@@ -93,6 +93,14 @@ Then delete the records with these keywords
     keywords text := 'gender OR inclusion OR diversity OR equity OR lgbt OR women OR trans';
 */
 
+/* 
+During March 2026 ingestion, the word inclusion in compound.tsv for IDG for 
+pubchem CID 338 (Salicylic acid) was causing some rows from biosample_substance for LINCS
+to be deleted from the DB. So, I copied the row for 338 from LINCS compound.tsv and put it into IDG compound.tsv and reingested.
+*/
+--- Command used to check it:
+--- [mano@sc-cfdewebdev c2m2s]$ egrep -i '(^| )salicylic' */*/*/*.tsv | egrep -i '(gender|inclusion|diversity|equity|lgbt|trans-gen|transgen)'
+
 -------------------------
 --- First, define the procedure
 CREATE OR REPLACE PROCEDURE delete_matching_rows(
@@ -115,11 +123,13 @@ BEGIN
 END;
 $$;
 
+--- Not used
 CREATE OR REPLACE FUNCTION select_matching_rows_searchable_tsvector(
     schema_name TEXT,
     table_name TEXT,
     keyword TEXT
 )
+RETURNS VOID
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -143,7 +153,8 @@ DECLARE
     table_name text;
     keyword_from_array text;
     /* Select one of the schema lines from below, keep others commented */
-    --- schemas text[] := ARRAY['_4dn', 'exrna', 'gtex', 'glygen', 'hmp', 'hubmap', 'idg', 'kidsfirst', 'lincs', 'metabolomics', 'motrpac', 'sparc', 'sennet', 'scge'];  -- your schema names
+    --- schemas text[] := ARRAY['_4dn', 'bridge2ai', 'exrna', 'gtex', 'glygen', 'hmp', 'hubmap', 'idg', 'kidsfirst', 'lincs', 'metabolomics', 'motrpac', 'sparc', 'sennet', 'scge', 'geo_project'];  -- your schema names
+    --- schemas text[] := ARRAY['c2m2', '_4dn', 'bridge2ai', 'exrna', 'gtex', 'glygen', 'hmp', 'hubmap', 'idg', 'kidsfirst', 'lincs', 'metabolomics', 'motrpac', 'sparc', 'sennet', 'scge', 'geo_project'];  -- your schema names
     /* To manually/artificially parallelize, you can break this list into two, select one of them in one call.
         Then, select the other line here, and call in another terminal, change the name of the log file when calling.
     */
@@ -167,7 +178,7 @@ DECLARE
     tables text[] := ARRAY['analysis_type', 'anatomy', 'assay_type', 'biofluid', 'biosample',
                             'collection', 'compound', 'data_type', 'disease', 'file', 'file_format',
                             'gene', 'id_namespace', 'ncbi_taxonomy', 'phenotype', 'project', 'protein',
-                            'sample_prep_method', 'subject', 'substance'];
+                            'sample_prep_method', 'subject', 'substance', 'biosample_substance'];
     keywords text := 'gender OR inclusion OR diversity OR equity OR lgbt OR trans-gen OR transgen'; ---  OR women
     --- If use trans for exclusion, entire MoTrPAC data is gone as project name is: Molecular Transducers of Physical Acitivity Consortium
     keywords_array text[] := ARRAY['gender', 'inclusion', 'diversity', 'equity', 'lgbt', 'trans-gen', 'transgen']; ---  OR women
@@ -268,16 +279,35 @@ See also the script sanitize_tables_for_keywords.sql in the parent folder (datab
 DO $$
 DECLARE
     drop_specific_rows_from_c2M2_tables INT := 1;
+    --- schemas text[] := ARRAY['_4dn', 'bridge2ai', 'exrna', 'gtex', 'glygen', 'hmp', 'hubmap', 'idg', 'kidsfirst', 'lincs', 'metabolomics', 'motrpac', 'sparc', 'sennet', 'scge', 'geo_project'];  -- your schema names
+    --- schemas text[] := ARRAY['c2m2', '_4dn', 'bridge2ai', 'exrna', 'gtex', 'glygen', 'hmp', 'hubmap', 'idg', 'kidsfirst', 'lincs', 'metabolomics', 'motrpac', 'sparc', 'sennet', 'scge', 'geo_project'];  -- your schema names
+    schemas text[] := ARRAY['c2m2'];  -- your schema names
+    disease_id_array text[] := ARRAY['DOID:1234', 'DOID:10919'];
+    schema_name text;
+    disease_id text;
 BEGIN
+    RAISE NOTICE '----------------------- Removing specific disease terms -----------------------';
     IF drop_specific_rows_from_c2M2_tables > 0 THEN
-        --- BEGIN; --- Use only if running directly on psql prompt
-        DELETE FROM c2m2.subject_sex where id = 'cfde_subject_sex:3';
-        DELETE FROM c2m2.disease where id = 'DOID:1234'; --- gender/sex incongruence
-        DELETE FROM c2m2.disease where id = 'DOID:10919'; --- gender/sex dysphoria
+        FOREACH schema_name IN ARRAY schemas
+        LOOP
+            RAISE NOTICE 'Processing schema: %', schema_name;
 
-        --- ROLLBACK;
-        --- COMMIT; --- Use only if running directly on psql prompt
+            --- BEGIN; --- Use only if running directly on psql prompt
+            --- DELETE FROM c2m2.subject_sex where id = 'cfde_subject_sex:3'; --- not needed 
+            --- DELETE FROM c2m2.disease where id = 'DOID:1234'; --- gender/sex incongruence
+            --- DELETE FROM c2m2.disease where id = 'DOID:10919'; --- gender/sex dysphoria
+
+            --- execute statement version
+            FOREACH disease_id IN ARRAY disease_id_array
+            LOOP
+                EXECUTE format('DELETE FROM %I.%I WHERE id = %L', schema_name, 'disease', disease_id);
+            END LOOP;
+
+            --- ROLLBACK;
+            --- COMMIT; --- Use only if running directly on psql prompt
+        END LOOP;
     END IF;
+    RAISE NOTICE '----------------------- Done: Removing specific disease terms -----------------';
 END $$;
 ---*/
 --- #############################################################################

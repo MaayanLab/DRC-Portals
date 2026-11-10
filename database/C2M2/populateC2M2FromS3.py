@@ -31,6 +31,10 @@ import gc
 import urllib.parse
 from dotenv import load_dotenv
 
+# Set options to display all rows and columns
+pd.set_option('display.max_rows', 20)
+pd.set_option('display.max_columns', 5)
+
 # To only download DccAssets.tsv and not actually ingest, set:
 # actually_ingest_tables = 0
 # actually_read_tables = 0
@@ -55,6 +59,9 @@ varchar_gin_trgm_ops_str="gin_trgm_ops" # or ""
 #searchable_col_exclude_pattern = r'id_namespace$|local_id$|persistent_id$|creation_time|access_url|size_in_bytes' #r'^project_|_id$|temp'
 # Need to be able to exlcude records with keywords in IDs as well, so include those columns
 searchable_col_exclude_pattern = r'id_namespace$|creation_time|size_in_bytes' #r'^project_|_id$|temp'
+
+# If not actually_read_tables then why even create schema; if still want to delete and create schema, comment the line below
+actually_create_schema = actually_create_schema * actually_read_tables
 
 actually_ingest_tables = actually_create_schema * actually_read_tables * actually_ingest_tables
 
@@ -122,7 +129,19 @@ dcc_assets = current_dcc_assets()
 # Mano: To define specific schema for each DCC, need their short name or label
 # dcc_short_labels not used but kept here for ref if needed later
 c2m2s = dcc_assets[dcc_assets['filetype'] == 'C2M2']
-dcc_short_labels = list(np.unique(c2m2s[['dcc_short_label']].values));
+if(debug> 0):
+    print(f"{c2m2s}");
+    print(f"A slice of c2m2s:{newline}");
+    print(f"{c2m2s.iloc[0:min(10,c2m2s.shape[0]), 0:min(5,c2m2s.shape[1])]}");
+    print(f"c2m2s link:{newline}");
+    #print(f"{c2m2s['link']}");
+    sys.stdout.write(c2m2s['link'].to_string())
+    print(c2m2s.columns.tolist())
+    print(c2m2s[['short_label']])
+
+# Instead of dcc_short_label, now, short_label is used in c2m2s, as a variable dcc_short_labels or dcc_short_label is fine.
+# Only the column name inside c2m2s or c2m2 dataframe is changed
+dcc_short_labels = list(np.unique(c2m2s[['short_label']].values));
 if(debug> 0): print(f"------------ dcc_short_labels:{dcc_short_labels}")
 
 # Load C2M2 schema from JSON file
@@ -397,14 +416,14 @@ print(f"Going to ingest metadata from files{newline}");
 #input("Press Enter to continue, to ingest the tables...")
 
 # Mano: dcc_assets is a pandas data.frame (see the file ingest_common.py) with columns such as 
-# 'filetype', 'filename', 'link', 'size', 'lastmodified', 'current', ... 'dcc_short_label'
+# 'filetype', 'filename', 'link', 'size', 'lastmodified', 'current', ... 'short_label'
 # Below, c2m2 holds one row.
 c2m2s = dcc_assets[dcc_assets['filetype'] == 'C2M2']
 print(f"{newline}********* c2m2s dataframe, before checking if a single DCC is to be processed, is: **********");
 print(f"{c2m2s}"); 
 
 if(single_dcc == 1): # Mano
-    c2m2s = c2m2s[c2m2s['dcc_short_label'] == dcc_short_label]; # This should select just one row of the c2m2s data.frame
+    c2m2s = c2m2s[c2m2s['short_label'] == dcc_short_label]; # This should select just one row of the c2m2s data.frame
 
 print(f"{newline}********* c2m2s dataframe is: **********");
 print(f"{c2m2s}"); 
@@ -434,9 +453,14 @@ for dummy_x in [1]:
   for dummy_y in [1]:
     for dummy_z in [1]:
       for _, c2m2 in tqdm(c2m2s.iterrows(), total=c2m2s.shape[0], desc='Processing C2M2 Files...'):
-        cur_dcc_short_label = c2m2['dcc_short_label'];
+        cur_dcc_short_label = c2m2['short_label'];
+        # Incorporate lastmodified in subfolder name so that if 
+        # a DCC has more than one program/DGP and filename is same, then no overwrite issue, e.g., Bridge2AI SGPs
+        lastmodified_raw = c2m2['lastmodified'];
+        lastmodified_str = lastmodified_raw.replace(":", "-").replace(" ", "_")
         print(f"\n================================== DCC short label: {cur_dcc_short_label} =============================================");
-        c2m2_path = c2m2s_path/c2m2['dcc_short_label']/c2m2['filename']
+        c2m2_path = c2m2s_path/c2m2['short_label']/lastmodified_str/c2m2['filename']
+        print(f"\n\tc2m2_path: {c2m2_path}");
         c2m2_path.parent.mkdir(parents=True, exist_ok=True)
         if not c2m2_path.exists():
           import urllib.request
@@ -448,6 +472,7 @@ for dummy_x in [1]:
             c2m2_zip.extractall(c2m2_extract_path)
 
         cqf.write(f"/* =============== DCC short label: {cur_dcc_short_label} =============== */{newline}");
+        cqf.write(f"/* ==== c2m2_path: {c2m2_path} === */{newline}");
 
         # Reset all values in table_exists_dict to all 0
         table_exists_dict = {key: 0 for key in table_exists_dict}
@@ -501,7 +526,7 @@ for dummy_x in [1]:
                 # after renaming the existing file as table_name.tsv.orig.
                 # This updated file will serve as the new test file. Print enough warning lines 
                 # and messages to copy the file to elsewhere. There, the dev team can prepare the package 
-                # again, put back in the folder ingest/c2m2s/{c2m2['dcc_short_label']} and try to reingest.
+                # again, put back in the folder ingest/c2m2s/{c2m2['short_label']} and try to reingest.
                 # Now, the warnings should not be displayed. If multiple columns needed to be inserted, 
                 # then ensure the correct order of the columns.
                 if (table_name in table_names):
@@ -525,8 +550,11 @@ for dummy_x in [1]:
                     if(debug > 0): print(f"#Lines in file {table_str}: {numlines_in_file}");
 
                     if(numlines_in_file - df.shape[0] != 1):
-                        raise ValueError(f'#Lines in file should be just 1 more than #rows in df{newline}' +
-                                         f'#Lines in file {table_str}: {numlines_in_file}{newline}#Rows of df:{df.shape[0]}');
+                        #raise ValueError(f'#Lines in file should be just 1 more than #rows in df{newline}' +
+                        #                 f'#Lines in file {table_str}: {numlines_in_file}{newline}#Rows of df:{df.shape[0]}');
+                        # Just warn
+                        print(f'Warning: Generally, #lines in file should be just 1 more than #rows in df{newline}' +
+                            f'#Lines in file {table_str}: {numlines_in_file}{newline}#Rows of df:{df.shape[0]}');
                     
                     if(df.shape[0] > 0):
                         # drop duplicate rows to begin with
@@ -537,7 +565,7 @@ for dummy_x in [1]:
                         # so that the burden is on the submitter as this is not scalable for future changes.
                         # Mano: For HMP and SPARC, for the table biosample replace the column name 'assay_type' with 'sample_prep_method'
                         # These DCCs don't have the table sample_prep_method.tsv in their set of files, but that is OK as far as ingestion goes.
-                        # cur_dcc_short_label = c2m2['dcc_short_label']; # defined near top of: for _, c2m2 loop
+                        # cur_dcc_short_label = c2m2['short_label']; # defined near top of: for _, c2m2 loop
                         if((table_name == 'biosample') and ((cur_dcc_short_label == 'HMP') or (cur_dcc_short_label == 'SPARC'))):
                             df.rename(columns={'assay_type': 'sample_prep_method'}, inplace=True);
                             print(f"{cur_dcc_short_label}: biosample table: changed column name assay_type to sample_prep_method");
@@ -680,7 +708,7 @@ for dummy_x in [1]:
                         print(">>> All good.");
                         #                    
                         # SQL command to add the DCC name to the 'sourcedcc' column in the PostgreSQL table
-                        # dcc_name = c2m2['dcc_short_label']
+                        # dcc_name = c2m2['short_label']
                         # #addDCCName = f'UPDATE {schema_name}.{table_name} SET sourcedcc = \'{dcc_name}\';'
                         # if (countDCC == 1):
                         #     add_column_sql = f"ALTER TABLE {schema_name}.{table_name} ADD COLUMN sourcedcc VARCHAR(255);"

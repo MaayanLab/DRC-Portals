@@ -1,0 +1,33 @@
+#2024/11/26: Mano
+
+List of files:
+
+-rw-rw-r--.  1 mano  drc        4258 Nov 26 14:00 missing_proteins.tsv
+-rw-rw-r--.  1 mano  drc 17173388228 Nov 22 21:35 protein.2024-11-22--0.tsv
+-rw-rw-r--.  1 srini drc  3762955274 Nov 22 21:35 protein.2024-11-22--0.tsv.gz
+-rw-rw-r--.  1 mano  drc 17173392486 Nov 26 14:03 protein.2024-11-22.tsv
+drwxrwsr-x.  2 mano  drc          55 Nov 25 11:59 sample_uniprot_reference_data
+
+
+protein.2024-11-22--0.tsv & tsv.gz: (file name may have been just protein.tsv)
+Prepared by Srini using the scripts (on TSCC).
+Upon testing in prepare_C2M2_submission.py, for GlyGen, there were some IDs missing from this. 
+Mano extracted their info from the current psql DB using the command:
+
+[mano@sc-cfdewebdev C2M2_sub]$ pwd
+/home/mano/CFDE/C2M2_sub
+[mano@sc-cfdewebdev C2M2_sub]$ ./extract_missing_terms.sh schema_update_test.log protein
+
+Copied the file missing_proteins.tsv to this folder, and removed the header line, then used cat:
+[mano@sc-cfdewebdev C2M2_sub]$ cp missing_proteins.tsv /mnt/share/cfdeworkbench/C2M2/ontology/external-CV-reference-scripts/UniProt-Nov-2024/.
+
+cat protein.2024-11-22--0.tsv missing_proteins_noheader.tsv > protein.2024-11-22.tsv
+# Alternate and better, assuming the file protein.2024-11-22.tsv exists by that name
+sed '1d' missing_proteins.tsv >> protein.2024-11-22.tsv
+gzip protein.2024-11-22.tsv
+
+Test the new file protein.2024-11-22.tsv.gz with prepare_C2M2_submision.py (by copying to 
+/home/mano/CFDE/C2M2_sub/scripts/external_CV_reference_files
+)
+cp protein.2024-11-22.tsv.gz /home/mano/CFDE/C2M2_sub/scripts/external_CV_reference_files/.
+
