@@ -7,30 +7,13 @@ import {
   mdiMicrophone,
   mdiMicrophoneOff,
 } from "@mdi/js";
+import { applySpeechMapper } from "@/utils/speech";
 const MicRecorder = require("mic-recorder-to-mp3");
 
 const recorder = new MicRecorder({
   bitRate: 128,
 });
 
-const speechMapper: Record<string, string> = {
-  "LYNX": "LINCS",
-  "Lynx": "LINCS",
-  "Winks": "LINCS",
-  "links DCC": "LINCS DCC",
-  "MotorPak": "MoTrPAC",
-  "Spark": "SPARC",
-  "glycoscience": "Glycoscience",
-  "bridge to AI": "Bridge2AI",
-  "g-tex": "GTEx",
-  "g-tax": "GTEx",
-  "hub map": "HuBMAP",
-  "HubMap": "HuBMAP",
-  "sennet": "SenNet",
-  "Sennet": "SenNet",
-  "CNET": "SenNet",
-  "AT&T": "A2CPS"
-};
 
 const Communicator = ({
   text2speech,
@@ -117,15 +100,7 @@ const Communicator = ({
           body: formData,
         });
         const transcribed = await response.json();
-        var text = transcribed.text;
-        Object.keys(speechMapper).forEach(
-          (key) => {
-            let regex = new RegExp(`(${key})(?=[,?. ]|$)`, 'gi');
-            text = text.replace(regex, speechMapper[key]);
-            }
-        );
-
-        setMessage(text);
+        setMessage(applySpeechMapper(transcribed.text));
         setRecord(false);
       } catch (error) {
         setRecord(false);
