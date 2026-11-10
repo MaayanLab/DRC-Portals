@@ -691,9 +691,18 @@ def create_subject_role_cypher():
 
 def create_subject_role_taxonomy_cypher():
     # subject_id_namespace	subject_local_id	role_id	taxonomy_id
+    match_role_stmt = 'MATCH (subject_role:SubjectRole {id: row.role_id})\n'
+    merge_role_stmt = 'MERGE (subject_role)<-[:HAS_ROLE {_uuid: randomUUID()}]-(subject)'
     match_taxonomy_stmt = 'MATCH (ncbi_taxonomy:NCBITaxonomy {id: row.taxonomy_id})\n'
-    merge_stmt = 'MERGE (subject)-[:ASSOCIATED_WITH {role_id: row.role_id, _uuid: randomUUID()}]->(ncbi_taxonomy)'
-    return MATCH_SUBJECT_STR + match_taxonomy_stmt + merge_stmt
+    merge_taxonomy_stmt = 'MERGE (subject)-[:ASSOCIATED_WITH {_uuid: randomUUID()}]->(ncbi_taxonomy)'
+    return (
+        MATCH_SUBJECT_STR +
+        match_role_stmt +
+        merge_role_stmt +
+        'WITH subject, row\n' +
+        match_taxonomy_stmt +
+        merge_taxonomy_stmt
+    )
 
 
 def create_subject_sex_cypher():
