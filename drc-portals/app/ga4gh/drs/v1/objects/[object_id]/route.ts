@@ -122,7 +122,7 @@ async function getPDPObject(object_id: string) {
         ].filter(c => c !== null),
         "mime_type": object.data.a_mime_type,
         "access_methods": [
-          {'type': 'https', 'access_id': 'pdp_file'},
+          {'type': (new URL(object.data.a_access_url)).protocol, 'access_id': 'pdp_file'},
         ],
       })
     }
