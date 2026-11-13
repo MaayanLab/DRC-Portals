@@ -26,7 +26,7 @@ async function getDccAssetUrl(object_id: string, access_id: string) {
 async function getPDPObjectUrl(object_id: string, access_id: string) {
   const object = await safeAsync(async () => {
     const itemRes = await elasticsearch.search<EntityExpandedType>({
-      index: 'entity_expanded',
+      index: `entity_${process.env.INDEX_VERSION}_expanded`,
       query: {
         term: { id: object_id }
       },

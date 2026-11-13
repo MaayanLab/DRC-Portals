@@ -63,7 +63,7 @@ const SearchWorkbenchTool = [
 				}
 			})
 			const searchRes = await elasticsearch.search<EntityExpandedType>({
-				index: 'entity_expanded',
+				index: `entity_${process.env.INDEX_VERSION}_expanded`,
 				query: {
 					function_score: {
 					query: {

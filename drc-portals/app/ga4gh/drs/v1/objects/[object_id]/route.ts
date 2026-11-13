@@ -55,7 +55,7 @@ async function getDccAsset(object_id: string) {
 async function getPDPObject(object_id: string) {
   const object = await safeAsync(async () => {
     const itemRes = await elasticsearch.search<EntityExpandedType>({
-      index: 'entity_expanded',
+      index: `entity_${process.env.INDEX_VERSION}_expanded`,
       query: {
         term: { id: object_id }
       },
@@ -122,7 +122,7 @@ async function getPDPObject(object_id: string) {
         ].filter(c => c !== null),
         "mime_type": object.data.a_mime_type,
         "access_methods": [
-          {'type': 'https', 'access_id': 'pdp_file'},
+          {'type': (new URL(object.data.a_access_url)).protocol, 'access_id': 'pdp_file'},
         ],
       })
     }

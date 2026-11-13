@@ -20,7 +20,7 @@ export default router({
     const filter: estypes.QueryDslQueryContainer[] = []
     if (props.input.search) filter.push({ simple_query_string: { query: props.input.search, fields: ['a_label^10', 'a_*^5', 'm2m_*.a_'], default_operator: 'AND' } })
     const searchRes = await elasticsearch.search<EntityExpandedType, TermAggType<'types'>>({
-      index: 'entity_expanded',
+      index: `entity_${process.env.INDEX_VERSION}_expanded`,
       query: filter.length > 0 ? { bool: { filter } } : undefined,
       aggs: {
         types: {
@@ -48,7 +48,7 @@ export default router({
       return (await esDCCs)[props.input.slug]
     }
     const itemRes = await elasticsearch.search<EntityExpandedType>({
-      index: 'entity_expanded',
+      index: `entity_${process.env.INDEX_VERSION}_expanded`,
         query: {
           bool: {
             must: [
@@ -82,7 +82,7 @@ export default router({
     })
     if (must.length + filter.length === 0) throw new TRPCError({ code: 'NOT_FOUND' })
     const searchRes = await elasticsearch.search<EntityExpandedType, FilterAggType<'files'>>({
-      index: 'entity_expanded',
+      index: `entity_${process.env.INDEX_VERSION}_expanded`,
       query: {
         function_score: {
           query: {
@@ -156,7 +156,7 @@ export default router({
       'm2m_source.id', 'm2m_relation.id', 'm2m_target.id',
     )
     const searchRes = await elasticsearch.search<EntityExpandedType, TermAggType<typeof facets[0]>>({
-      index: 'entity_expanded',
+      index: `entity_${process.env.INDEX_VERSION}_expanded`,
       query: {
         bool: {
           filter,
@@ -167,7 +167,7 @@ export default router({
       rest_total_hits_as_int: true,
     })
     const entityLookupRes = await elasticsearch.search<EntityExpandedType>({
-      index: 'entity_expanded',
+      index: `entity_${process.env.INDEX_VERSION}_expanded`,
       query: {
         ids: {
           values: Array.from(new Set([
@@ -209,7 +209,7 @@ export default router({
     })
     must.push({ match_phrase_prefix: { a_label: props.input.search } })
     const searchRes = await elasticsearch.search<EntityExpandedType>({
-      index: 'entity_expanded',
+      index: `entity_${process.env.INDEX_VERSION}_expanded`,
       query: {
         function_score: {
           query: {
