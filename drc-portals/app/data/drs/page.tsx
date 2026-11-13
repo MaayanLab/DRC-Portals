@@ -73,7 +73,12 @@ function ViewAccessURL({ name, type, access_url }: { name: string, type: string,
       (type === 'http'
       || type === 'https'
       ) && access_url.headers.length === 0
-    ) ? <a className="link text-blue-600" href={access_url.url} target="_blank">{access_url.url}</a> : access_url.url}</div>
+    ) ? <a className="link text-blue-600" href={access_url.url} target="_blank">{access_url.url}</a>
+      : (
+        type === 's3'
+      ) && access_url.headers.length === 0 ? <a className="link text-blue-600" href={`https://s3.amazonaws.com/${access_url.url}`} target="_blank">{access_url.url}</a>
+      : access_url.url
+    }</div>
     {access_url.headers.length > 0 && <><div><strong>Headers</strong>:</div>
       {access_url.headers.map(header => <div key={header}>{header}</div>)}
     </>}
