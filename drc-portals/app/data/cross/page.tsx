@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { GMTCrossLayout } from "./GMTCrossLayout";
 import {  Typography, Grid } from "@mui/material";
 
@@ -16,7 +17,9 @@ export default async function GMTCross() {
 				</Typography>
 			</Grid>
 			<Grid item xs={12}>
-				<GMTCrossLayout sessionInfo={null} />
+				<Suspense fallback={null}>
+					<GMTCrossLayout sessionInfo={null} />
+				</Suspense>
 			</Grid>
 		</Grid>
 	)
