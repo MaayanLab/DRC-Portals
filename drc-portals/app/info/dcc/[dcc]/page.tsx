@@ -16,8 +16,9 @@ import Icon from "@mdi/react";
 import { Box, Chip } from "@mui/material";
 import { mdiArrowRight, mdiVideoOutline } from "@mdi/js";
 import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent";
-import { DCCAccordion } from '@/components/misc/DCCAccordion';
-import { getDccDataObj } from '@/utils/dcc-assets';
+import { Suspense } from 'react';
+import DccAssets from './DccAssets';
+import LinearProgress from '@mui/material/LinearProgress';
 import { ReadMore } from "@/components/misc/ReadMore";
 import {OutreachComponent} from "@/components/misc/Outreach/featured";
 import PubButton from "./linksbutton";
@@ -158,7 +159,6 @@ export default async function DccDataPage(props: { params: Promise<{ dcc: string
     const publications = dcc?.publications.map(i=>i.publication) || []
     const tools = dcc?.tools.map(i=>i.tool) || []
     if (!dcc) return notFound()
-    const assets = await getDccDataObj(prisma, dcc.id, params.dcc)
     return (
     <Paper sx={{
         boxShadow: "none", 
@@ -225,7 +225,7 @@ export default async function DccDataPage(props: { params: Promise<{ dcc: string
                     </Card>
                 </Grid>
                 {(outreach.length > 0) && 
-                    <Grid item xs={12} md={(publications.length > 0 || Object.keys(assets).length > 0) ? 3:12}>
+                    <Grid item xs={12} md={3}>
                         <Paper sx={{padding: 2}}>
                             <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", maxWidth: 300, textAlign: "center"}}variant="subtitle1">TRAINING & OUTREACH</Typography>
                             { (outreach === undefined || outreach.length === 0) ?
@@ -237,12 +237,13 @@ export default async function DccDataPage(props: { params: Promise<{ dcc: string
                         </Paper>
                     </Grid>
                 }
-                { (publications.length > 0 || Object.keys(assets).length > 0) && 
                     <Grid item xs={12} md={outreach.length > 0 ? 9: 12}>
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
                                     <Paper sx={{padding: 2, height: "100%"}}>
-                                        <DCCAccordion dcc={params.dcc} fulldata={assets} />
+                                        <Suspense fallback={<LinearProgress aria-label="Loading program assets" />}>
+                                            <DccAssets id={dcc.id} name={params.dcc} />
+                                        </Suspense>
                                         <Link href="/data/matrix">
                                             <Button sx={{marginLeft: 2}}>
                                                 <Typography variant={'subtitle1'} color="secondary">Go to data matrix</Typography>
@@ -261,7 +262,6 @@ export default async function DccDataPage(props: { params: Promise<{ dcc: string
                             </Grid>}
                         </Grid>
                     </Grid>
-                }
                 { (tools.length > 0) && 
                     <Grid item xs={12}>
                         <Grid container spacing={2}>

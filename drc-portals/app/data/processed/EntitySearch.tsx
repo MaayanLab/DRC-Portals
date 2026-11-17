@@ -3,7 +3,7 @@ import trpc from '@/lib/trpc/server'
 import { categoryLabel, create_url, EntityType, itemDescription, itemIcon, itemLabel } from "@/app/data/processed/utils"
 import SearchablePagedTable, { SearchablePagedTableCell, SearchablePagedTableCellIcon, LinkedTypedNode, Description, SearchablePagedTableHeader } from "@/app/data/processed/SearchablePagedTable";
 import { ensure_array, groupby } from '@/utils/array';
-import { esDCCs } from '@/app/data/processed/dccs';
+import { getEsDCCs } from '@/app/data/processed/dccs';
 import { DRSCartButton, FetchDRSCartButton } from '@/app/data/processed/cart/DRSCartButton';
 import FormPagination from '@/app/data/processed/FormPagination';
 import { FancyTab } from '@/components/misc/FancyTabs';
@@ -41,7 +41,7 @@ export default async function Page(props: PageProps) {
         }
       }),
     ]),
-    ...Object.entries(await esDCCs),
+    ...Object.entries(await getEsDCCs()),
   ])
   return (
     <>

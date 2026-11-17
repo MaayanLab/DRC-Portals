@@ -3,13 +3,17 @@ import React from 'react';
 import { Link, List, ListItem, Stack, Divider } from '@mui/material';
 import { Table, TableHead, TableRow, TableBody, TableCell, Typography } from '@mui/material'
 import { CheckCircle } from '@mui/icons-material'
-import { dccAsset } from '@/utils/dcc-assets';
+import type { dccAsset } from '@/utils/dcc-assets';
+import trpc from '@/lib/trpc/client';
+
+const PdpLinks = React.createContext<Record<string, string>>({});
 import { useWidth } from './Carousel/helper';
 import DisableableLink from './DisableableLink';
 import { useSession } from 'next-auth/react';
 
 function AccessControledDccAssetLink({ item, href, ...props }: React.PropsWithChildren<{ item: dccAsset }> & Exclude<React.ComponentProps<typeof DisableableLink>, 'children' | 'disabled'>) {
   const session = useSession({ required: false })
+  const pdp = React.useContext(PdpLinks)[item.link]
   const disabled = React.useMemo(() => !(
     // user is admin || DRC approver
     session.data?.user.role === 'ADMIN'
@@ -27,7 +31,7 @@ function AccessControledDccAssetLink({ item, href, ...props }: React.PropsWithCh
       {props.children ?? item.filename}
     </DisableableLink>
     {item.drs && <>&nbsp;<DisableableLink disabled={disabled} href={`/data/drs?q=${encodeURIComponent(item.drs)}`} {...props}>🔗</DisableableLink></>}
-    {item.pdp && <>&nbsp;<DisableableLink disabled={disabled} href={`${process.env.PUBLIC_URL}/data/processed/entity/dcc_asset/${item.pdp}`} {...props}>🔍</DisableableLink></>}
+    {pdp && <>&nbsp;<DisableableLink disabled={disabled} href={`${process.env.PUBLIC_URL}/data/processed/entity/dcc_asset/${pdp}`} {...props}>🔍</DisableableLink></>}
   </span>
 }
 
@@ -73,6 +77,16 @@ export function NameCell(props : {item: dccAsset, disabled?: boolean}) {
 }
 
 export function DCCFileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
+  const links = React.useMemo(() => [...new Set(props.fileInfo.map(item => item.link))].sort(), [props.fileInfo]);
+  const { data } = trpc.assetPdpLinks.useQuery({ links }, {
+    enabled: !props.isCode && links.length > 0,
+    retry: false,
+    staleTime: 60_000,
+  });
+  return <PdpLinks.Provider value={data ?? {}}><FileTable {...props} /></PdpLinks.Provider>;
+}
+
+function FileTable(props : {fileInfo: dccAsset[], isCode: boolean}) {
   props.isCode ? (
     props.fileInfo.sort((a, b) => (a.filename < b.filename) ? -1 : 1)
   ) : (

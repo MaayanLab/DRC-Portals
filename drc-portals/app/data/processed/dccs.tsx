@@ -1,9 +1,9 @@
 import elasticsearch from '@/lib/elasticsearch'
 import prisma from '@/lib/prisma'
-import singleton from '@/lib/singleton'
+import { cache } from 'react'
 import { EntityExpandedType, EntityType } from '@/app/data/processed/utils'
 
-export const prismaDCCs = singleton('prismaDCCs', async () => {
+const getPrismaDCCs = cache(async () => {
   const dccs = await prisma.dCC.findMany({
     select: {
       short_label: true,
@@ -17,11 +17,11 @@ export const prismaDCCs = singleton('prismaDCCs', async () => {
 })
 
 export async function getPrismaDCC(short_label?: string) {
-  const dccsResolved = await prismaDCCs
+  const dccsResolved = await getPrismaDCCs()
   return short_label ? dccsResolved[short_label] : undefined
 }
 
-export const esDCCs = singleton('esDCCs', async () => {
+export const getEsDCCs = cache(async () => {
   const dccs = await elasticsearch.search<EntityExpandedType>({
     index: 'entity_expanded',
     query: {
@@ -75,6 +75,6 @@ export const esDCCs = singleton('esDCCs', async () => {
 })
 
 export async function getEsDCC(id?: string) {
-  const dccsResolved = await esDCCs
+  const dccsResolved = await getEsDCCs()
   return id ? dccsResolved[id] : undefined
 }

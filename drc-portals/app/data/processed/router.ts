@@ -5,13 +5,32 @@ import { estypes } from '@elastic/elasticsearch'
 import { z } from 'zod'
 import { groupby } from '@/utils/array'
 import { TRPCError } from '@trpc/server'
-import { esDCCs } from './dccs'
+import { getEsDCCs } from './dccs'
+import { safeAsync } from '@/utils/safe'
 
 const limit = 100
 
 export default router({
+  assetPdpLinks: procedure.input(z.object({ links: z.string().array() })).query(async ({ input }) => {
+    const links = [...new Set(input.links)]
+    if (links.length === 0) return {} as Record<string, string>
+    const result = await safeAsync(() => elasticsearch.search<EntityExpandedType>({
+      index: 'entity_expanded',
+      query: { bool: { filter: [
+        { term: { type: 'dcc_asset' } },
+        { terms: { 'a_access_url.keyword': links } },
+      ] } },
+      _source_includes: 'slug,a_access_url',
+      size: Math.min(links.length, 10_000),
+    }))
+    // Preserve failures as failures so the client does not cache an outage as an empty result.
+    if (result.error) throw result.error
+    return Object.fromEntries((result.data?.hits.hits ?? []).flatMap(hit =>
+      hit._source ? [[hit._source.a_access_url, hit._source.slug] as const] : []
+    )) as Record<string, string>
+  }),
   dccs: procedure.query(async (props) => {
-    return await esDCCs
+    return await getEsDCCs()
   }),
   types: procedure.input(z.object({
     search: z.string().optional(),
@@ -45,7 +64,7 @@ export default router({
     slug: z.string(),
   })).query(async (props): Promise<(EntityExpandedType & {l_primary_project?: EntityType[]}) | undefined> => {
     if (props.input.type === 'dcc') {
-      return (await esDCCs)[props.input.slug]
+      return (await getEsDCCs())[props.input.slug]
     }
     const itemRes = await elasticsearch.search<EntityExpandedType>({
       index: 'entity_expanded',

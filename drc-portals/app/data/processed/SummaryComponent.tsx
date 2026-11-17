@@ -2,7 +2,7 @@ import React from 'react'
 import { Button, Container, Grid, Typography } from "@mui/material"
 import { categoryLabel, create_url, EntityType, pluralize, TermAggType } from "@/app/data/processed/utils"
 import { safeAsync } from '@/utils/safe'
-import trpc from '@/lib/trpc/server'
+import { getHomepageSummary } from '@/lib/homepage-data'
 import Image from '@/utils/image'
 import Icon from '@mdi/react'
 import { mdiExpandAll } from '@mdi/js'
@@ -10,7 +10,7 @@ import { mdiExpandAll } from '@mdi/js'
 export const dynamic = 'force-dynamic'
 
 export default async function Summary({ include }: { include?: string[] }) {
-  const { data: summaryRes, error } = await safeAsync(() => trpc.types({ include }))
+  const { data: summaryRes, error } = await safeAsync(() => getHomepageSummary(include))
   if (error) console.error(error)
   if (!summaryRes) return null
   return <Container maxWidth="lg" className="m-auto">
@@ -39,7 +39,7 @@ export default async function Summary({ include }: { include?: string[] }) {
 
 
 export async function SummaryVertical({ include }: { include?: {key: string, icon: string}[] }) {
-  const { data: summaryRes, error } = await safeAsync(() => trpc.types({ include: (include || []).map(i=>i.key)}))
+  const { data: summaryRes, error } = await safeAsync(() => getHomepageSummary((include || []).map(i=>i.key)))
   const icon_mapper: {[key:string]: string} = include?.reduce((acc, i)=>({...acc, [i.key]: i.icon}), {}) || {}
   if (error) console.error(error)
   if (!summaryRes) return null
@@ -65,7 +65,7 @@ export async function SummaryVertical({ include }: { include?: {key: string, ico
 }
 
 export async function SummaryHorizontal({ include }: { include?: {key: string, icon: string}[] }) {
-  const { data: summaryRes, error } = await safeAsync(() => trpc.types({ include: (include || []).map(i=>i.key)}))
+  const { data: summaryRes, error } = await safeAsync(() => getHomepageSummary((include || []).map(i=>i.key)))
   const icon_mapper: {[key:string]: string} = include?.reduce((acc, i)=>({...acc, [i.key]: i.icon}), {}) || {}
   if (error) console.error(error)
   if (!summaryRes) return null

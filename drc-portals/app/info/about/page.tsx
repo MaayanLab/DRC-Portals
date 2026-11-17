@@ -1,9 +1,11 @@
+import { connection } from 'next/server'
 import { Grid, Typography, Link, Container, List, ListItem, ListItemIcon, Button } from "@mui/material"
 import InteractiveNavComponent from "@/components/InteractiveNav/interactive"
 import prisma from "@/lib/prisma"
 import CircleIcon from '@mui/icons-material/Circle';
 import Image from "next/image";
 export default async function About() {
+  await connection()
     const dccs = await prisma.dCC.findMany({
       where: {
         cfde_partner: true,

@@ -4,23 +4,12 @@ import Image from "@/utils/image"
 import Grid from '@mui/material/Grid'
 import Tooltip from '@mui/material/Tooltip'
 import { GridSize } from "@mui/material/Grid"
-import prisma from '@/lib/prisma'
+import { getHomepagePrograms } from '@/lib/homepage-data'
 
 
 
 async function CFPrograms({spacing=4, className, baseEndpoint}:{spacing: GridSize, className?: string | null, baseEndpoint: string}) {
-    const dccs = await prisma.dCC.findMany({
-      where: {
-        cfde_partner: true,
-        active: true,
-        hidden: false,
-        short_label: {
-          in: [ "Kids First", "A2CPS", "HuBMAP", "4DN", "LINCS", "IDG", 
-            "GlyGen", "Bridge2AI", "MoTrPAC", "Metabolomics", "SPARC", "HMP", "GTEx", "SenNet", "ExRNA", 'SCGE', 'SMaHT']
-          
-        }
-      }
-    })
+    const dccs = await getHomepagePrograms() ?? []
     const additional = [
       {
         short_label: "NPH",

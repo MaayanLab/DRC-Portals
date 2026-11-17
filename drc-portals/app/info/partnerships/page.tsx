@@ -1,3 +1,4 @@
+import { connection } from 'next/server'
 import Link from "@/utils/link";
 import Image from "@/utils/image";
 import prisma from "@/lib/prisma";
@@ -128,6 +129,7 @@ const PartnershipCard = ({ partnership }: { partnership: PartnershipsWithDCC }) 
 
 
 export default async function PartnershipPage() {
+  await connection()
     const active_partnerships = await prisma.partnerships.findMany({
         where: {
             status: 'active'

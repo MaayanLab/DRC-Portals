@@ -1,3 +1,4 @@
+import { connection } from 'next/server'
 import Link from "@/utils/link";
 import Image from "next/image";
 import prisma from "@/lib/prisma";
@@ -16,6 +17,7 @@ import {
 import MasonryClient from "@/components/misc/MasonryClient";
 import CentersComponent from "./centers";
 export default async function CenterLanding() {
+  await connection()
     const centerOrder = [
         'The Data Resource Center',
         'The Integration and Coordination Center',

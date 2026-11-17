@@ -1,3 +1,4 @@
+import { connection } from 'next/server'
 import Link from "@/utils/link";
 import Image from "@/utils/image";
 import prisma from "@/lib/prisma";
@@ -22,6 +23,7 @@ const shuffle = (array: DCC[]) => {
 
 
 export default async function DCCLanding() {
+  await connection()
     const dccs = await prisma.dCC.findMany({
         where: {
             cfde_partner: true,

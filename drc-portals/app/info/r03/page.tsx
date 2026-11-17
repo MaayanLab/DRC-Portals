@@ -1,8 +1,10 @@
+import { connection } from 'next/server'
 import prisma from "@/lib/prisma";
 import { Typography } from "@mui/material";
 import R03Component from "@/components/misc/R03/R03Component";
 
 export default async function R03Page() {
+  await connection()
 
     const R03 = await prisma.r03.findMany({
         orderBy: {

@@ -1,5 +1,5 @@
 import React from "react";
-import prisma from "@/lib/prisma";
+import { getHomepageTweets } from '@/lib/homepage-data'
 import { z } from 'zod'
 import { decode as decodeHTMLEntities } from 'html-entities'
 
@@ -147,14 +147,7 @@ function tweet_with_entities(actual_tweet: z.infer<typeof TweetC>) {
 }
 
 export default async function TwitterFromCache(props: { screenName: string }) {
-  const record = await prisma.kVStore.findFirst({
-    select: {
-      value: true,
-    },
-    where: {
-      key: 'twitter-tweets'
-    },
-  })
+  const record = await getHomepageTweets()
   if (!record?.value) return null
   const tweets = TweetsC.safeParse(record.value)
   if (!tweets.success) {

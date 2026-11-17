@@ -7,7 +7,7 @@ import { Button } from "@mui/material";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import { Metadata, ResolvingMetadata } from "next";
-import { esDCCs } from "./dccs";
+import { getEsDCCs } from "./dccs";
 
 type PageProps = { params: Promise<{ search: string, type?: string } & Record<string, string>> }
 
@@ -33,7 +33,7 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
   if (!params.search) redirect('/data')
   return (
     <ListingPageLayoutClientSideFacets
-      entityLookup={await esDCCs}
+      entityLookup={await getEsDCCs()}
       facets={params.type ? [`type:"${params.type}"`] : []}
       search={params.search}
       footer={

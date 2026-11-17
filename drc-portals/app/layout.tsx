@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import NextAuthProvider from '@/lib/auth/client'
 import ThemeRegistry from './ThemeRegistry'
 import { GoogleAnalytics } from '@next/third-parties/google'
@@ -8,8 +9,7 @@ import AppProgressProvider from '@/utils/progressbar'
 import AdministrationDirectives from '@/components/misc/AdministrationDirectives'
 import TrpcProvider from '@/lib/trpc/provider'
 import Header from '@/components/Header'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import SessionHeader from '@/components/Header/SessionHeader'
 import NavBreadcrumbs from '@/components/Header/breadcrumbs'
 import Footer  from '@/components/Footer/info'
 import Background from '@/components/styled/background'
@@ -18,6 +18,7 @@ import Head from 'next/head'
 import SearchParamSearchField from './data/processed/SearchParamSearchField'
 
 import SpeedDialButton from './speed_dial'
+import ServiceStatusBanner from '@/components/misc/ServiceStatusBanner'
 export const metadata: Metadata = {
   title: 'CFDE Workbench',
   description: 'Search Common Fund program metadata and processed datasets',
@@ -89,12 +90,11 @@ const jsonLd: WithContext<WebSite> = {
   ]
 }
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const session = await getServerSession(authOptions)
   return (
     <html lang="en">
       <body>
@@ -109,7 +109,7 @@ export default async function RootLayout({
         <ThemeRegistry options={{ key: 'mui' }}>
         <NextAuthProvider>
         <TrpcProvider>
-          <Header session={session}/>
+          <Suspense fallback={<Header session={null} />}><SessionHeader /></Suspense>
           <Grid container justifyContent={'space-between'} direction={"column"} sx={{ minWidth: '400px', maxWidth: '100vw', minHeight: "100vh", overflow: 'hidden' }}>
             {/* <Grid item sx={{paddingTop: 2, background: "#fff"}}></Grid> */}
             <>
@@ -117,16 +117,19 @@ export default async function RootLayout({
                   
                   <Grid item container className="grow overflow-hidden">
                     <Background background="#E7F3F5">
+                        <Suspense fallback={null}>
                         <div className='flex items-center'>
                           <div className='flex flex-grow'><NavBreadcrumbs /></div>
                           <SearchParamSearchField />
                         </div>
+                      </Suspense>
+                      <Suspense fallback={null}><ServiceStatusBanner /></Suspense>
                       {children}
                     </Background>
                   </Grid>
                   <Grid item><Footer/></Grid>
                 </>
-            <SpeedDialButton/>
+            <Suspense fallback={null}><SpeedDialButton /></Suspense>
           </Grid>
         </TrpcProvider>
         <AdministrationDirectives style={{ minWidth: '400px', maxWidth: '100vw' }} />

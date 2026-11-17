@@ -7,7 +7,7 @@ import { Button } from "@mui/material";
 import Icon from "@mdi/react";
 import { mdiArrowLeft } from "@mdi/js";
 import { Metadata, ResolvingMetadata } from "next";
-import { esDCCs } from "./dccs";
+import { getEsDCCs } from "./dccs";
 
 export async function generateMetadata(props: { params: Promise<{ type: string, search?: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params
@@ -32,7 +32,7 @@ export default async function Page(props: React.PropsWithChildren<{ params: Prom
   if (!params.type) redirect('/data')
   return (
     <ListingPageLayoutClientSideFacets
-      entityLookup={await esDCCs}
+      entityLookup={await getEsDCCs()}
       facets={[`type:"${params.type}"`]}
       search={params.search}
       footer={

@@ -6,7 +6,8 @@ import Icon from "@mdi/react"
 import { mdiArrowRight, mdiBookOpenVariantOutline, mdiCompass, mdiDataMatrix, mdiDna, mdiEyedropper, mdiFile, mdiFileSearchOutline, mdiGraphOutline, mdiHammer, mdiLink, mdiListBox, mdiLungs, mdiMagnify, mdiMolecule, mdiPill, mdiRobotOutline, mdiSourceBranch, mdiToolbox, mdiVirus, mdiWater, mdiYoutube } from "@mdi/js"
 import Twitter from "@/components/misc/Twitter"
 import SimplePublicationComponent from "@/components/misc/Publication/SimplePublicationComponent"
-import prisma from "@/lib/prisma"
+import { getHomepagePublications } from "@/lib/homepage-data"
+import { getServiceStatus } from "@/lib/service-status"
 import CFPrograms from "@/components/misc/CFPrograms"
 import { ResponsivePaper } from "@/app/info/styled"
 import { BlurSmall, BlurBig } from "@/components/styled/Blur"
@@ -97,12 +98,8 @@ export default async function Page({searchParams}: {
       gene_set_id?: number
     }}} = JSON.parse(sp.q || '{}')
 
-  const publications = await prisma.publication.findMany({
-        orderBy: {
-          year: "desc"
-        },
-        take: 9
-    })
+  const status = await getServiceStatus()
+  const publications = await getHomepagePublications()
   // const dccs = await ( (await fetch("https://raw.githubusercontent.com/MaayanLab/cfde-wheel/refs/heads/main/src/dccs.json")).json())
     return (
       <Grid container spacing={2} alignItems={"flex-start"}>
@@ -231,7 +228,7 @@ export default async function Page({searchParams}: {
                 </Paper>
         </Grid> */}
         <Grid item xs={12} sx={{mb: 5}}>
-            <Explorer height={700} input_query={query}/>
+            {!status.interrupted && <Explorer height={700} input_query={query}/>}
         </Grid>
         <Grid item xs={12} md={5}>
           <Stack spacing={2}>
@@ -260,7 +257,7 @@ export default async function Page({searchParams}: {
         </Grid>
         <Grid item md={6} xs={12}>
           <Typography sx={{color: "#FFF", backgroundColor: "tertiary.main", textAlign: "center", width: 120}}variant="subtitle1">PUBLICATIONS</Typography>
-          <SimplePublicationComponent publications={publications}/>
+          {publications && <SimplePublicationComponent publications={publications}/>}
           <Link href={"/info/publications"}>
             <Button color="secondary" variant="outlined">
               Show More

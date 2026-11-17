@@ -1,3 +1,4 @@
+import { connection } from 'next/server'
 import { Table, TableHead, TableRow, TableBody, TableCell, List, ListItem, Divider, Button, Stack} from '@mui/material'
 import { Typography, Grid, Link } from '@mui/material'
 import LaunchIcon from '@mui/icons-material/Launch';
@@ -31,6 +32,7 @@ const columns = [
 ]
 
 export default async function DataMatrix() {
+  await connection()
   const dccs = await prisma.dCC.findMany({
     select: {
       id: true,

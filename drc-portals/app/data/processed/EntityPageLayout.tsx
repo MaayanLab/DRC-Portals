@@ -9,7 +9,7 @@ import { notFound } from 'next/navigation';
 import LandingPageLayout from '@/app/data/processed/LandingPageLayout';
 import ListingPageLayoutClientSideFacets from '@/app/data/processed/ListingPageLayoutClientSideFacets';
 import EntityPageAnalyze from '@/app/data/processed/EntityPageAnalyze';
-import { esDCCs, getEsDCC } from '@/app/data/processed/dccs';
+import { getEsDCCs, getEsDCC } from '@/app/data/processed/dccs';
 import { getEntity } from '@/app/data/processed/getEntity';
 import { DRSCartButton } from './cart/DRSCartButton';
 import { Metadata, ResolvingMetadata } from 'next';
@@ -69,7 +69,7 @@ export default async function Page(props: React.PropsWithChildren<PageProps>) {
         return []
       }
     }),
-    ...Object.entries(await esDCCs),
+    ...Object.entries(await getEsDCCs()),
   ])
   return (
     <LandingPageLayout

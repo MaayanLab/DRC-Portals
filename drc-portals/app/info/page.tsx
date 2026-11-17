@@ -1,3 +1,4 @@
+import { connection } from 'next/server'
 import Link from "@/utils/link"
 import Image from "@/utils/image"
 
@@ -67,6 +68,7 @@ const centers = [
 ]
 
 export default async function Home() {
+  await connection()
   const publications = await prisma.publication.findMany({
     orderBy: {
       year: "desc"

@@ -7,7 +7,7 @@ import { create_url } from '@/app/data/processed/utils';
 import { ensure_array } from '@/utils/array';
 import { FetchDRSCartButton, DRSCartButton } from '@/app/data/processed/cart/DRSCartButton';
 import { getEntity } from '@/app/data/processed/getEntity';
-import { esDCCs } from '@/app/data/processed/dccs';
+import { getEsDCCs } from '@/app/data/processed/dccs';
 import FormPagination from '@/app/data/processed/FormPagination';
 import { Metadata, ResolvingMetadata } from 'next';
 
@@ -62,7 +62,7 @@ export default async function Page(props: PageProps) {
         }
       }),
     ]),
-    ...Object.entries(await esDCCs),
+    ...Object.entries(await getEsDCCs()),
   ])
   return (
     <SearchablePagedTable

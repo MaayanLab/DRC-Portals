@@ -1,7 +1,4 @@
-import elasticsearch from '@/lib/elasticsearch';
 import type { PrismaClient } from '.prisma/client'
-import { safeAsync } from './safe';
-import { EntityExpandedType } from '@/app/data/processed/utils';
 
 export type dccAsset = {
   dcc_id: string
@@ -9,7 +6,6 @@ export type dccAsset = {
   filename: string;
   link: string;
   drs?: string;
-  pdp?: string;
   size?: string;
   lastmodified: string;
   creator: string | null;
@@ -126,29 +122,12 @@ async function getFile(
     }
   })
   const filter_res = res.filter((item) => item.fileAsset != null)
-  const es_dcc_assets = await safeAsync(async () => {
-    const res = await elasticsearch.search<EntityExpandedType>({
-      index: 'entity_expanded',
-      query: {
-        bool: {
-          filter: [
-            {term: {type: 'dcc_asset'}},
-            {terms: {"a_access_url.keyword": filter_res.map(({ link }) => link)}},
-          ],
-        },
-      },
-      _source_includes: 'slug,a_access_url',
-      size: filter_res.length,
-    })
-    return Object.fromEntries(res.hits.hits.flatMap(hit => hit._source ? [[hit._source?.a_access_url, hit._source.slug] as const] : []))
-  })
   var data : dccAsset[] = await Promise.all(filter_res.map(async item => ({
     dcc_id: dccName,
     filetype: ft,
     filename: item.fileAsset ? item.fileAsset.filename : '',
     link: item.link,
     drs: item.fileAsset?.sha256checksum ? `${base_drs}/${Buffer.from(item.fileAsset.sha256checksum, 'base64').toString('hex')}` : undefined,
-    pdp: es_dcc_assets.data ? es_dcc_assets.data[item.link] : undefined,
     size: item.fileAsset ? convertBytes(item.fileAsset.size) : undefined,
     lastmodified: item.lastmodified.toLocaleDateString("en-US"),
     creator: await getCreatorAff(
@@ -226,28 +205,29 @@ async function getDataObj(
 ) {
   const codetypes = ['ETL', 'API', 'Entity Page Template', 'PWB Metanodes', 'Models', 'Apps URL']
   const is_code = codetypes.includes(ft)
-  return (
-    {
-      current: await getData(prisma, dccId, dccName, ft, true, is_code),
-      archived: await getData(prisma, dccId, dccName, ft, false, is_code),
-      isCode: is_code
-    }
-  )
+  const [current, archived] = await Promise.all([
+    getData(prisma, dccId, dccName, ft, true, is_code),
+    getData(prisma, dccId, dccName, ft, false, is_code),
+  ])
+  return { current, archived, isCode: is_code }
 }
 
 export async function getDccDataObj(
   prisma: PrismaClient, dccId: string, dccName: string
 ) {
-  return ({
-    C2M2: await getDataObj(prisma, dccId, dccName, 'C2M2'),
-    XMT: await getDataObj(prisma, dccId, dccName, 'XMT'),
-    AttributeTables: await getDataObj(prisma, dccId, dccName, 'Attribute Table'),
-    KGAssertions: await getDataObj(prisma, dccId, dccName, 'KG Assertions'),
-    ETL: await getDataObj(prisma, dccId, dccName, 'ETL'),
-    API: await getDataObj(prisma, dccId, dccName, 'API'),
-    EntityPages: await getDataObj(prisma, dccId, dccName, 'Entity Page Template'),
-    PWBMetanodes: await getDataObj(prisma, dccId, dccName, 'PWB Metanodes'),
-    Models: await getDataObj(prisma, dccId, dccName, 'Models'),
-    AppsURL: await getDataObj(prisma, dccId, dccName, 'Apps URL')
-  })
+  // Asset categories are independent. A slow optional search lookup should not
+  // delay every other category in sequence.
+  const [C2M2, XMT, AttributeTables, KGAssertions, ETL, API, EntityPages, PWBMetanodes, Models, AppsURL] = await Promise.all([
+    getDataObj(prisma, dccId, dccName, 'C2M2'),
+    getDataObj(prisma, dccId, dccName, 'XMT'),
+    getDataObj(prisma, dccId, dccName, 'Attribute Table'),
+    getDataObj(prisma, dccId, dccName, 'KG Assertions'),
+    getDataObj(prisma, dccId, dccName, 'ETL'),
+    getDataObj(prisma, dccId, dccName, 'API'),
+    getDataObj(prisma, dccId, dccName, 'Entity Page Template'),
+    getDataObj(prisma, dccId, dccName, 'PWB Metanodes'),
+    getDataObj(prisma, dccId, dccName, 'Models'),
+    getDataObj(prisma, dccId, dccName, 'Apps URL'),
+  ])
+  return { C2M2, XMT, AttributeTables, KGAssertions, ETL, API, EntityPages, PWBMetanodes, Models, AppsURL }
 }
