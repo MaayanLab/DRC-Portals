@@ -37,7 +37,7 @@ files=(
     "container_indexes.cypher"
     "dcc_constraints.cypher"
     "term_constraints.cypher"
-    "term_name_indexes.cypher"
+    "term_indexes.cypher"
     "core_indexes.cypher"
     "node_uuid_constraints.cypher"
     # Add relationships last:
